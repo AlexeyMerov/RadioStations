@@ -12,7 +12,7 @@ dependencies {
 
     implementation "androidx.room:room-runtime:${versions.room}"
     implementation "androidx.room:room-ktx:${versions.room}"
-    kapt "androidx.room:room-compiler:${versions.room}"
+    annotationProcessor "androidx.room:room-compiler:${versions.room}"
 
     // required to avoid crash on Android 12 API 31
     implementation "androidx.work:work-runtime-ktx:${versions.androidx_work}"
