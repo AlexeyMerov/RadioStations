@@ -12,7 +12,7 @@ ext.versions = [
         kotlin              : '1.8.20',
 
         navigation          : '2.5.3',
-        hilt                : '2.45',
+        hilt                : '2.46',
         room                : '2.5.1',
 
         google_services_gms : '4.3.10',
@@ -26,8 +26,9 @@ ext.versions = [
         activity_ktx        : '1.3.1',
         fragment_ktx        : '1.3.6',
 
-        google_material     : '1.8.0',
+        google_material     : '1.9.0',
         constraintlayout    : '2.1.4',
 
-        timber              : '4.7.1',
+        timber              : '5.0.1',
+        junit               : '4.13.2',
 ]
