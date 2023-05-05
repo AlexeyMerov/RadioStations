@@ -6,5 +6,7 @@ import javax.inject.Inject
 
 class CategoryUseCaseImpl @Inject constructor(private val categoryRepository: CategoryRepository) : CategoryUseCase, BaseCoroutineScope() {
 
-
+    override suspend fun loadCategories() {
+        categoryRepository.loadCategories()
+    }
 }

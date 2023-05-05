@@ -13,7 +13,7 @@ abstract class RadioDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
 
     companion object {
-        private const val DB_NAME = "radiostations"
+        private const val DB_NAME = "radio_stations"
 
         fun buildDatabase(context: Context): RadioDatabase {
             return Room.databaseBuilder(context, RadioDatabase::class.java, DB_NAME)

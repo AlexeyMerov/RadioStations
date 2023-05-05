@@ -20,5 +20,9 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.testButton.setOnClickListener {
+            viewModel.loadCategories()
+        }
     }
 }

@@ -4,4 +4,5 @@ import com.example.radiostations.common.Cancelable
 
 
 interface CategoryUseCase : Cancelable {
+    suspend fun loadCategories()
 }
