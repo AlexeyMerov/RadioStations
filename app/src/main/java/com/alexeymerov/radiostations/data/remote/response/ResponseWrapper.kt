@@ -1,8 +1,10 @@
 package com.alexeymerov.radiostations.data.remote.response
 
+import com.squareup.moshi.Json
+
 data class ResponseWrapper(
-    val body: List<Body>,
-    val head: Head
+    val head: Head,
+    val body: List<ResponseBody>
 )
 
 data class Head(
@@ -10,8 +12,9 @@ data class Head(
     val title: String
 )
 
-data class Body(
-    val URL: String,
+data class ResponseBody(
+    @Json(name = "URL")
+    val url: String,
     val element: String,
     val key: String,
     val text: String,

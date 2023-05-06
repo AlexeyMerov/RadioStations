@@ -10,6 +10,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) : ViewModel() {
+
+    val categories = categoryUseCase.getCategories()
     fun loadCategories() {
         viewModelScope.launch(Dispatchers.IO) {
             categoryUseCase.loadCategories()

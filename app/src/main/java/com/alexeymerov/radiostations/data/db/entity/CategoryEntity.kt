@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = CategoryEntity.TABLE_NAME)
 data class CategoryEntity(
     @PrimaryKey
-    val text: String,
+    val name: String,
     val url: String,
     val key: String
 ) {

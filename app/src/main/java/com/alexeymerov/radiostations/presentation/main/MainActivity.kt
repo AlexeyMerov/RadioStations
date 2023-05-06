@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import com.alexeymerov.radiostations.common.collectWhenResumed
 import com.alexeymerov.radiostations.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,8 +22,19 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initView()
+        initViewModel()
+    }
+
+    private fun initView() {
         binding.testButton.setOnClickListener {
             viewModel.loadCategories()
+        }
+    }
+
+    private fun initViewModel() = with(viewModel) {
+        categories.collectWhenResumed(this@MainActivity) {
+            binding.testText.text = it.toString()
         }
     }
 }
