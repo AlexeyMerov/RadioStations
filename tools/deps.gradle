@@ -34,6 +34,7 @@ ext.versions = [
 
         google_material     : '1.9.0',
         constraintlayout    : '2.1.4',
+        exoplayer           : '1.0.1',
 
         timber              : '5.0.1',
         junit               : '4.13.2',

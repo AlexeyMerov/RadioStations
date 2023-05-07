@@ -43,7 +43,7 @@ class CategoryListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Timber.d("Fragment onViewCreated")
+        Timber.d("CategoryListFragment onViewCreated")
         initViews()
         initViewModel()
     }
