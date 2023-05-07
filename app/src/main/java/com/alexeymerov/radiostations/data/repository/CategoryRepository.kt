@@ -1,12 +1,12 @@
 package com.alexeymerov.radiostations.data.repository
 
+import com.alexeymerov.radiostations.common.Cancelable
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
-import kotlinx.coroutines.flow.Flow
 
-interface CategoryRepository {
+interface CategoryRepository : Cancelable {
 
-    suspend fun loadCategories()
+    suspend fun getCategoriesByUrl(url: String): List<CategoryEntity>
 
-    fun getCategories(): Flow<List<CategoryEntity>>
+    suspend fun loadCategoriesByUrl(url: String)
 
 }

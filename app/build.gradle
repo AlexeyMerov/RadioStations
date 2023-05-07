@@ -1,9 +1,13 @@
 apply from: "$project.rootDir/tools/android-common.gradle"
+apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 dependencies {
     implementation "androidx.core:core-ktx:${versions.androidx_core}"
     implementation "androidx.appcompat:appcompat:${versions.androidx_appcompat}"
     implementation "androidx.constraintlayout:constraintlayout:${versions.constraintlayout}"
+    implementation "androidx.recyclerview:recyclerview:${versions.recyclerView}"
+    implementation "androidx.paging:paging-runtime:${versions.paging}"
 
     implementation "com.google.android.material:material:${versions.google_material}"
 

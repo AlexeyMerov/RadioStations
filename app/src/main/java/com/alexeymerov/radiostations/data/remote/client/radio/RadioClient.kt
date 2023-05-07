@@ -4,6 +4,6 @@ import com.alexeymerov.radiostations.data.remote.response.ResponseBody
 
 interface RadioClient {
 
-    suspend fun loadCategories(): List<ResponseBody>
+    suspend fun requestCategoriesByUrl(url: String): List<ResponseBody>
 
 }

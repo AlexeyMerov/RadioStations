@@ -6,15 +6,16 @@ import javax.inject.Inject
 
 class CategoryMapper @Inject constructor() {
 
-    suspend fun mapCategoryResponseToEntity(list: List<ResponseBody>): List<CategoryEntity> {
-        return list.map { mapCategoryResponseToEntity(it) }
+    fun mapCategoryResponseToEntity(list: List<ResponseBody>, parentUrl: String): List<CategoryEntity> {
+        return list.map { mapCategoryResponseToEntity(it, parentUrl) }
     }
 
-    suspend fun mapCategoryResponseToEntity(body: ResponseBody): CategoryEntity {
+    private fun mapCategoryResponseToEntity(body: ResponseBody, parentUrl: String): CategoryEntity {
         return CategoryEntity(
-            name = body.text,
-            url = body.url,
-            key = body.key
+            url = body.url ?: "",
+            parentUrl = parentUrl,
+            text = body.text,
+            key = body.key ?: ""
         )
     }
 

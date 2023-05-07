@@ -9,14 +9,13 @@ data class ResponseWrapper(
 
 data class Head(
     val status: String,
-    val title: String
+    val title: String? = null,
 )
 
 data class ResponseBody(
     @Json(name = "URL")
-    val url: String,
-    val element: String,
-    val key: String,
+    val url: String? = null,
+    val key: String? = null,
     val text: String,
     val type: String
 )
