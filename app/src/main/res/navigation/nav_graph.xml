@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/categoriesFragment"
+    >
+
+    <fragment
+        android:id="@+id/categoriesFragment"
+        android:name="com.alexeymerov.radiostations.presentation.fragment.category.CategoryListFragment"
+        android:label="CategoriesFragment"
+        tools:layout="@layout/fragment_category_list"
+        >
+
+        <action
+            android:id="@+id/toItemFragment"
+            app:destination="@id/itemFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right"
+            />
+
+        <action
+            android:id="@+id/toCategoriesFragment"
+            app:destination="@id/categoriesFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right"
+            />
+
+        <argument
+            android:name="categoryUrl"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="false"
+            />
+
+        <argument
+            android:name="categoryTitle"
+            android:defaultValue="Browse"
+            app:argType="string"
+            app:nullable="false"
+            />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/itemFragment"
+        android:name="com.alexeymerov.radiostations.presentation.fragment.item.ItemFragment"
+        android:label="ItemFragment"
+        tools:layout="@layout/fragment_category_list"
+        >
+
+        <argument
+            android:name="presetId"
+            app:argType="string"
+            app:nullable="false"
+            />
+
+    </fragment>
+
+</navigation>

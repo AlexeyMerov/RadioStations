@@ -1,0 +1,18 @@
+*.iml
+.gradle
+/local.properties
+/.idea/*
+.idea/*
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+
+# Can be shared across team
+!.idea/dictionaries/
+!.idea/dictionaries/*
+!.idea/codeStyles/
+!.idea/codeStyles/*
