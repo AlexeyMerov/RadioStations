@@ -25,6 +25,8 @@ dependencies {
     implementation "androidx.media3:media3-exoplayer-dash:${versions.exoplayer}"
     implementation "androidx.media3:media3-ui:${versions.exoplayer}"
 
+    implementation "com.github.bumptech.glide:glide:${versions.glide}"
+
     // required to avoid crash on Android 12 API 31
     implementation "androidx.work:work-runtime-ktx:${versions.androidx_work}"
 

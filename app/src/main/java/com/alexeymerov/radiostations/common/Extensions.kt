@@ -27,3 +27,5 @@ abstract class AsyncAutoUpdatableAdapter<T : Any, VH : RecyclerView.ViewHolder> 
     protected abstract fun compareContentForPayload(old: T, new: T): Any?
 
 }
+
+fun String.httpsEverywhere() = replace("http:", "https:")

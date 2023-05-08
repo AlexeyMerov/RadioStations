@@ -14,11 +14,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.alexeymerov.radiostations.common.collectWhenResumed
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.databinding.FragmentCategoryListBinding
+import com.alexeymerov.radiostations.domain.dto.CategoriesDto
 import com.alexeymerov.radiostations.presentation.activity.main.MainActivity
 import com.alexeymerov.radiostations.presentation.adapter.CategoriesRecyclerAdapter
-import com.alexeymerov.radiostations.presentation.fragment.category.CategoryListViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.fragment.category.CategoryListViewModel.ViewState
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -72,8 +71,8 @@ class CategoryListFragment : Fragment() {
         orientation = RecyclerView.VERTICAL
     }
 
-    private fun onCategoryClick(categoryEntity: CategoryEntity) {
-        navigateTo(CategoryListFragmentDirections.toCategoriesFragment(categoryEntity.url, categoryEntity.text))
+    private fun onCategoryClick(category: CategoriesDto) {
+        navigateTo(CategoryListFragmentDirections.toCategoriesFragment(category.url, category.text))
     }
 
     private fun navigateTo(direction: NavDirections) {
@@ -83,19 +82,22 @@ class CategoryListFragment : Fragment() {
 
     private fun initViewModel() = with(viewModel) {
         viewState.collectWhenResumed(viewLifecycleOwner, ::processNewState)
-        sendNewAction(ViewAction.LoadCategories(args.categoryUrl))
+        getCategories(args.categoryUrl).collectWhenResumed(viewLifecycleOwner, ::updateRecycler)
     }
 
     private fun processNewState(state: ViewState) {
         Timber.d("New state: " + state.javaClass.simpleName)
-        when (state) {
-            is ViewState.CategoriesLoaded -> recyclerAdapter.submitList(state.categories)
-            ViewState.NothingAvailable -> binding.nothingAvailableTv.isVisible = true
+        if (state == ViewState.NothingAvailable) {
+            binding.nothingAvailableTv.isVisible = true
+            binding.progressBar.isVisible = false
         }
-        binding.progressBar.isVisible = false
     }
 
-    private fun sendNewAction(action: ViewAction) = viewModel.processAction(action)
+    private fun updateRecycler(list: List<CategoriesDto>) {
+        Timber.d("New list update for ${args.categoryUrl}")
+        recyclerAdapter.submitList(list)
+        binding.progressBar.isVisible = false
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

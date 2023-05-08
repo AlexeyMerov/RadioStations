@@ -17,5 +17,15 @@ data class ResponseBody(
     val url: String? = null,
     val key: String? = null,
     val text: String,
-    val type: String
+    val type: String? = null,
+    val children: List<ChildrenBody>? = null
+)
+
+data class ChildrenBody(
+    @Json(name = "URL")
+    val url: String,
+    val text: String,
+    val image: String = "",
+    @Json(name = "current_track")
+    val currentTrack: String = ""
 )

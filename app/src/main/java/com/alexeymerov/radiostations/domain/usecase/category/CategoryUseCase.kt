@@ -1,11 +1,12 @@
 package com.alexeymerov.radiostations.domain.usecase.category
 
 import com.alexeymerov.radiostations.common.Cancelable
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.domain.dto.CategoriesDto
+import kotlinx.coroutines.flow.Flow
 
 
 interface CategoryUseCase : Cancelable {
 
-    suspend fun getCategoriesByUrl(url: String): List<CategoryEntity>
+    fun getCategoriesByUrl(url: String): Flow<List<CategoriesDto>>
 
 }
