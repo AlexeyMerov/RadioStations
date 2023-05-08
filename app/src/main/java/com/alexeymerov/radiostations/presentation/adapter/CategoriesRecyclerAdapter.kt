@@ -109,8 +109,8 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
                 .load(currentItem.image)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .transform(RoundedCorners(8))
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .error(R.drawable.ic_launcher_foreground)
+                .placeholder(R.drawable.full_image)
+                .error(R.drawable.full_image)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.imageView)
         }
