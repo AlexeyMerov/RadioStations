@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initNavigation() {
-        Timber.d("initNavigation")
+        Timber.d("Init Navigation")
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val newNavController = navHostFragment.navController

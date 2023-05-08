@@ -17,7 +17,7 @@ class RadioClientImpl @Inject constructor(private val radioApi: RadioApi) : Radi
             radioApi.getCategoriesByUrl(finalUrl)
         }
             .mapCatching { mapResponseBody(it) }
-            .onFailure { Timber.e(it) }
+            .onFailure { Timber.e("response failed: $it") }
             .getOrDefault(emptyList())
     }
 

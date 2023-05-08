@@ -6,6 +6,7 @@ import com.alexeymerov.radiostations.domain.dto.CategoriesDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 class CategoryUseCaseImpl @Inject constructor(
@@ -24,6 +25,7 @@ class CategoryUseCaseImpl @Inject constructor(
                 var result = mutableListOf<CategoriesDto>()
 
                 val hasHeaders = entityList.firstOrNull { it.isHeader } != null // if have at least one header then we process all list in a hard way
+                Timber.d("new list has headers: $hasHeaders")
                 if (hasHeaders) {
                     entityList.forEach { entity ->
                         val stationList = categoryRepository.getStationsByCategory(entity)

@@ -42,14 +42,14 @@ class CategoryListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Timber.d("CategoryListFragment onViewCreated")
+        Timber.d("onViewCreated for ${args.categoryUrl}")
         initViews()
         initViewModel()
     }
 
     private fun initViews() {
-        (activity as? MainActivity)?.supportActionBar?.title =
-            args.categoryTitle // in case of multiply fragment make some BaseFragment or something...
+        // in case of multiply fragment make some BaseFragment or something...
+        (activity as? MainActivity)?.supportActionBar?.title = args.categoryTitle
         binding.progressBar.isVisible = true
         initRecycler()
     }
@@ -74,11 +74,12 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun onCategoryClick(category: CategoriesDto) {
+        Timber.d("Go to category: ${category.text}")
         navigateTo(CategoryListFragmentDirections.toCategoriesFragment(category.url, category.text))
     }
 
     private fun navigateTo(direction: NavDirections) {
-        Timber.d("Navigation -> navigateTo: $direction")
+        Timber.d("navigateTo: $direction")
         findNavController().navigate(direction)
     }
 
@@ -96,7 +97,7 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun updateRecycler(list: List<CategoriesDto>) {
-        Timber.d("New list update for ${args.categoryUrl}")
+        Timber.d("New list (${list.size} elements) update for ${args.categoryUrl}")
         recyclerAdapter.submitList(list)
         binding.progressBar.isVisible = false
     }

@@ -12,6 +12,7 @@ import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.data.remote.response.ResponseBody
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class CategoryRepositoryImpl @Inject constructor(
@@ -34,9 +35,11 @@ class CategoryRepositoryImpl @Inject constructor(
         launch {
             val parentUrl = url.prepareUrl()
             val categoriesResponse = radioClient.requestCategoriesByUrl(parentUrl)
+            Timber.d("request new data")
 
-            val hasChildren =
-                categoriesResponse.firstOrNull { it.children != null } != null // we don't know about nested children until make a request
+            // we don't know about nested children until make a request
+            val hasChildren = categoriesResponse.firstOrNull { it.children != null } != null
+            Timber.d("response from server has children: $hasChildren")
             if (hasChildren) {
                 processCategoriesWithStations(categoriesResponse, parentUrl)
             } else {
@@ -57,6 +60,7 @@ class CategoryRepositoryImpl @Inject constructor(
         val categoryAndStationsMap = categoryMapper.mapCategoryWithStationsResponseToMap(categoriesResponse, parentUrl)
         categoryAndStationsMap.forEach { (category, stations) ->
             categoryDao.insert(category)
+            Timber.d("no audio in category: $stations != null")
             if (stations != null) stationDao.insertAll(stations)
         }
     }

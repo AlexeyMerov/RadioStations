@@ -5,6 +5,7 @@ import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.db.entity.StationEntity
 import com.alexeymerov.radiostations.data.remote.response.ChildrenBody
 import com.alexeymerov.radiostations.data.remote.response.ResponseBody
+import timber.log.Timber
 import javax.inject.Inject
 
 class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
@@ -25,6 +26,7 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
     ): HashMap<CategoryEntity, List<StationEntity>?> {
         val result = HashMap<CategoryEntity, List<StationEntity>?>()
         list.forEach {
+            Timber.d("response has children ${it.children != null}")
             if (it.children != null) {
                 val categoryEntity = mapCategoryResponseToEntity(it, parentUrl, true)
                 val stationList = mapCategoryWithStationsResponseToList(it.children, mapUrlForStation(parentUrl, categoryEntity))

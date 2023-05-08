@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.receiveAsFlow
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +26,9 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
      * */
     fun getCategories(categoryUrl: String) = categoryUseCase.getCategoriesByUrl(categoryUrl)
         .filter {
+            Timber.d("check for empty list")
             if (it.isNotEmpty() && it[0].text == "No stations or shows available") { //todo remove hardcode or at leas move to lower levels
+                Timber.d("list is empty")
                 setNewState(NothingAvailable)
                 return@filter false
             }
@@ -37,7 +40,10 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
         categoryUseCase.cancelJobs()
     }
 
-    private fun setNewState(state: ViewState) = _viewState.send(viewModelScope, state)
+    private fun setNewState(state: ViewState) {
+        Timber.d("new state $state")
+        _viewState.send(viewModelScope, state)
+    }
 
     /**
      * It's not a MVI but it used to be. At the moment not need to handle different states since there is one get and show the list.
