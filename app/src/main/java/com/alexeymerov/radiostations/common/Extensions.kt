@@ -4,6 +4,12 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
+
+/**
+ * Simplified Adapter for recycler to make code more compact and pretty.
+ *
+ * DiffUtils included.
+ * */
 abstract class AsyncAutoUpdatableAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
 
     protected abstract val differ: AsyncListDiffer<T>
@@ -28,4 +34,7 @@ abstract class AsyncAutoUpdatableAdapter<T : Any, VH : RecyclerView.ViewHolder> 
 
 }
 
+/**
+ * For some reason server returns http links.
+ * */
 fun String.httpsEverywhere() = replace("http:", "https:")

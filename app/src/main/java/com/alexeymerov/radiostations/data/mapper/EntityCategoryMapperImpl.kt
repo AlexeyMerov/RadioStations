@@ -13,6 +13,12 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
         return list.map { mapCategoryResponseToEntity(it, parentUrl) }
     }
 
+    /**
+     * Maps all response Categories and it's children's radio stations.
+     * In case there is 'children' array but not with station it handles it too as simple category.
+     *
+     * @return HashMap - not sure about the decision. Feel free to change.
+     * */
     override suspend fun mapCategoryWithStationsResponseToMap(
         list: List<ResponseBody>,
         parentUrl: String
@@ -25,7 +31,7 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
                 result[categoryEntity] = stationList
             } else {
                 val categoryEntity = mapCategoryResponseToEntity(it, parentUrl)
-                result[categoryEntity] = null
+                result[categoryEntity] = null // not audio type
             }
         }
         return result

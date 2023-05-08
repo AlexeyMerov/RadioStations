@@ -14,12 +14,18 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) : ViewModel() {
 
+    /**
+     * In my vision Channel is more handful then Stateflow. At least for current needs.
+     * */
     private val _viewState = Channel<ViewState>(Channel.CONFLATED)
     val viewState = _viewState.receiveAsFlow()
 
+    /**
+     * Original intent was to implement it as MVI but for dynamic params it'll be a total mess with subscription to flow.
+     * */
     fun getCategories(categoryUrl: String) = categoryUseCase.getCategoriesByUrl(categoryUrl)
         .filter {
-            if (it.isNotEmpty() && it[0].text == "No stations or shows available") {
+            if (it.isNotEmpty() && it[0].text == "No stations or shows available") { //todo remove hardcode or at leas move to lower levels
                 setNewState(NothingAvailable)
                 return@filter false
             }
@@ -33,6 +39,9 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
 
     private fun setNewState(state: ViewState) = _viewState.send(viewModelScope, state)
 
+    /**
+     * It's not a MVI but it used to be. At the moment not need to handle different states since there is one get and show the list.
+     * */
     sealed interface ViewState {
         object NothingAvailable : ViewState
     }

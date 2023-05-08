@@ -26,12 +26,17 @@ class CategoryRepositoryImpl @Inject constructor(
         return categoryDao.getAllByParentUrl(parentUrl)
     }
 
+    /**
+     * The server is bad boy. So we use URL as only reliable parameter to operate with.
+     *
+     * */
     override fun loadCategoriesByUrl(url: String) {
         launch {
             val parentUrl = url.prepareUrl()
             val categoriesResponse = radioClient.requestCategoriesByUrl(parentUrl)
 
-            val hasChildren = categoriesResponse.firstOrNull { it.children != null } != null
+            val hasChildren =
+                categoriesResponse.firstOrNull { it.children != null } != null // we don't know about nested children until make a request
             if (hasChildren) {
                 processCategoriesWithStations(categoriesResponse, parentUrl)
             } else {
@@ -45,6 +50,9 @@ class CategoryRepositoryImpl @Inject constructor(
         return stationDao.getAllByParentUrl(url)
     }
 
+    /**
+     * In case there are no audio station after mapping, we saving only category.
+     * */
     private suspend fun processCategoriesWithStations(categoriesResponse: List<ResponseBody>, parentUrl: String) {
         val categoryAndStationsMap = categoryMapper.mapCategoryWithStationsResponseToMap(categoriesResponse, parentUrl)
         categoryAndStationsMap.forEach { (category, stations) ->
@@ -58,6 +66,9 @@ class CategoryRepositoryImpl @Inject constructor(
         categoryDao.insertAll(categoryEntities)
     }
 
+    /**
+     * The server is bad boy. To save initial values we using base url.
+     * */
     private fun String.prepareUrl() = ifEmpty { BuildConfig.BASE_URL }.httpsEverywhere()
 
 }

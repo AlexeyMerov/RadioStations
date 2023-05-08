@@ -12,6 +12,7 @@ class RadioClientImpl @Inject constructor(private val radioApi: RadioApi) : Radi
 
     override suspend fun requestCategoriesByUrl(url: String): List<ResponseBody> {
         return runCatching {
+            //since server operates with links, we have to remove BASE_URL part before requests
             val finalUrl = url.replace(BuildConfig.BASE_URL, "")
             radioApi.getCategoriesByUrl(finalUrl)
         }

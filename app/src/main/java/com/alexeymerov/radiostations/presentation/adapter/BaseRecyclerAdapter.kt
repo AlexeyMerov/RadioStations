@@ -4,6 +4,12 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.alexeymerov.radiostations.common.AsyncAutoUpdatableAdapter
 
+
+/**
+ * Reduces the mess inside adapter and make the code more readable
+ *
+ * @see AsyncAutoUpdatableAdapter
+ * */
 abstract class BaseRecyclerAdapter<T : Any, VH : BaseViewHolder<T>> : AsyncAutoUpdatableAdapter<T, VH>() {
 
 	override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getListItem(position))

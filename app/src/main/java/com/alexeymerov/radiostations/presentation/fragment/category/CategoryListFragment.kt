@@ -48,7 +48,8 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun initViews() {
-        (activity as? MainActivity)?.supportActionBar?.title = args.categoryTitle
+        (activity as? MainActivity)?.supportActionBar?.title =
+            args.categoryTitle // in case of multiply fragment make some BaseFragment or something...
         binding.progressBar.isVisible = true
         initRecycler()
     }
@@ -65,6 +66,7 @@ class CategoryListFragment : Fragment() {
         }
     }
 
+    //todo consider relocate it to DI
     private fun initLayoutManager() = LinearLayoutManager(context).apply {
         isMeasurementCacheEnabled = true
         isItemPrefetchEnabled = true

@@ -5,6 +5,9 @@ import com.alexeymerov.radiostations.data.db.entity.StationEntity
 import com.alexeymerov.radiostations.domain.dto.CategoriesDto
 import javax.inject.Inject
 
+/**
+ * @see CategoriesDto
+ * */
 class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
 
     override suspend fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoriesDto> {

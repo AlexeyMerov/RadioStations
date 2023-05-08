@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Basic coroutineScope realization for non-lifecycle cases.
  *
- * IMPORTANT part is to call cancelJobs to avoid leaks.
+ * DO NOT FORGET to call cancelJobs.
  * */
 abstract class BaseCoroutineScope(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) : CoroutineScope, Cancelable {
 

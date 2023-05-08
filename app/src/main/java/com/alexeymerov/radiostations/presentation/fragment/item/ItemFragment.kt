@@ -13,6 +13,10 @@ import com.alexeymerov.radiostations.presentation.fragment.category.CategoryList
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+/**
+ * At the moment just a garbage.
+ * Planned to use as a player screen but have no time and not sure i want separate screen but not some popup player.
+ * */
 @AndroidEntryPoint
 class ItemFragment : Fragment() {
 

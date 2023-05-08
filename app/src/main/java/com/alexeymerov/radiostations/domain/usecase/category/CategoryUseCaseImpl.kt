@@ -13,13 +13,17 @@ class CategoryUseCaseImpl @Inject constructor(
     private val dtoCategoriesMapper: DtoCategoriesMapper
 ) : CategoryUseCase, BaseCoroutineScope() {
 
+    /**
+     * Make the final list to represent on presentation layer.
+     * Adding headers or audio flags.
+     * */
     override fun getCategoriesByUrl(url: String): Flow<List<CategoriesDto>> {
         categoryRepository.loadCategoriesByUrl(url)
         return categoryRepository.getCategoriesByUrl(url)
             .map { entityList ->
                 var result = mutableListOf<CategoriesDto>()
 
-                val hasHeaders = entityList.firstOrNull { it.isHeader } != null
+                val hasHeaders = entityList.firstOrNull { it.isHeader } != null // if have at least one header then we process all list in a hard way
                 if (hasHeaders) {
                     entityList.forEach { entity ->
                         val stationList = categoryRepository.getStationsByCategory(entity)
