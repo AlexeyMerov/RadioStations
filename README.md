@@ -29,8 +29,7 @@ Edit 2: And server making mess again, so i left only one Entity type and remove 
 
 **Todo:**
 -- Play music.
--- Test everything.  
--- In case it will have paging, redo to paging3.  
+-- Test everything.
 -- Add proguard rules in case of release build demonstration.
 
 **Tech stack:**  
