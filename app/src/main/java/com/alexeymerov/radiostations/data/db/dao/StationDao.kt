@@ -15,7 +15,7 @@ abstract class StationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(entity: StationEntity)
 
-    @Query("SELECT * FROM ${StationEntity.TABLE_NAME} WHERE ${StationEntity.FIELD_PARENT_URL} = :url")
+    @Query("SELECT * FROM ${StationEntity.TABLE_NAME} WHERE ${StationEntity.FIELD_PARENT_URL} = :url ORDER BY ${StationEntity.FIELD_POSITION} ASC")
     abstract suspend fun getAllByParentUrl(url: String): List<StationEntity>
 
 }

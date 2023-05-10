@@ -60,8 +60,11 @@ class CategoryRepositoryImpl @Inject constructor(
         val categoryAndStationsMap = categoryMapper.mapCategoryWithStationsResponseToMap(categoriesResponse, parentUrl)
         categoryAndStationsMap.forEach { (category, stations) ->
             categoryDao.insert(category)
-            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  no audio in category: $stations != null")
-            if (stations != null) stationDao.insertAll(stations)
+            if (stations != null) {
+                stationDao.insertAll(stations)
+            } else {
+                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  no audio in category: $category")
+            }
         }
     }
 

@@ -11,7 +11,7 @@ import javax.inject.Inject
 class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
 
     override suspend fun mapCategoryResponseToEntity(list: List<ResponseBody>, parentUrl: String): List<CategoryEntity> {
-        return list.map { mapCategoryResponseToEntity(it, parentUrl) }
+        return list.mapIndexed { index, responseBody -> mapCategoryResponseToEntity(responseBody, parentUrl, index) }
     }
 
     /**
@@ -25,14 +25,14 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
         parentUrl: String
     ): HashMap<CategoryEntity, List<StationEntity>?> {
         val result = HashMap<CategoryEntity, List<StationEntity>?>()
-        list.forEach {
-            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] response has children ${it.children != null}")
-            if (it.children != null) {
-                val categoryEntity = mapCategoryResponseToEntity(it, parentUrl, true)
-                val stationList = mapCategoryWithStationsResponseToList(it.children, mapUrlForStation(parentUrl, categoryEntity))
+        list.forEachIndexed { index, responseBody ->
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] response has children ${responseBody.children != null}")
+            if (responseBody.children != null) {
+                val categoryEntity = mapCategoryResponseToEntity(responseBody, parentUrl, index, true)
+                val stationList = mapCategoryWithStationsResponseToList(responseBody.children, mapUrlForStation(parentUrl, categoryEntity))
                 result[categoryEntity] = stationList
             } else {
-                val categoryEntity = mapCategoryResponseToEntity(it, parentUrl)
+                val categoryEntity = mapCategoryResponseToEntity(responseBody, parentUrl, index)
                 result[categoryEntity] = null // not audio type
             }
         }
@@ -42,11 +42,12 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
     override suspend fun mapUrlForStation(parentUrl: String, categoryEntity: CategoryEntity) = "$parentUrl#${categoryEntity.key}"
 
     private fun mapCategoryWithStationsResponseToList(list: List<ChildrenBody>, parentUrl: String): List<StationEntity> {
-        return list.map { mapResponseToStationEntity(it, parentUrl) }
+        return list.mapIndexed { index, childrenBody -> mapResponseToStationEntity(childrenBody, parentUrl, index) }
     }
 
-    private fun mapCategoryResponseToEntity(body: ResponseBody, parentUrl: String, isHeader: Boolean = false): CategoryEntity {
+    private fun mapCategoryResponseToEntity(body: ResponseBody, parentUrl: String, position: Int, isHeader: Boolean = false): CategoryEntity {
         return CategoryEntity(
+            position = position,
             url = body.url ?: "",
             parentUrl = parentUrl,
             text = body.text,
@@ -55,8 +56,9 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
         )
     }
 
-    private fun mapResponseToStationEntity(body: ChildrenBody, parentUrl: String): StationEntity {
+    private fun mapResponseToStationEntity(body: ChildrenBody, parentUrl: String, position: Int): StationEntity {
         return StationEntity(
+            position = position,
             url = body.url,
             parentUrl = parentUrl,
             text = body.text,

@@ -23,6 +23,8 @@ As a result i believe i make a "friendly-to-expand" app, and it can get new feat
 Server. Response type, the whole 'logic' and everything is just... not the best.  
 The problem is that it requires many workarounds, some of them core ones, which impact the whole app.
 
+And the whole 'position' thing for saving in DB is wierd, but there is a predefined sort for sure and no param for that as well.
+
 **Todo:**  
 -- Play music.
 -- Test everything.  
