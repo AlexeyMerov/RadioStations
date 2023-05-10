@@ -15,10 +15,9 @@ data class CategoryDto(
  * But it will add unnecessary runtime operations, so... up to you.
  * */
 data class CategoryItemDto(
-    val isHeader: Boolean = false,
     val url: String,
     val text: String,
     val image: String? = null,
-    val currentTrack: String? = null,
-    val isAudio: Boolean = false
+    val currentTrack: String,
+    val type: Int
 )

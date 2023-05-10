@@ -3,11 +3,11 @@ package com.alexeymerov.radiostations.presentation.adapter.viewholder
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.widget.TextViewCompat
-import com.alexeymerov.radiostations.databinding.ItemCategoryBinding
+import com.alexeymerov.radiostations.databinding.ItemSubcategoryBinding
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 
-class CategoriesViewHolder(
-    private val binding: ItemCategoryBinding,
+class SubCategoriesViewHolder(
+    private val binding: ItemSubcategoryBinding,
     onItemClick: (Int) -> Unit
 ) : BaseViewHolder(binding.root) {
 

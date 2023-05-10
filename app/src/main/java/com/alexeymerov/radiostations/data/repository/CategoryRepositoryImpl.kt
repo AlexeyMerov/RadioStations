@@ -4,12 +4,9 @@ import com.alexeymerov.radiostations.BuildConfig
 import com.alexeymerov.radiostations.common.BaseCoroutineScope
 import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.db.dao.CategoryDao
-import com.alexeymerov.radiostations.data.db.dao.StationDao
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.db.entity.StationEntity
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
 import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
-import com.alexeymerov.radiostations.data.remote.response.ResponseBody
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -18,7 +15,6 @@ import javax.inject.Inject
 class CategoryRepositoryImpl @Inject constructor(
     private val radioClient: RadioClient,
     private val categoryDao: CategoryDao,
-    private val stationDao: StationDao,
     private val categoryMapper: EntityCategoryMapper
 ) : CategoryRepository, BaseCoroutineScope() {
 
@@ -33,44 +29,13 @@ class CategoryRepositoryImpl @Inject constructor(
      * */
     override fun loadCategoriesByUrl(url: String) {
         launch {
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  request new data")
             val parentUrl = url.prepareUrl()
             val categoriesResponse = radioClient.requestCategoriesByUrl(parentUrl)
-            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  request new data")
-
-            // we don't know about nested children until make a request
-            val hasChildren = categoriesResponse.firstOrNull { it.children != null } != null
-            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  response from server has children: $hasChildren")
-            if (hasChildren) {
-                processCategoriesWithStations(categoriesResponse, parentUrl)
-            } else {
-                processOnlyCategories(categoriesResponse, parentUrl)
-            }
+            val categoryEntities = categoryMapper.mapCategoryResponseToEntity(categoriesResponse, parentUrl)
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  inserting ${categoryEntities.size} entities")
+            categoryDao.insertAll(categoryEntities)
         }
-    }
-
-    override suspend fun getStationsByCategory(entity: CategoryEntity): List<StationEntity> {
-        val url = categoryMapper.mapUrlForStation(entity.parentUrl, entity)
-        return stationDao.getAllByParentUrl(url)
-    }
-
-    /**
-     * In case there are no audio station after mapping, we saving only category.
-     * */
-    private suspend fun processCategoriesWithStations(categoriesResponse: List<ResponseBody>, parentUrl: String) {
-        val categoryAndStationsMap = categoryMapper.mapCategoryWithStationsResponseToMap(categoriesResponse, parentUrl)
-        categoryAndStationsMap.forEach { (category, stations) ->
-            categoryDao.insert(category)
-            if (stations != null) {
-                stationDao.insertAll(stations)
-            } else {
-                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  no audio in category: $category")
-            }
-        }
-    }
-
-    private suspend fun processOnlyCategories(categoriesResponse: List<ResponseBody>, parentUrl: String) {
-        val categoryEntities = categoryMapper.mapCategoryResponseToEntity(categoriesResponse, parentUrl)
-        categoryDao.insertAll(categoryEntities)
     }
 
     /**

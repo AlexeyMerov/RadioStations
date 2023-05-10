@@ -6,11 +6,13 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import com.alexeymerov.radiostations.databinding.ItemAudioBinding
 import com.alexeymerov.radiostations.databinding.ItemCategoryBinding
 import com.alexeymerov.radiostations.databinding.ItemCategoryHeaderBinding
+import com.alexeymerov.radiostations.databinding.ItemSubcategoryBinding
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.BaseViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.CategoriesViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.HeaderViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.StationViewHolder
+import com.alexeymerov.radiostations.presentation.adapter.viewholder.SubCategoriesViewHolder
 import com.bumptech.glide.RequestManager
 import dagger.hilt.android.scopes.FragmentScoped
 import javax.inject.Inject
@@ -30,11 +32,7 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
 
     override fun getItemViewType(position: Int): Int {
         val item = getListItem(position)
-        return when {
-            item.isHeader -> 0
-            item.isAudio -> 1
-            else -> 2
-        }
+        return item.type
     }
 
     override fun compareItems(old: CategoryItemDto, new: CategoryItemDto) = old.url == new.url
@@ -50,14 +48,19 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
-            0 -> {
+            1 -> {//todo remove and make ENUM or smth
                 val binding = ItemCategoryHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 HeaderViewHolder(binding)
             }
 
-            1 -> {
+            2 -> {
                 val binding = ItemAudioBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 StationViewHolder(binding, requestManager) {} //todo process click and open new screen to play audio
+            }
+
+            3 -> {
+                val binding = ItemSubcategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                SubCategoriesViewHolder(binding) { onClick(getListItem(it)) }
             }
 
             else -> {

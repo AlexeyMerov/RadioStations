@@ -3,11 +3,9 @@ package com.alexeymerov.radiostations.domain.usecase.category
 import com.alexeymerov.radiostations.common.BaseCoroutineScope
 import com.alexeymerov.radiostations.data.repository.CategoryRepository
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
-import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 
 class CategoryUseCaseImpl @Inject constructor(
@@ -24,24 +22,11 @@ class CategoryUseCaseImpl @Inject constructor(
         categoryRepository.loadCategoriesByUrl(url)
         return categoryRepository.getCategoriesByUrl(url)
             .map { entityList ->
-                var result = mutableListOf<CategoryItemDto>()
-
                 if (entityList.isNotEmpty() && entityList[0].text == ERROR) {
-                    return@map CategoryDto(result, isError = true)
+                    return@map CategoryDto(emptyList(), isError = true)
                 }
 
-                val hasHeaders = entityList.firstOrNull { it.isHeader } != null // if have at least one header then we process all list in a hard way
-                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  new list has headers: $hasHeaders")
-                if (hasHeaders) {
-                    entityList.forEach { entity ->
-                        val stationList = categoryRepository.getStationsByCategory(entity)
-                        val dtoList = dtoCategoriesMapper.mapEntitiesToDto(entity, stationList)
-                        result.addAll(dtoList)
-                    }
-                } else {
-                    result = dtoCategoriesMapper.mapEntitiesToDto(entityList).toMutableList()
-                }
-
+                val result = dtoCategoriesMapper.mapEntitiesToDto(entityList)
                 return@map CategoryDto(result)
             }
     }
