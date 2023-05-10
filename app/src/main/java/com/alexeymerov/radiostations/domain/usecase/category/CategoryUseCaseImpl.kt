@@ -31,7 +31,7 @@ class CategoryUseCaseImpl @Inject constructor(
                 }
 
                 val hasHeaders = entityList.firstOrNull { it.isHeader } != null // if have at least one header then we process all list in a hard way
-                Timber.d("new list has headers: $hasHeaders")
+                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  new list has headers: $hasHeaders")
                 if (hasHeaders) {
                     entityList.forEach { entity ->
                         val stationList = categoryRepository.getStationsByCategory(entity)

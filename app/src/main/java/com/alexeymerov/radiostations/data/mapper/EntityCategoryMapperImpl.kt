@@ -26,7 +26,7 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
     ): HashMap<CategoryEntity, List<StationEntity>?> {
         val result = HashMap<CategoryEntity, List<StationEntity>?>()
         list.forEach {
-            Timber.d("response has children ${it.children != null}")
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] response has children ${it.children != null}")
             if (it.children != null) {
                 val categoryEntity = mapCategoryResponseToEntity(it, parentUrl, true)
                 val stationList = mapCategoryWithStationsResponseToList(it.children, mapUrlForStation(parentUrl, categoryEntity))

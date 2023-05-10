@@ -31,9 +31,9 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
         .map { it.items }
 
     private fun filterCategories(it: CategoryDto): Boolean {
-        Timber.d("check for empty list")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] check for empty list")
         if (it.isError) {
-            Timber.d("list is empty")
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] list is empty")
             setNewState(NothingAvailable)
             return false
         }
@@ -46,7 +46,7 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
     }
 
     private fun setNewState(state: ViewState) {
-        Timber.d("new state $state")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new state $state")
         _viewState.send(viewModelScope, state)
     }
 

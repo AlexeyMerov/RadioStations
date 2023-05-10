@@ -49,7 +49,7 @@ class CategoryListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Timber.d("onViewCreated for ${args.categoryUrl}")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] for ${args.categoryUrl}")
         initViews()
         initViewModel()
     }
@@ -84,12 +84,12 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun onCategoryClick(category: CategoryItemDto) {
-        Timber.d("Go to category: ${category.text}")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  Go to category: ${category.text}")
         navigateTo(CategoryListFragmentDirections.toCategoriesFragment(category.url, category.text))
     }
 
     private fun navigateTo(direction: NavDirections) {
-        Timber.d("navigateTo: $direction")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  navigateTo: $direction")
         findNavController().navigate(direction)
     }
 
@@ -99,7 +99,7 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun processNewState(state: ViewState) {
-        Timber.d("New state: " + state.javaClass.simpleName)
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  New state: " + state.javaClass.simpleName)
         if (state == ViewState.NothingAvailable) {
             binding.nothingAvailableTv.isVisible = true
             binding.progressBar.isVisible = false
@@ -107,7 +107,7 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun updateRecycler(list: List<CategoryItemDto>) {
-        Timber.d("New list (${list.size} elements) update for ${args.categoryUrl}")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  New list (${list.size} elements) update for ${args.categoryUrl}")
         recyclerAdapter.submitList(list)
         binding.progressBar.isVisible = false
     }
