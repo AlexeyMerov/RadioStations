@@ -11,6 +11,7 @@ import com.alexeymerov.radiostations.presentation.adapter.viewholder.BaseViewHol
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.CategoriesViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.HeaderViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.StationViewHolder
+import com.bumptech.glide.RequestManager
 import dagger.hilt.android.scopes.FragmentScoped
 import javax.inject.Inject
 
@@ -22,6 +23,8 @@ import javax.inject.Inject
 class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<CategoriesDto, BaseViewHolder>() {
 
     lateinit var onClick: (CategoriesDto) -> Unit
+
+    lateinit var requestManager: RequestManager
 
     override val differ: AsyncListDiffer<CategoriesDto> = AsyncListDiffer(this, diffCallback)
 
@@ -54,7 +57,7 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
 
             1 -> {
                 val binding = ItemAudioBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                StationViewHolder(binding) {} //todo process click and open new screen to play audio
+                StationViewHolder(binding, requestManager) {} //todo process click and open new screen to play audio
             }
 
             else -> {

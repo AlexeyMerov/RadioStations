@@ -26,8 +26,7 @@ The problem is that it requires many workarounds, some of them core ones, which 
 **Todo:**  
 -- Play music.  
 -- Remove some hardcode or move it.  
--- Improve DI if possible.  
--- Redo Glide to work in the right way with a recycler.  
+-- Improve DI if possible.
 -- Test everything.  
 -- In case it will have paging, redo to paging3.  
 -- Add proguard rules in case of release build demonstration.

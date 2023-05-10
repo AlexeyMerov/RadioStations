@@ -3,15 +3,21 @@ package com.alexeymerov.radiostations.presentation.adapter.viewholder
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.widget.TextViewCompat
-import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.databinding.ItemAudioBinding
 import com.alexeymerov.radiostations.domain.dto.CategoriesDto
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 
-class StationViewHolder(private val binding: ItemAudioBinding, onItemClick: (Int) -> Unit) : BaseViewHolder(binding.root) {
+
+class StationViewHolder(
+    private val binding: ItemAudioBinding,
+    private val requestManager: RequestManager,
+    onItemClick: (Int) -> Unit
+) : BaseViewHolder(binding.root) {
+
+    // https://bumptech.github.io/glide/doc/transitions.html#cross-fading-with-placeholders-and-transparent-images
+    private val crossFadeFactory = DrawableCrossFadeFactory.Builder(100).setCrossFadeEnabled(true).build()
 
     init {
         binding.root.setOnClickListener { onItemClick(bindingAdapterPosition) }
@@ -19,13 +25,9 @@ class StationViewHolder(private val binding: ItemAudioBinding, onItemClick: (Int
 
     override fun bind(currentItem: CategoriesDto) {
         binding.categoryNameTv.precomputeAndSetText(currentItem.text)
-        Glide.with(binding.imageView.context)// todo make it right. It's not the most optimized way.
+        requestManager
             .load(currentItem.image)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .transform(RoundedCorners(8))
-            .placeholder(R.drawable.full_image)
-            .error(R.drawable.full_image)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .transition(DrawableTransitionOptions.withCrossFade(crossFadeFactory))
             .into(binding.imageView)
     }
 
