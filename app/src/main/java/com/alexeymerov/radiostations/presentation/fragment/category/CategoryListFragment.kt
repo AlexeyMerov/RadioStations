@@ -76,7 +76,6 @@ class CategoryListFragment : Fragment() {
         }
     }
 
-    //todo consider relocate it to DI
     private fun initLayoutManager() = LinearLayoutManager(context).apply {
         isMeasurementCacheEnabled = true
         isItemPrefetchEnabled = true

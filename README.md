@@ -25,7 +25,6 @@ The problem is that it requires many workarounds, some of them core ones, which 
 
 **Todo:**  
 -- Play music.
--- Improve DI if possible.  
 -- Test everything.  
 -- In case it will have paging, redo to paging3.  
 -- Add proguard rules in case of release build demonstration.
