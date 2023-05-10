@@ -19,9 +19,12 @@ import com.alexeymerov.radiostations.domain.dto.CategoriesDto
 import com.alexeymerov.radiostations.presentation.activity.main.MainActivity
 import com.alexeymerov.radiostations.presentation.adapter.CategoriesRecyclerAdapter
 import com.alexeymerov.radiostations.presentation.fragment.category.CategoryListViewModel.ViewState
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class CategoryListFragment : Fragment() {
@@ -31,6 +34,10 @@ class CategoryListFragment : Fragment() {
 
     private val args: CategoryListFragmentArgs by navArgs()
     private val viewModel: CategoryListViewModel by viewModels()
+
+    @Inject
+    lateinit var requestOptions: RequestOptions
+    private val requestManager by lazy { Glide.with(this).setDefaultRequestOptions(requestOptions) }
 
     @Inject
     lateinit var recyclerAdapter: CategoriesRecyclerAdapter
@@ -55,7 +62,10 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun initRecycler() {
-        recyclerAdapter.onClick = ::onCategoryClick
+        recyclerAdapter.also {
+            it.onClick = ::onCategoryClick
+            it.requestManager = requestManager
+        }
         binding.recyclerView.also {
             it.setHasFixedSize(true)
             val layoutManager = initLayoutManager()
