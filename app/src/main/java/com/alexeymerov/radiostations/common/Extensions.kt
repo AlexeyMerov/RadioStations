@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.common
 
+import android.content.res.Resources
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -38,3 +39,5 @@ abstract class AsyncAutoUpdatableAdapter<T : Any, VH : RecyclerView.ViewHolder> 
  * For some reason server returns http links.
  * */
 fun String.httpsEverywhere() = replace("http:", "https:")
+
+fun Int.dpToPx() = (this * Resources.getSystem().displayMetrics.density).toInt()

@@ -32,7 +32,7 @@ class ItemFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Timber.d("ItemFragment onViewCreated")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ItemFragment onViewCreated")
 
         val player = ExoPlayer.Builder(requireContext()).build()
 

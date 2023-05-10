@@ -4,19 +4,17 @@ import timber.log.Timber
 
 /**
  * Tree realization for Timber. Taken from somewhere a long time ago.
+ *
+ * New logger limits the tag column width with 35 chars, can't use method name.
  * */
 class NumberedTimberTree : Timber.DebugTree() {
 
     override fun createStackElementTag(element: StackTraceElement): String {
         return String.format(
-            "$DEFAULT_TAG: (%s:%s)::%s",
+            "%s:%s",
             element.fileName,
-            element.lineNumber,
-            element.methodName
+            element.lineNumber
         )
     }
 
-    companion object {
-        private const val DEFAULT_TAG = "Merov --> "
-    }
 }

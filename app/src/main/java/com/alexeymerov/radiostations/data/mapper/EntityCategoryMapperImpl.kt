@@ -2,66 +2,55 @@ package com.alexeymerov.radiostations.data.mapper
 
 import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.db.entity.StationEntity
-import com.alexeymerov.radiostations.data.remote.response.ChildrenBody
 import com.alexeymerov.radiostations.data.remote.response.ResponseBody
-import timber.log.Timber
 import javax.inject.Inject
 
 class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
 
     override suspend fun mapCategoryResponseToEntity(list: List<ResponseBody>, parentUrl: String): List<CategoryEntity> {
-        return list.map { mapCategoryResponseToEntity(it, parentUrl) }
+        return categoryEntities(list, parentUrl)
     }
 
-    /**
-     * Maps all response Categories and it's children's radio stations.
-     * In case there is 'children' array but not with station it handles it too as simple category.
-     *
-     * @return HashMap - not sure about the decision. Feel free to change.
-     * */
-    override suspend fun mapCategoryWithStationsResponseToMap(
+    private fun categoryEntities(
         list: List<ResponseBody>,
-        parentUrl: String
-    ): HashMap<CategoryEntity, List<StationEntity>?> {
-        val result = HashMap<CategoryEntity, List<StationEntity>?>()
-        list.forEach {
-            Timber.d("response has children ${it.children != null}")
-            if (it.children != null) {
-                val categoryEntity = mapCategoryResponseToEntity(it, parentUrl, true)
-                val stationList = mapCategoryWithStationsResponseToList(it.children, mapUrlForStation(parentUrl, categoryEntity))
-                result[categoryEntity] = stationList
-            } else {
-                val categoryEntity = mapCategoryResponseToEntity(it, parentUrl)
-                result[categoryEntity] = null // not audio type
+        parentUrl: String,
+        startPosition: Int = 0,
+        isChildren: Boolean = false
+    ): MutableList<CategoryEntity> {
+        val result = mutableListOf<CategoryEntity>()
+        var index = startPosition
+        list.forEach { responseBody ->
+            val url = responseBody.url ?: ""
+            val children = responseBody.children
+            val type = when {
+                isChildren && url.contains("Browse.ashx") -> 3 //todo remove and make ENUM or smth
+                url.contains("Tune.ashx") -> 2 // audio
+                children != null -> 1 // header
+                else -> 0 // category
+            }
+            val item = mapCategoryResponseToEntity(responseBody, parentUrl, index, type)
+            result.add(item)
+            index++
+
+            if (children != null) {
+                val childrenList = categoryEntities(children, parentUrl, index, true)
+                result.addAll(childrenList)
+                index += childrenList.size
             }
         }
+
         return result
     }
 
-    override suspend fun mapUrlForStation(parentUrl: String, categoryEntity: CategoryEntity) = "$parentUrl#${categoryEntity.key}"
-
-    private fun mapCategoryWithStationsResponseToList(list: List<ChildrenBody>, parentUrl: String): List<StationEntity> {
-        return list.map { mapResponseToStationEntity(it, parentUrl) }
-    }
-
-    private fun mapCategoryResponseToEntity(body: ResponseBody, parentUrl: String, isHeader: Boolean = false): CategoryEntity {
+    private fun mapCategoryResponseToEntity(body: ResponseBody, parentUrl: String, position: Int, type: Int): CategoryEntity {
         return CategoryEntity(
-            url = body.url ?: "",
-            parentUrl = parentUrl,
-            text = body.text,
-            key = body.key,
-            isHeader = isHeader
-        )
-    }
-
-    private fun mapResponseToStationEntity(body: ChildrenBody, parentUrl: String): StationEntity {
-        return StationEntity(
-            url = body.url,
+            position = position,
+            url = body.url?.httpsEverywhere() ?: "",
             parentUrl = parentUrl,
             text = body.text,
             image = body.image.httpsEverywhere(),
-            currentTrack = body.currentTrack
+            currentTrack = body.currentTrack,
+            type = type
         )
     }
 

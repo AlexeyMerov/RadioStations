@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.alexeymerov.radiostations.common.collectWhenResumed
 import com.alexeymerov.radiostations.databinding.FragmentCategoryListBinding
-import com.alexeymerov.radiostations.domain.dto.CategoriesDto
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.presentation.activity.main.MainActivity
 import com.alexeymerov.radiostations.presentation.adapter.CategoriesRecyclerAdapter
 import com.alexeymerov.radiostations.presentation.fragment.category.CategoryListViewModel.ViewState
@@ -49,7 +49,7 @@ class CategoryListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Timber.d("onViewCreated for ${args.categoryUrl}")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] for ${args.categoryUrl}")
         initViews()
         initViewModel()
     }
@@ -76,20 +76,19 @@ class CategoryListFragment : Fragment() {
         }
     }
 
-    //todo consider relocate it to DI
     private fun initLayoutManager() = LinearLayoutManager(context).apply {
         isMeasurementCacheEnabled = true
         isItemPrefetchEnabled = true
         orientation = RecyclerView.VERTICAL
     }
 
-    private fun onCategoryClick(category: CategoriesDto) {
-        Timber.d("Go to category: ${category.text}")
+    private fun onCategoryClick(category: CategoryItemDto) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  Go to category: ${category.text}")
         navigateTo(CategoryListFragmentDirections.toCategoriesFragment(category.url, category.text))
     }
 
     private fun navigateTo(direction: NavDirections) {
-        Timber.d("navigateTo: $direction")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  navigateTo: $direction")
         findNavController().navigate(direction)
     }
 
@@ -99,15 +98,15 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun processNewState(state: ViewState) {
-        Timber.d("New state: " + state.javaClass.simpleName)
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  New state: " + state.javaClass.simpleName)
         if (state == ViewState.NothingAvailable) {
             binding.nothingAvailableTv.isVisible = true
             binding.progressBar.isVisible = false
         }
     }
 
-    private fun updateRecycler(list: List<CategoriesDto>) {
-        Timber.d("New list (${list.size} elements) update for ${args.categoryUrl}")
+    private fun updateRecycler(list: List<CategoryItemDto>) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  New list (${list.size} elements) update for ${args.categoryUrl}")
         recyclerAdapter.submitList(list)
         binding.progressBar.isVisible = false
     }

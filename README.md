@@ -23,10 +23,13 @@ As a result i believe i make a "friendly-to-expand" app, and it can get new feat
 Server. Response type, the whole 'logic' and everything is just... not the best.  
 The problem is that it requires many workarounds, some of them core ones, which impact the whole app.
 
+Edit: And the whole 'position' thing for saving in DB is wierd, but there is a predefined sort for sure and no param for that as well.
+
+Edit 2: And server making mess again, so i left only one Entity type and remove all separations and made it dumb/all-on-one and straightforward.
+
 **Todo:**  
--- Play music.  
--- Remove some hardcode or move it.  
--- Improve DI if possible.
+-- Remove hardcode types
+-- Play music.
 -- Test everything.  
 -- In case it will have paging, redo to paging3.  
 -- Add proguard rules in case of release build demonstration.
