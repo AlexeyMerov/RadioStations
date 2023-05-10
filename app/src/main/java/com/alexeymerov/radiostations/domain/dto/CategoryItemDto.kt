@@ -19,5 +19,9 @@ data class CategoryItemDto(
     val text: String,
     val image: String? = null,
     val currentTrack: String,
-    val type: Int
+    val type: DtoItemType
 )
+
+enum class DtoItemType(val value: Int) {
+    HEADER(0), CATEGORY(1), SUBCATEGORY(2), AUDIO(3)
+}

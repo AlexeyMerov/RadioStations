@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.data.remote.client.radio
 
 import com.alexeymerov.radiostations.BuildConfig
+import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.data.remote.api.RadioApi
 import com.alexeymerov.radiostations.data.remote.client.BaseClient
 import com.alexeymerov.radiostations.data.remote.response.ResponseBody
@@ -13,7 +14,7 @@ class RadioClientImpl @Inject constructor(private val radioApi: RadioApi) : Radi
     override suspend fun requestCategoriesByUrl(url: String): List<ResponseBody> {
         return runCatching {
             //since server operates with links, we have to remove BASE_URL part before requests
-            val finalUrl = url.replace(BuildConfig.BASE_URL, "")
+            val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
             radioApi.getCategoriesByUrl(finalUrl)
         }
             .mapCatching { mapResponseBody(it) }

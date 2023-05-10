@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.navArgs
+import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.databinding.FragmentItemBinding
 import com.alexeymerov.radiostations.presentation.fragment.category.CategoryListFragmentArgs
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,7 +39,7 @@ class ItemFragment : Fragment() {
 
         binding.playerView.player = player
 
-        val mediaItem = MediaItem.fromUri("")
+        val mediaItem = MediaItem.fromUri(String.EMPTY)
         player.setMediaItem(mediaItem)
         player.prepare()
         player.play()
