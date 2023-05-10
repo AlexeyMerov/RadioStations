@@ -8,6 +8,7 @@ import com.alexeymerov.radiostations.databinding.ItemCategoryBinding
 import com.alexeymerov.radiostations.databinding.ItemCategoryHeaderBinding
 import com.alexeymerov.radiostations.databinding.ItemSubcategoryBinding
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
+import com.alexeymerov.radiostations.domain.dto.DtoItemType
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.BaseViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.CategoriesViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.HeaderViewHolder
@@ -32,7 +33,7 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
 
     override fun getItemViewType(position: Int): Int {
         val item = getListItem(position)
-        return item.type
+        return item.type.value
     }
 
     override fun compareItems(old: CategoryItemDto, new: CategoryItemDto) = old.url == new.url
@@ -48,17 +49,17 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
-            1 -> {//todo remove and make ENUM or smth
+            DtoItemType.HEADER.value -> {
                 val binding = ItemCategoryHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 HeaderViewHolder(binding)
             }
 
-            2 -> {
+            DtoItemType.AUDIO.value -> {
                 val binding = ItemAudioBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 StationViewHolder(binding, requestManager) {} //todo process click and open new screen to play audio
             }
 
-            3 -> {
+            DtoItemType.SUBCATEGORY.value -> {
                 val binding = ItemSubcategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 SubCategoriesViewHolder(binding) { onClick(getListItem(it)) }
             }

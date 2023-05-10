@@ -27,11 +27,9 @@ Edit: And the whole 'position' thing for saving in DB is wierd, but there is a p
 
 Edit 2: And server making mess again, so i left only one Entity type and remove all separations and made it dumb/all-on-one and straightforward.
 
-**Todo:**  
--- Remove hardcode types
+**Todo:**
 -- Play music.
--- Test everything.  
--- In case it will have paging, redo to paging3.  
+-- Test everything.
 -- Add proguard rules in case of release build demonstration.
 
 **Tech stack:**  

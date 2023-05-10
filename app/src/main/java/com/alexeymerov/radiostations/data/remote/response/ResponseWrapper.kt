@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.data.remote.response
 
+import com.alexeymerov.radiostations.common.EMPTY
 import com.squareup.moshi.Json
 
 /**
@@ -20,8 +21,8 @@ data class ResponseBody(
     val url: String? = null,
     val text: String,
     val type: String? = null,
-    val image: String = "",
+    val image: String = String.EMPTY,
     @Json(name = "current_track")
-    val currentTrack: String = "",
+    val currentTrack: String = String.EMPTY,
     val children: List<ResponseBody>? = null
 )

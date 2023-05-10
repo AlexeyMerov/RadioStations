@@ -41,3 +41,6 @@ abstract class AsyncAutoUpdatableAdapter<T : Any, VH : RecyclerView.ViewHolder> 
 fun String.httpsEverywhere() = replace("http:", "https:")
 
 fun Int.dpToPx() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
+val String.Companion.EMPTY: String
+    get() = ""

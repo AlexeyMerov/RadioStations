@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -101,14 +102,14 @@ class CategoryListFragment : Fragment() {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  New state: " + state.javaClass.simpleName)
         if (state == ViewState.NothingAvailable) {
             binding.nothingAvailableTv.isVisible = true
-            binding.progressBar.isVisible = false
+            binding.progressBar.isGone = true
         }
     }
 
     private fun updateRecycler(list: List<CategoryItemDto>) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  New list (${list.size} elements) update for ${args.categoryUrl}")
         recyclerAdapter.submitList(list)
-        binding.progressBar.isVisible = false
+        if (list.isNotEmpty()) binding.progressBar.isGone = true
     }
 
     override fun onDestroyView() {

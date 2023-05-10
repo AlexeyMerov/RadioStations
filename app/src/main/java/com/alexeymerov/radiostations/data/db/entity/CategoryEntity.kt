@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.data.db.entity
 
 import androidx.room.Entity
+import com.alexeymerov.radiostations.common.EMPTY
 import com.squareup.moshi.Json
 
 @Entity(
@@ -12,10 +13,10 @@ data class CategoryEntity(
     val url: String,
     val parentUrl: String,
     val text: String,
-    val image: String = "",
+    val image: String = String.EMPTY,
     @Json(name = "current_track")
-    val currentTrack: String = "",
-    val type: Int
+    val currentTrack: String = String.EMPTY,
+    val type: EntityItemType
 ) {
 
     companion object {
@@ -25,4 +26,8 @@ data class CategoryEntity(
         const val FIELD_POSITION = "position"
         const val FIELD_TEXT = "text"
     }
+}
+
+enum class EntityItemType {
+    HEADER, CATEGORY, SUBCATEGORY, AUDIO
 }
