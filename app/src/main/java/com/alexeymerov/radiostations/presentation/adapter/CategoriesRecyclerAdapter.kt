@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import com.alexeymerov.radiostations.databinding.ItemAudioBinding
 import com.alexeymerov.radiostations.databinding.ItemCategoryBinding
 import com.alexeymerov.radiostations.databinding.ItemCategoryHeaderBinding
-import com.alexeymerov.radiostations.domain.dto.CategoriesDto
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.BaseViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.CategoriesViewHolder
 import com.alexeymerov.radiostations.presentation.adapter.viewholder.HeaderViewHolder
@@ -20,13 +20,13 @@ import javax.inject.Inject
  * Displays Categories, Headers with children (Audio or Category)
  * */
 @FragmentScoped
-class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<CategoriesDto, BaseViewHolder>() {
+class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<CategoryItemDto, BaseViewHolder>() {
 
-    lateinit var onClick: (CategoriesDto) -> Unit
+    lateinit var onClick: (CategoryItemDto) -> Unit
 
     lateinit var requestManager: RequestManager
 
-    override val differ: AsyncListDiffer<CategoriesDto> = AsyncListDiffer(this, diffCallback)
+    override val differ: AsyncListDiffer<CategoryItemDto> = AsyncListDiffer(this, diffCallback)
 
     override fun getItemViewType(position: Int): Int {
         val item = getListItem(position)
@@ -37,11 +37,11 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
         }
     }
 
-    override fun compareItems(old: CategoriesDto, new: CategoriesDto) = old.url == new.url
+    override fun compareItems(old: CategoryItemDto, new: CategoryItemDto) = old.url == new.url
 
-    override fun compareContent(old: CategoriesDto, new: CategoriesDto) = old == new
+    override fun compareContent(old: CategoryItemDto, new: CategoryItemDto) = old == new
 
-    override fun compareContentForPayload(old: CategoriesDto, new: CategoriesDto) = emptyList<CategoriesDto>()
+    override fun compareContentForPayload(old: CategoryItemDto, new: CategoryItemDto) = emptyList<CategoryItemDto>()
 
     override fun proceedPayloads(payloads: MutableList<Any>, holder: BaseViewHolder, position: Int) {
         // handle changes from payloads

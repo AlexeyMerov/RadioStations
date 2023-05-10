@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.alexeymerov.radiostations.common.collectWhenResumed
 import com.alexeymerov.radiostations.databinding.FragmentCategoryListBinding
-import com.alexeymerov.radiostations.domain.dto.CategoriesDto
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.presentation.activity.main.MainActivity
 import com.alexeymerov.radiostations.presentation.adapter.CategoriesRecyclerAdapter
 import com.alexeymerov.radiostations.presentation.fragment.category.CategoryListViewModel.ViewState
@@ -83,7 +83,7 @@ class CategoryListFragment : Fragment() {
         orientation = RecyclerView.VERTICAL
     }
 
-    private fun onCategoryClick(category: CategoriesDto) {
+    private fun onCategoryClick(category: CategoryItemDto) {
         Timber.d("Go to category: ${category.text}")
         navigateTo(CategoryListFragmentDirections.toCategoriesFragment(category.url, category.text))
     }
@@ -106,7 +106,7 @@ class CategoryListFragment : Fragment() {
         }
     }
 
-    private fun updateRecycler(list: List<CategoriesDto>) {
+    private fun updateRecycler(list: List<CategoryItemDto>) {
         Timber.d("New list (${list.size} elements) update for ${args.categoryUrl}")
         recyclerAdapter.submitList(list)
         binding.progressBar.isVisible = false

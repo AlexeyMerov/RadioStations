@@ -2,20 +2,20 @@ package com.alexeymerov.radiostations.domain.mapper
 
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.db.entity.StationEntity
-import com.alexeymerov.radiostations.domain.dto.CategoriesDto
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import javax.inject.Inject
 
 /**
- * @see CategoriesDto
+ * @see CategoryItemDto
  * */
 class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
 
-    override suspend fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoriesDto> {
+    override suspend fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto> {
         return categories.map { mapCategoryEntityToDto(it) }
     }
 
-    override suspend fun mapEntitiesToDto(category: CategoryEntity, stationList: List<StationEntity>): List<CategoriesDto> {
-        val result = mutableListOf<CategoriesDto>()
+    override suspend fun mapEntitiesToDto(category: CategoryEntity, stationList: List<StationEntity>): List<CategoryItemDto> {
+        val result = mutableListOf<CategoryItemDto>()
 
         val header = mapCategoryEntityToDto(category)
         result.add(header)
@@ -26,7 +26,7 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
         return result
     }
 
-    private fun mapCategoryEntityToDto(entity: CategoryEntity) = CategoriesDto(
+    private fun mapCategoryEntityToDto(entity: CategoryEntity) = CategoryItemDto(
         isHeader = entity.isHeader,
         url = entity.url,
         text = entity.text,
@@ -34,7 +34,7 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
         currentTrack = null
     )
 
-    private fun mapStationEntityToDto(entity: StationEntity) = CategoriesDto(
+    private fun mapStationEntityToDto(entity: StationEntity) = CategoryItemDto(
         url = entity.url,
         text = entity.text,
         image = entity.image,

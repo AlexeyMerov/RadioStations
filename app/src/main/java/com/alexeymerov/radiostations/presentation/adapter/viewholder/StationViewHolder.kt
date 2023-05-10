@@ -4,7 +4,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.widget.TextViewCompat
 import com.alexeymerov.radiostations.databinding.ItemAudioBinding
-import com.alexeymerov.radiostations.domain.dto.CategoriesDto
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
@@ -23,7 +23,7 @@ class StationViewHolder(
         binding.root.setOnClickListener { onItemClick(bindingAdapterPosition) }
     }
 
-    override fun bind(currentItem: CategoriesDto) {
+    override fun bind(currentItem: CategoryItemDto) {
         binding.categoryNameTv.precomputeAndSetText(currentItem.text)
         requestManager
             .load(currentItem.image)
