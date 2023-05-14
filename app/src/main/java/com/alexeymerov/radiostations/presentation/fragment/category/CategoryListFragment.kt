@@ -38,7 +38,7 @@ class CategoryListFragment : Fragment() {
 
     @Inject
     lateinit var requestOptions: RequestOptions
-    private val requestManager by lazy { Glide.with(this).setDefaultRequestOptions(requestOptions) }
+    private val glideRequestManager by lazy { Glide.with(this).setDefaultRequestOptions(requestOptions) }
 
     @Inject
     lateinit var recyclerAdapter: CategoriesRecyclerAdapter
@@ -64,8 +64,9 @@ class CategoryListFragment : Fragment() {
 
     private fun initRecycler() {
         recyclerAdapter.also {
-            it.onClick = ::onCategoryClick
-            it.requestManager = requestManager
+            it.onCategoryClick = ::onCategoryClick
+            it.onAudioClick = ::onAudioClick
+            it.glideRequestManager = glideRequestManager
         }
         binding.recyclerView.also {
             it.setHasFixedSize(true)
@@ -86,6 +87,11 @@ class CategoryListFragment : Fragment() {
     private fun onCategoryClick(category: CategoryItemDto) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  Go to category: ${category.text}")
         navigateTo(CategoryListFragmentDirections.toCategoriesFragment(category.url, category.text))
+    }
+
+    private fun onAudioClick(category: CategoryItemDto) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  Go to audio: ${category.text}")
+        navigateTo(CategoryListFragmentDirections.toAudioFragment(category.url))
     }
 
     private fun navigateTo(direction: NavDirections) {

@@ -14,8 +14,8 @@
         >
 
         <action
-            android:id="@+id/toItemFragment"
-            app:destination="@id/itemFragment"
+            android:id="@+id/toAudioFragment"
+            app:destination="@id/audioFragment"
             app:enterAnim="@anim/slide_in_from_right"
             app:exitAnim="@anim/slide_out_to_left"
             app:popEnterAnim="@anim/slide_in_from_left"
@@ -48,14 +48,14 @@
     </fragment>
 
     <fragment
-        android:id="@+id/itemFragment"
-        android:name="com.alexeymerov.radiostations.presentation.fragment.item.ItemFragment"
-        android:label="ItemFragment"
-        tools:layout="@layout/fragment_category_list"
+        android:id="@+id/audioFragment"
+        android:name="com.alexeymerov.radiostations.presentation.fragment.item.AudioFragment"
+        android:label="AudioFragment"
+        tools:layout="@layout/fragment_audio"
         >
 
         <argument
-            android:name="presetId"
+            android:name="categoryUrl"
             app:argType="string"
             app:nullable="false"
             />

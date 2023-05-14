@@ -25,9 +25,10 @@ import javax.inject.Inject
 @FragmentScoped
 class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<CategoryItemDto, BaseViewHolder>() {
 
-    lateinit var onClick: (CategoryItemDto) -> Unit
+    lateinit var onCategoryClick: (CategoryItemDto) -> Unit
+    lateinit var onAudioClick: (CategoryItemDto) -> Unit
 
-    lateinit var requestManager: RequestManager
+    lateinit var glideRequestManager: RequestManager
 
     override val differ: AsyncListDiffer<CategoryItemDto> = AsyncListDiffer(this, diffCallback)
 
@@ -56,17 +57,17 @@ class CategoriesRecyclerAdapter @Inject constructor() : BaseRecyclerAdapter<Cate
 
             DtoItemType.AUDIO.value -> {
                 val binding = ItemAudioBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                StationViewHolder(binding, requestManager) {} //todo process click and open new screen to play audio
+                StationViewHolder(binding, glideRequestManager) { onAudioClick(getListItem(it)) }
             }
 
             DtoItemType.SUBCATEGORY.value -> {
                 val binding = ItemSubcategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                SubCategoriesViewHolder(binding) { onClick(getListItem(it)) }
+                SubCategoriesViewHolder(binding) { onCategoryClick(getListItem(it)) }
             }
 
             else -> {
                 val binding = ItemCategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                CategoriesViewHolder(binding) { onClick(getListItem(it)) }
+                CategoriesViewHolder(binding) { onCategoryClick(getListItem(it)) }
             }
         }
     }
