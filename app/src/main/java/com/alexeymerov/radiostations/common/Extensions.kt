@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.common
 
 import android.content.res.Resources
+import android.view.View
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -44,3 +45,12 @@ fun Int.dpToPx() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
 val String.Companion.EMPTY: String
     get() = ""
+
+fun View.setOnSingleClick(onClick: () -> Unit) {
+    var lastClickTime = 0L
+    setOnClickListener {
+        if (System.currentTimeMillis() > lastClickTime + 500) onClick()
+        // 500 millis before next click works
+        lastClickTime = System.currentTimeMillis()
+    }
+}

@@ -3,17 +3,17 @@ package com.alexeymerov.radiostations.data.mapper
 import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.db.entity.EntityItemType
-import com.alexeymerov.radiostations.data.remote.response.ResponseBody
+import com.alexeymerov.radiostations.data.remote.response.CategoryBody
 import javax.inject.Inject
 
 class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
 
-    override suspend fun mapCategoryResponseToEntity(list: List<ResponseBody>, parentUrl: String): List<CategoryEntity> {
+    override suspend fun mapCategoryResponseToEntity(list: List<CategoryBody>, parentUrl: String): List<CategoryEntity> {
         return categoryEntities(list, parentUrl)
     }
 
     private fun categoryEntities(
-        list: List<ResponseBody>,
+        list: List<CategoryBody>,
         parentUrl: String,
         startPosition: Int = 0,
         isChildren: Boolean = false
@@ -44,7 +44,7 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
         return result
     }
 
-    private fun mapCategoryResponseToEntity(body: ResponseBody, parentUrl: String, position: Int, type: EntityItemType): CategoryEntity {
+    private fun mapCategoryResponseToEntity(body: CategoryBody, parentUrl: String, position: Int, type: EntityItemType): CategoryEntity {
         return CategoryEntity(
             position = position,
             url = body.url?.httpsEverywhere().orEmpty(),

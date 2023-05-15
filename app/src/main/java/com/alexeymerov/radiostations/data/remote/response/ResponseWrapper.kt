@@ -3,12 +3,14 @@ package com.alexeymerov.radiostations.data.remote.response
 import com.alexeymerov.radiostations.common.EMPTY
 import com.squareup.moshi.Json
 
+interface ServerBodyType
+
 /**
  * Since server does not return an appropriate response, we bonded to use wrapper... 'good' old times.
  * */
-data class ResponseWrapper(
+data class ResponseWrapper<T : ServerBodyType>(
     val head: Head,
-    val body: List<ResponseBody>
+    val body: List<T>
 )
 
 data class Head(
@@ -16,7 +18,7 @@ data class Head(
     val title: String? = null,
 )
 
-data class ResponseBody(
+data class CategoryBody(
     @Json(name = "URL")
     val url: String? = null,
     val text: String,
@@ -24,5 +26,13 @@ data class ResponseBody(
     val image: String = String.EMPTY,
     @Json(name = "current_track")
     val currentTrack: String = String.EMPTY,
-    val children: List<ResponseBody>? = null
-)
+    val children: List<CategoryBody>? = null
+) : ServerBodyType
+
+data class AudioBody(
+    val url: String? = null,
+    val bitrate: Int = 0,
+    @Json(name = "media_type")
+    val mediaType: String = String.EMPTY,
+) : ServerBodyType
+

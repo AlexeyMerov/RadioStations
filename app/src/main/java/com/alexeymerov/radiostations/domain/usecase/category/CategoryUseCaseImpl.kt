@@ -1,7 +1,9 @@
 package com.alexeymerov.radiostations.domain.usecase.category
 
 import com.alexeymerov.radiostations.common.BaseCoroutineScope
+import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.repository.CategoryRepository
+import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +31,14 @@ class CategoryUseCaseImpl @Inject constructor(
                 val result = dtoCategoriesMapper.mapEntitiesToDto(entityList)
                 return@map CategoryDto(result)
             }
+    }
+
+    override suspend fun getAudioUrl(url: String): AudioItemDto {
+        val audioUrl = categoryRepository.getAudioByUrl(url)?.url
+        return when (audioUrl) {
+            null -> AudioItemDto(isError = true)
+            else -> AudioItemDto(url = audioUrl.httpsEverywhere())
+        }
     }
 
     private companion object {

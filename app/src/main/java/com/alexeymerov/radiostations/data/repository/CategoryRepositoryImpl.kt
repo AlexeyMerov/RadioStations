@@ -7,6 +7,7 @@ import com.alexeymerov.radiostations.data.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
 import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
+import com.alexeymerov.radiostations.data.remote.response.AudioBody
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -36,6 +37,14 @@ class CategoryRepositoryImpl @Inject constructor(
             Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  inserting ${categoryEntities.size} entities")
             categoryDao.insertAll(categoryEntities)
         }
+    }
+
+    /**
+     * No saving to DB, since not sure it make sense, especially if links inside will be changed.
+     * */
+    override suspend fun getAudioByUrl(url: String): AudioBody? {
+        val audioBodyList = radioClient.requestAudioByUrl(url)
+        return if (audioBodyList.isEmpty()) null else audioBodyList[0]
     }
 
     /**

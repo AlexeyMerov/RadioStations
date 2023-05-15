@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -28,5 +29,11 @@ inline fun <T> Flow<T>.collectWhenResumed(
 fun <T> Channel<T>.send(coroutineScope: CoroutineScope, data: T) {
     coroutineScope.launch(coroutineScope.coroutineContext) {
         send(data)
+    }
+}
+
+fun <T> MutableSharedFlow<T>.emit(coroutineScope: CoroutineScope, data: T) {
+    coroutineScope.launch(coroutineScope.coroutineContext) {
+        emit(data)
     }
 }
