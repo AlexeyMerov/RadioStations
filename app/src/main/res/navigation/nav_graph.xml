@@ -55,7 +55,19 @@
         >
 
         <argument
-            android:name="categoryUrl"
+            android:name="rawUrl"
+            app:argType="string"
+            app:nullable="false"
+            />
+
+        <argument
+            android:name="stationName"
+            app:argType="string"
+            app:nullable="false"
+            />
+
+        <argument
+            android:name="stationImgUrl"
             app:argType="string"
             app:nullable="false"
             />
