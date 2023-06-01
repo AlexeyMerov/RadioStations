@@ -8,8 +8,8 @@ ext.buildConfig = [
 ]
 
 ext.versions = [
-        tools_gradle        : '8.0.1',
-        kotlin              : '1.8.20',
+        tools_gradle        : '8.0.2',
+        kotlin              : '1.8.21',
 
         navigation          : '2.5.3',
         hilt                : '2.46',
