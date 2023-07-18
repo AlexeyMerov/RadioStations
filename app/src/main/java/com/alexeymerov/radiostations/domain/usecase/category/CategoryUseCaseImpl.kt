@@ -21,7 +21,6 @@ class CategoryUseCaseImpl @Inject constructor(
      * Since we request stations, i prefer not to move it to mapper.
      * */
     override fun getCategoriesByUrl(url: String): Flow<CategoryDto> {
-        categoryRepository.loadCategoriesByUrl(url)
         return categoryRepository.getCategoriesByUrl(url)
             .map { entityList ->
                 if (entityList.isNotEmpty() && entityList[0].text == ERROR) {
@@ -32,6 +31,8 @@ class CategoryUseCaseImpl @Inject constructor(
                 return@map CategoryDto(result)
             }
     }
+
+    override fun loadCategoriesByUrl(url: String) = categoryRepository.loadCategoriesByUrl(url)
 
     override suspend fun getAudioUrl(url: String): AudioItemDto {
         val audioUrl = categoryRepository.getAudioByUrl(url)?.url

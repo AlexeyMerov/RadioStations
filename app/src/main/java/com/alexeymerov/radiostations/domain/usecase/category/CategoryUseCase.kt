@@ -10,6 +10,8 @@ interface CategoryUseCase : Cancelable {
 
     fun getCategoriesByUrl(url: String): Flow<CategoryDto>
 
+    fun loadCategoriesByUrl(url: String)
+
     suspend fun getAudioUrl(url: String): AudioItemDto
 
 }
