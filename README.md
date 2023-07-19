@@ -34,9 +34,9 @@ Edit 2: And server making mess again, so i left only one Entity type and remove 
 
 **Tech stack:**  
 -- Kotlin  
--- Jetpack Navigation  
+-- Jetpack Compose + Navigation  
 -- Hilt  
 -- Room  
 -- Retrofit  
 -- Moshi  
--- Glide
+-- Coil
