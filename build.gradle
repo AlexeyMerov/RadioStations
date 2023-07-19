@@ -4,14 +4,14 @@ buildscript {
         google()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
+        gradlePluginPortal()
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:${versions.tools_gradle}"
-        classpath "com.google.gms:google-services:${versions.google_services_gms}"
+        classpath "com.android.tools.build:gradle:$versions.tools_gradle"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.hilt}"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${versions.navigation}"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.47.0"
 
     }
 }
@@ -19,9 +19,10 @@ buildscript {
 plugins {
     id 'com.android.application' version '8.0.2' apply false
     id 'com.android.library' version '8.0.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.8.21' apply false
-    id 'com.google.devtools.ksp' version '1.8.21-1.0.11' apply false
-    id "org.jlleitschuh.gradle.ktlint" version '10.1.0'
+    id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
+    id 'com.google.devtools.ksp' version '1.9.0-1.0.11' apply false
+    id "org.jlleitschuh.gradle.ktlint" version '11.5.0'
+    id "com.github.ben-manes.versions" version '0.47.0'
 }
 
 allprojects {
@@ -37,4 +38,12 @@ allprojects {
         }
     }
 
+}
+
+tasks.named("dependencyUpdates").configure {
+    rejectVersionIf {
+        it.candidate.version.toLowerCase().contains("alpha")
+                || it.candidate.version.toLowerCase().contains("beta")
+                || it.candidate.version.toLowerCase().contains("rc")
+    }
 }

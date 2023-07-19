@@ -3,7 +3,6 @@ apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 android {
     namespace 'com.alexeymerov.radiostations'
@@ -21,12 +20,11 @@ android {
 
     buildFeatures {
         buildConfig true
-        viewBinding true
         compose true
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.7"
+        kotlinCompilerExtensionVersion = "1.5.0"
     }
 
     defaultConfig {
@@ -81,9 +79,6 @@ android {
 dependencies {
     implementation "com.google.dagger:hilt-android:${versions.hilt}"
     kapt "com.google.dagger:hilt-compiler:${versions.hilt}"
-
-    implementation "androidx.navigation:navigation-fragment-ktx:${versions.navigation}"
-    implementation "androidx.navigation:navigation-ui-ktx:${versions.navigation}"
 
     implementation "com.jakewharton.timber:timber:${versions.timber}"
 }

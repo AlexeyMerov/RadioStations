@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.presentation.screen.category
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -71,18 +72,26 @@ private fun CreateMainContent(
     LaunchedEffect(Unit) { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     categoryItems: List<CategoryItemDto>,
     navController: NavHostController
 ) {
     LazyColumn(Modifier.fillMaxSize()) {
-        itemsIndexed(categoryItems) { index, itemDto ->
+        itemsIndexed(
+            items = categoryItems,
+            key = { _, item -> item.url.ifEmpty { item.text } },
+            contentType = { _, item -> item.type }
+        ) { index, itemDto ->
+            val defaultModifier = Modifier
+                .fillMaxWidth()
+                .animateItemPlacement()
             when (itemDto.type) {
-                DtoItemType.HEADER -> HeaderListItem(itemDto)
-                DtoItemType.CATEGORY -> CategoryListItem(navController, itemDto)
-                DtoItemType.SUBCATEGORY -> SubCategoryListItem(navController, itemDto)
-                DtoItemType.AUDIO -> StationListItem(navController, itemDto)
+                DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
+                DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, navController, itemDto)
+                DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, navController, itemDto)
+                DtoItemType.AUDIO -> StationListItem(defaultModifier, navController, itemDto)
             }
 
             if (index != categoryItems.size - 1) {
@@ -97,9 +106,9 @@ private fun MainContent(
 }
 
 @Composable
-fun HeaderListItem(itemDto: CategoryItemDto) {
+fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
     Row(
-        Modifier.fillMaxWidth(),
+        modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -114,15 +123,12 @@ fun HeaderListItem(itemDto: CategoryItemDto) {
 }
 
 @Composable
-fun CategoryListItem(navController: NavHostController, itemDto: CategoryItemDto) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-                onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
-            ),
+fun CategoryListItem(modifier: Modifier, navController: NavHostController, itemDto: CategoryItemDto) {
+    Row(modifier.clickable(
+        interactionSource = MutableInteractionSource(),
+        indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+        onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
+    ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -137,15 +143,12 @@ fun CategoryListItem(navController: NavHostController, itemDto: CategoryItemDto)
 }
 
 @Composable
-fun SubCategoryListItem(navController: NavHostController, itemDto: CategoryItemDto) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-                onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
-            ),
+fun SubCategoryListItem(modifier: Modifier, navController: NavHostController, itemDto: CategoryItemDto) {
+    Row(modifier.clickable(
+        interactionSource = MutableInteractionSource(),
+        indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+        onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
+    ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -166,15 +169,12 @@ fun SubCategoryListItem(navController: NavHostController, itemDto: CategoryItemD
 }
 
 @Composable
-fun StationListItem(navController: NavHostController, itemDto: CategoryItemDto) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-                onClick = { navController.navigate(Screens.Player.createRoute(itemDto.text, itemDto.image.orEmpty(), itemDto.url)) }
-            ),
+fun StationListItem(modifier: Modifier, navController: NavHostController, itemDto: CategoryItemDto) {
+    Row(modifier.clickable(
+        interactionSource = MutableInteractionSource(),
+        indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+        onClick = { navController.navigate(Screens.Player.createRoute(itemDto.text, itemDto.image.orEmpty(), itemDto.url)) }
+    ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val vectorPainter = painterResource(id = R.drawable.full_image)
