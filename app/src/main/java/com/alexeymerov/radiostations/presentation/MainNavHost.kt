@@ -2,10 +2,31 @@
 
 package com.alexeymerov.radiostations.presentation
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavArgumentBuilder
 import androidx.navigation.NavBackStackEntry
@@ -13,6 +34,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -24,13 +46,54 @@ import timber.log.Timber
 @Composable
 fun MainNavGraph() {
     val navController = rememberAnimatedNavController()
-    AnimatedNavHost(navController, startDestination = Screens.Categories.route) {
-        categoriesScreen(navController)
-        playerScreen(navController)
-    }
+    var scaffoldViewState by remember { mutableStateOf(AppBarState()) }
+
+    Scaffold(
+        containerColor = colorResource(R.color.background),
+        topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
+        content = { paddingValues ->
+            AnimatedNavHost(navController, startDestination = Screens.Categories.route, modifier = Modifier.padding(paddingValues)) {
+                categoriesScreen(navController) {
+                    LaunchedEffect(Unit) {
+                        scaffoldViewState = it
+                    }
+                }
+                playerScreen() {
+                    LaunchedEffect(Unit) {
+                        scaffoldViewState = it
+                    }
+                }
+            }
+        }
+    )
 }
 
-private fun NavGraphBuilder.categoriesScreen(navController: NavHostController) {
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, navController: NavHostController) {
+    val categoryTitle = viewState.titleRes?.let { stringResource(it) } ?: viewState.title
+
+    TopAppBar(
+        title = { Text(categoryTitle) },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colorResource(R.color.main_200),
+            navigationIconContentColor = Color.White,
+            titleContentColor = Color.White
+        ),
+        navigationIcon = {
+            if (displayBackButton) {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
+            }
+        }
+    )
+}
+
+private fun NavGraphBuilder.categoriesScreen(navController: NavHostController, appBarBlock: @Composable (AppBarState) -> Unit) {
     composable(
         route = Screens.Categories.route,
         arguments = createListOfStringArgs(NavConst.ARG_CATEGORY_TITLE, NavConst.ARG_CATEGORY_URL),
@@ -44,11 +107,12 @@ private fun NavGraphBuilder.categoriesScreen(navController: NavHostController) {
         val categoryTitle = backStackEntry.getArg(NavConst.ARG_CATEGORY_TITLE).ifEmpty { NavConst.CATEGORY_DEF_TITLE }
         val categoryUrl = backStackEntry.getArg(NavConst.ARG_CATEGORY_URL)
         val displayBackButton = categoryTitle != NavConst.CATEGORY_DEF_TITLE
-        CategoryListScreen(navController, displayBackButton, categoryTitle, categoryUrl.decodeUrl())
+        appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
+        CategoryListScreen(navController, categoryUrl.decodeUrl())
     }
 }
 
-private fun NavGraphBuilder.playerScreen(navController: NavHostController) {
+private fun NavGraphBuilder.playerScreen(appBarBlock: @Composable (AppBarState) -> Unit) {
     composable(
         route = Screens.Player.route,
         arguments = createListOfStringArgs(NavConst.ARG_STATION_NAME, NavConst.ARG_STATION_IMG_URL, NavConst.ARG_RAW_URL),
@@ -62,7 +126,8 @@ private fun NavGraphBuilder.playerScreen(navController: NavHostController) {
         val stationName = backStackEntry.getArg(NavConst.ARG_STATION_NAME)
         val stationImgUrl = backStackEntry.getArg(NavConst.ARG_STATION_IMG_URL)
         val rawUrl = backStackEntry.getArg(NavConst.ARG_RAW_URL)
-        PlayerScreen(navController, stationName, stationImgUrl.decodeUrl(), rawUrl.decodeUrl())
+        appBarBlock.invoke(AppBarState(title = stationName))
+        PlayerScreen(stationImgUrl.decodeUrl(), rawUrl.decodeUrl())
     }
 }
 
@@ -114,7 +179,12 @@ private val slideRight = AnimatedContentScope.SlideDirection.Right
 private val animationSpec = tween<IntOffset>(200)
 
 
-
+@Immutable
+data class AppBarState(
+    @StringRes val titleRes: Int? = null,
+    val title: String = "",
+    val displayBackButton: Boolean = true
+)
 
 
 

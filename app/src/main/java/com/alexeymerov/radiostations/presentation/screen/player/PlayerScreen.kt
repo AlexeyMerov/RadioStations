@@ -4,20 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -25,11 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -38,7 +27,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewState
@@ -47,8 +35,6 @@ import timber.log.Timber
 @Composable
 //@Preview
 fun PlayerScreen(
-    navController: NavHostController,
-    stationName: String,
     stationImgUrl: String,
     rawUrl: String,
     viewModel: PlayerViewModel = hiltViewModel()
@@ -68,11 +54,7 @@ fun PlayerScreen(
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val isLoading = viewState == ViewState.Loading
 
-    Scaffold(
-        containerColor = colorResource(R.color.background),
-        topBar = { CreateTopBar(stationName, navController) },
-        content = { padding -> CreateMainContent(isLoading, viewModel, stationImgUrl, padding, viewState, exoPlayer) }
-    )
+    CreateMainContent(isLoading, viewModel, stationImgUrl, viewState, exoPlayer)
 
     viewModel.setAction(PlayerViewModel.ViewAction.LoadAudio(rawUrl))
 }
@@ -82,38 +64,16 @@ private fun CreateMainContent(
     isLoading: Boolean,
     viewModel: PlayerViewModel,
     stationImgUrl: String,
-    padding: PaddingValues,
     viewState: ViewState,
     exoPlayer: ExoPlayer
 ) {
-    if (isLoading) LoaderView() else MainContent(viewModel, stationImgUrl, padding)
+    if (isLoading) LoaderView() else MainContent(viewModel, stationImgUrl)
 
-    when (val state = viewState) {
+    when (viewState) {
         ViewState.Error -> Error()
-        is ViewState.ReadyToPlay -> ProcessReadyToPlay(viewModel, exoPlayer, state)
+        is ViewState.ReadyToPlay -> ProcessReadyToPlay(viewModel, exoPlayer, viewState)
         else -> {}
     }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun CreateTopBar(stationName: String, navController: NavHostController) {
-    TopAppBar(
-        title = { Text(stationName) },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(R.color.main_200),
-            navigationIconContentColor = Color.White,
-            titleContentColor = Color.White
-        ),
-        navigationIcon = {
-            IconButton(onClick = { navController.navigateUp() }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
-                )
-            }
-        }
-    )
 }
 
 @Composable
@@ -132,7 +92,7 @@ private fun ProcessReadyToPlay(viewModel: PlayerViewModel, exoPlayer: ExoPlayer,
 }
 
 @Composable
-private fun MainContent(viewModel: PlayerViewModel, imageUrl: String, padding: PaddingValues) {
+private fun MainContent(viewModel: PlayerViewModel, imageUrl: String) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
