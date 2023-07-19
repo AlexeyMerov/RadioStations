@@ -54,14 +54,10 @@ fun MainNavGraph() {
         content = { paddingValues ->
             AnimatedNavHost(navController, startDestination = Screens.Categories.route, modifier = Modifier.padding(paddingValues)) {
                 categoriesScreen(navController) {
-                    LaunchedEffect(Unit) {
-                        scaffoldViewState = it
-                    }
+                    LaunchedEffect(Unit) { scaffoldViewState = it }
                 }
                 playerScreen() {
-                    LaunchedEffect(Unit) {
-                        scaffoldViewState = it
-                    }
+                    LaunchedEffect(Unit) { scaffoldViewState = it }
                 }
             }
         }

@@ -71,28 +71,19 @@ private fun CreateMainContent(
         else -> {}
     }
 
-    val data by viewModel.getCategories(categoryUrl).collectAsStateWithLifecycle(initialValue = emptyList())
+    val categoryItems by viewModel.getCategories(categoryUrl).collectAsStateWithLifecycle(initialValue = emptyList())
     LaunchedEffect(Unit) { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
     LazyColumn(Modifier.fillMaxSize()) {
-        itemsIndexed(data) { index, item ->
-            when (item.type) {
-                DtoItemType.HEADER -> HeaderListItem(item)
-                DtoItemType.CATEGORY -> CategoryListItem(item) {
-                    navController.navigate(Screens.Categories.createRoute(item.text, item.url))
-                }
-
-                DtoItemType.SUBCATEGORY -> SubCategoryListItem(item) {
-                    navController.navigate(Screens.Categories.createRoute(item.text, item.url))
-                }
-
-                DtoItemType.AUDIO -> StationListItem(item) {
-                    navController.navigate(Screens.Player.createRoute(item.text, item.image.orEmpty(), item.url))
-                }
+        itemsIndexed(categoryItems) { index, itemDto ->
+            when (itemDto.type) {
+                DtoItemType.HEADER -> HeaderListItem(itemDto)
+                DtoItemType.CATEGORY -> CategoryListItem(navController, itemDto)
+                DtoItemType.SUBCATEGORY -> SubCategoryListItem(navController, itemDto)
+                DtoItemType.AUDIO -> StationListItem(navController, itemDto)
             }
 
-            if (index != data.size - 1) {
-
-                if (item.type == DtoItemType.HEADER || item.type == DtoItemType.SUBCATEGORY) {
+            if (index != categoryItems.size - 1) {
+                if (itemDto.type == DtoItemType.HEADER || itemDto.type == DtoItemType.SUBCATEGORY) {
                     Divider(
                         Modifier.padding(start = 16.dp, end = 16.dp),
                         thickness = 0.5.dp
@@ -110,13 +101,13 @@ private fun CreateMainContent(
 }
 
 @Composable
-fun HeaderListItem(data: CategoryItemDto) {
+fun HeaderListItem(itemDto: CategoryItemDto) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = data.text,
+            text = itemDto.text,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -128,19 +119,19 @@ fun HeaderListItem(data: CategoryItemDto) {
 }
 
 @Composable
-fun CategoryListItem(data: CategoryItemDto, onClick: () -> Unit) {
+fun CategoryListItem(navController: NavHostController, itemDto: CategoryItemDto) {
     Row(
         Modifier
             .fillMaxWidth()
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = Color.White),
-                onClick = onClick
+                onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = data.text,
+            text = itemDto.text,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -152,20 +143,20 @@ fun CategoryListItem(data: CategoryItemDto, onClick: () -> Unit) {
 }
 
 @Composable
-fun SubCategoryListItem(data: CategoryItemDto, onClick: () -> Unit) {
+fun SubCategoryListItem(navController: NavHostController, itemDto: CategoryItemDto) {
     Row(
         Modifier
             .fillMaxWidth()
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = Color.White),
-                onClick = onClick
+                onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = data.text,
+            text = itemDto.text,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -183,14 +174,14 @@ fun SubCategoryListItem(data: CategoryItemDto, onClick: () -> Unit) {
 }
 
 @Composable
-fun StationListItem(data: CategoryItemDto, onClick: () -> Unit) {
+fun StationListItem(navController: NavHostController, itemDto: CategoryItemDto) {
     Row(
         Modifier
             .fillMaxWidth()
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = Color.White),
-                onClick = onClick
+                onClick = { navController.navigate(Screens.Player.createRoute(itemDto.text, itemDto.image.orEmpty(), itemDto.url)) }
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -200,7 +191,7 @@ fun StationListItem(data: CategoryItemDto, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(50.dp)
                     .clip(RoundedCornerShape(8.dp)),
-                model = data.image,
+                model = itemDto.image,
                 contentDescription = null,
                 placeholder = vectorPainter,
                 error = vectorPainter
@@ -208,7 +199,7 @@ fun StationListItem(data: CategoryItemDto, onClick: () -> Unit) {
         }
 
         Text(
-            text = data.text,
+            text = itemDto.text,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
