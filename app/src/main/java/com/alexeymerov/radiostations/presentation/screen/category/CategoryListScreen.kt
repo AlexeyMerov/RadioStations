@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,9 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,11 +33,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
 import com.alexeymerov.radiostations.presentation.Screens
+import com.alexeymerov.radiostations.presentation.common.ErrorView
+import com.alexeymerov.radiostations.presentation.common.LoaderView
 import timber.log.Timber
 
 
@@ -58,21 +61,21 @@ private fun CreateMainContent(
     navController: NavHostController
 ) {
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    when (viewState) {
-        CategoryListViewModel.ViewState.NothingAvailable -> {
-            Text(
-                modifier = Modifier.fillMaxSize(),
-                text = stringResource(R.string.sorry_nothing_available),
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-
-        else -> {}
-    }
-
     val categoryItems by viewModel.getCategories(categoryUrl).collectAsStateWithLifecycle(initialValue = emptyList())
+    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new state: $viewState")
+    when (viewState) {
+        CategoryListViewModel.ViewState.NothingAvailable -> ErrorView()
+        CategoryListViewModel.ViewState.Loading -> LoaderView()
+        CategoryListViewModel.ViewState.CategoriesLoaded -> MainContent(categoryItems, navController)
+    }
     LaunchedEffect(Unit) { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
+}
+
+@Composable
+private fun MainContent(
+    categoryItems: List<CategoryItemDto>,
+    navController: NavHostController
+) {
     LazyColumn(Modifier.fillMaxSize()) {
         itemsIndexed(categoryItems) { index, itemDto ->
             when (itemDto.type) {
@@ -83,18 +86,11 @@ private fun CreateMainContent(
             }
 
             if (index != categoryItems.size - 1) {
-                if (itemDto.type == DtoItemType.HEADER || itemDto.type == DtoItemType.SUBCATEGORY) {
-                    Divider(
-                        Modifier.padding(start = 16.dp, end = 16.dp),
-                        thickness = 0.5.dp
-                    )
-                } else {
-                    Divider(
-                        Modifier.padding(start = 8.dp, end = 8.dp),
-                        thickness = 0.5.dp
-                    )
-                }
-
+                val padding = if (itemDto.type == DtoItemType.HEADER || itemDto.type == DtoItemType.SUBCATEGORY) 16.dp else 8.dp
+                Divider(
+                    Modifier.padding(horizontal = padding),
+                    thickness = 0.5.dp
+                )
             }
         }
     }
@@ -111,7 +107,6 @@ fun HeaderListItem(itemDto: CategoryItemDto) {
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            color = Color.White,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 6.dp)
         )
@@ -125,7 +120,7 @@ fun CategoryListItem(navController: NavHostController, itemDto: CategoryItemDto)
             .fillMaxWidth()
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = Color.White),
+                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                 onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
             ),
         verticalAlignment = Alignment.CenterVertically
@@ -135,7 +130,6 @@ fun CategoryListItem(navController: NavHostController, itemDto: CategoryItemDto)
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            color = Color.White,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(16.dp)
         )
@@ -149,7 +143,7 @@ fun SubCategoryListItem(navController: NavHostController, itemDto: CategoryItemD
             .fillMaxWidth()
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = Color.White),
+                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                 onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -160,14 +154,12 @@ fun SubCategoryListItem(navController: NavHostController, itemDto: CategoryItemD
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            color = Color.White,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 32.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)
         )
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow),
             contentDescription = String.EMPTY,
-            tint = Color.White,
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -180,7 +172,7 @@ fun StationListItem(navController: NavHostController, itemDto: CategoryItemDto) 
             .fillMaxWidth()
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = Color.White),
+                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                 onClick = { navController.navigate(Screens.Player.createRoute(itemDto.text, itemDto.image.orEmpty(), itemDto.url)) }
             ),
         verticalAlignment = Alignment.CenterVertically
@@ -191,9 +183,11 @@ fun StationListItem(navController: NavHostController, itemDto: CategoryItemDto) 
                 modifier = Modifier
                     .size(50.dp)
                     .clip(RoundedCornerShape(8.dp)),
-                model = itemDto.image,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(itemDto.image)
+                    .crossfade(200)
+                    .build(),
                 contentDescription = null,
-                placeholder = vectorPainter,
                 error = vectorPainter
             )
         }
@@ -203,7 +197,6 @@ fun StationListItem(navController: NavHostController, itemDto: CategoryItemDto) 
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            color = Color.White,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 12.dp, top = 24.dp, bottom = 24.dp, end = 16.dp)
         )

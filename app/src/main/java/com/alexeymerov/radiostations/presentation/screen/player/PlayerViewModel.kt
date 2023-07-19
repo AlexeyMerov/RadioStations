@@ -1,11 +1,11 @@
 package com.alexeymerov.radiostations.presentation.screen.player
 
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.common.BaseViewAction
+import com.alexeymerov.radiostations.common.BaseViewEffect
+import com.alexeymerov.radiostations.common.BaseViewModel
+import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
-import com.alexeymerov.radiostations.presentation.BaseViewAction
-import com.alexeymerov.radiostations.presentation.BaseViewEffect
-import com.alexeymerov.radiostations.presentation.BaseViewModel
-import com.alexeymerov.radiostations.presentation.BaseViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

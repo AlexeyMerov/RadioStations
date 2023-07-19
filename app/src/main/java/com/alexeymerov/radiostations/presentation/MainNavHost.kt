@@ -15,7 +15,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,8 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavArgumentBuilder
@@ -37,6 +34,7 @@ import androidx.navigation.navArgument
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
+import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -48,20 +46,21 @@ fun MainNavGraph() {
     val navController = rememberAnimatedNavController()
     var scaffoldViewState by remember { mutableStateOf(AppBarState()) }
 
-    Scaffold(
-        containerColor = colorResource(R.color.background),
-        topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
-        content = { paddingValues ->
-            AnimatedNavHost(navController, startDestination = Screens.Categories.route, modifier = Modifier.padding(paddingValues)) {
-                categoriesScreen(navController) {
-                    LaunchedEffect(Unit) { scaffoldViewState = it }
-                }
-                playerScreen() {
-                    LaunchedEffect(Unit) { scaffoldViewState = it }
+    StationsAppTheme() {
+        Scaffold(
+            topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
+            content = { paddingValues ->
+                AnimatedNavHost(navController, startDestination = Screens.Categories.route, modifier = Modifier.padding(paddingValues)) {
+                    categoriesScreen(navController) {
+                        LaunchedEffect(Unit) { scaffoldViewState = it }
+                    }
+                    playerScreen() {
+                        LaunchedEffect(Unit) { scaffoldViewState = it }
+                    }
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -71,11 +70,6 @@ private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, nav
 
     TopAppBar(
         title = { Text(categoryTitle) },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(R.color.main_200),
-            navigationIconContentColor = Color.White,
-            titleContentColor = Color.White
-        ),
         navigationIcon = {
             if (displayBackButton) {
                 IconButton(onClick = { navController.navigateUp() }) {
@@ -93,10 +87,10 @@ private fun NavGraphBuilder.categoriesScreen(navController: NavHostController, a
     composable(
         route = Screens.Categories.route,
         arguments = createListOfStringArgs(NavConst.ARG_CATEGORY_TITLE, NavConst.ARG_CATEGORY_URL),
-        enterTransition = { slideIntoContainer(slideLeft, animationSpec) },
-        exitTransition = { slideOutOfContainer(slideLeft, animationSpec) },
-        popEnterTransition = { slideIntoContainer(slideRight, animationSpec) },
-        popExitTransition = { slideOutOfContainer(slideRight, animationSpec) }
+        enterTransition = { slideIntoContainer(slideLeft, transitionAnimationSpec) },
+        exitTransition = { slideOutOfContainer(slideLeft, transitionAnimationSpec) },
+        popEnterTransition = { slideIntoContainer(slideRight, transitionAnimationSpec) },
+        popExitTransition = { slideOutOfContainer(slideRight, transitionAnimationSpec) }
     ) { backStackEntry ->
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
@@ -112,10 +106,10 @@ private fun NavGraphBuilder.playerScreen(appBarBlock: @Composable (AppBarState) 
     composable(
         route = Screens.Player.route,
         arguments = createListOfStringArgs(NavConst.ARG_STATION_NAME, NavConst.ARG_STATION_IMG_URL, NavConst.ARG_RAW_URL),
-        enterTransition = { slideIntoContainer(slideLeft, animationSpec) },
-        exitTransition = { slideOutOfContainer(slideLeft, animationSpec) },
-        popEnterTransition = { slideIntoContainer(slideRight, animationSpec) },
-        popExitTransition = { slideOutOfContainer(slideRight, animationSpec) }
+        enterTransition = { slideIntoContainer(slideLeft, transitionAnimationSpec) },
+        exitTransition = { slideOutOfContainer(slideLeft, transitionAnimationSpec) },
+        popEnterTransition = { slideIntoContainer(slideRight, transitionAnimationSpec) },
+        popExitTransition = { slideOutOfContainer(slideRight, transitionAnimationSpec) }
     ) { backStackEntry ->
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
@@ -172,8 +166,7 @@ private fun String.decodeUrl() = replace("!", "/").replace("*", "?")
 
 private val slideLeft = AnimatedContentScope.SlideDirection.Left
 private val slideRight = AnimatedContentScope.SlideDirection.Right
-private val animationSpec = tween<IntOffset>(200)
-
+private val transitionAnimationSpec = tween<IntOffset>(300)
 
 @Immutable
 data class AppBarState(

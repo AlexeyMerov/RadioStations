@@ -1,9 +1,7 @@
-package com.alexeymerov.radiostations.presentation
+package com.alexeymerov.radiostations.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alexeymerov.radiostations.common.emit
-import com.alexeymerov.radiostations.common.send
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

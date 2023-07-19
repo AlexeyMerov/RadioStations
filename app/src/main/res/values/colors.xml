@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="main_200">#00BAD1</color>
-    <color name="main_500">#0097AA</color>
-    <color name="main_700">#005F6C</color>
-    <color name="second_200">#FF9800</color>
-    <color name="second_700">#BC7000</color>
-    <color name="black">#FF000000</color>
-    <color name="background">#252525</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="background">#FFFFFF</color>
 </resources>
