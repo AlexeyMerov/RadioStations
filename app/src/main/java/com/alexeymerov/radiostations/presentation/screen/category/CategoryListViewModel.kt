@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.fragment.category
+package com.alexeymerov.radiostations.presentation.screen.category
 
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
@@ -6,7 +6,7 @@ import com.alexeymerov.radiostations.presentation.BaseViewAction
 import com.alexeymerov.radiostations.presentation.BaseViewEffect
 import com.alexeymerov.radiostations.presentation.BaseViewModel
 import com.alexeymerov.radiostations.presentation.BaseViewState
-import com.alexeymerov.radiostations.presentation.fragment.category.CategoryListViewModel.ViewState.NothingAvailable
+import com.alexeymerov.radiostations.presentation.screen.category.CategoryListViewModel.ViewState.NothingAvailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter

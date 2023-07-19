@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.fragment.item
+package com.alexeymerov.radiostations.presentation.screen.player
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -41,18 +41,17 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.presentation.fragment.item.AudioViewModel.ViewState
+import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewState
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 //@Preview
-fun AudioScreen(
+fun PlayerScreen(
     navController: NavHostController,
     stationName: String,
     stationImgUrl: String,
     rawUrl: String,
-    viewModel: AudioViewModel = hiltViewModel()
+    viewModel: PlayerViewModel = hiltViewModel()
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
@@ -71,59 +70,69 @@ fun AudioScreen(
 
     Scaffold(
         containerColor = colorResource(R.color.background),
-        topBar = {
-            TopAppBar(
-                title = { Text(stationName) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(R.color.main_200),
-                    navigationIconContentColor = Color.White,
-                    titleContentColor = Color.White
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                }
-            )
-        },
-        content = { padding ->
-            if (isLoading) LoaderView() else MainContent(viewModel, stationImgUrl, padding)
-
-            when (val state = viewState) {
-                ViewState.Error -> Error()
-                is ViewState.ReadyToPlay -> ProcessReadyToPlay(viewModel, exoPlayer, state)
-                else -> {}
-            }
-        }
+        topBar = { CreateTopBar(stationName, navController) },
+        content = { padding -> CreateMainContent(isLoading, viewModel, stationImgUrl, padding, viewState, exoPlayer) }
     )
 
-    viewModel.setAction(AudioViewModel.ViewAction.LoadAudio(rawUrl))
-
+    viewModel.setAction(PlayerViewModel.ViewAction.LoadAudio(rawUrl))
 }
 
 @Composable
-private fun ProcessReadyToPlay(viewModel: AudioViewModel, exoPlayer: ExoPlayer, state: ViewState.ReadyToPlay) {
+private fun CreateMainContent(
+    isLoading: Boolean,
+    viewModel: PlayerViewModel,
+    stationImgUrl: String,
+    padding: PaddingValues,
+    viewState: ViewState,
+    exoPlayer: ExoPlayer
+) {
+    if (isLoading) LoaderView() else MainContent(viewModel, stationImgUrl, padding)
+
+    when (val state = viewState) {
+        ViewState.Error -> Error()
+        is ViewState.ReadyToPlay -> ProcessReadyToPlay(viewModel, exoPlayer, state)
+        else -> {}
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CreateTopBar(stationName: String, navController: NavHostController) {
+    TopAppBar(
+        title = { Text(stationName) },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colorResource(R.color.main_200),
+            navigationIconContentColor = Color.White,
+            titleContentColor = Color.White
+        ),
+        navigationIcon = {
+            IconButton(onClick = { navController.navigateUp() }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back)
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun ProcessReadyToPlay(viewModel: PlayerViewModel, exoPlayer: ExoPlayer, state: ViewState.ReadyToPlay) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] audioLink ${state.url}")
     val mediaItem = MediaItem.fromUri(state.url)
     exoPlayer.setMediaItem(mediaItem)
 
     val playState by viewModel.playerState.collectAsStateWithLifecycle()
-
-    when (playState) {
-        AudioViewModel.PlayerState.Play -> {
-            exoPlayer.prepare()
-            exoPlayer.play()
-        }
-
-        AudioViewModel.PlayerState.Stop -> exoPlayer.stop()
+    if (playState == PlayerViewModel.PlayerState.Play) {
+        exoPlayer.prepare()
+        exoPlayer.play()
+    } else {
+        exoPlayer.stop()
     }
 }
 
 @Composable
-private fun MainContent(viewModel: AudioViewModel, imageUrl: String, padding: PaddingValues) {
+private fun MainContent(viewModel: PlayerViewModel, imageUrl: String, padding: PaddingValues) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,11 +158,11 @@ private fun StationImage(imageUrl: String) {
 }
 
 @Composable
-private fun ControlButton(viewModel: AudioViewModel) {
+private fun ControlButton(viewModel: PlayerViewModel) {
     val playState by viewModel.playerState.collectAsStateWithLifecycle()
     val resId = when (playState) {
-        AudioViewModel.PlayerState.Play -> R.drawable.stop_square
-        AudioViewModel.PlayerState.Stop -> R.drawable.play_arrow
+        PlayerViewModel.PlayerState.Play -> R.drawable.stop_square
+        PlayerViewModel.PlayerState.Stop -> R.drawable.play_arrow
     }
     val vectorPlay = ImageVector.vectorResource(id = resId)
     val vectorPlayPainter = rememberVectorPainter(vectorPlay)
@@ -163,7 +172,7 @@ private fun ControlButton(viewModel: AudioViewModel) {
         modifier = Modifier
             .size(64.dp)
             .clickable {
-                viewModel.setAction(AudioViewModel.ViewAction.ToggleAudio)
+                viewModel.setAction(PlayerViewModel.ViewAction.ToggleAudio)
             }
     )
 }

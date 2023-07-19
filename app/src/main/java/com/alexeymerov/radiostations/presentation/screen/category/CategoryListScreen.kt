@@ -1,9 +1,10 @@
-package com.alexeymerov.radiostations.presentation.fragment.category
+package com.alexeymerov.radiostations.presentation.screen.category
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,7 +50,6 @@ import com.alexeymerov.radiostations.presentation.Screens
 import timber.log.Timber
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryListScreen(
     navController: NavHostController,
@@ -62,84 +62,96 @@ fun CategoryListScreen(
 
     Scaffold(
         containerColor = colorResource(R.color.background),
-        topBar = {
-            TopAppBar(
-                title = { Text(categoryTitle) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(R.color.main_200),
-                    navigationIconContentColor = Color.White,
-                    titleContentColor = Color.White
-                ),
-                navigationIcon = {
-                    if (displayBackButton) {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back)
-                            )
-                        }
-                    }
-                }
-            )
-        },
-        content = { paddingValues ->
-            val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-            when (viewState) {
-                CategoryListViewModel.ViewState.NothingAvailable -> {
-                    Text(
-                        modifier = Modifier.fillMaxSize(),
-                        text = stringResource(R.string.sorry_nothing_available),
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold,
+        topBar = { CreateTopBar(categoryTitle, displayBackButton, navController) },
+        content = { paddingValues -> CreateMainContent(viewModel, categoryUrl, paddingValues, navController) }
+    )
+
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CreateTopBar(categoryTitle: String, displayBackButton: Boolean, navController: NavHostController) {
+    TopAppBar(
+        title = { Text(categoryTitle) },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colorResource(R.color.main_200),
+            navigationIconContentColor = Color.White,
+            titleContentColor = Color.White
+        ),
+        navigationIcon = {
+            if (displayBackButton) {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
                     )
-                }
-
-                else -> {}
-            }
-
-            val data by viewModel.getCategories(categoryUrl).collectAsStateWithLifecycle(initialValue = emptyList())
-            LaunchedEffect(Unit) { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
-            LazyColumn(
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                itemsIndexed(data) { index, item ->
-                    when (item.type) {
-                        DtoItemType.HEADER -> HeaderListItem(item)
-                        DtoItemType.CATEGORY -> CategoryListItem(item) {
-                            navController.navigate(Screens.Categories.createRoute(item.text, item.url))
-                        }
-
-                        DtoItemType.SUBCATEGORY -> SubCategoryListItem(item) {
-                            navController.navigate(Screens.Categories.createRoute(item.text, item.url))
-                        }
-
-                        DtoItemType.AUDIO -> StationListItem(item) {
-                            navController.navigate(Screens.Audio.createRoute(item.text, item.image.orEmpty(), item.url))
-                        }
-                    }
-
-                    if (index != data.size - 1) {
-
-                        if (item.type == DtoItemType.HEADER || item.type == DtoItemType.SUBCATEGORY) {
-                            Divider(
-                                Modifier.padding(start = 16.dp, end = 16.dp),
-                                thickness = 0.5.dp
-                            )
-                        } else {
-                            Divider(
-                                Modifier.padding(start = 8.dp, end = 8.dp),
-                                thickness = 0.5.dp
-                            )
-                        }
-
-                    }
                 }
             }
         }
     )
+}
 
+@Composable
+private fun CreateMainContent(
+    viewModel: CategoryListViewModel,
+    categoryUrl: String,
+    paddingValues: PaddingValues,
+    navController: NavHostController
+) {
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    when (viewState) {
+        CategoryListViewModel.ViewState.NothingAvailable -> {
+            Text(
+                modifier = Modifier.fillMaxSize(),
+                text = stringResource(R.string.sorry_nothing_available),
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+
+        else -> {}
+    }
+
+    val data by viewModel.getCategories(categoryUrl).collectAsStateWithLifecycle(initialValue = emptyList())
+    LaunchedEffect(Unit) { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
+    LazyColumn(
+        Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
+        itemsIndexed(data) { index, item ->
+            when (item.type) {
+                DtoItemType.HEADER -> HeaderListItem(item)
+                DtoItemType.CATEGORY -> CategoryListItem(item) {
+                    navController.navigate(Screens.Categories.createRoute(item.text, item.url))
+                }
+
+                DtoItemType.SUBCATEGORY -> SubCategoryListItem(item) {
+                    navController.navigate(Screens.Categories.createRoute(item.text, item.url))
+                }
+
+                DtoItemType.AUDIO -> StationListItem(item) {
+                    navController.navigate(Screens.Player.createRoute(item.text, item.image.orEmpty(), item.url))
+                }
+            }
+
+            if (index != data.size - 1) {
+
+                if (item.type == DtoItemType.HEADER || item.type == DtoItemType.SUBCATEGORY) {
+                    Divider(
+                        Modifier.padding(start = 16.dp, end = 16.dp),
+                        thickness = 0.5.dp
+                    )
+                } else {
+                    Divider(
+                        Modifier.padding(start = 8.dp, end = 8.dp),
+                        thickness = 0.5.dp
+                    )
+                }
+
+            }
+        }
+    }
 }
 
 @Composable
@@ -168,9 +180,8 @@ fun CategoryListItem(data: CategoryItemDto, onClick: () -> Unit) {
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = Color.White),
-            ) {
-                onClick.invoke()
-            },
+                onClick = onClick
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -193,9 +204,8 @@ fun SubCategoryListItem(data: CategoryItemDto, onClick: () -> Unit) {
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = Color.White),
-            ) {
-                onClick.invoke()
-            },
+                onClick = onClick
+            ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -225,9 +235,8 @@ fun StationListItem(data: CategoryItemDto, onClick: () -> Unit) {
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = Color.White),
-            ) {
-                onClick.invoke()
-            },
+                onClick = onClick
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val vectorPainter = painterResource(id = R.drawable.full_image)

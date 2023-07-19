@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.fragment.item
+package com.alexeymerov.radiostations.presentation.screen.player
 
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
@@ -14,8 +14,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class AudioViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) :
-    BaseViewModel<AudioViewModel.ViewState, AudioViewModel.ViewAction, AudioViewModel.ViewEffect>() {
+class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) :
+    BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
     private val _playerState = MutableStateFlow<PlayerState>(PlayerState.Stop)
     val playerState = _playerState.asStateFlow()
