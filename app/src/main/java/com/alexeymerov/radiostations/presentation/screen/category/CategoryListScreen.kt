@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,14 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
-import com.alexeymerov.radiostations.presentation.Screens
+import com.alexeymerov.radiostations.presentation.common.CallOnDispose
+import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
 import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.common.LoaderView
 import timber.log.Timber
@@ -47,37 +46,40 @@ import timber.log.Timber
 
 @Composable
 fun CategoryListScreen(
-    navController: NavHostController,
     categoryUrl: String,
-    viewModel: CategoryListViewModel = hiltViewModel()
+    viewModel: CategoryListViewModel = hiltViewModel(),
+    onCategoryClick: (CategoryItemDto) -> Unit,
+    onAudioClick: (CategoryItemDto) -> Unit
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
-    CreateMainContent(viewModel, categoryUrl, navController)
+    CallOnLaunch { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
+    CallOnDispose { viewModel.clear() }
+    CreateMainContent(viewModel, onCategoryClick, onAudioClick)
 }
 
 @Composable
 private fun CreateMainContent(
     viewModel: CategoryListViewModel,
-    categoryUrl: String,
-    navController: NavHostController
+    onCategoryClick: (CategoryItemDto) -> Unit,
+    onAudioClick: (CategoryItemDto) -> Unit
 ) {
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val categoryItems by viewModel.getCategories(categoryUrl).collectAsStateWithLifecycle(initialValue = emptyList())
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new state: $viewState")
-    when (viewState) {
+    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${viewState.javaClass.simpleName}")
+    when (val state = viewState) {
         CategoryListViewModel.ViewState.NothingAvailable -> ErrorView()
         CategoryListViewModel.ViewState.Loading -> LoaderView()
-        CategoryListViewModel.ViewState.CategoriesLoaded -> MainContent(categoryItems, navController)
+        is CategoryListViewModel.ViewState.CategoriesLoaded -> MainContent(state.list, onCategoryClick, onAudioClick)
     }
-    LaunchedEffect(Unit) { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     categoryItems: List<CategoryItemDto>,
-    navController: NavHostController
+    onCategoryClick: (CategoryItemDto) -> Unit,
+    onAudioClick: (CategoryItemDto) -> Unit
 ) {
+    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
     LazyColumn(Modifier.fillMaxSize()) {
         itemsIndexed(
             items = categoryItems,
@@ -89,9 +91,9 @@ private fun MainContent(
                 .animateItemPlacement()
             when (itemDto.type) {
                 DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
-                DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, navController, itemDto)
-                DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, navController, itemDto)
-                DtoItemType.AUDIO -> StationListItem(defaultModifier, navController, itemDto)
+                DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
+                DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
+                DtoItemType.AUDIO -> StationListItem(defaultModifier, itemDto, onAudioClick)
             }
 
             if (index != categoryItems.size - 1) {
@@ -123,12 +125,12 @@ fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
 }
 
 @Composable
-fun CategoryListItem(modifier: Modifier, navController: NavHostController, itemDto: CategoryItemDto) {
-    Row(modifier.clickable(
-        interactionSource = MutableInteractionSource(),
-        indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-        onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
-    ),
+fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
+    Row(
+        modifier.clickable(
+            interactionSource = MutableInteractionSource(),
+            indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+            onClick = { onCategoryClick.invoke(itemDto) }),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -143,11 +145,11 @@ fun CategoryListItem(modifier: Modifier, navController: NavHostController, itemD
 }
 
 @Composable
-fun SubCategoryListItem(modifier: Modifier, navController: NavHostController, itemDto: CategoryItemDto) {
+fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
     Row(modifier.clickable(
         interactionSource = MutableInteractionSource(),
         indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-        onClick = { navController.navigate(Screens.Categories.createRoute(itemDto.text, itemDto.url)) }
+        onClick = { onCategoryClick.invoke(itemDto) }
     ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -169,11 +171,11 @@ fun SubCategoryListItem(modifier: Modifier, navController: NavHostController, it
 }
 
 @Composable
-fun StationListItem(modifier: Modifier, navController: NavHostController, itemDto: CategoryItemDto) {
+fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: (CategoryItemDto) -> Unit) {
     Row(modifier.clickable(
         interactionSource = MutableInteractionSource(),
         indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-        onClick = { navController.navigate(Screens.Player.createRoute(itemDto.text, itemDto.image.orEmpty(), itemDto.url)) }
+        onClick = { onAudioClick.invoke(itemDto) }
     ),
         verticalAlignment = Alignment.CenterVertically
     ) {

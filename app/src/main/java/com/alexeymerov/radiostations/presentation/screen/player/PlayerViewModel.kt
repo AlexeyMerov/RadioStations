@@ -17,7 +17,7 @@ import javax.inject.Inject
 class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) :
     BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
-    private val _playerState = MutableStateFlow<PlayerState>(PlayerState.Stop)
+    private val _playerState = MutableStateFlow<PlayerState>(PlayerState.Play)
     val playerState = _playerState.asStateFlow()
 
     override fun createInitialState() = ViewState.Loading

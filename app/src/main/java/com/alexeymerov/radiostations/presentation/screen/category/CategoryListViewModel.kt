@@ -1,16 +1,16 @@
 package com.alexeymerov.radiostations.presentation.screen.category
 
+import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.common.BaseViewAction
 import com.alexeymerov.radiostations.common.BaseViewEffect
 import com.alexeymerov.radiostations.common.BaseViewModel
 import com.alexeymerov.radiostations.common.BaseViewState
-import com.alexeymerov.radiostations.domain.dto.CategoryDto
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -18,24 +18,9 @@ import javax.inject.Inject
 class CategoryListViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) :
     BaseViewModel<CategoryListViewModel.ViewState, CategoryListViewModel.ViewAction, CategoryListViewModel.ViewEffect>() {
 
-    /**
-     * Original intent was to implement it as MVI but for dynamic params it'll be a total mess with subscription to flow.
-     * */
-    fun getCategories(categoryUrl: String) = categoryUseCase.getCategoriesByUrl(categoryUrl)
-        .filter(::filterCategories)
-        .map { it.items }
-        .distinctUntilChanged()
-        .onEach { list ->
-            if (list.isNotEmpty()) setState(ViewState.CategoriesLoaded)
-        }
-
-    private fun filterCategories(it: CategoryDto): Boolean {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] check for error list: ${it.isError}")
-        if (it.isError) {
-            setState(ViewState.NothingAvailable)
-            return false
-        }
-        return true
+    override fun setAction(action: ViewAction) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")
+        super.setAction(action)
     }
 
     override fun onCleared() {
@@ -47,6 +32,20 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
 
     override fun handleAction(action: ViewAction) {
         if (action is ViewAction.LoadCategories) {
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
+            viewModelScope.launch(Dispatchers.IO) {
+                categoryUseCase.getCategoriesByUrl(action.url)
+                    .collectLatest {
+                        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] getCategories: ${action.url}")
+                        if (it.isError) {
+                            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
+                            setState(ViewState.NothingAvailable)
+                        } else {
+                            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${it.items.size}")
+                            setState(ViewState.CategoriesLoaded(it.items))
+                        }
+                    }
+            }
             categoryUseCase.loadCategoriesByUrl(action.url)
         }
     }
@@ -57,7 +56,7 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
     sealed interface ViewState : BaseViewState {
         object Loading : ViewState
         object NothingAvailable : ViewState
-        object CategoriesLoaded : ViewState
+        data class CategoriesLoaded(val list: List<CategoryItemDto>) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {

@@ -12,7 +12,9 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +34,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.presentation.common.CallOnDispose
+import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
 import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.common.LoaderView
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewState
@@ -46,25 +49,18 @@ fun PlayerScreen(
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
-    val context = LocalContext.current
-    val exoPlayer = remember { ExoPlayer.Builder(context).build() }
-    CallOnDispose {
-        exoPlayer.stop()
-        exoPlayer.release()
-    }
-
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     when (val state = viewState) {
         ViewState.Loading -> LoaderView()
         ViewState.Error -> ErrorView()
-        is ViewState.ReadyToPlay -> MainContent(viewModel, stationImgUrl, exoPlayer, state.url)
+        is ViewState.ReadyToPlay -> MainContent(viewModel, stationImgUrl, state.url)
     }
 
-    viewModel.setAction(PlayerViewModel.ViewAction.LoadAudio(rawUrl))
+    CallOnLaunch { viewModel.setAction(PlayerViewModel.ViewAction.LoadAudio(rawUrl)) }
 }
 
 @Composable
-private fun MainContent(viewModel: PlayerViewModel, imageUrl: String, exoPlayer: ExoPlayer, stationUrl: String) {
+private fun MainContent(viewModel: PlayerViewModel, imageUrl: String, stationUrl: String) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -72,28 +68,39 @@ private fun MainContent(viewModel: PlayerViewModel, imageUrl: String, exoPlayer:
     ) {
         StationImage(imageUrl)
         ControlButton(viewModel)
-        ProcessPlayerState(viewModel, exoPlayer, stationUrl)
+        ProcessPlayerState(viewModel, stationUrl)
     }
 }
 
 @Composable
-private fun ProcessPlayerState(viewModel: PlayerViewModel, exoPlayer: ExoPlayer, stationUrl: String) {
+private fun ProcessPlayerState(viewModel: PlayerViewModel, stationUrl: String) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] audioLink $stationUrl")
-    val mediaItem = MediaItem.fromUri(stationUrl)
-    exoPlayer.setMediaItem(mediaItem)
+
+    val context = LocalContext.current
+
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            setMediaItem(MediaItem.fromUri(stationUrl))
+            prepare()
+            playWhenReady = true
+        }
+    }
+    CallOnDispose {
+        exoPlayer.stop()
+        exoPlayer.release()
+    }
 
     val playState by viewModel.playerState.collectAsStateWithLifecycle()
+    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] playState ${playState.javaClass.simpleName}")
     if (playState == PlayerViewModel.PlayerState.Play) {
-        exoPlayer.prepare()
         exoPlayer.play()
     } else {
-        exoPlayer.stop()
+        exoPlayer.pause()
     }
 }
 
 @Composable
 private fun StationImage(imageUrl: String) {
-    val vectorPainter = painterResource(id = R.drawable.full_image)
     AsyncImage(
         modifier = Modifier
             .size(200.dp)
@@ -103,7 +110,7 @@ private fun StationImage(imageUrl: String) {
             .crossfade(200)
             .build(),
         contentDescription = null,
-        error = vectorPainter
+        error = painterResource(id = R.drawable.full_image)
     )
 }
 
@@ -121,12 +128,13 @@ private fun ControlButton(viewModel: PlayerViewModel) {
         contentDescriptionString = stringResource(R.string.play)
     }
 
-    val vectorPlay = ImageVector.vectorResource(id = resId)
-    val vectorPlayPainter = rememberVectorPainter(vectorPlay)
+    val vectorPainter = rememberVectorPainter(ImageVector.vectorResource(id = resId))
+    val description by rememberSaveable(playState) { mutableStateOf(contentDescriptionString) }
+
     Image(
-        vectorPlayPainter,
+        vectorPainter,
         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary),
-        contentDescription = contentDescriptionString,
+        contentDescription = description,
         modifier = Modifier
             .size(60.dp)
             .clickable(

@@ -2,4 +2,5 @@
 <resources>
     <string name="sorry_nothing_found">Извините\nНичего не найдено </string>
     <string name="back">Назад</string>
+    <string name="browse">Каталог</string>
 </resources>

@@ -4,6 +4,7 @@ import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.db.entity.EntityItemType
 import com.alexeymerov.radiostations.data.remote.response.CategoryBody
+import timber.log.Timber
 import javax.inject.Inject
 
 class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
@@ -31,6 +32,7 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
             }
 
             val item = mapCategoryResponseToEntity(responseBody, parentUrl, index, type)
+            if (item.type == EntityItemType.HEADER) Timber.d("Mymy ${item.text}")
             result.add(item)
             index++
 
@@ -49,10 +51,11 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
             position = position,
             url = body.url?.httpsEverywhere().orEmpty(),
             parentUrl = parentUrl,
-            text = body.text,
+            text = body.text.replace(" \\(\\d+\\)".toRegex(), ""),
             image = body.image.httpsEverywhere(),
             currentTrack = body.currentTrack,
-            type = type
+            type = type,
+            childCount = body.children?.size
         )
     }
 

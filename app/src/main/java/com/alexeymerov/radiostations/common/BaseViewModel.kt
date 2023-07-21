@@ -35,7 +35,7 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
 
     protected abstract fun handleAction(action: A)
 
-    fun setAction(action: A) {
+    open fun setAction(action: A) {
         _viewAction.emit(viewModelScope, action)
     }
 
@@ -57,5 +57,9 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
                 handleAction(it)
             }
         }
+    }
+
+    fun clear() {
+        super.onCleared()
     }
 }
