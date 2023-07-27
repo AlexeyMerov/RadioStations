@@ -42,7 +42,11 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
             viewModelScope.launch(Dispatchers.IO) {
                 categoryUseCase.getCategoriesByUrl(action.url)
                     .timeout(15.toDuration(DurationUnit.SECONDS))
-                    .catch { setState(ViewState.NothingAvailable) }
+                    .catch {
+                        if (viewState.value == ViewState.Loading) {
+                            setState(ViewState.NothingAvailable)
+                        }
+                    }
                     .collectLatest {
                         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] getCategories: ${action.url}")
                         if (it.isError) {
