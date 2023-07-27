@@ -9,10 +9,15 @@ import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) :
@@ -30,11 +35,14 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
 
     override fun createInitialState() = ViewState.Loading
 
+    @OptIn(FlowPreview::class)
     override fun handleAction(action: ViewAction) {
         if (action is ViewAction.LoadCategories) {
             Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
             viewModelScope.launch(Dispatchers.IO) {
                 categoryUseCase.getCategoriesByUrl(action.url)
+                    .timeout(15.toDuration(DurationUnit.SECONDS))
+                    .catch { setState(ViewState.NothingAvailable) }
                     .collectLatest {
                         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] getCategories: ${action.url}")
                         if (it.isError) {
@@ -45,6 +53,7 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
                             setState(ViewState.CategoriesLoaded(it.items))
                         }
                     }
+
             }
             categoryUseCase.loadCategoriesByUrl(action.url)
         }

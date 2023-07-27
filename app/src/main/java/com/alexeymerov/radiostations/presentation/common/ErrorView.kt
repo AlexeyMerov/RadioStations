@@ -14,17 +14,17 @@ import androidx.compose.ui.unit.sp
 import com.alexeymerov.radiostations.R
 
 @Composable
-fun ErrorView() {
+fun ErrorView(errorText: String = stringResource(R.string.sorry_nothing_found)) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = stringResource(R.string.sorry_nothing_found),
+            text = errorText,
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center, lineHeight = 48.sp
         )
     }
 }
