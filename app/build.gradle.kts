@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.alexeymerov.radiostations"
-    compileSdk = 33
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -18,7 +18,7 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
-        languageVersion = "1.9"
+        languageVersion = libs.versions.kotlinLanguage.get()
     }
 
     buildFeatures {
@@ -27,15 +27,15 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.0"
+        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
     }
 
     defaultConfig {
         applicationId = "com.alexeymerov.radiostations"
-        versionCode = 110
-        versionName = "1.1.0"
-        minSdk = 24
-        targetSdk = 33
+        versionCode = libs.versions.versionCode.get().toInt()
+        versionName = libs.versions.versionName.get()
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
