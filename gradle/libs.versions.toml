@@ -6,7 +6,7 @@ compileSdk = "33"
 minSdk = "24"
 targetSdk = "33"
 kotlinLanguage = "1.9"
-kotlinCompilerExtension = "1.5.0"
+composeCompiler = "1.5.1"
 
 gradle = "8.1.0"
 kotlin = "1.9.0"
@@ -26,7 +26,7 @@ accompanist = "0.30.1"
 androidApplication = { id = "com.android.application", version.ref = "gradle" }
 androidLibrary = { id = "com.android.library", version.ref = "gradle" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "1.9.0-1.0.11" }
+ksp = { id = "com.google.devtools.ksp", version = "1.9.0-1.0.12" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "11.5.0" }
 versionsChecker = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
 
