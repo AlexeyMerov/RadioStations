@@ -1,6 +1,5 @@
 package com.alexeymerov.radiostations.presentation.theme
 
-
 import androidx.compose.ui.graphics.Color
 
 val main_200 = Color(0xFF00BAD1)

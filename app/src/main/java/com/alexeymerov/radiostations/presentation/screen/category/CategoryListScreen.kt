@@ -14,7 +14,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -80,6 +83,7 @@ private fun MainContent(
     onAudioClick: (CategoryItemDto) -> Unit
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+
     LazyColumn(Modifier.fillMaxSize()) {
         itemsIndexed(
             items = categoryItems,
@@ -89,17 +93,20 @@ private fun MainContent(
             val defaultModifier = Modifier
                 .fillMaxWidth()
                 .animateItemPlacement()
+
             when (itemDto.type) {
-                DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
                 DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
+                DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
                 DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
                 DtoItemType.AUDIO -> StationListItem(defaultModifier, itemDto, onAudioClick)
             }
 
-            if (index != categoryItems.size - 1) {
-                val padding = if (itemDto.type == DtoItemType.HEADER || itemDto.type == DtoItemType.SUBCATEGORY) 16.dp else 8.dp
+            if (index != categoryItems.size - 1
+                && itemDto.type == DtoItemType.SUBCATEGORY
+                && categoryItems.getOrNull(index + 1)?.type != DtoItemType.HEADER
+            ) {
                 Divider(
-                    Modifier.padding(horizontal = padding),
+                    Modifier.padding(horizontal = 32.dp),
                     thickness = 0.5.dp
                 )
             }
@@ -110,7 +117,7 @@ private fun MainContent(
 @Composable
 fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
     Row(
-        modifier,
+        modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -118,29 +125,35 @@ fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 6.dp)
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
-    Row(
-        modifier.clickable(
-            interactionSource = MutableInteractionSource(),
-            indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-            onClick = { onCategoryClick.invoke(itemDto) }),
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        onClick = { onCategoryClick.invoke(itemDto) },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Text(
-            text = itemDto.text,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(16.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = itemDto.text,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -172,35 +185,43 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
 
 @Composable
 fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: (CategoryItemDto) -> Unit) {
-    Row(modifier.clickable(
-        interactionSource = MutableInteractionSource(),
-        indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-        onClick = { onAudioClick.invoke(itemDto) }
-    ),
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        val vectorPainter = painterResource(id = R.drawable.full_image)
-        Box(Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {
-            AsyncImage(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(itemDto.image)
-                    .crossfade(200)
-                    .build(),
-                contentDescription = null,
-                error = vectorPainter
+        Row(
+            modifier = modifier.clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+                onClick = { onAudioClick.invoke(itemDto) }
+            ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val vectorPainter = painterResource(id = R.drawable.full_image)
+            Box(Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {
+                AsyncImage(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(itemDto.image)
+                        .crossfade(500)
+                        .build(),
+                    contentDescription = null,
+                    error = vectorPainter
+                )
+            }
+
+            Text(
+                text = itemDto.text,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 12.dp, top = 24.dp, bottom = 24.dp, end = 16.dp)
             )
         }
-
-        Text(
-            text = itemDto.text,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 12.dp, top = 24.dp, bottom = 24.dp, end = 16.dp)
-        )
     }
 }

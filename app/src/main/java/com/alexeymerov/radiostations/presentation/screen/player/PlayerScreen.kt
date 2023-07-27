@@ -6,6 +6,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
@@ -103,11 +105,12 @@ private fun ProcessPlayerState(viewModel: PlayerViewModel, stationUrl: String) {
 private fun StationImage(imageUrl: String) {
     AsyncImage(
         modifier = Modifier
-            .size(200.dp)
-            .clip(RoundedCornerShape(8.dp)),
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clip(RoundedCornerShape(16.dp)),
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageUrl)
-            .crossfade(200)
+            .crossfade(500)
             .build(),
         contentDescription = null,
         error = painterResource(id = R.drawable.full_image)

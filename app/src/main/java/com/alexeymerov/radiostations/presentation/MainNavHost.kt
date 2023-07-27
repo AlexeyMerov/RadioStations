@@ -10,12 +10,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavArgumentBuilder
 import androidx.navigation.NavBackStackEntry
@@ -53,16 +55,20 @@ fun MainNavGraph() {
         CallOnLaunch { scaffoldViewState = it }
     }
 
-    StationsAppTheme() {
-        Scaffold(
-            topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
-            content = { paddingValues ->
-                AnimatedNavHost(navController, startDestination = Screens.Categories.route, modifier = Modifier.padding(paddingValues)) {
-                    categoriesScreen(navController, appBarBlock)
-                    playerScreen(appBarBlock)
+    StationsAppTheme {
+        Surface {
+            Scaffold(
+                topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
+                content = { paddingValues ->
+                    Surface {
+                        AnimatedNavHost(navController, startDestination = Screens.Categories.route, modifier = Modifier.padding(paddingValues)) {
+                            categoriesScreen(navController, appBarBlock)
+                            playerScreen(appBarBlock)
+                        }
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
@@ -72,18 +78,20 @@ private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, nav
     val titleString = viewState.titleRes?.let { stringResource(it) } ?: viewState.title
     val categoryTitle by rememberSaveable(viewState) { mutableStateOf(titleString) }
 
-    TopAppBar(
-        title = { Text(categoryTitle) },
-        navigationIcon = {
-            if (!displayBackButton) return@TopAppBar
-            IconButton(onClick = { navController.navigateUp() }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
-                )
+    Surface {
+        CenterAlignedTopAppBar(
+            title = { Text(categoryTitle, fontWeight = FontWeight.Bold) },
+            navigationIcon = {
+                if (!displayBackButton) return@CenterAlignedTopAppBar
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 private fun NavGraphBuilder.categoriesScreen(navController: NavHostController, appBarBlock: @Composable (AppBarState) -> Unit) {
@@ -179,7 +187,7 @@ private fun String.decodeUrl() = replace("!", "/").replace("*", "?")
 
 private val slideLeft = AnimatedContentScope.SlideDirection.Left
 private val slideRight = AnimatedContentScope.SlideDirection.Right
-private val transitionAnimationSpec = tween<IntOffset>(200)
+private val transitionAnimationSpec = tween<IntOffset>(300)
 
 @Immutable
 @Stable
