@@ -159,11 +159,14 @@ fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryCli
 
 @Composable
 fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
-    Row(modifier.clickable(
-        interactionSource = MutableInteractionSource(),
-        indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-        onClick = { onCategoryClick.invoke(itemDto) }
-    ),
+    Row(
+        modifier = modifier
+            .padding(start = 32.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)
+            .clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+                onClick = { onCategoryClick.invoke(itemDto) }
+            ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -172,13 +175,11 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 32.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)
+            overflow = TextOverflow.Ellipsis
         )
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow),
-            contentDescription = String.EMPTY,
-            modifier = Modifier.padding(16.dp)
+            contentDescription = String.EMPTY
         )
     }
 }
@@ -186,21 +187,22 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
 @Composable
 fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = modifier.clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-                onClick = { onAudioClick.invoke(itemDto) }
-            ),
+            modifier = modifier
+                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+                    onClick = { onAudioClick.invoke(itemDto) }
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val vectorPainter = painterResource(id = R.drawable.full_image)
-            Box(Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {
+            Box {
                 AsyncImage(
                     modifier = Modifier
                         .size(50.dp)
@@ -220,7 +222,7 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = 12.dp, top = 24.dp, bottom = 24.dp, end = 16.dp)
+                modifier = Modifier.padding(start = 12.dp)
             )
         }
     }

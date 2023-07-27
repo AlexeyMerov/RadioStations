@@ -46,7 +46,7 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
                         }
                     }
             }
-//            categoryUseCase.loadCategoriesByUrl(action.url)
+            categoryUseCase.loadCategoriesByUrl(action.url)
         }
     }
 
