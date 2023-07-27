@@ -4,6 +4,8 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -19,8 +21,8 @@ fun StationsAppTheme(
 
     val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     colors = when {
-//        isS && useDarkTheme -> dynamicDarkColorScheme(context)
-//        isS -> dynamicLightColorScheme(context)
+        isS && useDarkTheme -> dynamicDarkColorScheme(context)
+        isS -> dynamicLightColorScheme(context)
         useDarkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
