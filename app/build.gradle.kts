@@ -37,7 +37,9 @@ android {
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         vectorDrawables.useSupportLibrary = true
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
 
         buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
     }
@@ -61,13 +63,20 @@ android {
 //        disable.add("UnsafeExperimentalUsageError")
 //        disable.add("UnsafeExperimentalUsageWarning")
     }
+
+    @Suppress("UnstableApiUsage")
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        unitTests.isIncludeAndroidResources = true
+    }
+
+    sourceSets {
+        // Adds exported schema location as test app assets.
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 dependencies {
-    testImplementation(libs.junit.base)
-    androidTestImplementation(libs.junit.ext)
-    androidTestImplementation(libs.espresso)
-
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler) // https://issuetracker.google.com/issues/179057202
 
@@ -107,8 +116,51 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.accompanist.navigation)
     implementation(libs.accompanist.systemUiController)
+
+    /* --- TESTS --- */
+
+    testImplementation(libs.junit)
+    testImplementation(libs.junitExt)
+    androidTestImplementation(libs.junitExt)
+
+    testImplementation(libs.test.core)
+    androidTestImplementation(libs.test.core)
+
+    testImplementation(libs.test.coreKtx)
+    androidTestImplementation(libs.test.coreKtx)
+
+    testImplementation(libs.test.runner)
+    androidTestImplementation(libs.test.runner)
+
+    androidTestUtil(libs.test.orchestrator)
+
+    androidTestImplementation(libs.hilt.testing)
+    kaptAndroidTest(libs.hilt.compiler)
+
+    testImplementation(libs.coroutines.test)
+    androidTestImplementation(libs.coroutines.test)
+
+    androidTestImplementation(libs.room.testing)
+
+    testImplementation(libs.okhttp.test)
+    testImplementation(libs.retrofit.test)
+
+    testImplementation(libs.mockk.android)
+    testImplementation(libs.mockk.agent)
 }
 
 kapt {
     correctErrorTypes = true
+}
+
+ksp {
+    arg(RoomSchemaArgProvider(File(projectDir, "schemas")))
+}
+
+class RoomSchemaArgProvider(
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val schemaDir: File
+) : CommandLineArgumentProvider {
+    override fun asArguments(): Iterable<String> = listOf("room.schemaLocation=${schemaDir.path}")
 }

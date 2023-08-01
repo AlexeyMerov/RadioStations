@@ -36,6 +36,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
 import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
@@ -139,7 +140,7 @@ private fun NavGraphBuilder.playerScreen(appBarBlock: @Composable (AppBarState) 
 
 sealed class Screens(val route: String) {
     object Categories : Screens(createBaseRoute(NavDest.Category.ROUTE, NavDest.Category.ARG_TITLE, NavDest.Category.ARG_URL)) {
-        fun createRoute(categoryTitle: String = "", categoryUrl: String = ""): String {
+        fun createRoute(categoryTitle: String = String.EMPTY, categoryUrl: String = String.EMPTY): String {
             return createNewRoute(NavDest.Category.ROUTE, categoryTitle, categoryUrl.encodeUrl())
 
         }
@@ -173,7 +174,7 @@ private fun createListOfStringArgs(vararg args: String) = args.map { navArgument
 
 private fun defaultStringArg(): NavArgumentBuilder.() -> Unit = {
     type = NavType.StringType
-    defaultValue = ""
+    defaultValue = String.EMPTY
 }
 
 //don't want to make if inside... for now will duplicate
@@ -194,7 +195,7 @@ private val transitionAnimationSpec = tween<IntOffset>(300)
 @Parcelize
 data class AppBarState(
     @StringRes val titleRes: Int? = null,
-    val title: String = "",
+    val title: String = String.EMPTY,
     val displayBackButton: Boolean = true
 ) : Parcelable
 

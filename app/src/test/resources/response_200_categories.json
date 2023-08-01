@@ -1,0 +1,183 @@
+{
+  "head": {
+    "title": "Music",
+    "status": "200"
+  },
+  "body": [
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "World Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=g22",
+      "guide_id": "g22"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Top 40 & Pop Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57943",
+      "guide_id": "c57943"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Soul & R&B",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c1367173",
+      "guide_id": "c1367173"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Rock Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57951",
+      "guide_id": "c57951"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Religious Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57950",
+      "guide_id": "c57950"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Reggae & Dancehall",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100000949",
+      "guide_id": "c100000949"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Latin Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100002533",
+      "guide_id": "c100002533"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Jazz",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57944",
+      "guide_id": "c57944"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Indie Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100000952",
+      "guide_id": "c100000952"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Holiday Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100002506",
+      "guide_id": "c100002506"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Hip Hop",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57942",
+      "guide_id": "c57942"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Folk",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100000948",
+      "guide_id": "c100000948"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Easy Listening",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c10635888",
+      "guide_id": "c10635888"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Decades Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c481372",
+      "guide_id": "c481372"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Dance & Electronic",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57941",
+      "guide_id": "c57941"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Country",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57940",
+      "guide_id": "c57940"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "College Radio",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100002494",
+      "guide_id": "c100002494"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Classical Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57939",
+      "guide_id": "c57939"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Children's Music",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c530749",
+      "guide_id": "c530749"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Blues",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100001870",
+      "guide_id": "c100001870"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Adult Hits",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c57935",
+      "guide_id": "c57935"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Classic Hits",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100001676",
+      "guide_id": "c100001676"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Boss Radio",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100006395",
+      "guide_id": "c100006395"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "DI.FM",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100006350",
+      "guide_id": "c100006350"
+    },
+    {
+      "element": "outline",
+      "type": "link",
+      "text": "Variety",
+      "URL": "http://opml.radiotime.com/Browse.ashx?id=c100006348",
+      "guide_id": "c100006348"
+    }
+  ]
+}

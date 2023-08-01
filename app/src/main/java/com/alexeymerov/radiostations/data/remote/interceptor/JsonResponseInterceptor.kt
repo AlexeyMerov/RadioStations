@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.data.remote.interceptor
 
+import com.alexeymerov.radiostations.data.remote.client.NetworkDefaults
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -12,7 +13,7 @@ class JsonResponseInterceptor : Interceptor {
         val request = chain.request()
 
         val url = request.url.newBuilder()
-            .addQueryParameter("render", "json")
+            .addQueryParameter(NetworkDefaults.QUERY_RENDER_NAME, NetworkDefaults.QUERY_RENDER_JSON_PARAMETER)
             .build()
 
         val newRequest = request.newBuilder()

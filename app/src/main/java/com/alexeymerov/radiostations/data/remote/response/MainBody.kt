@@ -8,12 +8,12 @@ interface ServerBodyType
 /**
  * Since server does not return an appropriate response, we bonded to use wrapper... 'good' old times.
  * */
-data class ResponseWrapper<T : ServerBodyType>(
-    val head: Head,
+data class MainBody<T : ServerBodyType>(
+    val head: HeadBody,
     val body: List<T>
 )
 
-data class Head(
+data class HeadBody(
     val status: String,
     val title: String? = null,
 )

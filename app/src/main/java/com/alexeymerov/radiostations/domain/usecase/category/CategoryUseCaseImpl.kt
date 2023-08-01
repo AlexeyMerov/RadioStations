@@ -1,6 +1,5 @@
 package com.alexeymerov.radiostations.domain.usecase.category
 
-import com.alexeymerov.radiostations.common.BaseCoroutineScope
 import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.repository.CategoryRepository
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
@@ -15,7 +14,7 @@ import javax.inject.Inject
 class CategoryUseCaseImpl @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val dtoCategoriesMapper: DtoCategoriesMapper
-) : CategoryUseCase, BaseCoroutineScope() {
+) : CategoryUseCase {
 
     /**
      * Make the final list to represent on presentation layer.
@@ -36,7 +35,7 @@ class CategoryUseCaseImpl @Inject constructor(
             .filter { !it.isError && it.items.isNotEmpty() }
     }
 
-    override fun loadCategoriesByUrl(url: String) = categoryRepository.loadCategoriesByUrl(url)
+    override suspend fun loadCategoriesByUrl(url: String) = categoryRepository.loadCategoriesByUrl(url)
 
     override suspend fun getAudioUrl(url: String): AudioItemDto {
         val audioUrl = categoryRepository.getAudioByUrl(url)?.url

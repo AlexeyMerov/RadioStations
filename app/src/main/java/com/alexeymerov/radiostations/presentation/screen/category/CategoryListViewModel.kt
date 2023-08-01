@@ -5,6 +5,7 @@ import com.alexeymerov.radiostations.common.BaseViewAction
 import com.alexeymerov.radiostations.common.BaseViewEffect
 import com.alexeymerov.radiostations.common.BaseViewModel
 import com.alexeymerov.radiostations.common.BaseViewState
+import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,11 +29,6 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
         super.setAction(action)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        categoryUseCase.cancelJobs()
-    }
-
     override fun createInitialState() = ViewState.Loading
 
     @OptIn(FlowPreview::class)
@@ -42,24 +38,31 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
             viewModelScope.launch(Dispatchers.IO) {
                 categoryUseCase.getCategoriesByUrl(action.url)
                     .timeout(15.toDuration(DurationUnit.SECONDS))
-                    .catch {
-                        if (viewState.value == ViewState.Loading) {
-                            setState(ViewState.NothingAvailable)
-                        }
-                    }
-                    .collectLatest {
-                        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] getCategories: ${action.url}")
-                        if (it.isError) {
-                            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
-                            setState(ViewState.NothingAvailable)
-                        } else {
-                            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${it.items.size}")
-                            setState(ViewState.CategoriesLoaded(it.items))
-                        }
-                    }
+                    .catch { handleError() }
+                    .collectLatest { processNewData(action, it) }
 
+                categoryUseCase.loadCategoriesByUrl(action.url)
             }
-            categoryUseCase.loadCategoriesByUrl(action.url)
+        }
+    }
+
+    private fun handleError() {
+        if (viewState.value == ViewState.Loading) {
+            setState(ViewState.NothingAvailable)
+        }
+    }
+
+    private fun processNewData(
+        action: ViewAction.LoadCategories,
+        it: CategoryDto
+    ) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] getCategories: ${action.url}")
+        if (it.isError) {
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
+            setState(ViewState.NothingAvailable)
+        } else {
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${it.items.size}")
+            setState(ViewState.CategoriesLoaded(it.items))
         }
     }
 

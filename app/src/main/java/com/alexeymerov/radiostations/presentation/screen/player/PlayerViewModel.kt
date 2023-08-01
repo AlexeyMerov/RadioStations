@@ -42,11 +42,6 @@ class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryU
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        categoryUseCase.cancelJobs()
-    }
-
     sealed interface PlayerState {
         object Play : PlayerState
         object Stop : PlayerState
