@@ -1,7 +1,5 @@
 # RadioStations (Test task)
 
-## [Non-Compose Version](https://github.com/AlexeyMerov/RadioStations)
-
 ### Task:
 
 - Take a link and go for every nested links which represents categories.
@@ -29,9 +27,12 @@ Server.
 ### Tech stack:
 
 - Kotlin
+- Gradle KTS
 - Jetpack Compose + Navigation
 - Hilt
 - Room
 - Retrofit
 - Moshi
 - Coil
+- JUnit4
+- MockK
