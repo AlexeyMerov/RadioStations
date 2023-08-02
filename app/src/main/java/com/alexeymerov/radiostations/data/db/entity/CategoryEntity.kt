@@ -16,7 +16,8 @@ data class CategoryEntity(
     val image: String = String.EMPTY,
     @Json(name = "current_track")
     val currentTrack: String = String.EMPTY,
-    val type: EntityItemType
+    val type: EntityItemType,
+    val childCount: Int? = null
 ) {
 
     companion object {

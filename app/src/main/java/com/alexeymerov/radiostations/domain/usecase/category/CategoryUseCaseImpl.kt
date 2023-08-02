@@ -1,19 +1,20 @@
 package com.alexeymerov.radiostations.domain.usecase.category
 
-import com.alexeymerov.radiostations.common.BaseCoroutineScope
 import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.repository.CategoryRepository
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CategoryUseCaseImpl @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val dtoCategoriesMapper: DtoCategoriesMapper
-) : CategoryUseCase, BaseCoroutineScope() {
+) : CategoryUseCase {
 
     /**
      * Make the final list to represent on presentation layer.
@@ -21,8 +22,8 @@ class CategoryUseCaseImpl @Inject constructor(
      * Since we request stations, i prefer not to move it to mapper.
      * */
     override fun getCategoriesByUrl(url: String): Flow<CategoryDto> {
-        categoryRepository.loadCategoriesByUrl(url)
         return categoryRepository.getCategoriesByUrl(url)
+            .distinctUntilChanged { old, new -> old == new }
             .map { entityList ->
                 if (entityList.isNotEmpty() && entityList[0].text == ERROR) {
                     return@map CategoryDto(emptyList(), isError = true)
@@ -31,7 +32,10 @@ class CategoryUseCaseImpl @Inject constructor(
                 val result = dtoCategoriesMapper.mapEntitiesToDto(entityList)
                 return@map CategoryDto(result)
             }
+            .filter { !it.isError && it.items.isNotEmpty() }
     }
+
+    override suspend fun loadCategoriesByUrl(url: String) = categoryRepository.loadCategoriesByUrl(url)
 
     override suspend fun getAudioUrl(url: String): AudioItemDto {
         val audioUrl = categoryRepository.getAudioByUrl(url)?.url
