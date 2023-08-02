@@ -14,25 +14,24 @@ As a result i believe i made a "friendly-to-expand" app, and it can get new feat
 Server.
 
 - Response type, the whole 'logic' and everything is just... not the best.
-- The problem is that it requires workarounds, some of them core ones, which impact the whole app.
-- I left only one Entity type, removed all separations and made it straightforward/all-on-one/dumb.
+- The problem is that it requires some core workarounds, which impact the whole app.
+- I left only one Entity type and made it all-on-one/dumb.
 - The whole 'position' thing for saving in DB is wierd, but there is a predefined sort for sure and no param for that as well.
 
 ### Todo:
 
 - Play music as a service.
 - Test everything.
-- Add proguard rules in case of release build demonstration.
+- Add proguard rules.
 
 ### Tech stack:
 
-- Kotlin
-- Gradle KTS
+- Kotlin + KTS
+- Coroutines + Flow
+- Retrofit + Moshi
 - Jetpack Compose + Navigation
 - Hilt
 - Room
-- Retrofit
-- Moshi
 - Coil
-- JUnit4
-- MockK
+- ExoPlayer
+- JUnit4 + MockK
