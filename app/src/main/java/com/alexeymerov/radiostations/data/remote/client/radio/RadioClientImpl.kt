@@ -6,41 +6,21 @@ import com.alexeymerov.radiostations.data.remote.api.RadioApi
 import com.alexeymerov.radiostations.data.remote.client.BaseClient
 import com.alexeymerov.radiostations.data.remote.response.AudioBody
 import com.alexeymerov.radiostations.data.remote.response.CategoryBody
-import com.alexeymerov.radiostations.data.remote.response.ResponseWrapper
-import com.alexeymerov.radiostations.data.remote.response.ServerBodyType
-import timber.log.Timber
+import com.alexeymerov.radiostations.data.remote.response.MainBody
+import retrofit2.Response
 import javax.inject.Inject
 
 class RadioClientImpl @Inject constructor(private val radioApi: RadioApi) : RadioClient, BaseClient<RadioApi>(radioApi) {
 
-    override suspend fun requestCategoriesByUrl(url: String): List<CategoryBody> = runCatching {
+    override suspend fun requestCategoriesByUrl(url: String): Response<MainBody<CategoryBody>> {
         //since server operates with links, we have to remove BASE_URL part before requests. todo Remove with better solution
         val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
-        radioApi.getCategoriesByUrl(finalUrl)
+        return radioApi.getCategoriesByUrl(finalUrl)
     }
-        .mapCatching { mapResponseBody(it) }
-        .onFailure { Timber.e("response failed: $it") }
-        .getOrDefault(emptyList())
 
-    override suspend fun requestAudioByUrl(url: String): List<AudioBody> = runCatching {
+    override suspend fun requestAudioByUrl(url: String): Response<MainBody<AudioBody>> {
         //since server operates with links, we have to remove BASE_URL part before requests. todo Remove with better solution
         val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
-        radioApi.getAudioByUrl(finalUrl)
-    }
-        .mapCatching { mapResponseBody(it) }
-        .onFailure { Timber.e("response failed: $it") }
-        .getOrDefault(emptyList())
-
-    private fun <T : ServerBodyType> mapResponseBody(it: ResponseWrapper<T>): List<T> {
-        if (it.head.status != STATUS_OK) {
-            var errorText = it.head.title
-            if (errorText.isNullOrEmpty()) errorText = "Something went wrong with request."
-            throw Exception(errorText)
-        }
-        return it.body
-    }
-
-    private companion object {
-        const val STATUS_OK = "200"
+        return radioApi.getAudioByUrl(finalUrl)
     }
 }

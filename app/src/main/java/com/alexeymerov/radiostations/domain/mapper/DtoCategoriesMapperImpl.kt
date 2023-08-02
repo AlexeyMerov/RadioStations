@@ -23,7 +23,10 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
 
         return CategoryItemDto(
             url = entity.url,
-            text = entity.text,
+            text = when {
+                entity.childCount != null -> "${entity.text} (${entity.childCount})"
+                else -> entity.text
+            },
             image = entity.image,
             currentTrack = entity.currentTrack,
             type = type

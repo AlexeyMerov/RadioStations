@@ -3,7 +3,7 @@ package com.alexeymerov.radiostations.di
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +18,7 @@ class AppModule {
     @Singleton
     @Provides
     fun provideSharedPrefs(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(SHARED_NAME, AppCompatActivity.MODE_PRIVATE)
+        return context.getSharedPreferences(SHARED_NAME, ComponentActivity.MODE_PRIVATE)
     }
 
     @Singleton

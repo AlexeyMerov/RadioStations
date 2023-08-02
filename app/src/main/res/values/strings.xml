@@ -1,4 +1,8 @@
 <resources>
-    <string name="app_name">RadioStations</string>
-    <string name="title_activity_main">Radio Stations</string>
+    <string name="app_name" translatable="false">Radio Stations</string>
+    <string name="sorry_nothing_found">Sorry\nNothing found</string>
+    <string name="back">Back</string>
+    <string name="stop" translatable="false">Stop</string>
+    <string name="play" translatable="false">Play</string>
+    <string name="browse">Browse</string>
 </resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sorry_nothing_found">Извините\nНичего не найдено </string>
+    <string name="back">Назад</string>
+    <string name="browse">Каталог</string>
+</resources>
