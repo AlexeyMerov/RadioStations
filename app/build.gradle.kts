@@ -38,6 +38,8 @@ android {
         targetSdk = libs.versions.targetSdk.get().toInt()
         vectorDrawables.useSupportLibrary = true
 
+        resourceConfigurations.addAll(listOf("en", "uk", "ru"))
+
         testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
 
