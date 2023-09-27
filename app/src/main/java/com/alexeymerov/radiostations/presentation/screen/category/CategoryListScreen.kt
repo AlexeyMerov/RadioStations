@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
@@ -28,10 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -57,21 +56,22 @@ fun CategoryListScreen(
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
     CallOnLaunch { viewModel.setAction(CategoryListViewModel.ViewAction.LoadCategories(categoryUrl)) }
     CallOnDispose { viewModel.clear() }
-    CreateMainContent(viewModel, onCategoryClick, onAudioClick)
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    CreateMainContent(viewState, onCategoryClick, onAudioClick)
 }
 
 @Composable
 private fun CreateMainContent(
-    viewModel: CategoryListViewModel,
+    viewState: CategoryListViewModel.ViewState,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit
 ) {
-    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${viewState.javaClass.simpleName}")
-    when (val state = viewState) {
-        CategoryListViewModel.ViewState.NothingAvailable -> ErrorView()
-        CategoryListViewModel.ViewState.Loading -> LoaderView()
-        is CategoryListViewModel.ViewState.CategoriesLoaded -> MainContent(state.list, onCategoryClick, onAudioClick)
+    when (viewState) {
+        is CategoryListViewModel.ViewState.NothingAvailable -> ErrorView()
+        is CategoryListViewModel.ViewState.Loading -> LoaderView()
+        is CategoryListViewModel.ViewState.CategoriesLoaded -> MainContent(viewState.list, onCategoryClick, onAudioClick)
     }
 }
 
@@ -85,11 +85,11 @@ private fun MainContent(
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
     LazyColumn(Modifier.fillMaxSize()) {
-        itemsIndexed(
+        items(
             items = categoryItems,
-            key = { _, item -> item.url.ifEmpty { item.text } },
-            contentType = { _, item -> item.type }
-        ) { index, itemDto ->
+            key = CategoryItemDto::url,
+            contentType = CategoryItemDto::type
+        ) { itemDto ->
             val defaultModifier = Modifier
                 .fillMaxWidth()
                 .animateItemPlacement()
@@ -99,16 +99,7 @@ private fun MainContent(
                 DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
                 DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
                 DtoItemType.AUDIO -> StationListItem(defaultModifier, itemDto, onAudioClick)
-            }
-
-            if (index != categoryItems.size - 1
-                && itemDto.type == DtoItemType.SUBCATEGORY
-                && categoryItems.getOrNull(index + 1)?.type != DtoItemType.HEADER
-            ) {
-                Divider(
-                    Modifier.padding(horizontal = 32.dp),
-                    thickness = 0.5.dp
-                )
+                DtoItemType.DIVIDER -> Divider(Modifier.padding(horizontal = 32.dp), thickness = 0.5.dp)
             }
         }
     }
@@ -116,17 +107,8 @@ private fun MainContent(
 
 @Composable
 fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
-    Row(
-        modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = itemDto.text,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+    Row(modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)) {
+        BasicText(text = itemDto.text, textStyle = MaterialTheme.typography.titleSmall)
     }
 }
 
@@ -134,25 +116,18 @@ fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
 @Composable
 fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         onClick = { onCategoryClick.invoke(itemDto) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = itemDto.text,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            BasicText(text = itemDto.text)
         }
     }
 }
@@ -170,13 +145,7 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = itemDto.text,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        BasicText(text = itemDto.text, textStyle = MaterialTheme.typography.titleSmall)
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow),
             contentDescription = String.EMPTY
@@ -212,18 +181,23 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
                         .crossfade(500)
                         .build(),
                     contentDescription = null,
-                    error = vectorPainter
+                    error = vectorPainter,
+                    placeholder = vectorPainter
                 )
             }
 
-            Text(
-                text = itemDto.text,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = 12.dp)
-            )
+            BasicText(text = itemDto.text, modifier = Modifier.padding(start = 12.dp))
         }
     }
+}
+
+@Composable
+fun BasicText(modifier: Modifier = Modifier, text: String, textStyle: TextStyle = MaterialTheme.typography.titleMedium) {
+    Text(
+        text = text,
+        style = textStyle,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
 }

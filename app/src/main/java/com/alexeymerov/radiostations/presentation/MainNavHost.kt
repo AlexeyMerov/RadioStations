@@ -139,14 +139,15 @@ private fun NavGraphBuilder.playerScreen(appBarBlock: @Composable (AppBarState) 
 }
 
 sealed class Screens(val route: String) {
-    object Categories : Screens(createBaseRoute(NavDest.Category.ROUTE, NavDest.Category.ARG_TITLE, NavDest.Category.ARG_URL)) {
+    data object Categories : Screens(createBaseRoute(NavDest.Category.ROUTE, NavDest.Category.ARG_TITLE, NavDest.Category.ARG_URL)) {
         fun createRoute(categoryTitle: String = String.EMPTY, categoryUrl: String = String.EMPTY): String {
             return createNewRoute(NavDest.Category.ROUTE, categoryTitle, categoryUrl.encodeUrl())
 
         }
     }
 
-    object Player : Screens(createBaseRoute(NavDest.Player.ROUTE, NavDest.Player.ARG_TITLE, NavDest.Player.ARG_IMG_URL, NavDest.Player.ARG_URL)) {
+    data object Player :
+        Screens(createBaseRoute(NavDest.Player.ROUTE, NavDest.Player.ARG_TITLE, NavDest.Player.ARG_IMG_URL, NavDest.Player.ARG_URL)) {
         fun createRoute(stationName: String, stationImgUrl: String, rawUrl: String): String {
             return createNewRoute(NavDest.Player.ROUTE, stationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl())
         }
@@ -154,13 +155,13 @@ sealed class Screens(val route: String) {
 }
 
 sealed interface NavDest {
-    object Category : NavDest {
+    data object Category : NavDest {
         const val ROUTE: String = "categories"
         const val ARG_TITLE: String = "title"
         const val ARG_URL: String = "url"
     }
 
-    object Player : NavDest {
+    data object Player : NavDest {
         const val ROUTE: String = "player"
         const val ARG_TITLE: String = "title"
         const val ARG_IMG_URL: String = "imgUrl"

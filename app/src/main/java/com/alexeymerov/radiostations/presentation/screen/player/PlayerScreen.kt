@@ -1,12 +1,14 @@
 package com.alexeymerov.radiostations.presentation.screen.player
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,7 +46,6 @@ import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.
 import timber.log.Timber
 
 @Composable
-//@Preview
 fun PlayerScreen(
     stationImgUrl: String,
     rawUrl: String,
@@ -53,33 +55,53 @@ fun PlayerScreen(
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     when (val state = viewState) {
-        ViewState.Loading -> LoaderView()
-        ViewState.Error -> ErrorView()
-        is ViewState.ReadyToPlay -> MainContent(viewModel, stationImgUrl, state.url)
+        is ViewState.Loading -> LoaderView()
+        is ViewState.Error -> ErrorView()
+        is ViewState.ReadyToPlay -> {
+            val playState by viewModel.playerState.collectAsStateWithLifecycle()
+            MainContent(playState, stationImgUrl, state.url) {
+                viewModel.setAction(PlayerViewModel.ViewAction.ToggleAudio)
+            }
+        }
     }
 
     CallOnLaunch { viewModel.setAction(PlayerViewModel.ViewAction.LoadAudio(rawUrl)) }
 }
 
 @Composable
-private fun MainContent(viewModel: PlayerViewModel, imageUrl: String, stationUrl: String) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        StationImage(imageUrl)
-        ControlButton(viewModel)
-        ProcessPlayerState(viewModel, stationUrl)
+private fun MainContent(playState: PlayerViewModel.PlayerState, imageUrl: String, stationUrl: String, onToggleAudio: () -> Unit) {
+    val configuration = LocalConfiguration.current
+    when (configuration.orientation) {
+        Configuration.ORIENTATION_PORTRAIT -> {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                StationImage(imageUrl)
+                ControlButton(playState, onToggleAudio)
+            }
+        }
+
+        else -> {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                StationImage(imageUrl)
+                ControlButton(playState, onToggleAudio)
+            }
+        }
     }
+    ProcessPlayerState(playState, stationUrl)
 }
 
 @Composable
-private fun ProcessPlayerState(viewModel: PlayerViewModel, stationUrl: String) {
+private fun ProcessPlayerState(playState: PlayerViewModel.PlayerState, stationUrl: String) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] audioLink $stationUrl")
 
     val context = LocalContext.current
-
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(stationUrl))
@@ -92,7 +114,6 @@ private fun ProcessPlayerState(viewModel: PlayerViewModel, stationUrl: String) {
         exoPlayer.release()
     }
 
-    val playState by viewModel.playerState.collectAsStateWithLifecycle()
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] playState ${playState.javaClass.simpleName}")
     if (playState == PlayerViewModel.PlayerState.Play) {
         exoPlayer.play()
@@ -105,7 +126,7 @@ private fun ProcessPlayerState(viewModel: PlayerViewModel, stationUrl: String) {
 private fun StationImage(imageUrl: String) {
     AsyncImage(
         modifier = Modifier
-            .fillMaxWidth()
+            .height(300.dp)
             .padding(16.dp)
             .clip(RoundedCornerShape(16.dp)),
         model = ImageRequest.Builder(LocalContext.current)
@@ -118,21 +139,10 @@ private fun StationImage(imageUrl: String) {
 }
 
 @Composable
-private fun ControlButton(viewModel: PlayerViewModel) {
-    val playState by viewModel.playerState.collectAsStateWithLifecycle()
-
-    val resId: Int
-    val contentDescriptionString: String
-    if (playState == PlayerViewModel.PlayerState.Play) {
-        resId = R.drawable.stop_square
-        contentDescriptionString = stringResource(R.string.stop)
-    } else {
-        resId = R.drawable.play_arrow
-        contentDescriptionString = stringResource(R.string.play)
-    }
-
-    val vectorPainter = rememberVectorPainter(ImageVector.vectorResource(id = resId))
-    val description by rememberSaveable(playState) { mutableStateOf(contentDescriptionString) }
+private fun ControlButton(playState: PlayerViewModel.PlayerState, onToggleAudio: () -> Unit) {
+    val descriptionString = stringResource(playState.contentDescription)
+    val description by rememberSaveable(playState) { mutableStateOf(descriptionString) }
+    val vectorPainter = rememberVectorPainter(ImageVector.vectorResource(id = playState.iconResId))
 
     Image(
         vectorPainter,
@@ -141,14 +151,12 @@ private fun ControlButton(viewModel: PlayerViewModel) {
         modifier = Modifier
             .size(60.dp)
             .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(
+                interactionSource = MutableInteractionSource(), indication = rememberRipple(
                     color = MaterialTheme.colorScheme.onBackground,
                     bounded = false,
                     radius = 80.dp
                 ),
-            ) {
-                viewModel.setAction(PlayerViewModel.ViewAction.ToggleAudio)
-            }
+                onClick = onToggleAudio::invoke
+            )
     )
 }
