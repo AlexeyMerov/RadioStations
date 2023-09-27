@@ -23,5 +23,5 @@ data class CategoryItemDto(
 )
 
 enum class DtoItemType(val value: Int) {
-    HEADER(0), CATEGORY(1), SUBCATEGORY(2), AUDIO(3)
+    HEADER(0), CATEGORY(1), SUBCATEGORY(2), AUDIO(3), DIVIDER(4)
 }

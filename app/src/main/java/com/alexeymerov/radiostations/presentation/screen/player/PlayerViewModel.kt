@@ -1,6 +1,9 @@
 package com.alexeymerov.radiostations.presentation.screen.player
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.BaseViewAction
 import com.alexeymerov.radiostations.common.BaseViewEffect
 import com.alexeymerov.radiostations.common.BaseViewModel
@@ -42,23 +45,23 @@ class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryU
         }
     }
 
-    sealed interface PlayerState {
-        object Play : PlayerState
-        object Stop : PlayerState
+    sealed class PlayerState(@DrawableRes val iconResId: Int, @StringRes val contentDescription: Int) {
+        data object Play : PlayerState(R.drawable.stop_square, R.string.stop)
+        data object Stop : PlayerState(R.drawable.play_arrow, R.string.play)
     }
 
     sealed interface ViewState : BaseViewState {
-        object Loading : ViewState
-        object Error : ViewState
+        data object Loading : ViewState
+        data object Error : ViewState
         class ReadyToPlay(val url: String) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {
         class LoadAudio(val url: String) : ViewAction
 
-        object ToggleAudio : ViewAction // it's simple at the moment, no need to separate it more
-        object PlayAudio : ViewAction // it's simple at the moment, no need to separate it more
-        object StopAudio : ViewAction
+        data object ToggleAudio : ViewAction // it's simple at the moment, no need to separate it more
+        data object PlayAudio : ViewAction // it's simple at the moment, no need to separate it more
+        data object StopAudio : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
