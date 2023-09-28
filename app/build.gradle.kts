@@ -114,9 +114,9 @@ dependencies {
     implementation(libs.compose.runtime)
     implementation(libs.compose.navigation.base)
     implementation(libs.compose.navigation.hilt)
+    implementation(libs.compose.materialIcons)
 
     implementation(libs.coil.compose)
-    implementation(libs.accompanist.navigation)
     implementation(libs.accompanist.systemUiController)
 
     /* --- TESTS --- */

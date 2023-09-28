@@ -1,7 +1,10 @@
 package com.alexeymerov.radiostations.presentation.screen.player
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.BaseViewAction
@@ -45,9 +48,9 @@ class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryU
         }
     }
 
-    sealed class PlayerState(@DrawableRes val iconResId: Int, @StringRes val contentDescription: Int) {
-        data object Play : PlayerState(R.drawable.stop_square, R.string.stop)
-        data object Stop : PlayerState(R.drawable.play_arrow, R.string.play)
+    sealed class PlayerState(val icon: ImageVector, @StringRes val contentDescription: Int) {
+        data object Play : PlayerState(Icons.Filled.Stop, R.string.stop)
+        data object Stop : PlayerState(Icons.Filled.PlayArrow, R.string.play)
     }
 
     sealed interface ViewState : BaseViewState {

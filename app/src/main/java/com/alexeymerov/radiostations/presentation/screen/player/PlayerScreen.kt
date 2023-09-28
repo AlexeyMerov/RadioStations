@@ -23,13 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -142,11 +139,10 @@ private fun StationImage(imageUrl: String) {
 private fun ControlButton(playState: PlayerViewModel.PlayerState, onToggleAudio: () -> Unit) {
     val descriptionString = stringResource(playState.contentDescription)
     val description by rememberSaveable(playState) { mutableStateOf(descriptionString) }
-    val vectorPainter = rememberVectorPainter(ImageVector.vectorResource(id = playState.iconResId))
 
     Image(
-        vectorPainter,
-        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary),
+        playState.icon,
+        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary),
         contentDescription = description,
         modifier = Modifier
             .size(60.dp)

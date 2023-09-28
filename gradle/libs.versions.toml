@@ -2,9 +2,9 @@
 versionCode = "110"
 versionName = "1.1.0"
 
-compileSdk = "33"
+compileSdk = "34"
 minSdk = "24"
-targetSdk = "33"
+targetSdk = "34"
 kotlinLanguage = "1.9"
 composeCompiler = "1.5.1"
 
@@ -12,17 +12,17 @@ gradle = "8.1.1"
 kotlin = "1.9.0"
 versionsChecker = "0.47.0"
 
-hilt = "2.47"
+hilt = "2.48"
 room = "2.5.2"
 retrofit = "2.9.0"
 moshi = "1.15.0"
 okhttp = "4.11.0"
-exoplayer = "1.1.0"
-composeLifecycle = "2.6.1"
+exoplayer = "1.1.1"
+composeLifecycle = "2.6.2"
 accompanist = "0.30.1"
 
 test = "1.5.0"
-mockk = "1.13.5"
+mockk = "1.13.8"
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "gradle" }
@@ -36,7 +36,7 @@ versionsChecker = { id = "com.github.ben-manes.versions", version.ref = "version
 
 [libraries]
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
-androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.10.1" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" }
 work-runtime = { module = "androidx.work:work-runtime-ktx", version = "2.8.1" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -63,18 +63,18 @@ media3-exoplayer-base = { module = "androidx.media3:media3-exoplayer", version.r
 media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "exoplayer" }
 media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exoplayer" }
 
-compose-bom = { module = "androidx.compose:compose-bom", version = "2023.06.01" }
+compose-bom = { module = "androidx.compose:compose-bom", version = "2023.09.01" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeLifecycle" }
 compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeLifecycle" }
 compose-activity = { module = "androidx.activity:activity-compose", version = "1.7.2" }
-compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.6.0" }
+compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.3" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.0.0" }
+compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.2" }
 coil-compose = { module = "io.coil-kt:coil-compose", version = "2.4.0" }
 
-accompanist-navigation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist" }
 accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 
 junit = { module = "junit:junit", version = "4.13.2" }
