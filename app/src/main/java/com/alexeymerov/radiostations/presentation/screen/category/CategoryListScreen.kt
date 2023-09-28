@@ -1,10 +1,10 @@
 package com.alexeymerov.radiostations.presentation.screen.category
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -136,18 +137,18 @@ fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryCli
 fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
     Row(
         modifier = modifier
-            .padding(start = 32.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                 onClick = { onCategoryClick.invoke(itemDto) }
-            ),
+            )
+            .padding(start = 32.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         BasicText(text = itemDto.text, textStyle = MaterialTheme.typography.titleSmall)
         Icon(
-            painter = painterResource(id = R.drawable.ic_arrow),
+            imageVector = Icons.Filled.KeyboardArrowRight,
             contentDescription = String.EMPTY
         )
     }
@@ -161,32 +162,29 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = modifier
-                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
-                .clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-                    onClick = { onAudioClick.invoke(itemDto) }
-                ),
+            modifier = modifier.clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
+                onClick = { onAudioClick.invoke(itemDto) }
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val vectorPainter = painterResource(id = R.drawable.full_image)
-            Box {
-                AsyncImage(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(itemDto.image)
-                        .crossfade(500)
-                        .build(),
-                    contentDescription = null,
-                    error = vectorPainter,
-                    placeholder = vectorPainter
-                )
-            }
+            AsyncImage(
+                modifier = Modifier
+                    .size(65.dp)
+                    .background(MaterialTheme.colorScheme.background),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(itemDto.image)
+                    .crossfade(500)
+                    .build(),
+                contentScale = ContentScale.FillBounds,
+                contentDescription = null,
+                error = vectorPainter,
+                placeholder = vectorPainter
+            )
 
-            BasicText(text = itemDto.text, modifier = Modifier.padding(start = 12.dp))
+            BasicText(text = itemDto.text, modifier = Modifier.padding(horizontal = 16.dp))
         }
     }
 }
