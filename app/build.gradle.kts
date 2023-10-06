@@ -1,3 +1,10 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+val keystorePropertiesFile: File = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+
 plugins {
     id("com.android.application")
     id("dagger.hilt.android.plugin")
@@ -46,15 +53,26 @@ android {
         buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+        }
+    }
+
     buildTypes {
-        named("debug") {
+        getByName("debug") {
             isDebuggable = true
             isMinifyEnabled = false
         }
-        named("release") {
+        getByName("release") {
             isDebuggable = false
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), file("$project.rootDir/tools/proguard-rules.pro"))
+
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
