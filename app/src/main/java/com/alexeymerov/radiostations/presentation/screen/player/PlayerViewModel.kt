@@ -13,6 +13,7 @@ import com.alexeymerov.radiostations.common.BaseViewModel
 import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -39,7 +40,7 @@ class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryU
     }
 
     private fun loadAudioLink(url: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             if (viewState.value == ViewState.Loading) {
                 val audioDto = categoryUseCase.getAudioUrl(url)
                 val newState = if (audioDto.isError) ViewState.Error else ViewState.ReadyToPlay(audioDto.url)

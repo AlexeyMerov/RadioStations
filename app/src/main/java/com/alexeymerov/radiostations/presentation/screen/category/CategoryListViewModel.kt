@@ -31,18 +31,34 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
 
     override fun createInitialState() = ViewState.Loading
 
-    @OptIn(FlowPreview::class)
     override fun handleAction(action: ViewAction) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
         if (action is ViewAction.LoadCategories) {
-            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
-            viewModelScope.launch(Dispatchers.IO) {
-                categoryUseCase.getCategoriesByUrl(action.url)
-                    .timeout(15.toDuration(DurationUnit.SECONDS))
-                    .catch { handleError() }
-                    .collectLatest { processNewData(action, it) }
+            processLoadCategories(action.url)
+        }
+    }
 
-                categoryUseCase.loadCategoriesByUrl(action.url)
-            }
+    private fun processLoadCategories(categoryUrl: String) {
+        subscribeToCategoriesFlow(categoryUrl)
+        loadCategories(categoryUrl)
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun subscribeToCategoriesFlow(categoryUrl: String) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            categoryUseCase.getCategoriesByUrl(categoryUrl)
+                .timeout(15.toDuration(DurationUnit.SECONDS))
+                .catch { handleError() }
+                .collectLatest {
+                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] collectLatest: $categoryUrl")
+                    processNewData(it)
+                }
+        }
+    }
+
+    private fun loadCategories(categoryUrl: String) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            categoryUseCase.loadCategoriesByUrl(categoryUrl)
         }
     }
 
@@ -52,17 +68,13 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
         }
     }
 
-    private fun processNewData(
-        action: ViewAction.LoadCategories,
-        it: CategoryDto
-    ) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] getCategories: ${action.url}")
-        if (it.isError) {
+    private fun processNewData(categoryDto: CategoryDto) {
+        if (categoryDto.isError) {
             Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
             setState(ViewState.NothingAvailable)
         } else {
-            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${it.items.size}")
-            setState(ViewState.CategoriesLoaded(it.items))
+            Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${categoryDto.items.size}")
+            setState(ViewState.CategoriesLoaded(categoryDto.items))
         }
     }
 
