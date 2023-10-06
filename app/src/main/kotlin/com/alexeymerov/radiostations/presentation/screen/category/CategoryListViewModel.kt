@@ -78,9 +78,6 @@ class CategoryListViewModel @Inject constructor(private val categoryUseCase: Cat
         }
     }
 
-    /**
-     * It's not a MVI but it used to be. At the moment not need to handle different states since there is one get and show the list.
-     * */
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object NothingAvailable : ViewState
