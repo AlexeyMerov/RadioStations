@@ -122,14 +122,12 @@ fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryCli
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
+        BasicText(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicText(text = itemDto.text)
-        }
+            text = itemDto.text
+        )
     }
 }
 
@@ -169,7 +167,7 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
             ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val vectorPainter = painterResource(id = R.drawable.full_image)
+            val placeholderPainter = painterResource(id = R.drawable.full_image)
             AsyncImage(
                 modifier = Modifier
                     .size(65.dp)
@@ -180,8 +178,8 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
                     .build(),
                 contentScale = ContentScale.FillBounds,
                 contentDescription = null,
-                error = vectorPainter,
-                placeholder = vectorPainter
+                error = placeholderPainter,
+                placeholder = placeholderPainter
             )
 
             BasicText(text = itemDto.text, modifier = Modifier.padding(horizontal = 16.dp))

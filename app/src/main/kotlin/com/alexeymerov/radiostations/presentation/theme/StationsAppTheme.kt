@@ -22,7 +22,7 @@ fun StationsAppTheme(
     val context = LocalContext.current
     val systemUiController = rememberSystemUiController()
 
-    val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S // 31
     colors = when {
         isS && useDarkTheme -> dynamicDarkColorScheme(context)
         isS -> dynamicLightColorScheme(context)
