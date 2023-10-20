@@ -77,6 +77,8 @@ coil-compose = { module = "io.coil-kt:coil-compose", version = "2.4.0" }
 
 accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 
+lottie = { module = "com.airbnb.android:lottie-compose", version = "6.1.0" }
+
 junit = { module = "junit:junit", version = "4.13.2" }
 junitExt = { module = "androidx.test.ext:junit", version = "1.1.5" }
 

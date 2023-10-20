@@ -1,7 +1,6 @@
 package com.alexeymerov.radiostations.presentation.screen.player
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,17 +15,14 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,6 +30,14 @@ import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieClipSpec
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.rememberLottieDynamicProperties
+import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.presentation.common.CallOnDispose
 import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
@@ -112,7 +116,7 @@ private fun ProcessPlayerState(playState: PlayerViewModel.PlayerState, stationUr
     }
 
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] playState ${playState.javaClass.simpleName}")
-    if (playState == PlayerViewModel.PlayerState.Play) {
+    if (playState == PlayerViewModel.PlayerState.Playing) {
         exoPlayer.play()
     } else {
         exoPlayer.pause()
@@ -123,7 +127,7 @@ private fun ProcessPlayerState(playState: PlayerViewModel.PlayerState, stationUr
 private fun StationImage(imageUrl: String) {
     AsyncImage(
         modifier = Modifier
-            .height(300.dp)
+            .height(250.dp)
             .padding(16.dp)
             .clip(RoundedCornerShape(16.dp)),
         model = ImageRequest.Builder(LocalContext.current)
@@ -137,22 +141,34 @@ private fun StationImage(imageUrl: String) {
 
 @Composable
 private fun ControlButton(playState: PlayerViewModel.PlayerState, onToggleAudio: () -> Unit) {
-    val descriptionString = stringResource(playState.contentDescription)
-    val description by rememberSaveable(playState) { mutableStateOf(descriptionString) }
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.playstop))
+    val animationStateProgress by animateLottieCompositionAsState(
+        composition = composition,
+        speed = playState.lottieSpeed,
+        clipSpec = LottieClipSpec.Progress(max = 0.5f)
+    )
+    val dynamicProperties = rememberLottieDynamicProperties(
+        rememberLottieDynamicProperty(
+            property = LottieProperty.COLOR,
+            value = MaterialTheme.colorScheme.primary.toArgb(),
+            keyPath = arrayOf("**")
+        )
+    )
 
-    Image(
-        playState.icon,
-        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary),
-        contentDescription = description,
+    LottieAnimation(
         modifier = Modifier
             .size(60.dp)
             .clickable(
-                interactionSource = MutableInteractionSource(), indication = rememberRipple(
+                interactionSource = MutableInteractionSource(),
+                indication = rememberRipple(
                     color = MaterialTheme.colorScheme.onBackground,
                     bounded = false,
-                    radius = 80.dp
+                    radius = 40.dp
                 ),
                 onClick = onToggleAudio::invoke
-            )
+            ),
+        composition = composition,
+        dynamicProperties = dynamicProperties,
+        progress = { animationStateProgress }
     )
 }
