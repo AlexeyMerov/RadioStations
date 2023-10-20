@@ -137,6 +137,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.accompanist.systemUiController)
 
+    implementation(libs.lottie)
+
     /* --- TESTS --- */
 
     testImplementation(libs.junit)
