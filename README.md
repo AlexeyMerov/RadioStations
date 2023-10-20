@@ -1,28 +1,22 @@
-# RadioStations (Test task)
+# RadioStations (Sandbox)
 
-### Task:
+### About:
 
-- Take a link and go for every nested links which represents categories.
-- Display different types of items.
-- If you have time - play audio.
+- Display list of categories and go for every nested links which represents new categories or radio stations.
+- Different types of items.
+- Play audio.
 - Be good with performance, architecture and use best practices.
-
-As a result i believe i made a "friendly-to-expand" app, and it can get new features much faster, with less pain and more reliability.
+- Animations and up-to-date design guideline.
+- Tests... after taking a deep breath.
 
 ### Bottlenecks:
 
 Server.
 
-- Response type, the whole 'logic' and everything is just... not the best.
+- Response type, the whole 'logic' and everything... not the best.
 - The problem is that it requires some core workarounds, which impact the whole app.
 - I left only one Entity type and made it all-on-one/dumb.
-- The whole 'position' thing for saving in DB is wierd, but there is a predefined sort for sure and no param for that as well.
-
-### Todo:
-
-- Play music as a service.
-- Test everything.
-- Add proguard rules.
+- The whole 'position' thing for saving in DB is wierd. There is a predefined sort from server but no response param for that.
 
 ### Tech stack:
 
@@ -33,5 +27,6 @@ Server.
 - Hilt
 - Room
 - Coil
+- Lottie
 - ExoPlayer
 - JUnit4 + MockK
