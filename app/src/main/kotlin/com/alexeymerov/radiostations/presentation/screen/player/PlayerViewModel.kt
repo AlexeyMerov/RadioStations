@@ -1,12 +1,6 @@
 package com.alexeymerov.radiostations.presentation.screen.player
 
-import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewModelScope
-import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.BaseViewAction
 import com.alexeymerov.radiostations.common.BaseViewEffect
 import com.alexeymerov.radiostations.common.BaseViewModel
@@ -24,7 +18,7 @@ import javax.inject.Inject
 class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryUseCase) :
     BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
-    private val _playerState = MutableStateFlow<PlayerState>(PlayerState.Play)
+    private val _playerState = MutableStateFlow<PlayerState>(PlayerState.Playing)
     val playerState = _playerState.asStateFlow()
 
     override fun createInitialState() = ViewState.Loading
@@ -33,9 +27,9 @@ class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryU
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${action.javaClass.simpleName}")
         when (action) {
             is ViewAction.LoadAudio -> loadAudioLink(action.url)
-            ViewAction.PlayAudio -> _playerState.compareAndSet(PlayerState.Stop, PlayerState.Play)
-            ViewAction.StopAudio -> _playerState.compareAndSet(PlayerState.Play, PlayerState.Stop)
-            ViewAction.ToggleAudio -> _playerState.value = if (playerState.value == PlayerState.Play) PlayerState.Stop else PlayerState.Play
+            ViewAction.PlayAudio -> _playerState.compareAndSet(PlayerState.Stopped, PlayerState.Playing)
+            ViewAction.StopAudio -> _playerState.compareAndSet(PlayerState.Playing, PlayerState.Stopped)
+            ViewAction.ToggleAudio -> _playerState.value = if (playerState.value == PlayerState.Playing) PlayerState.Stopped else PlayerState.Playing
         }
     }
 
@@ -49,9 +43,9 @@ class PlayerViewModel @Inject constructor(private val categoryUseCase: CategoryU
         }
     }
 
-    sealed class PlayerState(val icon: ImageVector, @StringRes val contentDescription: Int) {
-        data object Play : PlayerState(Icons.Filled.Stop, R.string.stop)
-        data object Stop : PlayerState(Icons.Filled.PlayArrow, R.string.play)
+    sealed class PlayerState(val lottieSpeed: Float) {
+        data object Playing : PlayerState(-2f)
+        data object Stopped : PlayerState(2f)
     }
 
     sealed interface ViewState : BaseViewState {
