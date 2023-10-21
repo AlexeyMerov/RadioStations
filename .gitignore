@@ -16,5 +16,7 @@ local.properties
 !.idea/dictionaries/*
 !.idea/codeStyles/
 !.idea/codeStyles/*
+!.idea/icon.png
 
 /keystore.properties
+

@@ -1,6 +1,5 @@
 package com.alexeymerov.radiostations.domain.mapper
 
-import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.db.entity.EntityItemType
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
@@ -15,17 +14,10 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
     override suspend fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto> {
         val resultList = mutableListOf<CategoryItemDto>()
 
-        categories.forEachIndexed { index, entity ->
-            val dtoItem = mapCategoryEntityToDto(entity)
-            resultList.add(dtoItem)
-
-            if (index != categories.size - 1
-                && dtoItem.type == DtoItemType.SUBCATEGORY
-                && categories.getOrNull(index + 1)?.type == EntityItemType.SUBCATEGORY
-            ) {
-                resultList.add(createDivider(dtoItem.url))
-            }
-        }
+        categories
+            .asSequence()
+            .map(::mapCategoryEntityToDto)
+            .forEach(resultList::add)
 
         return resultList
     }
@@ -38,26 +30,13 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             EntityItemType.AUDIO -> DtoItemType.AUDIO
         }
 
-        val text = when {
-            entity.childCount != null -> "${entity.text} (${entity.childCount})"
-            else -> entity.text
-        }
-
         return CategoryItemDto(
-            url = entity.url.ifEmpty { text },
-            text = text,
+            url = entity.url.ifEmpty { entity.text },
+            text = entity.text,
             image = entity.image,
-            currentTrack = entity.currentTrack,
-            type = type
+            type = type,
+            subItemsCount = entity.childCount ?: 0
         )
     }
-
-    private fun createDivider(itemUrl: String) = CategoryItemDto(
-        url = "$itemUrl#divider",
-        text = String.EMPTY,
-        image = String.EMPTY,
-        currentTrack = String.EMPTY,
-        type = DtoItemType.DIVIDER
-    )
 
 }

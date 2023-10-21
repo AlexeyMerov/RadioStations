@@ -1,11 +1,8 @@
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package com.alexeymerov.radiostations.presentation
 
 import android.os.Parcelable
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -117,15 +114,13 @@ private fun NavGraphBuilder.categoriesScreen(navController: NavController, appBa
         route = Screens.Categories.route,
         arguments = createListOfStringArgs(NavDest.Category.ARG_TITLE, NavDest.Category.ARG_URL),
     ) { backStackEntry ->
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.categoriesScreen")
 
         val defTitle = LocalContext.current.getString(R.string.browse)
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArg(NavDest.Category.ARG_TITLE).ifEmpty { defTitle }) }
-        val categoryUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(NavDest.Category.ARG_URL)) }
         val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
         appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
         CategoryListScreen(
-            categoryUrl.decodeUrl(),
             onCategoryClick = { navController.navigate(Screens.Categories.createRoute(it.text, it.url)) },
             onAudioClick = { navController.navigate(Screens.Player.createRoute(it.text, it.image.orEmpty(), it.url)) }
         )
@@ -194,7 +189,7 @@ private fun createNewRoute(route: String, vararg args: String) = route + args.jo
 
 // ugly workaround. compose navigation can't use links in args
 private fun String.encodeUrl() = replace("/", "!").replace("?", "*")
-private fun String.decodeUrl() = replace("!", "/").replace("*", "?")
+fun String.decodeUrl() = replace("!", "/").replace("*", "?")
 
 private val slideLeftDirection = AnimatedContentTransitionScope.SlideDirection.Left
 private val slideRightDirection = AnimatedContentTransitionScope.SlideDirection.Right

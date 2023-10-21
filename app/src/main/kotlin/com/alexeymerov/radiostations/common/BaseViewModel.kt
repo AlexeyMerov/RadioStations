@@ -3,6 +3,7 @@ package com.alexeymerov.radiostations.common
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,9 +30,11 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
     private val _viewEffect = Channel<E>(Channel.CONFLATED)
     val viewEffect = _viewEffect.receiveAsFlow()
 
-    protected open val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Timber.e(throwable)
     }
+
+    protected val ioContext = Dispatchers.IO + coroutineExceptionHandler
 
     init {
         subscribeActions()
