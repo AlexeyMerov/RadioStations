@@ -18,10 +18,11 @@ data class CategoryItemDto(
     val url: String,
     val text: String,
     val image: String? = null,
-    val currentTrack: String,
-    val type: DtoItemType
+    val type: DtoItemType,
+    var isFiltered: Boolean = false,
+    var subItemsCount: Int = 0
 )
 
 enum class DtoItemType(val value: Int) {
-    HEADER(0), CATEGORY(1), SUBCATEGORY(2), AUDIO(3), DIVIDER(4)
+    HEADER(0), CATEGORY(1), SUBCATEGORY(2), AUDIO(3)
 }
