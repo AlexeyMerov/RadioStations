@@ -1,11 +1,17 @@
-package com.alexeymerov.radiostations.presentation
+package com.alexeymerov.radiostations.presentation.navigation
 
 import android.os.Parcelable
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -27,16 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
-import androidx.navigation.NavArgumentBuilder
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
@@ -66,16 +67,16 @@ fun MainNavGraph() {
                             startDestination = Screens.Categories.route,
                             modifier = Modifier.padding(paddingValues),
                             enterTransition = {
-                                slideIntoContainer(slideLeftDirection, transitionAnimationSpec) + fadeIn()
+                                slideIntoContainer(SlideDirection.Left, tween(TRANSITION_DURATION)) + fadeIn()
                             },
                             exitTransition = {
-                                slideOutOfContainer(slideLeftDirection, transitionAnimationSpec) + fadeOut()
+                                slideOutOfContainer(SlideDirection.Left, tween(TRANSITION_DURATION)) + fadeOut()
                             },
                             popEnterTransition = {
-                                slideIntoContainer(slideRightDirection, transitionAnimationSpec) + fadeIn()
+                                slideIntoContainer(SlideDirection.Right, tween(TRANSITION_DURATION)) + fadeIn()
                             },
                             popExitTransition = {
-                                slideOutOfContainer(slideRightDirection, transitionAnimationSpec) + fadeOut()
+                                slideOutOfContainer(SlideDirection.Right, tween(TRANSITION_DURATION)) + fadeOut()
                             }) {
                             categoriesScreen(navController, appBarBlock)
                             playerScreen(appBarBlock)
@@ -88,21 +89,36 @@ fun MainNavGraph() {
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, navController: NavController) {
     val titleString = viewState.titleRes?.let { stringResource(it) } ?: viewState.title
     val categoryTitle by rememberSaveable(viewState) { mutableStateOf(titleString) }
 
     Surface {
         CenterAlignedTopAppBar(
-            title = { Text(categoryTitle, fontWeight = FontWeight.Bold) },
+            title = {
+                AnimatedContent(
+                    targetState = categoryTitle,
+                    transitionSpec = {
+                        (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+                    },
+                    label = String.EMPTY
+                ) { targetText ->
+                    Text(text = targetText, fontWeight = FontWeight.Bold)
+                }
+            },
             navigationIcon = {
-                if (!displayBackButton) return@CenterAlignedTopAppBar
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back)
-                    )
+                AnimatedVisibility(
+                    visible = displayBackButton,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
+                ) {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
                 }
             }
         )
@@ -142,58 +158,7 @@ private fun NavGraphBuilder.playerScreen(appBarBlock: @Composable (AppBarState) 
     }
 }
 
-sealed class Screens(val route: String) {
-    data object Categories : Screens(createBaseRoute(NavDest.Category.ROUTE, NavDest.Category.ARG_TITLE, NavDest.Category.ARG_URL)) {
-        fun createRoute(categoryTitle: String = String.EMPTY, categoryUrl: String = String.EMPTY): String {
-            return createNewRoute(NavDest.Category.ROUTE, categoryTitle, categoryUrl.encodeUrl())
-
-        }
-    }
-
-    data object Player :
-        Screens(createBaseRoute(NavDest.Player.ROUTE, NavDest.Player.ARG_TITLE, NavDest.Player.ARG_IMG_URL, NavDest.Player.ARG_URL)) {
-        fun createRoute(stationName: String, stationImgUrl: String, rawUrl: String): String {
-            return createNewRoute(NavDest.Player.ROUTE, stationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl())
-        }
-    }
-}
-
-sealed interface NavDest {
-    data object Category : NavDest {
-        const val ROUTE: String = "categories"
-        const val ARG_TITLE: String = "title"
-        const val ARG_URL: String = "url"
-    }
-
-    data object Player : NavDest {
-        const val ROUTE: String = "player"
-        const val ARG_TITLE: String = "title"
-        const val ARG_IMG_URL: String = "imgUrl"
-        const val ARG_URL: String = "url"
-    }
-}
-
-private fun NavBackStackEntry.getArg(arg: String) = arguments?.getString(arg).orEmpty()
-
-private fun createListOfStringArgs(vararg args: String) = args.map { navArgument(it, defaultStringArg()) }
-
-private fun defaultStringArg(): NavArgumentBuilder.() -> Unit = {
-    type = NavType.StringType
-    defaultValue = String.EMPTY
-}
-
-//don't want to make if inside... for now will duplicate
-private fun createBaseRoute(route: String, vararg args: String) = route + args.joinToString { "/{$it}" }
-
-private fun createNewRoute(route: String, vararg args: String) = route + args.joinToString { "/$it" }
-
-// ugly workaround. compose navigation can't use links in args
-private fun String.encodeUrl() = replace("/", "!").replace("?", "*")
-fun String.decodeUrl() = replace("!", "/").replace("*", "?")
-
-private val slideLeftDirection = AnimatedContentTransitionScope.SlideDirection.Left
-private val slideRightDirection = AnimatedContentTransitionScope.SlideDirection.Right
-private val transitionAnimationSpec = tween<IntOffset>(300)
+private const val TRANSITION_DURATION = 300
 
 @Immutable
 @Stable
@@ -201,18 +166,5 @@ private val transitionAnimationSpec = tween<IntOffset>(300)
 data class AppBarState(
     @StringRes val titleRes: Int? = null,
     val title: String = String.EMPTY,
-    val displayBackButton: Boolean = true
+    val displayBackButton: Boolean = false
 ) : Parcelable
-
-
-
-
-
-
-
-
-
-
-
-
-

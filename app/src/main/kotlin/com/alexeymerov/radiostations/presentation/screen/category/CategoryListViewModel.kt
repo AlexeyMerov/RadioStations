@@ -10,8 +10,8 @@ import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
-import com.alexeymerov.radiostations.presentation.NavDest
-import com.alexeymerov.radiostations.presentation.decodeUrl
+import com.alexeymerov.radiostations.presentation.navigation.NavDest
+import com.alexeymerov.radiostations.presentation.navigation.decodeUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
