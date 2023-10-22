@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
@@ -124,12 +123,10 @@ private fun AddHeaders(headerItems: List<CategoryItemDto>, onHeaderFilterClick: 
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         headerItems.forEach { item ->
-            val leadingIcon: @Composable () -> Unit = { Icon(Icons.Default.Check, null) }
             FilterChip(
                 onClick = { onHeaderFilterClick.invoke(item) },
                 label = { Text(text = item.text) },
-                selected = item.isFiltered,
-                leadingIcon = if (item.isFiltered) leadingIcon else null
+                selected = item.isFiltered
             )
         }
     }
