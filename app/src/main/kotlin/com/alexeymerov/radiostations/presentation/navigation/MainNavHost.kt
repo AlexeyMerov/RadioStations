@@ -5,13 +5,15 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -19,6 +21,8 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,22 +34,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
-import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
-import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import kotlinx.parcelize.Parcelize
-import timber.log.Timber
 
 
 @Composable
@@ -60,36 +62,15 @@ fun MainNavGraph() {
         Surface {
             Scaffold(
                 topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
-                content = { paddingValues ->
-                    Surface {
-                        NavHost(
-                            navController = navController,
-                            startDestination = Screens.Categories.route,
-                            modifier = Modifier.padding(paddingValues),
-                            enterTransition = {
-                                slideIntoContainer(SlideDirection.Left, tween(TRANSITION_DURATION)) + fadeIn()
-                            },
-                            exitTransition = {
-                                slideOutOfContainer(SlideDirection.Left, tween(TRANSITION_DURATION)) + fadeOut()
-                            },
-                            popEnterTransition = {
-                                slideIntoContainer(SlideDirection.Right, tween(TRANSITION_DURATION)) + fadeIn()
-                            },
-                            popExitTransition = {
-                                slideOutOfContainer(SlideDirection.Right, tween(TRANSITION_DURATION)) + fadeOut()
-                            }) {
-                            categoriesScreen(navController, appBarBlock)
-                            playerScreen(appBarBlock)
-                        }
-                    }
-                }
+                bottomBar = { CreateBottomBar(navController) },
+                content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, appBarBlock) }
             )
         }
     }
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, navController: NavController) {
     val titleString = viewState.titleRes?.let { stringResource(it) } ?: viewState.title
     val categoryTitle by rememberSaveable(viewState) { mutableStateOf(titleString) }
@@ -125,40 +106,67 @@ private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, nav
     }
 }
 
-private fun NavGraphBuilder.categoriesScreen(navController: NavController, appBarBlock: @Composable (AppBarState) -> Unit) {
-    composable(
-        route = Screens.Categories.route,
-        arguments = createListOfStringArgs(NavDest.Category.ARG_TITLE, NavDest.Category.ARG_URL),
-    ) { backStackEntry ->
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.categoriesScreen")
+@Composable
+private fun CreateBottomBar(navController: NavHostController) {
+    val tabs = listOf(Tabs.Browse, Tabs.Favorites)
+    NavigationBar {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
 
-        val defTitle = LocalContext.current.getString(R.string.browse)
-        val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArg(NavDest.Category.ARG_TITLE).ifEmpty { defTitle }) }
-        val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
-        appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
-        CategoryListScreen(
-            onCategoryClick = { navController.navigate(Screens.Categories.createRoute(it.text, it.url)) },
-            onAudioClick = { navController.navigate(Screens.Player.createRoute(it.text, it.image.orEmpty(), it.url)) }
-        )
+        tabs.forEach { tab ->
+            val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+            val icon = if (isSelected) tab.selectedIcon else tab.icon
+
+            NavigationBarItem(
+                icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },
+                label = { Text(stringResource(tab.stringId)) },
+                selected = isSelected,
+                onClick = {
+                    navController.navigate(tab.route) {
+                        // Pop up to the start destination of the graph
+                        // to avoid building up a large stack of destinations on the back stack as users select items
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
     }
 }
 
-private fun NavGraphBuilder.playerScreen(appBarBlock: @Composable (AppBarState) -> Unit) {
-    composable(
-        route = Screens.Player.route,
-        arguments = createListOfStringArgs(NavDest.Player.ARG_TITLE, NavDest.Player.ARG_IMG_URL, NavDest.Player.ARG_URL),
-    ) { backStackEntry ->
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
-
-        val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArg(NavDest.Player.ARG_TITLE)) }
-        val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(NavDest.Player.ARG_IMG_URL)) }
-        val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(NavDest.Player.ARG_URL)) }
-        appBarBlock.invoke(AppBarState(title = stationName))
-        PlayerScreen(stationImgUrl.decodeUrl(), rawUrl.decodeUrl())
+@Composable
+private fun CreateScaffoldContent(
+    navController: NavHostController,
+    paddingValues: PaddingValues,
+    appBarBlock: @Composable (AppBarState) -> Unit
+) {
+    Surface(Modifier.fillMaxSize()) {
+        NavHost(
+            modifier = Modifier.padding(paddingValues),
+            navController = navController,
+            startDestination = Tabs.Browse.route,
+            enterTransition = {
+                slideIntoContainer(SlideDirection.Left, spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn()
+            },
+            exitTransition = {
+                slideOutOfContainer(SlideDirection.Left, spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
+            },
+            popEnterTransition = {
+                slideIntoContainer(SlideDirection.Right, spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn()
+            },
+            popExitTransition = {
+                slideOutOfContainer(SlideDirection.Right, spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
+            }
+        ) {
+            browseGraph(navController, appBarBlock)
+            favoriteGraph(navController, appBarBlock)
+        }
     }
 }
-
-private const val TRANSITION_DURATION = 300
 
 @Immutable
 @Stable

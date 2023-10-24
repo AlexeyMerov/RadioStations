@@ -17,15 +17,18 @@ data class CategoryEntity(
     @Json(name = "current_track")
     val currentTrack: String = String.EMPTY,
     val type: EntityItemType,
-    val childCount: Int? = null
+    val childCount: Int? = null,
+    val isFavorite: Boolean = false
 ) {
 
     companion object {
         const val TABLE_NAME = "category"
 
+        const val FIELD_URL = "url"
         const val FIELD_PARENT_URL = "parentUrl"
         const val FIELD_POSITION = "position"
         const val FIELD_TEXT = "text"
+        const val FIELD_FAVORITE = "isFavorite"
     }
 }
 

@@ -4,10 +4,10 @@ import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.repository.CategoryRepository
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -32,10 +32,26 @@ class CategoryUseCaseImpl @Inject constructor(
                 val result = dtoCategoriesMapper.mapEntitiesToDto(entityList)
                 return@map CategoryDto(result)
             }
-            .filter { !it.isError && it.items.isNotEmpty() }
+    }
+
+    override fun getFavorites(): Flow<CategoryDto> {
+        return categoryRepository.getFavorites()
+            .distinctUntilChanged { old, new -> old == new }
+            .map { entityList ->
+                if (entityList.isNotEmpty() && entityList[0].text == ERROR) {
+                    return@map CategoryDto(emptyList(), isError = true)
+                }
+
+                val result = dtoCategoriesMapper.mapEntitiesToDto(entityList)
+                return@map CategoryDto(result)
+            }
     }
 
     override suspend fun loadCategoriesByUrl(url: String) = categoryRepository.loadCategoriesByUrl(url)
+
+    override suspend fun toggleFavorite(item: CategoryItemDto) {
+        categoryRepository.changeStationFavorite(item, !item.isFavorite)
+    }
 
     override suspend fun getAudioUrl(url: String): AudioItemDto {
         val audioUrl = categoryRepository.getAudioByUrl(url)?.url

@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.alexeymerov.radiostations.data.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
 
-@Database(entities = [CategoryEntity::class], version = 2)
+@Database(entities = [CategoryEntity::class], version = 3)
 abstract class RadioDatabase : RoomDatabase() {
 
     abstract fun categoryDao(): CategoryDao
@@ -19,7 +19,7 @@ abstract class RadioDatabase : RoomDatabase() {
 
         fun buildDatabase(context: Context): RadioDatabase {
             return Room.databaseBuilder(context, RadioDatabase::class.java, DB_NAME)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
         }
     }
@@ -31,5 +31,11 @@ abstract class RadioDatabase : RoomDatabase() {
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("ALTER TABLE category ADD COLUMN childCount INTEGER")
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE category ADD COLUMN isFavorite INTEGER DEFAULT 0 NOT NULL")
     }
 }

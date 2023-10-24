@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.common
+package com.alexeymerov.radiostations.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect

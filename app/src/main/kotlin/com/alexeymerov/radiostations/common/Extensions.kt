@@ -7,3 +7,6 @@ fun String.httpsEverywhere() = replace("http:", "https:")
 
 val String.Companion.EMPTY: String
     get() = ""
+
+val String.Companion.SPACE: String
+    get() = " "
