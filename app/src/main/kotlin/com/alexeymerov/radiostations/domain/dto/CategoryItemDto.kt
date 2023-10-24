@@ -16,11 +16,14 @@ data class CategoryDto(
  * */
 data class CategoryItemDto(
     val url: String,
+    val originalText: String,
     val text: String,
+    var subText: String? = null,
     val image: String? = null,
     val type: DtoItemType,
     var isFiltered: Boolean = false,
-    var subItemsCount: Int = 0
+    var subItemsCount: Int = 0,
+    var isFavorite: Boolean = false
 )
 
 enum class DtoItemType(val value: Int) {

@@ -10,7 +10,7 @@ import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
-import com.alexeymerov.radiostations.presentation.navigation.NavDest
+import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.decodeUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,16 +28,16 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class CategoryListViewModel @Inject constructor(savedStateHandle: SavedStateHandle, private val categoryUseCase: CategoryUseCase) :
-    BaseViewModel<CategoryListViewModel.ViewState, CategoryListViewModel.ViewAction, CategoryListViewModel.ViewEffect>() {
+class CategoriesViewModel @Inject constructor(savedStateHandle: SavedStateHandle, private val categoryUseCase: CategoryUseCase) :
+    BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {
 
-    private val categoryUrl = checkNotNull(savedStateHandle.get<String>(NavDest.Category.ARG_URL)).decodeUrl()
+    private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()
 
     private val headerFlow = MutableStateFlow(listOf<CategoryItemDto>())
 
     val categoriesFlow: StateFlow<List<CategoryItemDto>> = categoryUseCase
         .getCategoriesByUrl(categoryUrl)
-        .catch { handleError() }
+        .catch { handleError(it) }
         .onEach(::prepareHeaders)
         .combine(headerFlow, ::filterCategories)
         .onEach(::validateNewData)
@@ -57,6 +57,13 @@ class CategoryListViewModel @Inject constructor(savedStateHandle: SavedStateHand
         when (action) {
             is ViewAction.LoadCategories -> loadCategories(categoryUrl)
             is ViewAction.FilterByHeader -> updateHeaderFlow(action.headerItem)
+            is ViewAction.ToggleFavorite -> toggleFavorite(action)
+        }
+    }
+
+    private fun toggleFavorite(action: ViewAction.ToggleFavorite) {
+        viewModelScope.launch(ioContext) {
+            categoryUseCase.toggleFavorite(action.item)
         }
     }
 
@@ -107,7 +114,8 @@ class CategoryListViewModel @Inject constructor(savedStateHandle: SavedStateHand
         }
     }
 
-    private fun handleError() {
+    private fun handleError(throwable: Throwable) {
+        Timber.e(throwable, "[ ${object {}.javaClass.enclosingMethod?.name} ] handleError")
         if (viewState.value == ViewState.Loading) {
             setState(ViewState.NothingAvailable)
         }
@@ -116,12 +124,20 @@ class CategoryListViewModel @Inject constructor(savedStateHandle: SavedStateHand
     private fun validateNewData(categoryDto: CategoryDto) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] validateNewData")
         viewModelScope.launch(ioContext) {
-            if (categoryDto.isError) {
-                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
-                setState(ViewState.NothingAvailable)
-            } else {
-                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${categoryDto.items.size}")
-                setState(ViewState.CategoriesLoaded(headerFlow.value))
+            when {
+                categoryDto.isError -> {
+                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
+                    setState(ViewState.NothingAvailable)
+                }
+
+                categoryDto.items.isEmpty() -> {
+                    setState(ViewState.NothingAvailable)
+                }
+
+                else -> {
+                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${categoryDto.items.size}")
+                    setState(ViewState.CategoriesLoaded(headerFlow.value))
+                }
             }
         }
     }
@@ -134,11 +150,12 @@ class CategoryListViewModel @Inject constructor(savedStateHandle: SavedStateHand
 
     sealed interface ViewAction : BaseViewAction {
         data object LoadCategories : ViewAction
-        class FilterByHeader(val headerItem: CategoryItemDto) : ViewAction
+        data class ToggleFavorite(val item: CategoryItemDto) : ViewAction
+        data class FilterByHeader(val headerItem: CategoryItemDto) : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
-        class ShowToast(val text: String) : ViewEffect //errors or anything
+        data class ShowToast(val text: String) : ViewEffect //errors or anything
     }
 
 }

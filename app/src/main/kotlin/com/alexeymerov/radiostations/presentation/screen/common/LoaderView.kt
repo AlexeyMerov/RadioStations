@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.common
+package com.alexeymerov.radiostations.presentation.screen.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

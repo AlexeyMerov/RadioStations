@@ -4,9 +4,11 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Typography
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +32,10 @@ fun StationsAppTheme(
         else -> LightColorScheme
     }
 
-    systemUiController.setSystemBarsColor(color = colors.surface)
+    systemUiController.setStatusBarColor(color = colors.surface)
+
+    // looks not right, check later
+    systemUiController.setNavigationBarColor(color = MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation))
 
     val typography = Typography(
         titleMedium = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),

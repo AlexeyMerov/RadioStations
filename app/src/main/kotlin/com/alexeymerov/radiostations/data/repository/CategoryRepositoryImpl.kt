@@ -9,6 +9,7 @@ import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.data.remote.response.AudioBody
 import com.alexeymerov.radiostations.data.remote.response.MainBody
 import com.alexeymerov.radiostations.data.remote.response.ServerBodyType
+import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import timber.log.Timber
@@ -23,6 +24,10 @@ class CategoryRepositoryImpl @Inject constructor(
     override fun getCategoriesByUrl(url: String): Flow<List<CategoryEntity>> {
         val parentUrl = url.prepareUrl()
         return categoryDao.getAllByParentUrl(parentUrl)
+    }
+
+    override fun getFavorites(): Flow<List<CategoryEntity>> {
+        return categoryDao.getFavorites()
     }
 
     /**
@@ -48,6 +53,10 @@ class CategoryRepositoryImpl @Inject constructor(
         return if (audioBodyList.isEmpty()) null else audioBodyList[0]
     }
 
+    override suspend fun changeStationFavorite(item: CategoryItemDto, isFavorite: Boolean) {
+        categoryDao.setStationFavorite(item.url, item.originalText, if (isFavorite) 1 else 0)
+    }
+
     /**
      * The server is bad boy. To save initial values we using base url.
      * */
@@ -58,14 +67,11 @@ class CategoryRepositoryImpl @Inject constructor(
         var errorText: String? = null
         var resultList = emptyList<T>()
         val mainBody = body.body()
-        if (!body.isSuccessful) {
-            errorText = body.message()
-        } else if (mainBody == null) {
-            errorText = "Response body is null"
-        } else if (mainBody.head.status != STATUS_OK) {
-            errorText = mainBody.head.title ?: "Response status: ${mainBody.head.status}"
-        } else {
-            resultList = mainBody.body
+        when {
+            !body.isSuccessful -> errorText = body.message()
+            mainBody == null -> errorText = "Response body is null"
+            mainBody.head.status != STATUS_OK -> errorText = mainBody.head.title ?: "Response status: ${mainBody.head.status}"
+            else -> resultList = mainBody.body
         }
 
         if (errorText != null) Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] $errorText")

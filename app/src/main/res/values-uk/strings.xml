@@ -3,4 +3,6 @@
     <string name="sorry_nothing_found">Вибачте\nНічого не знайдено</string>
     <string name="back">Назад</string>
     <string name="browse">Каталог</string>
+    <string name="favorites">Улюблені</string>
+    <string name="you_need_to_add_some_stations">Вам потрібно додати станції</string>
 </resources>

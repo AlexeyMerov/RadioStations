@@ -5,4 +5,6 @@
     <string name="stop" translatable="false">Stop</string>
     <string name="play" translatable="false">Play</string>
     <string name="browse">Browse</string>
+    <string name="favorites">Favorites</string>
+    <string name="you_need_to_add_some_stations">You need to add some stations</string>
 </resources>

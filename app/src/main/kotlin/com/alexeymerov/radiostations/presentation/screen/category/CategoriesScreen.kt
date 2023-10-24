@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -31,32 +30,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.common.CallOnDispose
+import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
-import com.alexeymerov.radiostations.presentation.common.CallOnDispose
-import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
-import com.alexeymerov.radiostations.presentation.common.ErrorView
-import com.alexeymerov.radiostations.presentation.common.LoaderView
-import com.alexeymerov.radiostations.presentation.screen.category.CategoryListViewModel.*
+import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*
+import com.alexeymerov.radiostations.presentation.screen.common.BasicText
+import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
+import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
+import com.alexeymerov.radiostations.presentation.screen.common.StationListItem
 import timber.log.Timber
 
 
 @Composable
 fun CategoryListScreen(
-    viewModel: CategoryListViewModel = hiltViewModel(),
+    viewModel: CategoriesViewModel = hiltViewModel(),
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit
 ) {
@@ -76,7 +69,8 @@ fun CategoryListScreen(
                 headerItems = state.headerItems,
                 onHeaderFilterClick = { viewModel.setAction(ViewAction.FilterByHeader(it)) },
                 onCategoryClick = onCategoryClick,
-                onAudioClick = onAudioClick
+                onAudioClick = onAudioClick,
+                onFavClick = { viewModel.setAction(ViewAction.ToggleFavorite(it)) }
             )
         }
     }
@@ -89,7 +83,8 @@ private fun MainContent(
     headerItems: List<CategoryItemDto>,
     onHeaderFilterClick: (CategoryItemDto) -> Unit,
     onCategoryClick: (CategoryItemDto) -> Unit,
-    onAudioClick: (CategoryItemDto) -> Unit
+    onAudioClick: (CategoryItemDto) -> Unit,
+    onFavClick: (CategoryItemDto) -> Unit
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
     LazyColumn(Modifier.fillMaxSize()) {
@@ -107,7 +102,7 @@ private fun MainContent(
 
             when (itemDto.type) {
                 DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
-                DtoItemType.AUDIO -> StationListItem(defaultModifier, itemDto, onAudioClick)
+                DtoItemType.AUDIO -> StationListItem(defaultModifier, itemDto, onAudioClick, onFavClick)
                 DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
                 DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
             }
@@ -195,71 +190,25 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
     }
 }
 
-@Composable
-fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: (CategoryItemDto) -> Unit) {
-    Card(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = modifier.clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-                onClick = { onAudioClick.invoke(itemDto) }
-            ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val placeholderPainter = painterResource(id = R.drawable.full_image)
-            AsyncImage(
-                modifier = Modifier
-                    .size(65.dp)
-                    .background(MaterialTheme.colorScheme.background),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(itemDto.image)
-                    .crossfade(500)
-                    .build(),
-                contentScale = ContentScale.FillBounds,
-                contentDescription = null,
-                error = placeholderPainter,
-                placeholder = placeholderPainter
-            )
-
-            BasicText(text = itemDto.text, modifier = Modifier.padding(horizontal = 16.dp))
-        }
-    }
-}
-
-@Composable
-fun BasicText(modifier: Modifier = Modifier, text: String, textStyle: TextStyle = MaterialTheme.typography.titleMedium) {
-    Text(
-        modifier = modifier,
-        text = text,
-        style = textStyle,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
 @Preview
 @Composable
 private fun MainContentPreview() {
     val categoryItems: List<CategoryItemDto> = listOf(
-        CategoryItemDto("url#1", "Header", type = DtoItemType.HEADER, subItemsCount = 1),
-        CategoryItemDto("url#2", "Category", type = DtoItemType.CATEGORY),
-        CategoryItemDto("url#3", "Very Long Category Name", type = DtoItemType.CATEGORY),
-        CategoryItemDto("url#4", "Another Header", type = DtoItemType.HEADER, subItemsCount = 22),
-        CategoryItemDto("url#5", "Subcategory", type = DtoItemType.SUBCATEGORY),
-        CategoryItemDto("url#6", "Long Subcategory", type = DtoItemType.SUBCATEGORY),
-        CategoryItemDto("url#7", "Station (City)", type = DtoItemType.AUDIO),
-        CategoryItemDto("url#8", "Station", type = DtoItemType.AUDIO),
+        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, subItemsCount = 1),
+        CategoryItemDto("url#2", originalText = "", text = "Category", type = DtoItemType.CATEGORY),
+        CategoryItemDto("url#3", originalText = "", text = "Very Long Category Name", type = DtoItemType.CATEGORY),
+        CategoryItemDto("url#4", originalText = "", text = "Another Header", type = DtoItemType.HEADER, subItemsCount = 22),
+        CategoryItemDto("url#5", originalText = "", text = "Subcategory", type = DtoItemType.SUBCATEGORY),
+        CategoryItemDto("url#6", originalText = "", text = "Long Subcategory", type = DtoItemType.SUBCATEGORY),
+        CategoryItemDto("url#7", originalText = "", text = "Station (City)", type = DtoItemType.AUDIO),
+        CategoryItemDto("url#8", originalText = "", text = "Station", type = DtoItemType.AUDIO),
     )
     val headers = listOf(
-        CategoryItemDto("url#1", "Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 1),
-        CategoryItemDto("url#2", "Long Header", type = DtoItemType.HEADER, subItemsCount = 22),
-        CategoryItemDto("url#3", "Very Long Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 999),
-        CategoryItemDto("url#4", "Tiny", type = DtoItemType.HEADER),
-        CategoryItemDto("url#5", "Header", type = DtoItemType.HEADER, isFiltered = true),
+        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 1),
+        CategoryItemDto("url#2", originalText = "", text = "Long Header", type = DtoItemType.HEADER, subItemsCount = 22),
+        CategoryItemDto("url#3", originalText = "", text = "Very Long Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 999),
+        CategoryItemDto("url#4", originalText = "", text = "Tiny", type = DtoItemType.HEADER),
+        CategoryItemDto("url#5", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true),
     )
-    MainContent(categoryItems, headers, {}, {}, {})
+    MainContent(categoryItems, headers, {}, {}, {}, {})
 }

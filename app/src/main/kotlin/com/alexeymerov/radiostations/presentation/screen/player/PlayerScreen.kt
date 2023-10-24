@@ -39,10 +39,10 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.presentation.common.CallOnDispose
-import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
-import com.alexeymerov.radiostations.presentation.common.ErrorView
-import com.alexeymerov.radiostations.presentation.common.LoaderView
+import com.alexeymerov.radiostations.common.CallOnDispose
+import com.alexeymerov.radiostations.common.CallOnLaunch
+import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
+import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewState
 import timber.log.Timber
 
