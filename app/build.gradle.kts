@@ -138,6 +138,7 @@ dependencies {
     implementation(libs.accompanist.systemUiController)
 
     implementation(libs.lottie)
+    implementation(libs.splashScreen)
 
     /* --- TESTS --- */
 
