@@ -63,7 +63,7 @@ media3-exoplayer-base = { module = "androidx.media3:media3-exoplayer", version.r
 media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "exoplayer" }
 media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exoplayer" }
 
-compose-bom = { module = "androidx.compose:compose-bom", version = "2023.10.00" }
+compose-bom = { module = "androidx.compose:compose-bom", version = "2023.10.01" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
@@ -72,7 +72,7 @@ compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", ver
 compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.0" }
 compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.4" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.0.0" }
-compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.3" }
+compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }
 coil-compose = { module = "io.coil-kt:coil-compose", version = "2.4.0" }
 
 accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
