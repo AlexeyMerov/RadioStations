@@ -1,5 +1,7 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +15,7 @@ import com.alexeymerov.radiostations.presentation.screen.category.CategoryListSc
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoriteListScreen
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
+import com.alexeymerov.radiostations.presentation.screen.settings.SettingsScreen
 import timber.log.Timber
 
 
@@ -75,7 +78,24 @@ fun NavGraphBuilder.profileScreen(navController: NavController, appBarBlock: @Co
     ) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
-        appBarBlock.invoke(AppBarState(titleRes = R.string.profile))
+        val appBarState = AppBarState(
+            titleRes = R.string.profile,
+            rightIcon = Icons.Rounded.Settings,
+            rightIconAction = { navController.navigate(Screens.Settings.route) }
+        )
+        appBarBlock.invoke(appBarState)
         ErrorView(errorText = "Coming soon", showImage = false)
+    }
+}
+
+fun NavGraphBuilder.settingsScreen(navController: NavController, appBarBlock: @Composable (AppBarState) -> Unit) {
+    composable(
+        route = Screens.Settings.route,
+        arguments = createListOfStringArgs(Screens.Settings.Const.ARG_TITLE),
+    ) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
+
+        appBarBlock.invoke(AppBarState(titleRes = R.string.settings, displayBackButton = true))
+        SettingsScreen()
     }
 }

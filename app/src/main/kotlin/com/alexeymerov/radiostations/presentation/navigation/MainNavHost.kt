@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.LocationCity
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,20 +57,21 @@ import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 
 @Composable
 fun MainNavGraph() {
     val navController = rememberNavController()
-    var scaffoldViewState by rememberSaveable { mutableStateOf(AppBarState()) }
+    var appBarState by rememberSaveable { mutableStateOf(AppBarState()) }
     val appBarBlock: @Composable (AppBarState) -> Unit = {
-        CallOnLaunch { scaffoldViewState = it }
+        CallOnLaunch { appBarState = it }
     }
 
     StationsAppTheme {
         Surface {
             Scaffold(
-                topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
+                topBar = { CreateTopBar(appBarState, appBarState.displayBackButton, navController) },
                 bottomBar = { CreateBottomBar(navController) },
                 content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, appBarBlock) }
             )
@@ -79,10 +81,11 @@ fun MainNavGraph() {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, navController: NavController) {
-    val titleString = viewState.titleRes?.let { stringResource(it) } ?: viewState.title
-    val title by rememberSaveable(viewState) { mutableStateOf(titleString) }
-    val subTitle by rememberSaveable(viewState) { mutableStateOf(viewState.subTitle) }
+private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navController: NavController) {
+    val titleString = barState.titleRes?.let { stringResource(it) } ?: barState.title
+    val title by rememberSaveable(barState) { mutableStateOf(titleString) }
+    val subTitle by rememberSaveable(barState) { mutableStateOf(barState.subTitle) }
+    val rightIcon by rememberSaveable(barState) { mutableStateOf(barState.rightIcon) }
 
     Surface {
         CenterAlignedTopAppBar(
@@ -134,8 +137,20 @@ private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, nav
                 ) {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.Rounded.ArrowBack,
                             contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                }
+            },
+            actions = {
+                rightIcon?.let {
+                    IconButton(onClick = {
+                        barState.rightIconAction.invoke()
+                    }) {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = String.EMPTY
                         )
                     }
                 }
@@ -217,5 +232,7 @@ data class AppBarState(
     @StringRes val titleRes: Int? = null,
     val title: String = String.EMPTY,
     val subTitle: String = String.EMPTY,
-    val displayBackButton: Boolean = false
+    val displayBackButton: Boolean = false,
+    val rightIcon: @RawValue ImageVector? = null,
+    val rightIconAction: () -> Unit = { }
 ) : Parcelable
