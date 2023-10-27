@@ -10,6 +10,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
+import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoriteListScreen
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
 import timber.log.Timber
@@ -64,5 +65,17 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavContr
                 navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url))
             }
         )
+    }
+}
+
+fun NavGraphBuilder.profileScreen(navController: NavController, appBarBlock: @Composable (AppBarState) -> Unit) {
+    composable(
+        route = Screens.Profile.route,
+        arguments = createListOfStringArgs(Screens.Profile.Const.ARG_TITLE),
+    ) {
+        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
+
+        appBarBlock.invoke(AppBarState(titleRes = R.string.profile))
+        ErrorView(errorText = "Coming soon", showImage = false)
     }
 }

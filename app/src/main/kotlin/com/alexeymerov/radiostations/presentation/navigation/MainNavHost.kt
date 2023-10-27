@@ -146,22 +146,25 @@ private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, nav
 
 @Composable
 private fun CreateBottomBar(navController: NavHostController) {
-    val tabs = listOf(Tabs.Browse, Tabs.Favorites)
+    val tabs = Tabs::class::sealedSubclasses.get()
+
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        tabs.forEach { tab ->
-            val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-            val icon = if (isSelected) tab.selectedIcon else tab.icon
+        tabs
+            .mapNotNull { it.objectInstance }
+            .forEach { tab ->
+                val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+                val icon = if (isSelected) tab.selectedIcon else tab.icon
 
-            NavigationBarItem(
-                icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },
-                label = { Text(stringResource(tab.stringId)) },
-                selected = isSelected,
-                onClick = {
-                    navController.navigate(tab.route) {
-                        // Pop up to the start destination of the graph
+                NavigationBarItem(
+                    icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },
+                    label = { Text(stringResource(tab.stringId)) },
+                    selected = isSelected,
+                    onClick = {
+                        navController.navigate(tab.route) {
+                            // Pop up to the start destination of the graph
                         // to avoid building up a large stack of destinations on the back stack as users select items
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
@@ -202,6 +205,7 @@ private fun CreateScaffoldContent(
         ) {
             browseGraph(navController, appBarBlock)
             favoriteGraph(navController, appBarBlock)
+            youGraph(navController, appBarBlock)
         }
     }
 }

@@ -2,8 +2,10 @@ package com.alexeymerov.radiostations.presentation.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -18,6 +20,7 @@ import com.alexeymerov.radiostations.common.EMPTY
 sealed class Tabs(val route: String, @StringRes val stringId: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
     data object Browse : Tabs("browse", R.string.browse, Icons.Outlined.Category, Icons.Filled.Category)
     data object Favorites : Tabs("favorites", R.string.favorites, Icons.Outlined.StarOutline, Icons.Filled.Star)
+    data object You : Tabs("you", R.string.you, Icons.Outlined.AccountCircle, Icons.Filled.AccountCircle)
 }
 
 sealed class Screens(val route: String) {
@@ -55,6 +58,13 @@ sealed class Screens(val route: String) {
     data object Favorites : Screens(createBaseRoute(Const.ROUTE, Const.ARG_TITLE)) {
         object Const {
             const val ROUTE: String = "favorites"
+            const val ARG_TITLE: String = "title"
+        }
+    }
+
+    data object Profile : Screens(createBaseRoute(Const.ROUTE, Const.ARG_TITLE)) {
+        object Const {
+            const val ROUTE: String = "profile"
             const val ARG_TITLE: String = "title"
         }
     }

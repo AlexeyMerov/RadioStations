@@ -5,4 +5,6 @@
     <string name="browse">Каталог</string>
     <string name="favorites">Улюблені</string>
     <string name="you_need_to_add_some_stations">Вам потрібно додати станції</string>
+    <string name="you">Ви</string>
+    <string name="profile">Профіль</string>
 </resources>

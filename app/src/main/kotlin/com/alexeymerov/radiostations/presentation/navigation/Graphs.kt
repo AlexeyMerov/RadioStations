@@ -19,3 +19,9 @@ fun NavGraphBuilder.favoriteGraph(navController: NavHostController, appBarBlock:
         playerScreen(Tabs.Favorites.route, appBarBlock)
     }
 }
+
+fun NavGraphBuilder.youGraph(navController: NavHostController, appBarBlock: @Composable (AppBarState) -> Unit) {
+    navigation(startDestination = Screens.Profile.route, route = Tabs.You.route) {
+        profileScreen(navController, appBarBlock)
+    }
+}
