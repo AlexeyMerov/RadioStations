@@ -34,16 +34,21 @@ sealed class Screens(val route: String) {
     }
 
     data class Player(val parentRoute: String) :
-        Screens(createBaseRoute("$parentRoute##${Const.ROUTE}", Const.ARG_TITLE, Const.ARG_IMG_URL, Const.ARG_URL)) {
+        Screens(createBaseRoute("$parentRoute##${Const.ROUTE}", Const.ARG_TITLE, Const.ARG_SUBTITLE, Const.ARG_IMG_URL, Const.ARG_URL)) {
         object Const {
             const val ROUTE: String = "player"
             const val ARG_TITLE: String = "title"
+            const val ARG_SUBTITLE: String = "subtitle"
             const val ARG_IMG_URL: String = "imgUrl"
             const val ARG_URL: String = "url"
         }
 
         fun createRoute(stationName: String, stationImgUrl: String, rawUrl: String): String {
             return createNewRoute("$parentRoute##${Const.ROUTE}", stationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl())
+        }
+
+        fun createRoute(stationName: String, locationName: String, stationImgUrl: String, rawUrl: String): String {
+            return createNewRoute("$parentRoute##${Const.ROUTE}", stationName, locationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl())
         }
     }
 

@@ -28,7 +28,9 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavCont
         appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
         CategoryListScreen(
             onCategoryClick = { navController.navigate(Screens.Categories.createRoute(it.text, it.url)) },
-            onAudioClick = { navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.image.orEmpty(), it.url)) }
+            onAudioClick = {
+                navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url))
+            }
         )
     }
 }
@@ -41,9 +43,10 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, appBarBlock: @Composable (
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
         val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_TITLE)) }
+        val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_SUBTITLE)) }
         val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_IMG_URL)) }
         val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_URL)) }
-        appBarBlock.invoke(AppBarState(title = stationName, displayBackButton = true))
+        appBarBlock.invoke(AppBarState(title = stationName, subTitle = locationName, displayBackButton = true))
         PlayerScreen(stationImgUrl.decodeUrl(), rawUrl.decodeUrl())
     }
 }
@@ -57,7 +60,9 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavContr
 
         appBarBlock.invoke(AppBarState(titleRes = R.string.favorites))
         FavoriteListScreen(
-            onAudioClick = { navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.image.orEmpty(), it.url)) }
+            onAudioClick = {
+                navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url))
+            }
         )
     }
 }

@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -75,11 +77,24 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
                 BasicText(text = itemDto.text)
 
                 itemDto.subText?.let { subtext ->
-                    BasicText(
-                        modifier = Modifier.alpha(0.7f),
-                        text = subtext,
-                        textStyle = MaterialTheme.typography.labelMedium
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            modifier = Modifier
+                                .alpha(0.7f)
+                                .size(12.dp),
+                            imageVector = Icons.Outlined.LocationCity,
+                            contentDescription = String.EMPTY
+                        )
+
+                        BasicText(
+                            modifier = Modifier
+                                .alpha(0.7f)
+                                .padding(start = 4.dp),
+                            text = subtext,
+                            textStyle = MaterialTheme.typography.labelMedium
+                        )
+                    }
+
                 }
             }
 

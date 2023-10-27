@@ -12,15 +12,20 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -33,9 +38,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -73,19 +81,49 @@ fun MainNavGraph() {
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, navController: NavController) {
     val titleString = viewState.titleRes?.let { stringResource(it) } ?: viewState.title
-    val categoryTitle by rememberSaveable(viewState) { mutableStateOf(titleString) }
+    val title by rememberSaveable(viewState) { mutableStateOf(titleString) }
+    val subTitle by rememberSaveable(viewState) { mutableStateOf(viewState.subTitle) }
 
     Surface {
         CenterAlignedTopAppBar(
             title = {
-                AnimatedContent(
-                    targetState = categoryTitle,
-                    transitionSpec = {
-                        (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
-                    },
-                    label = String.EMPTY
-                ) { targetText ->
-                    Text(text = targetText, fontWeight = FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    AnimatedContent(
+                        targetState = title,
+                        transitionSpec = {
+                            (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+                        },
+                        label = String.EMPTY
+                    ) { targetText ->
+                        Text(text = targetText, fontWeight = FontWeight.Bold)
+                    }
+                    if (subTitle.isNotEmpty()) {
+                        AnimatedContent(
+                            targetState = subTitle,
+                            transitionSpec = {
+                                (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+                            },
+                            label = String.EMPTY
+                        ) { targetText ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    modifier = Modifier
+                                        .alpha(0.7f)
+                                        .size(12.dp),
+                                    imageVector = Icons.Outlined.LocationCity,
+                                    contentDescription = String.EMPTY
+                                )
+
+                                Text(
+                                    modifier = Modifier
+                                        .alpha(0.7f)
+                                        .padding(start = 4.dp),
+                                    text = targetText,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            }
+                        }
+                    }
                 }
             },
             navigationIcon = {
@@ -174,5 +212,6 @@ private fun CreateScaffoldContent(
 data class AppBarState(
     @StringRes val titleRes: Int? = null,
     val title: String = String.EMPTY,
+    val subTitle: String = String.EMPTY,
     val displayBackButton: Boolean = false
 ) : Parcelable
