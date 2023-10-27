@@ -4,6 +4,8 @@ import androidx.room.Room
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.platform.app.InstrumentationRegistry
+import com.alexeymerov.radiostations.data.local.db.MIGRATION_1_2
+import com.alexeymerov.radiostations.data.local.db.RadioDatabase
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
 import org.junit.Test

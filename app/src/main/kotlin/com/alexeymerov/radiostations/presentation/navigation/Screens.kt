@@ -1,12 +1,14 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CompareArrows
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -14,6 +16,7 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoriteListScreen
+import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsScreen
 import timber.log.Timber
@@ -62,8 +65,17 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavContr
     ) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
 
-        appBarBlock.invoke(AppBarState(titleRes = R.string.favorites))
+        val viewModel: FavoritesViewModel = hiltViewModel()
+
+        val appBarState = AppBarState(
+            titleRes = R.string.favorites,
+            rightIcon = Icons.Rounded.CompareArrows, // todo change later for dialog or smth
+            rightIconAction = { viewModel.nextViewType() }
+        )
+        appBarBlock.invoke(appBarState)
+
         FavoriteListScreen(
+            viewModel = viewModel,
             onAudioClick = {
                 navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url))
             }

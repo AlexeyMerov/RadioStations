@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
     implementation(libs.timber)
+    implementation(libs.dataStore.base)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

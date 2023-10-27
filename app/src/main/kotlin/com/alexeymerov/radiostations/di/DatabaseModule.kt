@@ -1,8 +1,8 @@
 package com.alexeymerov.radiostations.di
 
 import android.content.Context
-import com.alexeymerov.radiostations.data.db.RadioDatabase
-import com.alexeymerov.radiostations.data.db.dao.CategoryDao
+import com.alexeymerov.radiostations.data.local.db.RadioDatabase
+import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapperImpl
 import dagger.Binds

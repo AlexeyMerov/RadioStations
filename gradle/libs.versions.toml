@@ -38,6 +38,7 @@ versionsChecker = { id = "com.github.ben-manes.versions", version.ref = "version
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" }
 work-runtime = { module = "androidx.work:work-runtime-ktx", version = "2.8.1" }
+dataStore-base = { module = "androidx.datastore:datastore-preferences", version = "1.0.0" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }

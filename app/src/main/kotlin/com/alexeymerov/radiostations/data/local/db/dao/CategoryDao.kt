@@ -1,10 +1,10 @@
-package com.alexeymerov.radiostations.data.db.dao
+package com.alexeymerov.radiostations.data.local.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

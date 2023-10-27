@@ -3,8 +3,8 @@ package com.alexeymerov.radiostations.di
 import android.content.Context
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
-import com.alexeymerov.radiostations.data.db.RadioDatabase
-import com.alexeymerov.radiostations.data.db.dao.CategoryDao
+import com.alexeymerov.radiostations.data.local.db.RadioDatabase
+import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent

@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.data.repository
 
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.remote.response.AudioBody
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import kotlinx.coroutines.flow.Flow

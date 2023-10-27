@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.data.db
+package com.alexeymerov.radiostations.data.local.db
 
 import android.content.Context
 import androidx.room.Database
@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.alexeymerov.radiostations.data.db.dao.CategoryDao
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
+import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 
 @Database(entities = [CategoryEntity::class], version = 3)
 abstract class RadioDatabase : RoomDatabase() {

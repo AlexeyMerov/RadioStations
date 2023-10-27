@@ -83,16 +83,13 @@ fun MainNavGraph() {
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navController: NavController) {
     val titleString = barState.titleRes?.let { stringResource(it) } ?: barState.title
-    val title by rememberSaveable(barState) { mutableStateOf(titleString) }
-    val subTitle by rememberSaveable(barState) { mutableStateOf(barState.subTitle) }
-    val rightIcon by rememberSaveable(barState) { mutableStateOf(barState.rightIcon) }
 
     Surface {
         CenterAlignedTopAppBar(
             title = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     AnimatedContent(
-                        targetState = title,
+                        targetState = titleString,
                         transitionSpec = {
                             (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
                         },
@@ -100,9 +97,9 @@ private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navC
                     ) { targetText ->
                         Text(text = targetText, fontWeight = FontWeight.Bold)
                     }
-                    if (subTitle.isNotEmpty()) {
+                    if (barState.subTitle.isNotEmpty()) {
                         AnimatedContent(
-                            targetState = subTitle,
+                            targetState = barState.subTitle,
                             transitionSpec = {
                                 (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
                             },
@@ -144,14 +141,18 @@ private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navC
                 }
             },
             actions = {
-                rightIcon?.let {
-                    IconButton(onClick = {
-                        barState.rightIconAction.invoke()
-                    }) {
-                        Icon(
-                            imageVector = it,
-                            contentDescription = String.EMPTY
-                        )
+                AnimatedVisibility(
+                    visible = barState.rightIcon != null,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
+                ) {
+                    barState.rightIcon?.let {
+                        IconButton(onClick = { barState.rightIconAction.invoke() }) {
+                            Icon(
+                                imageVector = it,
+                                contentDescription = String.EMPTY
+                            )
+                        }
                     }
                 }
             }
@@ -180,17 +181,17 @@ private fun CreateBottomBar(navController: NavHostController) {
                     onClick = {
                         navController.navigate(tab.route) {
                             // Pop up to the start destination of the graph
-                        // to avoid building up a large stack of destinations on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
+                            // to avoid building up a large stack of destinations on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
 
-                        launchSingleTop = true
-                        restoreState = true
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
-                }
-            )
-        }
+                )
+            }
     }
 }
 

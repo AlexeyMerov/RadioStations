@@ -2,8 +2,8 @@ package com.alexeymerov.radiostations.domain.mapper
 
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.common.SPACE
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.db.entity.EntityItemType
+import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.data.local.db.entity.EntityItemType
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
 import javax.inject.Inject

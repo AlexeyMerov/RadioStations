@@ -2,8 +2,8 @@ package com.alexeymerov.radiostations.data.repository
 
 import com.alexeymerov.radiostations.BuildConfig
 import com.alexeymerov.radiostations.common.httpsEverywhere
-import com.alexeymerov.radiostations.data.db.dao.CategoryDao
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
+import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
 import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.data.remote.response.AudioBody
