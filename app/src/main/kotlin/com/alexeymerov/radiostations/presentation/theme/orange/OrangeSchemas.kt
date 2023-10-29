@@ -1,9 +1,10 @@
-package com.alexeymerov.radiostations.presentation.theme
+package com.alexeymerov.radiostations.presentation.theme.orange
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 
-val LightColors = lightColorScheme(
+
+val OrangeLightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
@@ -35,8 +36,7 @@ val LightColors = lightColorScheme(
     scrim = md_theme_light_scrim,
 )
 
-
-val DarkColors = darkColorScheme(
+val OrangeDarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = md_theme_dark_primaryContainer,
@@ -67,3 +67,5 @@ val DarkColors = darkColorScheme(
     outlineVariant = md_theme_dark_outlineVariant,
     scrim = md_theme_dark_scrim,
 )
+
+fun getOrangeColorScheme(isDark: Boolean) = if (isDark) OrangeDarkColors else OrangeLightColors

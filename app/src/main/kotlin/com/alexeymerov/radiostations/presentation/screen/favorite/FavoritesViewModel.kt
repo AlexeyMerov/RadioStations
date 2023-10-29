@@ -8,13 +8,17 @@ import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
-import com.alexeymerov.radiostations.domain.usecase.usersettings.UserSettingsUseCase
-import com.alexeymerov.radiostations.domain.usecase.usersettings.UserSettingsUseCase.ViewType
+import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase
+import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.ViewType
+import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewAction
+import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewEffect
+import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -27,18 +31,20 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val categoryUseCase: CategoryUseCase,
-    private val settingsUseCase: UserSettingsUseCase
-) : BaseViewModel<FavoritesViewModel.ViewState, FavoritesViewModel.ViewAction, FavoritesViewModel.ViewEffect>() {
+    private val settingsUseCase: FavoriteViewSettingsUseCase
+) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
-    private var currentViewType = ViewType.LIST
+    private lateinit var currentViewType: ViewType
 
     init {
         viewModelScope.launch(ioContext) {
             settingsUseCase
                 .getViewType()
+                .filter { ::currentViewType.isInitialized }
+                .filter { it != currentViewType }
                 .collectLatest {
                     currentViewType = it
-                    setState(ViewState.FavoritesLoaded(it))
+                    setState(ViewState.FavoritesLoaded(currentViewType))
                 }
         }
     }
@@ -94,9 +100,15 @@ class FavoritesViewModel @Inject constructor(
                 }
 
                 else -> {
-                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set FavoritesLoaded ${categoryDto.items.size}")
-                    currentViewType = settingsUseCase.getViewType().first()
-                    setState(ViewState.FavoritesLoaded(currentViewType))
+                    try {
+                        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set FavoritesLoaded ${categoryDto.items.size}")
+                        if (!::currentViewType.isInitialized) {
+                            currentViewType = settingsUseCase.getViewType().first()
+                        }
+                        setState(ViewState.FavoritesLoaded(currentViewType))
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                    }
                 }
             }
         }

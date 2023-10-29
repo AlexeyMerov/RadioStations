@@ -10,4 +10,15 @@
     <string name="you">You</string>
     <string name="profile">Profile</string>
     <string name="settings">Settings</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="system">System</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
+    <string name="dynamic_color">Dynamic color</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="color">Color</string>
+    <string name="default_blue">Default Blue</string>
+    <string name="green">Green</string>
+    <string name="orange">Orange</string>
 </resources>

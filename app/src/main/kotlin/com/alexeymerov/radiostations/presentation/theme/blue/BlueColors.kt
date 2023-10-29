@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.theme
+package com.alexeymerov.radiostations.presentation.theme.blue
 
 import androidx.compose.ui.graphics.Color
 

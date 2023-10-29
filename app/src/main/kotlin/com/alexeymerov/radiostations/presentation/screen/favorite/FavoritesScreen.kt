@@ -6,10 +6,13 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,7 +54,7 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.domain.usecase.usersettings.UserSettingsUseCase
+import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.*
 import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
@@ -66,6 +69,7 @@ fun FavoriteListScreen(
     onAudioClick: (CategoryItemDto) -> Unit
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+
     CallOnDispose { viewModel.clear() }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -88,17 +92,21 @@ fun FavoriteListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    viewType: UserSettingsUseCase.ViewType,
+    viewType: ViewType,
     categoryItems: List<CategoryItemDto>,
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
-    val isList by rememberSaveable(viewType) { mutableStateOf(viewType == UserSettingsUseCase.ViewType.LIST) }
+    val isList by rememberSaveable(viewType) { mutableStateOf(viewType == ViewType.LIST) }
 
     if (isList) {
-        LazyColumn(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             items(
                 items = categoryItems,
                 key = CategoryItemDto::url,
@@ -110,10 +118,11 @@ private fun MainContent(
         }
     } else {
         LazyVerticalGrid(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 8.dp),
-            columns = GridCells.Fixed(viewType.value)
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(viewType.value),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(
                 items = categoryItems,
@@ -127,11 +136,11 @@ private fun MainContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StationGridItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: (CategoryItemDto) -> Unit, onFavClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -181,7 +190,12 @@ fun StationGridItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
                 }
             }
 
-            BasicText(modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp), text = itemDto.text)
+            BasicText(
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                    .basicMarquee(),
+                text = itemDto.text
+            )
 
             itemDto.subText?.let { subtext ->
                 Row(

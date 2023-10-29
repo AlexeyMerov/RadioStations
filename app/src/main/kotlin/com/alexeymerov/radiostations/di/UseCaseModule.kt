@@ -5,8 +5,10 @@ import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapperImpl
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCaseImpl
-import com.alexeymerov.radiostations.domain.usecase.usersettings.UserSettingsUseCase
-import com.alexeymerov.radiostations.domain.usecase.usersettings.UserSettingsUseCaseImpl
+import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase
+import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCaseImpl
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -23,7 +25,11 @@ abstract class UseCaseModule {
 
     @Binds
     @ViewModelScoped
-    abstract fun bindSettingsUseCase(useCase: UserSettingsUseCaseImpl): UserSettingsUseCase
+    abstract fun bindFavoriteViewSettingsUseCase(useCase: FavoriteViewSettingsUseCaseImpl): FavoriteViewSettingsUseCase
+
+    @Binds
+    @ViewModelScoped
+    abstract fun bindThemeSettingsUseCase(useCase: ThemeSettingsUseCaseImpl): ThemeSettingsUseCase
 
     @Module
     @InstallIn(ViewModelComponent::class)

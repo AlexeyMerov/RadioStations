@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -38,11 +40,11 @@ import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: (CategoryItemDto) -> Unit, onFavClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = modifier.padding(horizontal = 16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -73,7 +75,7 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
                     .weight(1f)
                     .padding(start = 16.dp)
             ) {
-                BasicText(text = itemDto.text)
+                BasicText(modifier = Modifier.basicMarquee(), text = itemDto.text)
 
                 itemDto.subText?.let { subtext ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -96,7 +98,6 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
 
                 }
             }
-
 
             AnimatedContent(
                 targetState = itemDto.isFavorite,

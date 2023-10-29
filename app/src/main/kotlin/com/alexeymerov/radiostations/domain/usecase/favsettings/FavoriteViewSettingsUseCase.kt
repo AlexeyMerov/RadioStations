@@ -1,8 +1,8 @@
-package com.alexeymerov.radiostations.domain.usecase.usersettings
+package com.alexeymerov.radiostations.domain.usecase.favsettings
 
 import kotlinx.coroutines.flow.Flow
 
-interface UserSettingsUseCase {
+interface FavoriteViewSettingsUseCase {
 
     fun getViewType(): Flow<ViewType>
 

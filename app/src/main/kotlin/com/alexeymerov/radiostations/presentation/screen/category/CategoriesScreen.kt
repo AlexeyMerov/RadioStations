@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -87,9 +88,13 @@ private fun MainContent(
     onFavClick: (CategoryItemDto) -> Unit
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
-    LazyColumn(Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         if (headerItems.isNotEmpty()) {
-            item { AddHeaders(headerItems, onHeaderFilterClick) }
+            item { AddFiltersHeaders(headerItems, onHeaderFilterClick) }
         }
         items(
             items = categoryItems,
@@ -112,7 +117,7 @@ private fun MainContent(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-private fun AddHeaders(headerItems: List<CategoryItemDto>, onHeaderFilterClick: (CategoryItemDto) -> Unit) {
+private fun AddFiltersHeaders(headerItems: List<CategoryItemDto>, onHeaderFilterClick: (CategoryItemDto) -> Unit) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -129,7 +134,7 @@ private fun AddHeaders(headerItems: List<CategoryItemDto>, onHeaderFilterClick: 
 
 @Composable
 fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
-    Row(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)) {
+    Row(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
         BasicText(
             text = itemDto.text,
             textStyle = MaterialTheme.typography.titleSmall
@@ -155,9 +160,8 @@ fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
 @Composable
 fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 16.dp),
         onClick = { onCategoryClick.invoke(itemDto) },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         BasicText(
@@ -178,13 +182,19 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
                 indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                 onClick = { onCategoryClick.invoke(itemDto) }
             )
-            .padding(start = 32.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(
+                start = 32.dp,
+                end = 16.dp,
+                top = 4.dp,
+                bottom = 4.dp
+            ), // we need to duplicate paddings on each item for unbounded selection here
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         BasicText(text = itemDto.text, textStyle = MaterialTheme.typography.titleSmall)
+
         Icon(
-            imageVector = Icons.Filled.KeyboardArrowRight,
+            imageVector = Icons.Rounded.KeyboardArrowRight,
             contentDescription = String.EMPTY
         )
     }
