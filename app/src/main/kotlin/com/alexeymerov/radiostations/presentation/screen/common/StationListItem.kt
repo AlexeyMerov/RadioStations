@@ -4,8 +4,9 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -14,17 +15,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material.icons.outlined.LocationCity
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -37,11 +40,11 @@ import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: (CategoryItemDto) -> Unit, onFavClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = modifier.padding(horizontal = 16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -72,39 +75,46 @@ fun StationListItem(modifier: Modifier, itemDto: CategoryItemDto, onAudioClick: 
                     .weight(1f)
                     .padding(start = 16.dp)
             ) {
-                BasicText(text = itemDto.text)
+                BasicText(modifier = Modifier.basicMarquee(), text = itemDto.text)
 
                 itemDto.subText?.let { subtext ->
-                    BasicText(
-                        modifier = Modifier.alpha(0.7f),
-                        text = subtext,
-                        textStyle = MaterialTheme.typography.labelMedium
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            modifier = Modifier
+                                .alpha(0.7f)
+                                .size(12.dp),
+                            imageVector = Icons.Outlined.LocationCity,
+                            contentDescription = String.EMPTY
+                        )
+
+                        BasicText(
+                            modifier = Modifier
+                                .alpha(0.7f)
+                                .padding(start = 4.dp),
+                            text = subtext,
+                            textStyle = MaterialTheme.typography.labelMedium
+                        )
+                    }
+
                 }
             }
-
 
             AnimatedContent(
                 targetState = itemDto.isFavorite,
                 label = "Star",
                 transitionSpec = { scaleIn().togetherWith(scaleOut()) }
             ) {
-                Image(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground, bounded = false, radius = 16.dp),
-                            onClick = { onFavClick.invoke(itemDto) }
-                        ),
-                    imageVector = if (it) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                    contentDescription = String.EMPTY,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-                    contentScale = ContentScale.Inside
-
-                )
+                IconButton(
+                    modifier = Modifier.size(48.dp),
+                    onClick = { onFavClick.invoke(itemDto) }
+                ) {
+                    Icon(
+                        imageVector = if (it) Icons.Rounded.Star else Icons.Rounded.StarOutline,
+                        contentDescription = String.EMPTY,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
-
         }
     }
 }

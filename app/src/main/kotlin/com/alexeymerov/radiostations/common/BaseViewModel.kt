@@ -19,10 +19,10 @@ interface BaseViewState
 
 abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseViewEffect> : ViewModel() {
 
-    private val initialState: S by lazy { createInitialState() }
+    val initialState: S by lazy { createInitialState() }
 
     private val _viewState = MutableStateFlow<S>(initialState)
-    val viewState = _viewState.asStateFlow()
+    open val viewState = _viewState.asStateFlow()
 
     private val _viewAction = MutableSharedFlow<A>()
     private val viewAction = _viewAction.asSharedFlow()

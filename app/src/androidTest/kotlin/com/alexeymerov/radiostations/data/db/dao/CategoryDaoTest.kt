@@ -1,9 +1,10 @@
 package com.alexeymerov.radiostations.data.db.dao
 
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.data.db.RadioDatabase
-import com.alexeymerov.radiostations.data.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.db.entity.EntityItemType
+import com.alexeymerov.radiostations.data.local.db.RadioDatabase
+import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
+import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.data.local.db.entity.EntityItemType
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.first

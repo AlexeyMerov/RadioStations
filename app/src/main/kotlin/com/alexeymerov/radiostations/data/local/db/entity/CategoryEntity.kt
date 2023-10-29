@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.data.db.entity
+package com.alexeymerov.radiostations.data.local.db.entity
 
 import androidx.room.Entity
 import com.alexeymerov.radiostations.common.EMPTY

@@ -12,15 +12,20 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.LocationCity
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -33,9 +38,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -46,40 +55,36 @@ import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 
 @Composable
 fun MainNavGraph() {
     val navController = rememberNavController()
-    var scaffoldViewState by rememberSaveable { mutableStateOf(AppBarState()) }
+    var appBarState by rememberSaveable { mutableStateOf(AppBarState()) }
     val appBarBlock: @Composable (AppBarState) -> Unit = {
-        CallOnLaunch { scaffoldViewState = it }
+        CallOnLaunch { appBarState = it }
     }
 
-    StationsAppTheme {
-        Surface {
-            Scaffold(
-                topBar = { CreateTopBar(scaffoldViewState, scaffoldViewState.displayBackButton, navController) },
-                bottomBar = { CreateBottomBar(navController) },
-                content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, appBarBlock) }
-            )
-        }
+    Surface {
+        Scaffold(
+            topBar = { CreateTopBar(appBarState, appBarState.displayBackButton, navController) },
+            bottomBar = { CreateBottomBar(navController) },
+            content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, appBarBlock) }
+        )
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, navController: NavController) {
-    val titleString = viewState.titleRes?.let { stringResource(it) } ?: viewState.title
-    val categoryTitle by rememberSaveable(viewState) { mutableStateOf(titleString) }
-
-    Surface {
-        CenterAlignedTopAppBar(
-            title = {
+private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navController: NavController) {
+    val titleString = barState.titleRes?.let { stringResource(it) } ?: barState.title
+    CenterAlignedTopAppBar(
+        title = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 AnimatedContent(
-                    targetState = categoryTitle,
+                    targetState = titleString,
                     transitionSpec = {
                         (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
                     },
@@ -87,54 +92,100 @@ private fun CreateTopBar(viewState: AppBarState, displayBackButton: Boolean, nav
                 ) { targetText ->
                     Text(text = targetText, fontWeight = FontWeight.Bold)
                 }
-            },
-            navigationIcon = {
-                AnimatedVisibility(
-                    visible = displayBackButton,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                if (barState.subTitle.isNotEmpty()) {
+                    AnimatedContent(
+                        targetState = barState.subTitle,
+                        transitionSpec = {
+                            (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+                        },
+                        label = String.EMPTY
+                    ) { targetText ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                modifier = Modifier
+                                    .alpha(0.7f)
+                                    .size(12.dp),
+                                imageVector = Icons.Outlined.LocationCity,
+                                contentDescription = String.EMPTY
+                            )
+
+                            Text(
+                                modifier = Modifier
+                                    .alpha(0.7f)
+                                    .padding(start = 4.dp),
+                                text = targetText,
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        navigationIcon = {
+            AnimatedVisibility(
+                visible = displayBackButton,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut()
+            ) {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
+            }
+        },
+        actions = {
+            AnimatedVisibility(
+                visible = barState.rightIcon != null,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut()
+            ) {
+                barState.rightIcon?.let {
+                    IconButton(onClick = { barState.rightIconAction.invoke() }) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            imageVector = it,
+                            contentDescription = String.EMPTY
                         )
                     }
                 }
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable
 private fun CreateBottomBar(navController: NavHostController) {
-    val tabs = listOf(Tabs.Browse, Tabs.Favorites)
+    val tabs = Tabs::class::sealedSubclasses.get()
+
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        tabs.forEach { tab ->
-            val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-            val icon = if (isSelected) tab.selectedIcon else tab.icon
+        tabs
+            .mapNotNull { it.objectInstance }
+            .forEach { tab ->
+                val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+                val icon = if (isSelected) tab.selectedIcon else tab.icon
 
-            NavigationBarItem(
-                icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },
-                label = { Text(stringResource(tab.stringId)) },
-                selected = isSelected,
-                onClick = {
-                    navController.navigate(tab.route) {
-                        // Pop up to the start destination of the graph
-                        // to avoid building up a large stack of destinations on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                NavigationBarItem(
+                    icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },
+                    label = { Text(stringResource(tab.stringId)) },
+                    selected = isSelected,
+                    onClick = {
+                        navController.navigate(tab.route) {
+                            // Pop up to the start destination of the graph
+                            // to avoid building up a large stack of destinations on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+
+                            launchSingleTop = true
+                            restoreState = true
                         }
-
-                        launchSingleTop = true
-                        restoreState = true
                     }
-                }
-            )
-        }
+                )
+            }
     }
 }
 
@@ -164,6 +215,7 @@ private fun CreateScaffoldContent(
         ) {
             browseGraph(navController, appBarBlock)
             favoriteGraph(navController, appBarBlock)
+            youGraph(navController, appBarBlock)
         }
     }
 }
@@ -174,5 +226,8 @@ private fun CreateScaffoldContent(
 data class AppBarState(
     @StringRes val titleRes: Int? = null,
     val title: String = String.EMPTY,
-    val displayBackButton: Boolean = false
+    val subTitle: String = String.EMPTY,
+    val displayBackButton: Boolean = false,
+    val rightIcon: @RawValue ImageVector? = null,
+    val rightIconAction: () -> Unit = { }
 ) : Parcelable

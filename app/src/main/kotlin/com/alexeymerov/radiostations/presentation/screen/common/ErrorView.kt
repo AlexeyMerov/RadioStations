@@ -42,7 +42,7 @@ fun ErrorView(errorText: String = stringResource(R.string.sorry_nothing_found), 
         Text(
             modifier = Modifier.alpha(0.8f),
             text = errorText,
-            fontSize = 28.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             lineHeight = 36.sp
