@@ -7,4 +7,16 @@
     <string name="you_need_to_add_some_stations">Необходимо добавить станции</string>
     <string name="you">Вы</string>
     <string name="profile">Профиль</string>
+    <string name="settings">Настройки</string>
+    <string name="dark_mode">Тёмный режим</string>
+    <string name="system">Системный</string>
+    <string name="dark">Тёмный</string>
+    <string name="light">Светлый</string>
+    <string name="dynamic_color">Динамический цвет</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="color">Цвет</string>
+    <string name="default_blue">Синий по умолчанию</string>
+    <string name="green">Зелёный</string>
+    <string name="orange">Оранжевый</string>
 </resources>
