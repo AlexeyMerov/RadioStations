@@ -15,6 +15,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +33,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -41,9 +44,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -81,6 +86,7 @@ fun MainNavGraph() {
 private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navController: NavController) {
     val titleString = barState.titleRes?.let { stringResource(it) } ?: barState.title
     CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 AnimatedContent(
@@ -141,12 +147,29 @@ private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navC
                 enter = fadeIn() + scaleIn(),
                 exit = fadeOut() + scaleOut()
             ) {
+                var needShowMenu by rememberSaveable { mutableStateOf(false) }
                 barState.rightIcon?.let {
-                    IconButton(onClick = { barState.rightIconAction.invoke() }) {
+                    IconButton(onClick = {
+                        if (barState.dropDownMenu != null) {
+                            needShowMenu = !needShowMenu
+                        }
+
+                        barState.rightIconAction?.invoke()
+                    }
+                    ) {
                         Icon(
                             imageVector = it,
                             contentDescription = String.EMPTY
                         )
+                    }
+
+                    DropdownMenu(
+                        expanded = needShowMenu,
+                        onDismissRequest = { needShowMenu = false },
+                        modifier = Modifier.defaultMinSize(minWidth = 125.dp),
+                        offset = DpOffset(x = 12.dp, y = 0.dp)
+                    ) {
+                        barState.dropDownMenu?.invoke()
                     }
                 }
             }
@@ -229,5 +252,6 @@ data class AppBarState(
     val subTitle: String = String.EMPTY,
     val displayBackButton: Boolean = false,
     val rightIcon: @RawValue ImageVector? = null,
-    val rightIconAction: () -> Unit = { }
+    val rightIconAction: (() -> Unit)? = null,
+    val dropDownMenu: (@Composable () -> Unit)? = null
 ) : Parcelable

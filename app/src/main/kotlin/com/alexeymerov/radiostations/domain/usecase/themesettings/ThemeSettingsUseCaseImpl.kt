@@ -16,14 +16,14 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
 
     override fun getThemeState(): Flow<ThemeState> {
         return combine(
-            flow = settingsStore.getIntPrefsFlow(DARK_THEME_KEY),
-            flow2 = settingsStore.getBoolPrefsFlow(DYNAMIC_COLOR_KEY),
-            flow3 = settingsStore.getIntPrefsFlow(COLOR_KEY)
+            flow = settingsStore.getIntPrefsFlow(DARK_THEME_KEY, defValue = 0),
+            flow2 = settingsStore.getBoolPrefsFlow(DYNAMIC_COLOR_KEY, defValue = true),
+            flow3 = settingsStore.getIntPrefsFlow(COLOR_KEY, defValue = 0)
         ) { darkThemeValue, dynamicColorValue, colorValue ->
             ThemeState(
-                darkMode = DarkModeState.values()[darkThemeValue ?: 0],
-                useDynamicColor = dynamicColorValue ?: true,
-                colorState = ColorState.values()[colorValue ?: 0]
+                darkMode = DarkModeState.values()[darkThemeValue],
+                useDynamicColor = dynamicColorValue,
+                colorState = ColorState.values()[colorValue]
             )
         }
     }

@@ -57,12 +57,6 @@ class FavoritesViewModel @Inject constructor(
         .flowOn(ioContext)
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    fun nextViewType() {
-        viewModelScope.launch(ioContext) {
-            settingsUseCase.setNextViewType(currentViewType)
-        }
-    }
-
     override fun setAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")
         super.setAction(action)
@@ -72,10 +66,21 @@ class FavoritesViewModel @Inject constructor(
 
     override fun handleAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
-        if (action is ViewAction.ToggleFavorite) {
-            viewModelScope.launch(ioContext) {
-                categoryUseCase.toggleFavorite(action.item)
-            }
+        when (action) {
+            is ViewAction.ToggleFavorite -> toggleFavorite(action.item)
+            is ViewAction.SetViewType -> setViewType(action.type)
+        }
+    }
+
+    private fun setViewType(type: ViewType) {
+        viewModelScope.launch(ioContext) {
+            settingsUseCase.setViewType(type)
+        }
+    }
+
+    private fun toggleFavorite(item: CategoryItemDto) {
+        viewModelScope.launch(ioContext) {
+            categoryUseCase.toggleFavorite(item)
         }
     }
 
@@ -122,6 +127,7 @@ class FavoritesViewModel @Inject constructor(
 
     sealed interface ViewAction : BaseViewAction {
         data class ToggleFavorite(val item: CategoryItemDto) : ViewAction
+        data class SetViewType(val type: ViewType) : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
