@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorState
@@ -59,6 +61,7 @@ fun StationsAppTheme(
     MaterialTheme(
         colorScheme = colors.withAnimation(),
         typography = typography,
+        shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp)), // at the moment only for DropDownMenu
         content = content
     )
 }

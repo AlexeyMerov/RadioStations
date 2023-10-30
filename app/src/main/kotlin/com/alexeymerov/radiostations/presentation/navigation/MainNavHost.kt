@@ -167,7 +167,7 @@ private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navC
                         expanded = needShowMenu,
                         onDismissRequest = { needShowMenu = false },
                         modifier = Modifier.defaultMinSize(minWidth = 125.dp),
-                        offset = DpOffset(x = 12.dp, y = 0.dp)
+                        offset = DpOffset(x = 12.dp, y = 0.dp),
                     ) {
                         barState.dropDownMenu?.invoke()
                     }
