@@ -21,4 +21,7 @@
     <string name="default_blue">Default Blue</string>
     <string name="green">Green</string>
     <string name="orange">Orange</string>
+    <string name="rows">Rows</string>
+    <string name="grid_2">Grid 2</string>
+    <string name="grid_3">Grid 3</string>
 </resources>

@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorState
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkModeState
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
@@ -56,7 +57,7 @@ fun StationsAppTheme(
     systemUiController.setStatusBarColor(color = animateColor(colors.surface))
 
     MaterialTheme(
-        colorScheme = colors.withAnimation(), //topbar animation somehow looks different, fix later
+        colorScheme = colors.withAnimation(),
         typography = typography,
         content = content
     )
@@ -66,7 +67,7 @@ fun StationsAppTheme(
 fun animateColor(targetColor: Color) = animateColorAsState(
     targetValue = targetColor,
     animationSpec = tween(500),
-    label = ""
+    label = String.EMPTY
 ).value
 
 @Composable

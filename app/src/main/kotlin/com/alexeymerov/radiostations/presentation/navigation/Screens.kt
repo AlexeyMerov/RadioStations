@@ -1,22 +1,25 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CompareArrows
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
+import com.alexeymerov.radiostations.presentation.screen.common.DropDownItem
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoriteListScreen
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel
+import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsScreen
 import timber.log.Timber
@@ -69,15 +72,35 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavContr
 
         val appBarState = AppBarState(
             titleRes = R.string.favorites,
-            rightIcon = Icons.Rounded.CompareArrows, // todo change later for dialog or smth
-            rightIconAction = { viewModel.nextViewType() }
+            rightIcon = ImageVector.vectorResource(R.drawable.icon_settings),
+            dropDownMenu = {
+                // maybe extract somewhere later
+                // not hiding after selection is intentional
+                DropDownItem(
+                    iconId = R.drawable.icon_rows,
+                    text = stringResource(R.string.rows),
+                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.LIST)) }
+                )
+                DropDownItem(
+                    iconId = R.drawable.icon_grid_2,
+                    text = stringResource(R.string.grid_2),
+                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.GRID_2_COLUMN)) }
+                )
+                DropDownItem(
+                    iconId = R.drawable.icon_grid_3,
+                    text = stringResource(R.string.grid_3),
+                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.GRID_3_COLUMN)) }
+                )
+            }
         )
         appBarBlock.invoke(appBarState)
 
         FavoriteListScreen(
             viewModel = viewModel,
             onAudioClick = {
-                navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url))
+                navController.navigate(
+                    Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url)
+                )
             }
         )
     }
@@ -92,7 +115,7 @@ fun NavGraphBuilder.profileScreen(navController: NavController, appBarBlock: @Co
 
         val appBarState = AppBarState(
             titleRes = R.string.profile,
-            rightIcon = Icons.Rounded.Settings,
+            rightIcon = ImageVector.vectorResource(R.drawable.icon_settings),
             rightIconAction = { navController.navigate(Screens.Settings.route) }
         )
         appBarBlock.invoke(appBarState)

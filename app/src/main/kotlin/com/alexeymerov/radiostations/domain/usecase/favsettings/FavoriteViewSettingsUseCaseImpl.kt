@@ -12,20 +12,12 @@ class FavoriteViewSettingsUseCaseImpl @Inject constructor(
 ) : FavoriteViewSettingsUseCase {
 
     override fun getViewType(): Flow<ViewType> {
-        return settingsStore.getIntPrefsFlow(VIEW_TYPE_KEY)
-            .map { ViewType.values()[it ?: 0] }
+        return settingsStore.getIntPrefsFlow(VIEW_TYPE_KEY, defValue = 0)
+            .map { ViewType.values()[it] }
     }
 
-    override suspend fun setNextViewType(currentValue: ViewType) {
-        val lastIndex = ViewType.values().size - 1
-        var newValue = currentValue.ordinal
-        if (newValue == lastIndex) {
-            newValue = 0
-        } else {
-            newValue++
-        }
-
-        settingsStore.satPrefs(VIEW_TYPE_KEY, newValue)
+    override suspend fun setViewType(type: ViewType) {
+        settingsStore.satPrefs(VIEW_TYPE_KEY, type.ordinal)
     }
 
     companion object {
