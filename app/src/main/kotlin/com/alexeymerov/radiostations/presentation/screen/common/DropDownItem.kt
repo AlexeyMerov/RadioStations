@@ -26,7 +26,7 @@ fun DropDownItem(@DrawableRes iconId: Int, text: String, action: () -> Unit) {
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(iconId),
-            modifier = Modifier.alpha(0.75f),
+            modifier = Modifier.alpha(0.85f),
             contentDescription = String.EMPTY
         )
 
