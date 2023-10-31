@@ -15,6 +15,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -87,94 +88,103 @@ private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navC
     val titleString = barState.titleRes?.let { stringResource(it) } ?: barState.title
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
-        title = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                AnimatedContent(
-                    targetState = titleString,
-                    transitionSpec = {
-                        (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
-                    },
-                    label = String.EMPTY
-                ) { targetText ->
-                    Text(text = targetText, fontWeight = FontWeight.Bold)
-                }
-                if (barState.subTitle.isNotEmpty()) {
-                    AnimatedContent(
-                        targetState = barState.subTitle,
-                        transitionSpec = {
-                            (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
-                        },
-                        label = String.EMPTY
-                    ) { targetText ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                modifier = Modifier
-                                    .alpha(0.7f)
-                                    .size(12.dp),
-                                imageVector = Icons.Outlined.LocationCity,
-                                contentDescription = String.EMPTY
-                            )
+        title = { TopBarTitle(titleString, barState) },
+        navigationIcon = { NavigationIcon(displayBackButton, navController) },
+        actions = { TopBarActions(barState) }
+    )
+}
 
-                            Text(
-                                modifier = Modifier
-                                    .alpha(0.7f)
-                                    .padding(start = 4.dp),
-                                text = targetText,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        navigationIcon = {
-            AnimatedVisibility(
-                visible = displayBackButton,
-                enter = fadeIn() + scaleIn(),
-                exit = fadeOut() + scaleOut()
-            ) {
-                IconButton(onClick = { navController.navigateUp() }) {
+@Composable
+private fun TopBarTitle(titleString: String, barState: AppBarState) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        AnimatedContent(
+            targetState = titleString,
+            transitionSpec = {
+                (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+            },
+            label = String.EMPTY
+        ) { targetText ->
+            Text(text = targetText, fontWeight = FontWeight.Bold)
+        }
+        if (barState.subTitle.isNotEmpty()) {
+            AnimatedContent(
+                targetState = barState.subTitle,
+                transitionSpec = {
+                    (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+                },
+                label = String.EMPTY
+            ) { targetText ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Rounded.ArrowBack,
-                        contentDescription = stringResource(R.string.back)
+                        modifier = Modifier
+                            .alpha(0.7f)
+                            .size(12.dp),
+                        imageVector = Icons.Outlined.LocationCity,
+                        contentDescription = String.EMPTY
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .alpha(0.7f)
+                            .padding(start = 4.dp),
+                        text = targetText,
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
             }
-        },
-        actions = {
-            AnimatedVisibility(
-                visible = barState.rightIcon != null,
-                enter = fadeIn() + scaleIn(),
-                exit = fadeOut() + scaleOut()
-            ) {
-                var needShowMenu by rememberSaveable { mutableStateOf(false) }
-                barState.rightIcon?.let {
-                    IconButton(onClick = {
-                        if (barState.dropDownMenu != null) {
-                            needShowMenu = !needShowMenu
-                        }
+        }
+    }
+}
 
-                        barState.rightIconAction?.invoke()
-                    }
-                    ) {
-                        Icon(
-                            imageVector = it,
-                            contentDescription = String.EMPTY
-                        )
-                    }
+@Composable
+private fun NavigationIcon(displayBackButton: Boolean, navController: NavController) {
+    AnimatedVisibility(
+        visible = displayBackButton,
+        enter = fadeIn() + scaleIn(),
+        exit = fadeOut() + scaleOut()
+    ) {
+        IconButton(onClick = { navController.navigateUp() }) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowBack,
+                contentDescription = stringResource(R.string.back)
+            )
+        }
+    }
+}
 
-                    DropdownMenu(
-                        expanded = needShowMenu,
-                        onDismissRequest = { needShowMenu = false },
-                        modifier = Modifier.defaultMinSize(minWidth = 125.dp),
-                        offset = DpOffset(x = 12.dp, y = 0.dp),
-                    ) {
-                        barState.dropDownMenu?.invoke()
-                    }
+@Composable
+private fun RowScope.TopBarActions(barState: AppBarState) {
+    AnimatedVisibility(
+        visible = barState.rightIcon != null,
+        enter = fadeIn() + scaleIn(),
+        exit = fadeOut() + scaleOut()
+    ) {
+        var needShowMenu by rememberSaveable { mutableStateOf(false) }
+        barState.rightIcon?.let {
+            IconButton(onClick = {
+                if (barState.dropDownMenu != null) {
+                    needShowMenu = !needShowMenu
                 }
+
+                barState.rightIconAction?.invoke()
+            }
+            ) {
+                Icon(
+                    imageVector = it,
+                    contentDescription = String.EMPTY
+                )
+            }
+
+            DropdownMenu(
+                expanded = needShowMenu,
+                onDismissRequest = { needShowMenu = false },
+                modifier = Modifier.defaultMinSize(minWidth = 125.dp),
+                offset = DpOffset(x = 12.dp, y = 0.dp),
+            ) {
+                barState.dropDownMenu?.invoke()
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -189,27 +199,35 @@ private fun CreateBottomBar(navController: NavHostController) {
             .mapNotNull { it.objectInstance }
             .forEach { tab ->
                 val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                val icon = if (isSelected) tab.selectedIcon else tab.icon
-
-                NavigationBarItem(
-                    icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },
-                    label = { Text(stringResource(tab.stringId)) },
-                    selected = isSelected,
-                    onClick = {
-                        navController.navigate(tab.route) {
-                            // Pop up to the start destination of the graph
-                            // to avoid building up a large stack of destinations on the back stack as users select items
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                )
+                BottomBarItem(tab, isSelected, navController)
             }
     }
+}
+
+@Composable
+private fun RowScope.BottomBarItem(
+    tab: Tabs,
+    isSelected: Boolean,
+    navController: NavHostController
+) {
+    val icon = if (isSelected) tab.selectedIcon else tab.icon
+    NavigationBarItem(
+        icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },
+        label = { Text(stringResource(tab.stringId)) },
+        selected = isSelected,
+        onClick = {
+            navController.navigate(tab.route) {
+                // Pop up to the start destination of the graph
+                // to avoid building up a large stack of destinations on the back stack as users select items
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    )
 }
 
 @Composable
