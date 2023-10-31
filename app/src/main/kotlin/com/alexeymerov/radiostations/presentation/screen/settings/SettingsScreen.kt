@@ -1,18 +1,29 @@
 package com.alexeymerov.radiostations.presentation.screen.settings
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +38,9 @@ import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewState
+import com.alexeymerov.radiostations.presentation.theme.blue.BlueLightColors
+import com.alexeymerov.radiostations.presentation.theme.green.GreenLightColors
+import com.alexeymerov.radiostations.presentation.theme.orange.OrangeLightColors
 
 @Composable
 fun SettingsScreen(
@@ -37,21 +51,73 @@ fun SettingsScreen(
 
     when (val state = viewState) {
         ViewState.Loading -> LoaderView()
-        is ViewState.Loaded -> {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                DarkThemeOptions(state.themeState, onAction = onViewAction)
-                DynamicColorOptions(state.themeState, onAction = onViewAction)
+        is ViewState.Loaded -> MainContent(state.themeState, onViewAction)
+    }
+}
 
-                AnimatedVisibility(visible = !state.themeState.useDynamicColor) {
-                    ColorOptions(state.themeState, onAction = onViewAction)
+@Composable
+private fun MainContent(
+    themeState: ThemeState,
+    onViewAction: (ViewAction) -> Unit
+) {
+    var needShowThemeDialog by rememberSaveable { mutableStateOf(false) }
+
+    // more settings later
+    Button(
+        modifier = Modifier
+            .wrapContentSize()
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        BlueLightColors.primary,
+                        GreenLightColors.primary,
+                        OrangeLightColors.primary,
+                    )
+                ),
+                shape = ButtonDefaults.shape
+            )
+            .height(ButtonDefaults.MinHeight),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+        onClick = { needShowThemeDialog = !needShowThemeDialog }) {
+        Text(text = stringResource(R.string.theme_settings))
+    }
+
+    if (needShowThemeDialog) {
+        ThemeDialog(
+            themeState = themeState,
+            onDismiss = { needShowThemeDialog = !needShowThemeDialog },
+            onViewAction = onViewAction
+        )
+    }
+}
+
+@Composable
+private fun ThemeDialog(
+    themeState: ThemeState,
+    onDismiss: () -> Unit,
+    onViewAction: (ViewAction) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Text(
+                modifier = Modifier.clickable(onClick = onDismiss),
+                text = stringResource(R.string.done)
+            )
+        },
+        title = { Text(text = stringResource(R.string.theme_settings)) },
+        text = {
+            Column {
+                DarkThemeOptions(themeState, onAction = onViewAction)
+                DynamicColorOptions(themeState, onAction = onViewAction)
+
+//              AnimatedVisibility - feels like frame drop, smth with AlertDialog, maybe add later
+                if (!themeState.useDynamicColor) {
+                    ColorOptions(themeState, onAction = onViewAction)
                 }
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -114,30 +180,29 @@ private fun ColorOptions(
     themeState: ThemeState,
     onAction: (ViewAction) -> Unit
 ) {
-    Column(modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp)) {
-        Text(
-            text = stringResource(R.string.color),
-            style = MaterialTheme.typography.titleLarge
-        )
+    Text(
+        modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
+        text = stringResource(R.string.color),
+        style = MaterialTheme.typography.titleMedium
+    )
 
-        BasicRadioButton(
-            isSelected = themeState.colorState == ColorState.DefaultBlue,
-            text = stringResource(R.string.default_blue),
-            action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.DefaultBlue)) }
-        )
+    BasicRadioButton(
+        isSelected = themeState.colorState == ColorState.DefaultBlue,
+        text = stringResource(R.string.default_blue),
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.DefaultBlue)) }
+    )
 
-        BasicRadioButton(
-            isSelected = themeState.colorState == ColorState.Green,
-            text = stringResource(R.string.green),
-            action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.Green)) }
-        )
+    BasicRadioButton(
+        isSelected = themeState.colorState == ColorState.Green,
+        text = stringResource(R.string.green),
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.Green)) }
+    )
 
-        BasicRadioButton(
-            isSelected = themeState.colorState == ColorState.Orange,
-            text = stringResource(R.string.orange),
-            action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.Orange)) }
-        )
-    }
+    BasicRadioButton(
+        isSelected = themeState.colorState == ColorState.Orange,
+        text = stringResource(R.string.orange),
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.Orange)) }
+    )
 }
 
 @Composable
