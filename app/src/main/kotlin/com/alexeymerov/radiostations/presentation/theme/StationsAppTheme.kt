@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorState
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkModeState
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.presentation.theme.blue.getBlueColorScheme
 import com.alexeymerov.radiostations.presentation.theme.green.getGreenColorScheme
@@ -32,23 +32,31 @@ fun StationsAppTheme(
 ) {
     val systemUiController = rememberSystemUiController()
 
-    val useDarkTheme = when (themeState.darkMode) {
-        DarkModeState.System -> isSystemInDarkTheme()
-        DarkModeState.Dark -> true
-        DarkModeState.Light -> false
+    val useDarkTheme = when (themeState.darkLightMode) {
+        DarkLightMode.System -> isSystemInDarkTheme()
+        DarkLightMode.Light -> false
+        DarkLightMode.Dark, DarkLightMode.Night -> true
     }
 
     val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S // 31
     val context = LocalContext.current
 
-    val colors: ColorScheme = when {
+    var colors: ColorScheme = when {
         isS && themeState.useDynamicColor && useDarkTheme -> dynamicDarkColorScheme(context)
         isS && themeState.useDynamicColor -> dynamicLightColorScheme(context)
-        else -> when (themeState.colorState) {
-            ColorState.Green -> getGreenColorScheme(useDarkTheme)
-            ColorState.Orange -> getOrangeColorScheme(useDarkTheme)
-            ColorState.DefaultBlue -> getBlueColorScheme(useDarkTheme)
+        else -> when (themeState.colorTheme) {
+            ColorTheme.Green -> getGreenColorScheme(useDarkTheme)
+            ColorTheme.Orange -> getOrangeColorScheme(useDarkTheme)
+            ColorTheme.DefaultBlue -> getBlueColorScheme(useDarkTheme)
         }
+    }
+
+    if (themeState.darkLightMode == DarkLightMode.Night) {
+        colors = colors.copy(
+            surface = Color.Black,
+            background = Color.Black,
+//            scrim ??
+        )
     }
 
     val typography = Typography(

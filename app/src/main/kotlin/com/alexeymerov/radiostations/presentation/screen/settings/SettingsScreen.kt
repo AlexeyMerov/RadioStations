@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorState
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkModeState
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
@@ -77,7 +77,10 @@ private fun MainContent(
                 shape = ButtonDefaults.shape
             )
             .height(ButtonDefaults.MinHeight),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = Color.White
+        ),
         onClick = { needShowThemeDialog = !needShowThemeDialog }) {
         Text(text = stringResource(R.string.theme_settings))
     }
@@ -108,12 +111,12 @@ private fun ThemeDialog(
         title = { Text(text = stringResource(R.string.theme_settings)) },
         text = {
             Column {
-                DarkThemeOptions(themeState, onAction = onViewAction)
-                DynamicColorOptions(themeState, onAction = onViewAction)
+                DarkThemeOptions(themeState.darkLightMode, onAction = onViewAction)
+                DynamicColorOptions(themeState.useDynamicColor, onAction = onViewAction)
 
 //              AnimatedVisibility - feels like frame drop, smth with AlertDialog, maybe add later
                 if (!themeState.useDynamicColor) {
-                    ColorOptions(themeState, onAction = onViewAction)
+                    ColorOptions(themeState.colorTheme, onAction = onViewAction)
                 }
             }
         }
@@ -122,7 +125,7 @@ private fun ThemeDialog(
 
 @Composable
 private fun DarkThemeOptions(
-    themeState: ThemeState,
+    darkLightMode: DarkLightMode,
     onAction: (ViewAction) -> Unit
 ) {
     BasicText(
@@ -131,27 +134,33 @@ private fun DarkThemeOptions(
     )
 
     BasicRadioButton(
-        isSelected = themeState.darkMode == DarkModeState.System,
+        isSelected = darkLightMode == DarkLightMode.System,
         text = stringResource(R.string.system),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkModeState.System)) }
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.System)) }
     )
 
     BasicRadioButton(
-        isSelected = themeState.darkMode == DarkModeState.Dark,
-        text = stringResource(R.string.dark),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkModeState.Dark)) }
-    )
-
-    BasicRadioButton(
-        isSelected = themeState.darkMode == DarkModeState.Light,
+        isSelected = darkLightMode == DarkLightMode.Light,
         text = stringResource(R.string.light),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkModeState.Light)) }
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.Light)) }
+    )
+
+    BasicRadioButton(
+        isSelected = darkLightMode == DarkLightMode.Dark,
+        text = stringResource(R.string.dark),
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.Dark)) }
+    )
+
+    BasicRadioButton(
+        isSelected = darkLightMode == DarkLightMode.Night,
+        text = stringResource(R.string.night),
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.Night)) }
     )
 }
 
 @Composable
 private fun DynamicColorOptions(
-    themeState: ThemeState,
+    useDynamicColor: Boolean,
     onAction: (ViewAction) -> Unit
 ) {
     //val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S check is show
@@ -163,13 +172,13 @@ private fun DynamicColorOptions(
     )
 
     BasicRadioButton(
-        isSelected = themeState.useDynamicColor,
+        isSelected = useDynamicColor,
         text = stringResource(R.string.yes),
         action = { onAction.invoke(ViewAction.ChangeDynamicColor(true)) }
     )
 
     BasicRadioButton(
-        isSelected = !themeState.useDynamicColor,
+        isSelected = !useDynamicColor,
         text = stringResource(R.string.no),
         action = { onAction.invoke(ViewAction.ChangeDynamicColor(false)) }
     )
@@ -177,7 +186,7 @@ private fun DynamicColorOptions(
 
 @Composable
 private fun ColorOptions(
-    themeState: ThemeState,
+    colorTheme: ColorTheme,
     onAction: (ViewAction) -> Unit
 ) {
     Text(
@@ -187,21 +196,21 @@ private fun ColorOptions(
     )
 
     BasicRadioButton(
-        isSelected = themeState.colorState == ColorState.DefaultBlue,
+        isSelected = colorTheme == ColorTheme.DefaultBlue,
         text = stringResource(R.string.default_blue),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.DefaultBlue)) }
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.DefaultBlue)) }
     )
 
     BasicRadioButton(
-        isSelected = themeState.colorState == ColorState.Green,
+        isSelected = colorTheme == ColorTheme.Green,
         text = stringResource(R.string.green),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.Green)) }
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.Green)) }
     )
 
     BasicRadioButton(
-        isSelected = themeState.colorState == ColorState.Orange,
+        isSelected = colorTheme == ColorTheme.Orange,
         text = stringResource(R.string.orange),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorState.Orange)) }
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.Orange)) }
     )
 }
 

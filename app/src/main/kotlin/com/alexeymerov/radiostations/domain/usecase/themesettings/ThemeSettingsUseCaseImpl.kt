@@ -3,8 +3,8 @@ package com.alexeymerov.radiostations.domain.usecase.themesettings
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorState
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkModeState
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -19,19 +19,21 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
             flow = settingsStore.getIntPrefsFlow(DARK_THEME_KEY, defValue = 0),
             flow2 = settingsStore.getBoolPrefsFlow(DYNAMIC_COLOR_KEY, defValue = true),
             flow3 = settingsStore.getIntPrefsFlow(COLOR_KEY, defValue = 0)
-        ) { darkThemeValue, dynamicColorValue, colorValue ->
+        ) { darkLightId, dynamicColorValue, colorThemeId ->
+            val darkLightMode = DarkLightMode.values().first { it.id == darkLightId }
+            val colorTheme = ColorTheme.values().first { it.id == colorThemeId }
             ThemeState(
-                darkMode = DarkModeState.values()[darkThemeValue],
+                darkLightMode = darkLightMode,
                 useDynamicColor = dynamicColorValue,
-                colorState = ColorState.values()[colorValue]
+                colorTheme = colorTheme
             )
         }
     }
 
     override suspend fun updateThemeState(state: ThemeState) {
-        settingsStore.satPrefs(DARK_THEME_KEY, state.darkMode.ordinal)
+        settingsStore.satPrefs(DARK_THEME_KEY, state.darkLightMode.id)
         settingsStore.satPrefs(DYNAMIC_COLOR_KEY, state.useDynamicColor)
-        settingsStore.satPrefs(COLOR_KEY, state.colorState.ordinal)
+        settingsStore.satPrefs(COLOR_KEY, state.colorTheme.id)
     }
 
 

@@ -6,8 +6,8 @@ import com.alexeymerov.radiostations.common.BaseViewEffect
 import com.alexeymerov.radiostations.common.BaseViewModel
 import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorState
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkModeState
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
+import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewEffect
@@ -50,9 +50,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun changeChangeDarkMode(value: DarkModeState) {
+    private suspend fun changeChangeDarkMode(value: DarkLightMode) {
         themeSettings.updateThemeState(
-            themeState.copy(darkMode = value)
+            themeState.copy(darkLightMode = value)
         )
     }
 
@@ -62,9 +62,9 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
-    private suspend fun changeChangeColorScheme(value: ColorState) {
+    private suspend fun changeChangeColorScheme(value: ColorTheme) {
         themeSettings.updateThemeState(
-            themeState.copy(colorState = value)
+            themeState.copy(colorTheme = value)
         )
     }
 
@@ -74,9 +74,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     sealed interface ViewAction : BaseViewAction {
-        data class ChangeDarkMode(val value: DarkModeState) : ViewAction
+        data class ChangeDarkMode(val value: DarkLightMode) : ViewAction
         data class ChangeDynamicColor(val useDynamic: Boolean) : ViewAction
-        data class ChangeColorScheme(val value: ColorState) : ViewAction
+        data class ChangeColorScheme(val value: ColorTheme) : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
