@@ -28,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +42,8 @@ import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
+import com.alexeymerov.radiostations.presentation.navigation.AppBarState
+import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*
 import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
@@ -51,12 +55,19 @@ import timber.log.Timber
 @Composable
 fun CategoryListScreen(
     viewModel: CategoriesViewModel = hiltViewModel(),
-    onCategoryClick: (CategoryItemDto) -> Unit,
-    onAudioClick: (CategoryItemDto) -> Unit
+    appBarBlock: @Composable (AppBarState) -> Unit,
+    defTitle: String,
+    categoryTitle: String,
+    parentRoute: String,
+    onNavigate: (String) -> Unit
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
-    CallOnLaunch { viewModel.setAction(ViewAction.LoadCategories) }
+
+    val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
+    appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
+
     CallOnDispose { viewModel.clear() }
+    CallOnLaunch { viewModel.setAction(ViewAction.LoadCategories) }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
@@ -69,8 +80,11 @@ fun CategoryListScreen(
                 categoryItems = categoryItems,
                 headerItems = state.headerItems,
                 onHeaderFilterClick = { viewModel.setAction(ViewAction.FilterByHeader(it)) },
-                onCategoryClick = onCategoryClick,
-                onAudioClick = onAudioClick,
+                onCategoryClick = { onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url)) },
+                onAudioClick = {
+                    val route = Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url)
+                    onNavigate.invoke(route)
+                },
                 onFavClick = { viewModel.setAction(ViewAction.ToggleFavorite(it)) }
             )
         }
@@ -107,7 +121,15 @@ private fun MainContent(
 
             when (itemDto.type) {
                 DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
-                DtoItemType.AUDIO -> StationListItem(defaultModifier, itemDto, onAudioClick, onFavClick)
+                DtoItemType.AUDIO -> StationListItem(
+                    modifier = defaultModifier,
+                    itemDto = itemDto,
+                    inSelection = false,
+                    isSelected = false,
+                    onAudioClick = onAudioClick,
+                    onFavClick = onFavClick
+                )
+
                 DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
                 DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
             }

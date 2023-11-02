@@ -34,6 +34,7 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.presentation.navigation.AppBarState
 import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewAction
@@ -44,10 +45,13 @@ import com.alexeymerov.radiostations.presentation.theme.orange.OrangeLightColors
 
 @Composable
 fun SettingsScreen(
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    appBarBlock: @Composable (AppBarState) -> Unit
 ) {
-    val viewState by settingsViewModel.viewState.collectAsStateWithLifecycle()
-    val onViewAction: (ViewAction) -> Unit = { settingsViewModel.setAction(it) }
+    appBarBlock.invoke(AppBarState(title = stringResource(R.string.settings), displayBackButton = true))
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    val onViewAction: (ViewAction) -> Unit = { viewModel.setAction(it) }
 
     when (val state = viewState) {
         ViewState.Loading -> LoaderView()

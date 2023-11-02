@@ -1,5 +1,8 @@
 package com.alexeymerov.radiostations.presentation.screen.favorite
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.common.BaseViewAction
 import com.alexeymerov.radiostations.common.BaseViewEffect
@@ -36,6 +39,9 @@ class FavoritesViewModel @Inject constructor(
 
     private lateinit var currentViewType: ViewType
 
+    private val selectedItems = mutableSetOf<CategoryItemDto>()
+    var selectedItemsCount by mutableIntStateOf(0)
+
     init {
         viewModelScope.launch(ioContext) {
             settingsUseCase
@@ -49,13 +55,12 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    val categoriesFlow: StateFlow<List<CategoryItemDto>> = categoryUseCase
-        .getFavorites()
+    val categoriesFlow: StateFlow<List<CategoryItemDto>> = categoryUseCase.getFavorites()
         .catch { handleError(it) }
         .onEach(::validateNewData)
         .map { it.items }
         .flowOn(ioContext)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     override fun setAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")
@@ -69,6 +74,17 @@ class FavoritesViewModel @Inject constructor(
         when (action) {
             is ViewAction.ToggleFavorite -> toggleFavorite(action.item)
             is ViewAction.SetViewType -> setViewType(action.type)
+            is ViewAction.SelectItem -> {
+                if (selectedItems.contains(action.item)) {
+                    selectedItems.remove(action.item)
+                    selectedItemsCount--
+                } else {
+                    selectedItems.add(action.item)
+                    selectedItemsCount++
+                }
+            }
+
+            is ViewAction.UnfavoriteSelected -> unfavoriteSelected()
         }
     }
 
@@ -81,6 +97,14 @@ class FavoritesViewModel @Inject constructor(
     private fun toggleFavorite(item: CategoryItemDto) {
         viewModelScope.launch(ioContext) {
             categoryUseCase.toggleFavorite(item)
+        }
+    }
+
+    private fun unfavoriteSelected() {
+        viewModelScope.launch(ioContext) {
+            selectedItems.forEach { categoryUseCase.unfavorite(it) }
+            selectedItemsCount = 0
+            selectedItems.clear()
         }
     }
 
@@ -128,6 +152,8 @@ class FavoritesViewModel @Inject constructor(
     sealed interface ViewAction : BaseViewAction {
         data class ToggleFavorite(val item: CategoryItemDto) : ViewAction
         data class SetViewType(val type: ViewType) : ViewAction
+        data class SelectItem(val item: CategoryItemDto) : ViewAction
+        data object UnfavoriteSelected : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {

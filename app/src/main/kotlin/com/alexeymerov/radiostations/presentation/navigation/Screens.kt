@@ -4,23 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
-import com.alexeymerov.radiostations.presentation.screen.common.DropDownItem
-import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
-import com.alexeymerov.radiostations.presentation.screen.favorite.FavoriteListScreen
-import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel
-import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewAction
+import com.alexeymerov.radiostations.presentation.screen.favorite.BaseFavoriteScreen
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
+import com.alexeymerov.radiostations.presentation.screen.profile.ProfileScreen
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsScreen
 import timber.log.Timber
 
@@ -32,15 +24,15 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavCont
     ) { backStackEntry ->
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.categoriesScreen")
 
-        val defTitle = LocalContext.current.getString(R.string.browse)
+        val defTitle = stringResource(R.string.browse)
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
-        val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
-        appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
+
         CategoryListScreen(
-            onCategoryClick = { navController.navigate(Screens.Categories.createRoute(it.text, it.url)) },
-            onAudioClick = {
-                navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url))
-            }
+            appBarBlock = appBarBlock,
+            defTitle = defTitle,
+            categoryTitle = categoryTitle,
+            parentRoute = parentRoute,
+            onNavigate = { navController.navigate(it) }
         )
     }
 }
@@ -56,8 +48,14 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, appBarBlock: @Composable (
         val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_SUBTITLE)) }
         val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_IMG_URL)) }
         val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_URL)) }
-        appBarBlock.invoke(AppBarState(title = stationName, subTitle = locationName, displayBackButton = true))
-        PlayerScreen(stationImgUrl.decodeUrl(), rawUrl.decodeUrl())
+
+        PlayerScreen(
+            appBarBlock = appBarBlock,
+            stationName = stationName,
+            locationName = locationName,
+            stationImgUrl = stationImgUrl.decodeUrl(),
+            rawUrl = rawUrl.decodeUrl()
+        )
     }
 }
 
@@ -68,40 +66,10 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavContr
     ) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
 
-        val viewModel: FavoritesViewModel = hiltViewModel()
-
-        val appBarState = AppBarState(
-            titleRes = R.string.favorites,
-            rightIcon = ImageVector.vectorResource(R.drawable.icon_settings),
-            dropDownMenu = {
-                // maybe extract somewhere later
-                // not hiding after selection is intentional
-                DropDownItem(
-                    iconId = R.drawable.icon_rows,
-                    text = stringResource(R.string.rows),
-                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.LIST)) }
-                )
-                DropDownItem(
-                    iconId = R.drawable.icon_grid_2,
-                    text = stringResource(R.string.grid_2),
-                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.GRID_2_COLUMN)) }
-                )
-                DropDownItem(
-                    iconId = R.drawable.icon_grid_3,
-                    text = stringResource(R.string.grid_3),
-                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.GRID_3_COLUMN)) }
-                )
-            }
-        )
-        appBarBlock.invoke(appBarState)
-
-        FavoriteListScreen(
-            viewModel = viewModel,
-            onAudioClick = {
-                navController.navigate(
-                    Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url)
-                )
-            }
+        BaseFavoriteScreen(
+            appBarBlock = appBarBlock,
+            parentRoute = parentRoute,
+            onNavigate = { navController.navigate(it) }
         )
     }
 }
@@ -113,13 +81,10 @@ fun NavGraphBuilder.profileScreen(navController: NavController, appBarBlock: @Co
     ) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
-        val appBarState = AppBarState(
-            titleRes = R.string.profile,
-            rightIcon = ImageVector.vectorResource(R.drawable.icon_settings),
-            rightIconAction = { navController.navigate(Screens.Settings.route) }
+        ProfileScreen(
+            appBarBlock = appBarBlock,
+            onNavigate = { navController.navigate(it) }
         )
-        appBarBlock.invoke(appBarState)
-        ErrorView(errorText = "Coming soon", showImage = false)
     }
 }
 
@@ -130,7 +95,6 @@ fun NavGraphBuilder.settingsScreen(navController: NavController, appBarBlock: @C
     ) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
 
-        appBarBlock.invoke(AppBarState(titleRes = R.string.settings, displayBackButton = true))
-        SettingsScreen()
+        SettingsScreen(appBarBlock = appBarBlock)
     }
 }

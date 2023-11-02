@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.screen.common
+package com.alexeymerov.radiostations.presentation.screen.favorite
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -13,10 +13,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material.icons.rounded.Check
@@ -35,18 +37,18 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.domain.dto.DtoItemType
+import com.alexeymerov.radiostations.presentation.screen.common.BasicText
+import com.alexeymerov.radiostations.presentation.screen.common.FlipBox
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StationListItem(
+fun StationGridItem(
     modifier: Modifier,
     itemDto: CategoryItemDto,
     inSelection: Boolean,
@@ -56,48 +58,71 @@ fun StationListItem(
     onLongClick: (CategoryItemDto) -> Unit = {}
 ) {
     Card(
-        modifier = modifier.padding(horizontal = 16.dp),
+        modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
+        Column(
             modifier = modifier
+                .fillMaxWidth()
                 .combinedClickable(
                     interactionSource = MutableInteractionSource(),
                     indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                     onClick = { onAudioClick.invoke(itemDto) },
                     onLongClick = { onLongClick.invoke(itemDto) }
                 ),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             FlipBox(
-                modifier = Modifier.size(65.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
                 isFlipped = isSelected,
-                frontSide = { StationImage(itemDto) },
+                frontSide = { ImageContent(itemDto, inSelection, onFavClick) },
                 backSide = { SelectedIcon() }
             )
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 16.dp)
-            ) {
-                TextBlock(itemDto)
-            }
 
-            AnimatedVisibility(
-                visible = !inSelection,
-                enter = scaleIn(),
-                exit = scaleOut()
-            ) {
-                FavIcon(itemDto, onFavClick)
+            BasicText(
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                    .basicMarquee(),
+                text = itemDto.text
+            )
+
+            itemDto.subText?.let { subtext ->
+                Row(
+                    modifier = Modifier.padding(bottom = 8.dp, start = 4.dp, end = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .alpha(0.7f)
+                            .size(12.dp),
+                        imageVector = Icons.Outlined.LocationCity,
+                        contentDescription = String.EMPTY
+                    )
+
+                    BasicText(
+                        modifier = Modifier
+                            .alpha(0.7f)
+                            .padding(start = 4.dp),
+                        text = subtext,
+                        textStyle = MaterialTheme.typography.labelMedium
+                    )
+                }
+
             }
         }
     }
 }
 
 @Composable
-private fun StationImage(itemDto: CategoryItemDto) {
-    Box(modifier = Modifier.size(65.dp)) {
+private fun ImageContent(
+    itemDto: CategoryItemDto,
+    inSelection: Boolean,
+    onFavClick: (CategoryItemDto) -> Unit
+) {
+    Box {
         val placeholderPainter = painterResource(id = R.drawable.full_image)
         AsyncImage(
             modifier = Modifier
@@ -112,6 +137,28 @@ private fun StationImage(itemDto: CategoryItemDto) {
             error = placeholderPainter,
             placeholder = placeholderPainter
         )
+
+        AnimatedVisibility(visible = !inSelection) {
+            AnimatedContent(
+                modifier = Modifier.align(Alignment.TopEnd),
+                targetState = itemDto.isFavorite,
+                label = "Star",
+                transitionSpec = { scaleIn().togetherWith(scaleOut()) }
+            ) {
+                IconButton(onClick = { onFavClick.invoke(itemDto) }) {
+                    Icon(
+                        modifier = Modifier.background(
+                            color = MaterialTheme.colorScheme.surface,
+                            shape = CircleShape
+                        ),
+                        imageVector = if (it) Icons.Rounded.Star else Icons.Rounded.StarOutline,
+                        contentDescription = String.EMPTY,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+
     }
 }
 
@@ -129,68 +176,4 @@ private fun SelectedIcon() {
             tint = MaterialTheme.colorScheme.onSecondary
         )
     }
-}
-
-@Composable
-@OptIn(ExperimentalFoundationApi::class)
-private fun TextBlock(itemDto: CategoryItemDto) {
-    BasicText(modifier = Modifier.basicMarquee(), text = itemDto.text)
-
-    itemDto.subText?.let { subtext ->
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                modifier = Modifier
-                    .alpha(0.7f)
-                    .size(12.dp),
-                imageVector = Icons.Outlined.LocationCity,
-                contentDescription = String.EMPTY
-            )
-
-            BasicText(
-                modifier = Modifier
-                    .alpha(0.7f)
-                    .padding(start = 4.dp),
-                text = subtext,
-                textStyle = MaterialTheme.typography.labelMedium
-            )
-        }
-
-    }
-}
-
-@Composable
-private fun FavIcon(
-    itemDto: CategoryItemDto,
-    onFavClick: (CategoryItemDto) -> Unit
-) {
-    AnimatedContent(
-        targetState = itemDto.isFavorite,
-        label = "Star",
-        transitionSpec = { scaleIn().togetherWith(scaleOut()) }
-    ) {
-        IconButton(
-            modifier = Modifier.size(48.dp),
-            onClick = { onFavClick.invoke(itemDto) }
-        ) {
-            Icon(
-                imageVector = if (it) Icons.Rounded.Star else Icons.Rounded.StarOutline,
-                contentDescription = String.EMPTY,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun StationListItemPreview() {
-    val item = CategoryItemDto(
-        url = "",
-        originalText = "",
-        subText = "Hello",
-        text = "Station NameStation NameStation NameStation Name",
-        type = DtoItemType.AUDIO,
-        isFavorite = true
-    )
-    StationListItem(Modifier.fillMaxWidth(), item, false, false, {}, {})
 }

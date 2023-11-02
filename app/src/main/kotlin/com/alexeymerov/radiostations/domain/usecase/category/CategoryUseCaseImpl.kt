@@ -53,6 +53,10 @@ class CategoryUseCaseImpl @Inject constructor(
         categoryRepository.changeStationFavorite(item, !item.isFavorite)
     }
 
+    override suspend fun unfavorite(item: CategoryItemDto) {
+        categoryRepository.changeStationFavorite(item, false)
+    }
+
     override suspend fun getAudioUrl(url: String): AudioItemDto {
         val audioUrl = categoryRepository.getAudioByUrl(url)?.url
         return when (audioUrl) {

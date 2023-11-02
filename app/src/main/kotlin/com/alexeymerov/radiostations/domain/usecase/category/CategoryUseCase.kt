@@ -18,4 +18,6 @@ interface CategoryUseCase {
 
     suspend fun toggleFavorite(item: CategoryItemDto)
 
+    suspend fun unfavorite(item: CategoryItemDto)
+
 }

@@ -1,7 +1,6 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
 import android.os.Parcelable
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.AnimatedVisibility
@@ -37,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +59,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
@@ -68,14 +67,17 @@ import kotlinx.parcelize.RawValue
 @Composable
 fun MainNavGraph() {
     val navController = rememberNavController()
-    var appBarState by rememberSaveable { mutableStateOf(AppBarState()) }
+    var appBarState by rememberSaveable { mutableStateOf(AppBarState(String.EMPTY)) }
     val appBarBlock: @Composable (AppBarState) -> Unit = {
-        CallOnLaunch { appBarState = it }
+        // TODO !bug! on fast tab switch - state not changing
+        LaunchedEffect(it.title) {
+            appBarState = it
+        }
     }
 
     Surface {
         Scaffold(
-            topBar = { CreateTopBar(appBarState, appBarState.displayBackButton, navController) },
+            topBar = { CreateTopBar(appBarState, navController) },
             bottomBar = { CreateBottomBar(navController) },
             content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, appBarBlock) }
         )
@@ -84,12 +86,15 @@ fun MainNavGraph() {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navController: NavController) {
-    val titleString = barState.titleRes?.let { stringResource(it) } ?: barState.title
+private fun CreateTopBar(barState: AppBarState, navController: NavController) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
-        title = { TopBarTitle(titleString, barState) },
-        navigationIcon = { NavigationIcon(displayBackButton, navController) },
+        title = { TopBarTitle(barState.title, barState) },
+        navigationIcon = {
+            if (barState.selectedItems == 0) {
+                NavigationIcon(barState.displayBackButton, navController)
+            }
+        },
         actions = { TopBarActions(barState) }
     )
 }
@@ -265,11 +270,11 @@ private fun CreateScaffoldContent(
 @Stable
 @Parcelize
 data class AppBarState(
-    @StringRes val titleRes: Int? = null,
-    val title: String = String.EMPTY,
+    val title: String,
     val subTitle: String = String.EMPTY,
     val displayBackButton: Boolean = false,
     val rightIcon: @RawValue ImageVector? = null,
     val rightIconAction: (() -> Unit)? = null,
-    val dropDownMenu: (@Composable () -> Unit)? = null
+    val dropDownMenu: (@Composable () -> Unit)? = null,
+    val selectedItems: Int = 0
 ) : Parcelable
