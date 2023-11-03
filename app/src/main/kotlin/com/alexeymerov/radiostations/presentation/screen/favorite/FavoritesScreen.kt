@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.StarHalf
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,8 +26,8 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.*
-import com.alexeymerov.radiostations.presentation.navigation.AppBarState
 import com.alexeymerov.radiostations.presentation.navigation.Screens
+import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.common.DropDownItem
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
@@ -38,40 +39,26 @@ import timber.log.Timber
 @Composable
 fun BaseFavoriteScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
-    appBarBlock: @Composable (AppBarState) -> Unit,
+    isVisibleToUser: Boolean,
+    topBarBlock: (TopBarState) -> Unit,
     parentRoute: String,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
 ) {
     val selectedItemsCount = viewModel.selectedItemsCount
-    val appBarState = when (selectedItemsCount) {
-        0 -> {
-            AppBarState(
-                title = stringResource(R.string.favorites),
-                rightIcon = ImageVector.vectorResource(R.drawable.icon_settings),
-                dropDownMenu = {
-                    DropDownItems { type ->
-                        viewModel.setAction(ViewAction.SetViewType(type))
-                    }
-                }
-            )
-        }
 
-        else -> {
-            AppBarState(
-                title = "Selected: $selectedItemsCount",
-                selectedItems = selectedItemsCount,
-                rightIcon = Icons.Rounded.StarHalf,
-                rightIconAction = { viewModel.setAction(ViewAction.UnfavoriteSelected) }
-            )
-        }
+    if (isVisibleToUser) {
+        TopBarSetup(
+            selectedItemsCount = selectedItemsCount,
+            topBarBlock = topBarBlock,
+            onAction = { viewModel.setAction(it) }
+        )
     }
-    appBarBlock.invoke(appBarState)
 
     CallOnDispose { viewModel.clear() }
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
 
-    FavoriteListScreen(
+    FavoriteScreen(
         viewState = viewState,
         categoryItems = categoryItems,
         onAudioClick = {
@@ -82,6 +69,43 @@ fun BaseFavoriteScreen(
         onFavClick = { viewModel.setAction(ViewAction.ToggleFavorite(it)) },
         onLongClick = { viewModel.setAction(ViewAction.SelectItem(it)) }
     )
+}
+
+@Composable
+private fun TopBarSetup(
+    selectedItemsCount: Int,
+    topBarBlock: (TopBarState) -> Unit,
+    onAction: (ViewAction) -> Unit
+) {
+    val title = stringResource(R.string.favorites)
+    val rightIcon = ImageVector.vectorResource(R.drawable.icon_settings)
+
+    LaunchedEffect(Unit, selectedItemsCount) {
+        val topBarState = when (selectedItemsCount) {
+            0 -> {
+                TopBarState(
+                    title = title,
+                    rightIcon = rightIcon,
+                    dropDownMenu = {
+                        DropDownItems { type ->
+                            onAction.invoke(ViewAction.SetViewType(type))
+                        }
+                    }
+                )
+            }
+
+            else -> {
+                TopBarState(
+                    title = "Selected: $selectedItemsCount",
+                    selectedItems = selectedItemsCount,
+                    rightIcon = Icons.Rounded.StarHalf,
+                    rightIconAction = { onAction.invoke(ViewAction.UnfavoriteSelected) }
+                )
+            }
+        }
+
+        topBarBlock.invoke(topBarState)
+    }
 }
 
 @Composable
@@ -105,7 +129,7 @@ private fun DropDownItems(onClick: (ViewType) -> Unit) {
 }
 
 @Composable
-fun FavoriteListScreen(
+fun FavoriteScreen(
     viewState: ViewState,
     categoryItems: List<CategoryItemDto>,
     inSelection: Boolean,

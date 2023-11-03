@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,8 +43,8 @@ import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
-import com.alexeymerov.radiostations.presentation.navigation.AppBarState
 import com.alexeymerov.radiostations.presentation.navigation.Screens
+import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*
 import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
@@ -53,9 +54,10 @@ import timber.log.Timber
 
 
 @Composable
-fun CategoryListScreen(
+fun BaseCategoryScreen(
     viewModel: CategoriesViewModel = hiltViewModel(),
-    appBarBlock: @Composable (AppBarState) -> Unit,
+    isVisibleToUser: Boolean,
+    topBarBlock: (TopBarState) -> Unit,
     defTitle: String,
     categoryTitle: String,
     parentRoute: String,
@@ -63,8 +65,7 @@ fun CategoryListScreen(
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
-    val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
-    appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
+    if (isVisibleToUser) TopBarSetup(categoryTitle, defTitle, topBarBlock)
 
     CallOnDispose { viewModel.clear() }
     CallOnLaunch { viewModel.setAction(ViewAction.LoadCategories) }
@@ -72,20 +73,49 @@ fun CategoryListScreen(
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
 
-    when (val state = viewState) {
+    CategoryScreen(
+        viewState = viewState,
+        categoryItems = categoryItems,
+        parentRoute = parentRoute,
+        onNavigate = onNavigate,
+        onAction = { viewModel.setAction(it) }
+    )
+}
+
+@Composable
+private fun TopBarSetup(
+    categoryTitle: String,
+    defTitle: String,
+    topBarBlock: (TopBarState) -> Unit
+) {
+    val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
+    LaunchedEffect(Unit, displayBackButton) {
+        topBarBlock.invoke(TopBarState(title = categoryTitle, displayBackButton = displayBackButton))
+    }
+}
+
+@Composable
+private fun CategoryScreen(
+    viewState: ViewState,
+    categoryItems: List<CategoryItemDto>,
+    parentRoute: String,
+    onNavigate: (String) -> Unit,
+    onAction: (ViewAction) -> Unit
+) {
+    when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
         is ViewState.Loading -> LoaderView()
         is ViewState.CategoriesLoaded -> {
             MainContent(
                 categoryItems = categoryItems,
-                headerItems = state.headerItems,
-                onHeaderFilterClick = { viewModel.setAction(ViewAction.FilterByHeader(it)) },
+                headerItems = viewState.headerItems,
+                onHeaderFilterClick = { onAction.invoke(ViewAction.FilterByHeader(it)) },
                 onCategoryClick = { onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url)) },
                 onAudioClick = {
                     val route = Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url)
                     onNavigate.invoke(route)
                 },
-                onFavClick = { viewModel.setAction(ViewAction.ToggleFavorite(it)) }
+                onFavClick = { onAction.invoke(ViewAction.ToggleFavorite(it)) }
             )
         }
     }

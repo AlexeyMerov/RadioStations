@@ -14,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,38 +41,69 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.common.CallOnLaunch
-import com.alexeymerov.radiostations.presentation.navigation.AppBarState
+import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewState
 import timber.log.Timber
 
 @Composable
-fun PlayerScreen(
+fun BasePlayerScreen(
     viewModel: PlayerViewModel = hiltViewModel(),
-    appBarBlock: @Composable (AppBarState) -> Unit,
+    isVisibleToUser: Boolean,
+    topBarBlock: (TopBarState) -> Unit,
     stationName: String,
     locationName: String,
     stationImgUrl: String,
     rawUrl: String
 ) {
     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
-
-    appBarBlock.invoke(AppBarState(title = stationName, subTitle = locationName, displayBackButton = true))
+    if (isVisibleToUser) TopBarSetup(topBarBlock, stationName, locationName)
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    when (val state = viewState) {
+    val playState by viewModel.playerState.collectAsStateWithLifecycle()
+    PlayerScreen(
+        viewState = viewState,
+        stationImgUrl = stationImgUrl,
+        rawUrl = rawUrl,
+        playState = playState,
+        onAction = { viewModel.setAction(it) }
+    )
+}
+
+@Composable
+private fun TopBarSetup(
+    topBarBlock: (TopBarState) -> Unit,
+    stationName: String,
+    locationName: String
+) {
+    LaunchedEffect(Unit) {
+        topBarBlock.invoke(TopBarState(title = stationName, subTitle = locationName, displayBackButton = true))
+    }
+}
+
+@Composable
+private fun PlayerScreen(
+    viewState: ViewState,
+    stationImgUrl: String,
+    rawUrl: String,
+    playState: PlayerViewModel.PlayerState,
+    onAction: (PlayerViewModel.ViewAction) -> Unit
+) {
+    when (viewState) {
         is ViewState.Loading -> LoaderView()
         is ViewState.Error -> ErrorView()
         is ViewState.ReadyToPlay -> {
-            val playState by viewModel.playerState.collectAsStateWithLifecycle()
-            MainContent(playState, stationImgUrl, state.url) {
-                viewModel.setAction(PlayerViewModel.ViewAction.ToggleAudio)
-            }
+            MainContent(
+                playState = playState,
+                imageUrl = stationImgUrl,
+                stationUrl = viewState.url,
+                onToggleAudio = { onAction.invoke(PlayerViewModel.ViewAction.ToggleAudio) }
+            )
         }
     }
 
-    CallOnLaunch { viewModel.setAction(PlayerViewModel.ViewAction.LoadAudio(rawUrl)) }
+    CallOnLaunch { onAction.invoke(PlayerViewModel.ViewAction.LoadAudio(rawUrl)) }
 }
 
 @Composable

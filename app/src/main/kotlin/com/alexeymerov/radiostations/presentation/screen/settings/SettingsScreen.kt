@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,7 +35,7 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
-import com.alexeymerov.radiostations.presentation.navigation.AppBarState
+import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewAction
@@ -44,18 +45,35 @@ import com.alexeymerov.radiostations.presentation.theme.green.GreenLightColors
 import com.alexeymerov.radiostations.presentation.theme.orange.OrangeLightColors
 
 @Composable
-fun SettingsScreen(
+fun BaseSettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    appBarBlock: @Composable (AppBarState) -> Unit
+    isVisibleToUser: Boolean,
+    topBarBlock: (TopBarState) -> Unit
 ) {
-    appBarBlock.invoke(AppBarState(title = stringResource(R.string.settings), displayBackButton = true))
+    if (isVisibleToUser) TopBarSetup(topBarBlock)
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val onViewAction: (ViewAction) -> Unit = { viewModel.setAction(it) }
 
-    when (val state = viewState) {
+    SettingsScreen(viewState, onViewAction)
+}
+
+@Composable
+private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
+    val title = stringResource(R.string.settings)
+    LaunchedEffect(Unit) {
+        topBarBlock.invoke(TopBarState(title = title, displayBackButton = true))
+    }
+}
+
+@Composable
+private fun SettingsScreen(
+    viewState: ViewState,
+    onViewAction: (ViewAction) -> Unit
+) {
+    when (viewState) {
         ViewState.Loading -> LoaderView()
-        is ViewState.Loaded -> MainContent(state.themeState, onViewAction)
+        is ViewState.Loaded -> MainContent(viewState.themeState, onViewAction)
     }
 }
 

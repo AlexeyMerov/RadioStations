@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,43 +66,38 @@ import kotlinx.parcelize.RawValue
 @Composable
 fun MainNavGraph() {
     val navController = rememberNavController()
-    var appBarState by rememberSaveable { mutableStateOf(AppBarState(String.EMPTY)) }
-    val appBarBlock: @Composable (AppBarState) -> Unit = {
-        // TODO !bug! on fast tab switch - state not changing
-        LaunchedEffect(it.title) {
-            appBarState = it
-        }
-    }
+    var topBarState by rememberSaveable { mutableStateOf(TopBarState(String.EMPTY)) }
+    val topBarBlock: (TopBarState) -> Unit = { topBarState = it }
 
     Surface {
         Scaffold(
-            topBar = { CreateTopBar(appBarState, navController) },
+            topBar = { CreateTopBar(topBarState, navController) },
             bottomBar = { CreateBottomBar(navController) },
-            content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, appBarBlock) }
+            content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, topBarBlock) }
         )
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun CreateTopBar(barState: AppBarState, navController: NavController) {
+private fun CreateTopBar(barState: TopBarState, navController: NavController) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
-        title = { TopBarTitle(barState.title, barState) },
+        title = { TopBarTitle(barState.title, barState.subTitle) },
         navigationIcon = {
             if (barState.selectedItems == 0) {
                 NavigationIcon(barState.displayBackButton, navController)
             }
         },
-        actions = { TopBarActions(barState) }
+        actions = { TopBarActions(barState.rightIcon, barState.rightIconAction, barState.dropDownMenu) }
     )
 }
 
 @Composable
-private fun TopBarTitle(titleString: String, barState: AppBarState) {
+private fun TopBarTitle(title: String, subTitle: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AnimatedContent(
-            targetState = titleString,
+            targetState = title,
             transitionSpec = {
                 (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
             },
@@ -111,9 +105,9 @@ private fun TopBarTitle(titleString: String, barState: AppBarState) {
         ) { targetText ->
             Text(text = targetText, fontWeight = FontWeight.Bold)
         }
-        if (barState.subTitle.isNotEmpty()) {
+        if (subTitle.isNotEmpty()) {
             AnimatedContent(
-                targetState = barState.subTitle,
+                targetState = subTitle,
                 transitionSpec = {
                     (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
                 },
@@ -158,20 +152,24 @@ private fun NavigationIcon(displayBackButton: Boolean, navController: NavControl
 }
 
 @Composable
-private fun RowScope.TopBarActions(barState: AppBarState) {
+private fun RowScope.TopBarActions(
+    icon: ImageVector?,
+    onRightAction: (() -> Unit)?,
+    dropDownMenu: (@Composable () -> Unit)?
+) {
     AnimatedVisibility(
-        visible = barState.rightIcon != null,
+        visible = icon != null,
         enter = fadeIn() + scaleIn(),
         exit = fadeOut() + scaleOut()
     ) {
         var needShowMenu by rememberSaveable { mutableStateOf(false) }
-        barState.rightIcon?.let {
+        icon?.let {
             IconButton(onClick = {
-                if (barState.dropDownMenu != null) {
+                if (dropDownMenu != null) {
                     needShowMenu = !needShowMenu
                 }
 
-                barState.rightIconAction?.invoke()
+                onRightAction?.invoke()
             }
             ) {
                 Icon(
@@ -186,7 +184,7 @@ private fun RowScope.TopBarActions(barState: AppBarState) {
                 modifier = Modifier.defaultMinSize(minWidth = 125.dp),
                 offset = DpOffset(x = 12.dp, y = 0.dp),
             ) {
-                barState.dropDownMenu?.invoke()
+                dropDownMenu?.invoke()
             }
         }
     }
@@ -194,18 +192,16 @@ private fun RowScope.TopBarActions(barState: AppBarState) {
 
 @Composable
 private fun CreateBottomBar(navController: NavHostController) {
-    val tabs = Tabs::class::sealedSubclasses.get()
+    val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
 
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        tabs
-            .mapNotNull { it.objectInstance }
-            .forEach { tab ->
-                val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                BottomBarItem(tab, isSelected, navController)
-            }
+        tabs.forEach { tab ->
+            val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+            BottomBarItem(tab, isSelected, navController)
+        }
     }
 }
 
@@ -239,7 +235,7 @@ private fun RowScope.BottomBarItem(
 private fun CreateScaffoldContent(
     navController: NavHostController,
     paddingValues: PaddingValues,
-    appBarBlock: @Composable (AppBarState) -> Unit
+    topBarBlock: (TopBarState) -> Unit
 ) {
     Surface(Modifier.fillMaxSize()) {
         NavHost(
@@ -259,9 +255,9 @@ private fun CreateScaffoldContent(
                 slideOutOfContainer(SlideDirection.Right, spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
             }
         ) {
-            browseGraph(navController, appBarBlock)
-            favoriteGraph(navController, appBarBlock)
-            youGraph(navController, appBarBlock)
+            browseGraph(navController, topBarBlock)
+            favoriteGraph(navController, topBarBlock)
+            youGraph(navController, topBarBlock)
         }
     }
 }
@@ -269,7 +265,7 @@ private fun CreateScaffoldContent(
 @Immutable
 @Stable
 @Parcelize
-data class AppBarState(
+data class TopBarState(
     val title: String,
     val subTitle: String = String.EMPTY,
     val displayBackButton: Boolean = false,
