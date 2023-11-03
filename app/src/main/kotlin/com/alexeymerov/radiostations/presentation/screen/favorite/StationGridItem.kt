@@ -36,15 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.presentation.screen.common.BasicText
 import com.alexeymerov.radiostations.presentation.screen.common.FlipBox
+import com.alexeymerov.radiostations.presentation.screen.common.rememberTextPainter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -123,7 +122,13 @@ private fun ImageContent(
     onFavClick: (CategoryItemDto) -> Unit
 ) {
     Box {
-        val placeholderPainter = painterResource(id = R.drawable.full_image)
+        val placeholder = rememberTextPainter(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            textStyle = MaterialTheme.typography.titleMedium.copy(
+                color = MaterialTheme.colorScheme.onSecondary
+            ),
+            text = itemDto.initials
+        )
         AsyncImage(
             modifier = Modifier
                 .fillMaxSize()
@@ -134,13 +139,15 @@ private fun ImageContent(
                 .build(),
             contentScale = ContentScale.FillBounds,
             contentDescription = null,
-            error = placeholderPainter,
-            placeholder = placeholderPainter
+            error = placeholder,
+            placeholder = placeholder
         )
 
-        AnimatedVisibility(visible = !inSelection) {
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.TopEnd),
+            visible = !inSelection
+        ) {
             AnimatedContent(
-                modifier = Modifier.align(Alignment.TopEnd),
                 targetState = itemDto.isFavorite,
                 label = "Star",
                 transitionSpec = { scaleIn().togetherWith(scaleOut()) }

@@ -112,7 +112,7 @@ class CategoriesViewModel @Inject constructor(
 
     private fun loadCategories(categoryUrl: String) {
         viewModelScope.launch(ioContext) {
-            categoryUseCase.loadCategoriesByUrl(categoryUrl)
+//            categoryUseCase.loadCategoriesByUrl(categoryUrl)
         }
     }
 

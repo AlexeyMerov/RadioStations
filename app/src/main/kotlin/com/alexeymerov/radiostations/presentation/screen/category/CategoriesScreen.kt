@@ -256,21 +256,29 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
 @Composable
 private fun MainContentPreview() {
     val categoryItems: List<CategoryItemDto> = listOf(
-        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, subItemsCount = 1),
-        CategoryItemDto("url#2", originalText = "", text = "Category", type = DtoItemType.CATEGORY),
-        CategoryItemDto("url#3", originalText = "", text = "Very Long Category Name", type = DtoItemType.CATEGORY),
-        CategoryItemDto("url#4", originalText = "", text = "Another Header", type = DtoItemType.HEADER, subItemsCount = 22),
-        CategoryItemDto("url#5", originalText = "", text = "Subcategory", type = DtoItemType.SUBCATEGORY),
-        CategoryItemDto("url#6", originalText = "", text = "Long Subcategory", type = DtoItemType.SUBCATEGORY),
-        CategoryItemDto("url#7", originalText = "", text = "Station (City)", type = DtoItemType.AUDIO),
-        CategoryItemDto("url#8", originalText = "", text = "Station", type = DtoItemType.AUDIO),
+        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, subItemsCount = 1, initials = "G"),
+        CategoryItemDto("url#2", originalText = "", text = "Category", type = DtoItemType.CATEGORY, initials = "G"),
+        CategoryItemDto("url#3", originalText = "", text = "Very Long Category Name", type = DtoItemType.CATEGORY, initials = "G"),
+        CategoryItemDto("url#4", originalText = "", text = "Another Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
+        CategoryItemDto("url#5", originalText = "", text = "Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
+        CategoryItemDto("url#6", originalText = "", text = "Long Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
+        CategoryItemDto("url#7", originalText = "", text = "Station (City)", type = DtoItemType.AUDIO, initials = "G"),
+        CategoryItemDto("url#8", originalText = "", text = "Station", type = DtoItemType.AUDIO, initials = "G"),
     )
     val headers = listOf(
-        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 1),
-        CategoryItemDto("url#2", originalText = "", text = "Long Header", type = DtoItemType.HEADER, subItemsCount = 22),
-        CategoryItemDto("url#3", originalText = "", text = "Very Long Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 999),
-        CategoryItemDto("url#4", originalText = "", text = "Tiny", type = DtoItemType.HEADER),
-        CategoryItemDto("url#5", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true),
+        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 1, initials = "G"),
+        CategoryItemDto("url#2", originalText = "", text = "Long Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
+        CategoryItemDto(
+            "url#3",
+            originalText = "",
+            text = "Very Long Header",
+            type = DtoItemType.HEADER,
+            isFiltered = true,
+            subItemsCount = 999,
+            initials = "G"
+        ),
+        CategoryItemDto("url#4", originalText = "", text = "Tiny", type = DtoItemType.HEADER, initials = "G"),
+        CategoryItemDto("url#5", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, initials = "G"),
     )
     MainContent(categoryItems, headers, {}, {}, {}, {})
 }
