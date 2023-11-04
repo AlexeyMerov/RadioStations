@@ -35,9 +35,9 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.presentation.common.BasicText
+import com.alexeymerov.radiostations.presentation.common.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
-import com.alexeymerov.radiostations.presentation.screen.common.BasicText
-import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewState
 import com.alexeymerov.radiostations.presentation.theme.blue.BlueLightColors

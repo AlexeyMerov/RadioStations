@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.screen.common
+package com.alexeymerov.radiostations.presentation.common
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -22,8 +22,7 @@ fun FlipBox(
         animationSpec = tween(
             durationMillis = 400,
             easing = FastOutSlowInEasing,
-        ),
-        label = ""
+        )
     )
 
     Box(modifier = modifier

@@ -43,13 +43,13 @@ import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
+import com.alexeymerov.radiostations.presentation.common.BasicText
+import com.alexeymerov.radiostations.presentation.common.ErrorView
+import com.alexeymerov.radiostations.presentation.common.ShimmerLoading
+import com.alexeymerov.radiostations.presentation.common.StationListItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*
-import com.alexeymerov.radiostations.presentation.screen.common.BasicText
-import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
-import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
-import com.alexeymerov.radiostations.presentation.screen.common.StationListItem
 import timber.log.Timber
 
 
@@ -104,7 +104,7 @@ private fun CategoryScreen(
 ) {
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
-        is ViewState.Loading -> LoaderView()
+        is ViewState.Loading -> ShimmerLoading()
         is ViewState.CategoriesLoaded -> {
             MainContent(
                 categoryItems = categoryItems,

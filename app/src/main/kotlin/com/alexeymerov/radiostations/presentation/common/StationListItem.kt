@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.screen.common
+package com.alexeymerov.radiostations.presentation.common
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility

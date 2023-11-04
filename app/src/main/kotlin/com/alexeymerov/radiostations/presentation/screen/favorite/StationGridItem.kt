@@ -41,9 +41,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.presentation.screen.common.BasicText
-import com.alexeymerov.radiostations.presentation.screen.common.FlipBox
-import com.alexeymerov.radiostations.presentation.screen.common.rememberTextPainter
+import com.alexeymerov.radiostations.presentation.common.BasicText
+import com.alexeymerov.radiostations.presentation.common.FlipBox
+import com.alexeymerov.radiostations.presentation.common.rememberTextPainter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -80,11 +80,13 @@ fun StationGridItem(
                 backSide = { SelectedIcon() }
             )
 
-
             BasicText(
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp, top = 8.dp)
-                    .basicMarquee(),
+                    .basicMarquee(
+                        iterations = 10,
+                        velocity = 20.dp
+                    ),
                 text = itemDto.text
             )
 

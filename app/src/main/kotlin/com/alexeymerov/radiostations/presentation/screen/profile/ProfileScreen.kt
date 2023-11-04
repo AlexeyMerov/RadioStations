@@ -7,9 +7,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
-import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
 
 @Composable
 fun BaseProfileScreen(

@@ -26,12 +26,12 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.*
+import com.alexeymerov.radiostations.presentation.common.DropDownItem
+import com.alexeymerov.radiostations.presentation.common.ErrorView
+import com.alexeymerov.radiostations.presentation.common.LoaderView
+import com.alexeymerov.radiostations.presentation.common.StationListItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
-import com.alexeymerov.radiostations.presentation.screen.common.DropDownItem
-import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
-import com.alexeymerov.radiostations.presentation.screen.common.LoaderView
-import com.alexeymerov.radiostations.presentation.screen.common.StationListItem
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.*
 import timber.log.Timber
 
