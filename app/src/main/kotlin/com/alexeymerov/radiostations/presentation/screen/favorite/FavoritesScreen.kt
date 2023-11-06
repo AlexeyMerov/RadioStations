@@ -25,7 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.*
+import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
 import com.alexeymerov.radiostations.presentation.common.DropDownItem
 import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.common.LoaderView

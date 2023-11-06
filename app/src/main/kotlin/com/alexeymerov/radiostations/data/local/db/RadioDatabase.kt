@@ -30,23 +30,23 @@ abstract class RadioDatabase : RoomDatabase() {
  * Caution: To keep your migration logic functioning as expected, use full queries instead of referencing constants that represent the queries.
  * */
 val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE category ADD COLUMN childCount INTEGER")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE category ADD COLUMN childCount INTEGER")
     }
 }
 
 val MIGRATION_2_3 = object : Migration(2, 3) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE category ADD COLUMN isFavorite INTEGER DEFAULT 0 NOT NULL")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE category ADD COLUMN isFavorite INTEGER DEFAULT 0 NOT NULL")
     }
 }
 
 val MIGRATION_3_4 = object : Migration(3, 4) {
-    override fun migrate(database: SupportSQLiteDatabase) {
+    override fun migrate(db: SupportSQLiteDatabase) {
         val tempTableName = "temp_category"
         val tableName = "category"
 
-        database.execSQL(
+        db.execSQL(
             "CREATE TABLE IF NOT EXISTS $tempTableName (" +
                 "id TEXT PRIMARY KEY NOT NULL, " +
                 "position INTEGER NOT NULL, " +
@@ -60,13 +60,13 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 "isFavorite INTEGER NOT NULL)"
         )
 
-        database.execSQL(
+        db.execSQL(
             "INSERT INTO $tempTableName (id, position, url, parentUrl, text, image, currentTrack, type, childCount, isFavorite) " +
                 "SELECT (parentUrl || '##' || text) as id, position, url, parentUrl, text, image, currentTrack, type, childCount, isFavorite " +
                 "FROM $tableName"
         )
 
-        database.execSQL("DROP TABLE $tableName")
-        database.execSQL("ALTER TABLE $tempTableName RENAME TO $tableName")
+        db.execSQL("DROP TABLE $tableName")
+        db.execSQL("ALTER TABLE $tempTableName RENAME TO $tableName")
     }
 }

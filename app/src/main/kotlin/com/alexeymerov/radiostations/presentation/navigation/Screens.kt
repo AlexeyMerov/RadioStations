@@ -83,7 +83,7 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavHostC
     composable(
         route = Screens.Favorites.route,
         arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
-    ) { backStackEntry ->
+    ) { _ ->
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
 
         BaseFavoriteScreen(

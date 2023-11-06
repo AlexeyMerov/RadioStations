@@ -5,8 +5,8 @@ import com.alexeymerov.radiostations.common.BaseViewAction
 import com.alexeymerov.radiostations.common.BaseViewEffect
 import com.alexeymerov.radiostations.common.BaseViewModel
 import com.alexeymerov.radiostations.common.BaseViewState
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase
+import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState

@@ -6,6 +6,7 @@ import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
+import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 class CategoryUseCaseImpl @Inject constructor(
     private val categoryRepository: CategoryRepository,
-    private val dtoCategoriesMapper: DtoCategoriesMapper
+    private val dtoCategoriesMapper: DtoCategoriesMapper,
+    private val connectivitySettings: ConnectivitySettingsUseCase
 ) : CategoryUseCase {
 
     /**
@@ -47,7 +49,11 @@ class CategoryUseCaseImpl @Inject constructor(
             }
     }
 
-    override suspend fun loadCategoriesByUrl(url: String) = categoryRepository.loadCategoriesByUrl(url)
+    override suspend fun loadCategoriesByUrl(url: String) {
+        if (connectivitySettings.isOnline()) {
+            categoryRepository.loadCategoriesByUrl(url)
+        }
+    }
 
     override suspend fun toggleFavorite(item: CategoryItemDto) {
         categoryRepository.changeStationFavorite(item.id, !item.isFavorite)
