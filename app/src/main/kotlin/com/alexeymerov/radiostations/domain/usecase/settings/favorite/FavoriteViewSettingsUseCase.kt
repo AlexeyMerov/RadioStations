@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.domain.usecase.favsettings
+package com.alexeymerov.radiostations.domain.usecase.settings.favorite
 
 import kotlinx.coroutines.flow.Flow
 

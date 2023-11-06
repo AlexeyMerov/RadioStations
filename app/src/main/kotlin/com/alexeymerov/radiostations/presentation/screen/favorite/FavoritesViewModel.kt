@@ -11,8 +11,8 @@ import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
-import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase
-import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.ViewType
+import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase
+import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewState

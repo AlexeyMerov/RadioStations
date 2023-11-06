@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.domain.usecase.themesettings
+package com.alexeymerov.radiostations.domain.usecase.settings.theme
 
 import kotlinx.coroutines.flow.Flow
 

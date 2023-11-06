@@ -2,18 +2,20 @@ package com.alexeymerov.radiostations.presentation.screen.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,9 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ColorTheme
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.DarkLightMode
-import com.alexeymerov.radiostations.domain.usecase.themesettings.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
+import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
+import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
+import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.presentation.common.BasicText
 import com.alexeymerov.radiostations.presentation.common.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
@@ -69,25 +72,69 @@ private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
 @Composable
 private fun SettingsScreen(
     viewState: ViewState,
-    onViewAction: (ViewAction) -> Unit
+    onAction: (ViewAction) -> Unit
 ) {
     when (viewState) {
         ViewState.Loading -> LoaderView()
-        is ViewState.Loaded -> MainContent(viewState.themeState, onViewAction)
+        is ViewState.Loaded -> MainContent(viewState.themeState, viewState.connectionStatus, onAction)
     }
 }
 
 @Composable
 private fun MainContent(
     themeState: ThemeState,
-    onViewAction: (ViewAction) -> Unit
+    connectionStatus: ConnectionStatus,
+    onAction: (ViewAction) -> Unit
+) {
+    // more settings later
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        ThemeSettings(themeState, onAction)
+        ConnectivitySettings(connectionStatus, onAction)
+    }
+}
+
+@Composable
+private fun ConnectivitySettings(
+    connectionStatus: ConnectionStatus,
+    onAction: (ViewAction) -> Unit
+) {
+    val isOnline = connectionStatus == ConnectionStatus.ONLINE
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        BasicText(text = "Request new items")
+
+        Switch(
+            checked = isOnline,
+            onCheckedChange = {
+                onAction.invoke(
+                    ViewAction.ChangeConnection(
+                        if (isOnline) ConnectionStatus.OFFLINE else ConnectionStatus.ONLINE
+                    )
+                )
+            })
+    }
+}
+
+@Composable
+private fun ThemeSettings(
+    themeState: ThemeState,
+    onAction: (ViewAction) -> Unit
 ) {
     var needShowThemeDialog by rememberSaveable { mutableStateOf(false) }
 
-    // more settings later
     Button(
         modifier = Modifier
-            .wrapContentSize()
+            .fillMaxWidth()
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(
@@ -111,7 +158,7 @@ private fun MainContent(
         ThemeDialog(
             themeState = themeState,
             onDismiss = { needShowThemeDialog = !needShowThemeDialog },
-            onViewAction = onViewAction
+            onViewAction = onAction
         )
     }
 }
