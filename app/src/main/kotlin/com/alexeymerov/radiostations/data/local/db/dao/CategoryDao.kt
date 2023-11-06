@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class CategoryDao {
 
+    @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_ID} = :id")
+    abstract suspend fun getById(id: String): CategoryEntity
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertAll(list: List<CategoryEntity>)
 
@@ -25,7 +28,7 @@ abstract class CategoryDao {
     @Query(
         "UPDATE ${CategoryEntity.TABLE_NAME} " +
             "SET ${CategoryEntity.FIELD_FAVORITE} = :isFavorite " +
-            "WHERE ${CategoryEntity.FIELD_URL} = :itemUrl AND ${CategoryEntity.FIELD_TEXT} = :itemText"
+            "WHERE ${CategoryEntity.FIELD_ID} = :itemId"
     )
-    abstract suspend fun setStationFavorite(itemUrl: String, itemText: String, isFavorite: Int)
+    abstract suspend fun setStationFavorite(itemId: String, isFavorite: Int)
 }

@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.screen.common
+package com.alexeymerov.radiostations.presentation.common
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

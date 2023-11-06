@@ -10,3 +10,5 @@ val String.Companion.EMPTY: String
 
 val String.Companion.SPACE: String
     get() = " "
+
+fun Boolean.toInt() = if (this) 1 else 0

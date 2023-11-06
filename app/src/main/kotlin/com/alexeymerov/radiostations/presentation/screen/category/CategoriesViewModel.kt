@@ -28,8 +28,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class CategoriesViewModel @Inject constructor(savedStateHandle: SavedStateHandle, private val categoryUseCase: CategoryUseCase) :
-    BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {
+class CategoriesViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val categoryUseCase: CategoryUseCase
+) : BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {
 
     private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()
 

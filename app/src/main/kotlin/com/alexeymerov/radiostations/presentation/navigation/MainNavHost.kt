@@ -1,7 +1,6 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
 import android.os.Parcelable
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.AnimatedVisibility
@@ -59,7 +58,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.common.EMPTY
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
@@ -68,37 +66,38 @@ import kotlinx.parcelize.RawValue
 @Composable
 fun MainNavGraph() {
     val navController = rememberNavController()
-    var appBarState by rememberSaveable { mutableStateOf(AppBarState()) }
-    val appBarBlock: @Composable (AppBarState) -> Unit = {
-        CallOnLaunch { appBarState = it }
-    }
+    var topBarState by rememberSaveable { mutableStateOf(TopBarState(String.EMPTY)) }
+    val topBarBlock: (TopBarState) -> Unit = { topBarState = it }
 
     Surface {
         Scaffold(
-            topBar = { CreateTopBar(appBarState, appBarState.displayBackButton, navController) },
+            topBar = { CreateTopBar(topBarState, navController) },
             bottomBar = { CreateBottomBar(navController) },
-            content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, appBarBlock) }
+            content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, topBarBlock) }
         )
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun CreateTopBar(barState: AppBarState, displayBackButton: Boolean, navController: NavController) {
-    val titleString = barState.titleRes?.let { stringResource(it) } ?: barState.title
+private fun CreateTopBar(barState: TopBarState, navController: NavController) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
-        title = { TopBarTitle(titleString, barState) },
-        navigationIcon = { NavigationIcon(displayBackButton, navController) },
-        actions = { TopBarActions(barState) }
+        title = { TopBarTitle(barState.title, barState.subTitle) },
+        navigationIcon = {
+            if (barState.selectedItems == 0) {
+                NavigationIcon(barState.displayBackButton, navController)
+            }
+        },
+        actions = { TopBarActions(barState.rightIcon, barState.rightIconAction, barState.dropDownMenu) }
     )
 }
 
 @Composable
-private fun TopBarTitle(titleString: String, barState: AppBarState) {
+private fun TopBarTitle(title: String, subTitle: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AnimatedContent(
-            targetState = titleString,
+            targetState = title,
             transitionSpec = {
                 (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
             },
@@ -106,9 +105,9 @@ private fun TopBarTitle(titleString: String, barState: AppBarState) {
         ) { targetText ->
             Text(text = targetText, fontWeight = FontWeight.Bold)
         }
-        if (barState.subTitle.isNotEmpty()) {
+        if (subTitle.isNotEmpty()) {
             AnimatedContent(
-                targetState = barState.subTitle,
+                targetState = subTitle,
                 transitionSpec = {
                     (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
                 },
@@ -153,20 +152,24 @@ private fun NavigationIcon(displayBackButton: Boolean, navController: NavControl
 }
 
 @Composable
-private fun RowScope.TopBarActions(barState: AppBarState) {
+private fun RowScope.TopBarActions(
+    icon: ImageVector?,
+    onRightAction: (() -> Unit)?,
+    dropDownMenu: (@Composable () -> Unit)?
+) {
     AnimatedVisibility(
-        visible = barState.rightIcon != null,
+        visible = icon != null,
         enter = fadeIn() + scaleIn(),
         exit = fadeOut() + scaleOut()
     ) {
         var needShowMenu by rememberSaveable { mutableStateOf(false) }
-        barState.rightIcon?.let {
+        icon?.let {
             IconButton(onClick = {
-                if (barState.dropDownMenu != null) {
+                if (dropDownMenu != null) {
                     needShowMenu = !needShowMenu
                 }
 
-                barState.rightIconAction?.invoke()
+                onRightAction?.invoke()
             }
             ) {
                 Icon(
@@ -181,7 +184,7 @@ private fun RowScope.TopBarActions(barState: AppBarState) {
                 modifier = Modifier.defaultMinSize(minWidth = 125.dp),
                 offset = DpOffset(x = 12.dp, y = 0.dp),
             ) {
-                barState.dropDownMenu?.invoke()
+                dropDownMenu?.invoke()
             }
         }
     }
@@ -189,18 +192,16 @@ private fun RowScope.TopBarActions(barState: AppBarState) {
 
 @Composable
 private fun CreateBottomBar(navController: NavHostController) {
-    val tabs = Tabs::class::sealedSubclasses.get()
+    val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
 
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        tabs
-            .mapNotNull { it.objectInstance }
-            .forEach { tab ->
-                val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                BottomBarItem(tab, isSelected, navController)
-            }
+        tabs.forEach { tab ->
+            val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+            BottomBarItem(tab, isSelected, navController)
+        }
     }
 }
 
@@ -234,7 +235,7 @@ private fun RowScope.BottomBarItem(
 private fun CreateScaffoldContent(
     navController: NavHostController,
     paddingValues: PaddingValues,
-    appBarBlock: @Composable (AppBarState) -> Unit
+    topBarBlock: (TopBarState) -> Unit
 ) {
     Surface(Modifier.fillMaxSize()) {
         NavHost(
@@ -254,9 +255,9 @@ private fun CreateScaffoldContent(
                 slideOutOfContainer(SlideDirection.Right, spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
             }
         ) {
-            browseGraph(navController, appBarBlock)
-            favoriteGraph(navController, appBarBlock)
-            youGraph(navController, appBarBlock)
+            browseGraph(navController, topBarBlock)
+            favoriteGraph(navController, topBarBlock)
+            youGraph(navController, topBarBlock)
         }
     }
 }
@@ -264,12 +265,12 @@ private fun CreateScaffoldContent(
 @Immutable
 @Stable
 @Parcelize
-data class AppBarState(
-    @StringRes val titleRes: Int? = null,
-    val title: String = String.EMPTY,
+data class TopBarState(
+    val title: String,
     val subTitle: String = String.EMPTY,
     val displayBackButton: Boolean = false,
     val rightIcon: @RawValue ImageVector? = null,
     val rightIconAction: (() -> Unit)? = null,
-    val dropDownMenu: (@Composable () -> Unit)? = null
+    val dropDownMenu: (@Composable () -> Unit)? = null,
+    val selectedItems: Int = 0
 ) : Parcelable

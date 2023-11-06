@@ -1,136 +1,147 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavArgumentBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.domain.usecase.favsettings.FavoriteViewSettingsUseCase.ViewType
-import com.alexeymerov.radiostations.presentation.screen.category.CategoryListScreen
-import com.alexeymerov.radiostations.presentation.screen.common.DropDownItem
-import com.alexeymerov.radiostations.presentation.screen.common.ErrorView
-import com.alexeymerov.radiostations.presentation.screen.favorite.FavoriteListScreen
-import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel
-import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewAction
-import com.alexeymerov.radiostations.presentation.screen.player.PlayerScreen
-import com.alexeymerov.radiostations.presentation.screen.settings.SettingsScreen
+import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.presentation.screen.category.BaseCategoryScreen
+import com.alexeymerov.radiostations.presentation.screen.favorite.BaseFavoriteScreen
+import com.alexeymerov.radiostations.presentation.screen.player.BasePlayerScreen
+import com.alexeymerov.radiostations.presentation.screen.profile.BaseProfileScreen
+import com.alexeymerov.radiostations.presentation.screen.settings.BaseSettingsScreen
 import timber.log.Timber
 
 
-fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavController, appBarBlock: @Composable (AppBarState) -> Unit) {
+fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Categories.route,
-        arguments = createListOfStringArgs(Screens.Categories.Const.ARG_TITLE, Screens.Categories.Const.ARG_URL),
+        arguments = listOf(
+            navArgument(Screens.Categories.Const.ARG_TITLE, defaultStringArg()),
+            navArgument(Screens.Categories.Const.ARG_URL, defaultStringArg()),
+        )
     ) { backStackEntry ->
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.categoriesScreen")
 
-        val defTitle = LocalContext.current.getString(R.string.browse)
-        val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
-        val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
-        appBarBlock.invoke(AppBarState(title = categoryTitle, displayBackButton = displayBackButton))
-        CategoryListScreen(
-            onCategoryClick = { navController.navigate(Screens.Categories.createRoute(it.text, it.url)) },
-            onAudioClick = {
-                navController.navigate(Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url))
-            }
+        val defTitle = stringResource(R.string.browse)
+        val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
+
+        BaseCategoryScreen(
+            isVisibleToUser = navController.isVisibleToUser(Screens.Categories.Const.ROUTE),
+            topBarBlock = topBarBlock,
+            defTitle = defTitle,
+            categoryTitle = categoryTitle,
+            parentRoute = parentRoute,
+            onNavigate = { navController.navigate(it) }
         )
     }
 }
 
-fun NavGraphBuilder.playerScreen(parentRoute: String, appBarBlock: @Composable (AppBarState) -> Unit) {
+fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Player(parentRoute).route,
-        arguments = createListOfStringArgs(Screens.Player.Const.ARG_TITLE, Screens.Player.Const.ARG_IMG_URL, Screens.Player.Const.ARG_URL),
+        arguments = listOf(
+            navArgument(Screens.Player.Const.ARG_TITLE, defaultStringArg()),
+            navArgument(Screens.Player.Const.ARG_SUBTITLE, defaultStringArg()),
+            navArgument(Screens.Player.Const.ARG_IMG_URL, defaultStringArg()),
+            navArgument(Screens.Player.Const.ARG_URL, defaultStringArg()),
+            navArgument(Screens.Player.Const.ARG_ID, defaultStringArg()),
+            navArgument(Screens.Player.Const.ARG_IS_FAV, defaultBoolArg()),
+        ),
     ) { backStackEntry ->
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
-        val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_TITLE)) }
-        val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_SUBTITLE)) }
-        val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_IMG_URL)) }
-        val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArg(Screens.Player.Const.ARG_URL)) }
-        appBarBlock.invoke(AppBarState(title = stationName, subTitle = locationName, displayBackButton = true))
-        PlayerScreen(stationImgUrl.decodeUrl(), rawUrl.decodeUrl())
+        val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
+        val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_SUBTITLE)) }
+        val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_IMG_URL)) }
+        val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_URL)) }
+        val id by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_ID)) }
+        val isFav by rememberSaveable { mutableStateOf(backStackEntry.getArgBool(Screens.Player.Const.ARG_IS_FAV)) }
+
+        BasePlayerScreen(
+            isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
+            topBarBlock = topBarBlock,
+            stationName = stationName,
+            locationName = locationName,
+            stationImgUrl = stationImgUrl.decodeUrl(),
+            rawUrl = rawUrl.decodeUrl(),
+            id = id.decodeUrl(),
+            isFav = isFav
+        )
     }
 }
 
-fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavController, appBarBlock: @Composable (AppBarState) -> Unit) {
+fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Favorites.route,
-        arguments = createListOfStringArgs(Screens.Favorites.Const.ARG_TITLE),
-    ) {
+        arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
+    ) { backStackEntry ->
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
 
-        val viewModel: FavoritesViewModel = hiltViewModel()
-
-        val appBarState = AppBarState(
-            titleRes = R.string.favorites,
-            rightIcon = ImageVector.vectorResource(R.drawable.icon_settings),
-            dropDownMenu = {
-                // maybe extract somewhere later
-                // not hiding after selection is intentional
-                DropDownItem(
-                    iconId = R.drawable.icon_rows,
-                    text = stringResource(R.string.rows),
-                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.LIST)) }
-                )
-                DropDownItem(
-                    iconId = R.drawable.icon_grid_2,
-                    text = stringResource(R.string.grid_2),
-                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.GRID_2_COLUMN)) }
-                )
-                DropDownItem(
-                    iconId = R.drawable.icon_grid_3,
-                    text = stringResource(R.string.grid_3),
-                    action = { viewModel.setAction(ViewAction.SetViewType(ViewType.GRID_3_COLUMN)) }
-                )
-            }
-        )
-        appBarBlock.invoke(appBarState)
-
-        FavoriteListScreen(
-            viewModel = viewModel,
-            onAudioClick = {
-                navController.navigate(
-                    Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url)
-                )
-            }
+        BaseFavoriteScreen(
+            isVisibleToUser = navController.isVisibleToUser(Screens.Favorites.Const.ROUTE),
+            topBarBlock = topBarBlock,
+            parentRoute = parentRoute,
+            onNavigate = { navController.navigate(it) }
         )
     }
 }
 
-fun NavGraphBuilder.profileScreen(navController: NavController, appBarBlock: @Composable (AppBarState) -> Unit) {
+fun NavGraphBuilder.profileScreen(navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Profile.route,
-        arguments = createListOfStringArgs(Screens.Profile.Const.ARG_TITLE),
+        arguments = listOf(navArgument(Screens.Profile.Const.ARG_TITLE, defaultStringArg())),
     ) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
-        val appBarState = AppBarState(
-            titleRes = R.string.profile,
-            rightIcon = ImageVector.vectorResource(R.drawable.icon_settings),
-            rightIconAction = { navController.navigate(Screens.Settings.route) }
+        BaseProfileScreen(
+            isVisibleToUser = navController.isVisibleToUser(Screens.Profile.Const.ROUTE),
+            topBarBlock = topBarBlock,
+            onNavigate = { navController.navigate(it) }
         )
-        appBarBlock.invoke(appBarState)
-        ErrorView(errorText = "Coming soon", showImage = false)
     }
 }
 
-fun NavGraphBuilder.settingsScreen(navController: NavController, appBarBlock: @Composable (AppBarState) -> Unit) {
+fun NavGraphBuilder.settingsScreen(navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Settings.route,
-        arguments = createListOfStringArgs(Screens.Settings.Const.ARG_TITLE),
+        arguments = listOf(navArgument(Screens.Settings.Const.ARG_TITLE, defaultStringArg())),
     ) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
 
-        appBarBlock.invoke(AppBarState(titleRes = R.string.settings, displayBackButton = true))
-        SettingsScreen()
+        BaseSettingsScreen(
+            isVisibleToUser = navController.isVisibleToUser(Screens.Settings.Const.ROUTE),
+            topBarBlock = topBarBlock
+        )
     }
 }
+
+
+/**
+ * idk...
+ * IF you will switch BottomNav items really fast it will cause the wrong TopBar state
+ * This approach resolve the issue but looks not right either.
+ * Will research later.
+ * */
+private fun NavHostController.isVisibleToUser(route: String) = currentDestination?.route?.contains(route) ?: true
+
+private fun defaultStringArg(): NavArgumentBuilder.() -> Unit = {
+    type = NavType.StringType
+    defaultValue = String.EMPTY
+}
+
+private fun defaultBoolArg(): NavArgumentBuilder.() -> Unit = {
+    type = NavType.BoolType
+    defaultValue = false
+}
+
+fun NavBackStackEntry.getArgStr(argName: String) = arguments?.getString(argName).orEmpty()
+fun NavBackStackEntry.getArgBool(argName: String) = arguments?.getBoolean(argName) ?: false

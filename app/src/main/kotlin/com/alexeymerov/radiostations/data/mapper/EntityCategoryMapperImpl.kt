@@ -11,6 +11,8 @@ import javax.inject.Inject
 
 class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
 
+    private val invalidChildCountStringRegex = " \\(\\d+\\)".toRegex()
+
     override suspend fun mapCategoryResponseToEntity(list: List<CategoryBody>, parentUrl: String): List<CategoryEntity> {
         return categoryEntities(list, parentUrl)
     }
@@ -64,11 +66,13 @@ class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
     }
 
     private fun mapCategoryResponseToEntity(body: CategoryBody, parentUrl: String, position: Int, type: EntityItemType): CategoryEntity {
+        val text = body.text.replace(invalidChildCountStringRegex, String.EMPTY)
         return CategoryEntity(
+            id = "$parentUrl##$text",
             position = position,
             url = body.url?.httpsEverywhere().orEmpty(),
             parentUrl = parentUrl,
-            text = body.text.replace(" \\(\\d+\\)".toRegex(), String.EMPTY),
+            text = text,
             image = body.image.httpsEverywhere(),
             currentTrack = body.currentTrack,
             type = type,

@@ -50,7 +50,16 @@ class CategoryUseCaseImpl @Inject constructor(
     override suspend fun loadCategoriesByUrl(url: String) = categoryRepository.loadCategoriesByUrl(url)
 
     override suspend fun toggleFavorite(item: CategoryItemDto) {
-        categoryRepository.changeStationFavorite(item, !item.isFavorite)
+        categoryRepository.changeStationFavorite(item.id, !item.isFavorite)
+    }
+
+    override suspend fun toggleFavorite(id: String) {
+        val item = categoryRepository.getItemById(id)
+        categoryRepository.changeStationFavorite(id, !item.isFavorite)
+    }
+
+    override suspend fun unfavorite(item: CategoryItemDto) {
+        categoryRepository.changeStationFavorite(item.id, false)
     }
 
     override suspend fun getAudioUrl(url: String): AudioItemDto {

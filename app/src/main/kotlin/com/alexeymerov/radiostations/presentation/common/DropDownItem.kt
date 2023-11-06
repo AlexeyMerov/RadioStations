@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.screen.common
+package com.alexeymerov.radiostations.presentation.common
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable

@@ -50,15 +50,21 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             }
         }
 
+        val initials = mainText
+            .split(String.SPACE, limit = 2)
+            .map { it.first() }
+            .joinToString(separator = String.EMPTY)
+
         return CategoryItemDto(
+            id = entity.id,
             url = entity.url.ifEmpty { entity.text },
-            originalText = entity.text,
             text = mainText,
             subText = locationText,
             image = entity.image,
             type = type,
             subItemsCount = entity.childCount ?: 0,
-            isFavorite = entity.isFavorite
+            isFavorite = entity.isFavorite,
+            initials = initials
         )
     }
 
