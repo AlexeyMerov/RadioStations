@@ -56,8 +56,8 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             .joinToString(separator = String.EMPTY)
 
         return CategoryItemDto(
+            id = entity.id,
             url = entity.url.ifEmpty { entity.text },
-            originalText = entity.text,
             text = mainText,
             subText = locationText,
             image = entity.image,

@@ -15,8 +15,8 @@ data class CategoryDto(
  * But it will add unnecessary runtime operations, so... up to you.
  * */
 data class CategoryItemDto(
+    val id: String,
     val url: String,
-    val originalText: String,
     val text: String,
     var subText: String? = null,
     val image: String? = null,

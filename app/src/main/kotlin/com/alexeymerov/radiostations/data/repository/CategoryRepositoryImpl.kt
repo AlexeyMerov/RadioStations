@@ -2,6 +2,7 @@ package com.alexeymerov.radiostations.data.repository
 
 import com.alexeymerov.radiostations.BuildConfig
 import com.alexeymerov.radiostations.common.httpsEverywhere
+import com.alexeymerov.radiostations.common.toInt
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
@@ -9,7 +10,6 @@ import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.data.remote.response.AudioBody
 import com.alexeymerov.radiostations.data.remote.response.MainBody
 import com.alexeymerov.radiostations.data.remote.response.ServerBodyType
-import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import timber.log.Timber
@@ -21,9 +21,12 @@ class CategoryRepositoryImpl @Inject constructor(
     private val categoryMapper: EntityCategoryMapper
 ) : CategoryRepository {
 
+    override suspend fun getItemById(id: String): CategoryEntity {
+        return categoryDao.getById(id)
+    }
+
     override fun getCategoriesByUrl(url: String): Flow<List<CategoryEntity>> {
-        val parentUrl = url.prepareUrl()
-        return categoryDao.getAllByParentUrl(parentUrl)
+        return categoryDao.getAllByParentUrl(url.prepareUrl())
     }
 
     override fun getFavorites(): Flow<List<CategoryEntity>> {
@@ -53,8 +56,8 @@ class CategoryRepositoryImpl @Inject constructor(
         return if (audioBodyList.isEmpty()) null else audioBodyList[0]
     }
 
-    override suspend fun changeStationFavorite(item: CategoryItemDto, isFavorite: Boolean) {
-        categoryDao.setStationFavorite(item.url, item.originalText, if (isFavorite) 1 else 0)
+    override suspend fun changeStationFavorite(itemId: String, isFavorite: Boolean) {
+        categoryDao.setStationFavorite(itemId, isFavorite.toInt())
     }
 
     /**

@@ -62,7 +62,14 @@ fun BaseFavoriteScreen(
         viewState = viewState,
         categoryItems = categoryItems,
         onAudioClick = {
-            val route = Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url)
+            val route = Screens.Player(parentRoute).createRoute(
+                stationName = it.text,
+                locationName = it.subText.orEmpty(),
+                stationImgUrl = it.image.orEmpty(),
+                rawUrl = it.url,
+                id = it.id,
+                isFav = it.isFavorite
+            )
             onNavigate.invoke(route)
         },
         inSelection = selectedItemsCount > 0,
@@ -177,7 +184,7 @@ private fun MainContent(
     ) {
         items(
             items = categoryItems,
-            key = CategoryItemDto::url,
+            key = CategoryItemDto::id,
             contentType = CategoryItemDto::type
         ) { itemDto ->
             val defaultModifier = Modifier.animateItemPlacement()

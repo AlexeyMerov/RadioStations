@@ -9,10 +9,6 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavArgumentBuilder
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
 
@@ -36,22 +32,32 @@ sealed class Screens(val route: String) {
         }
     }
 
-    data class Player(val parentRoute: String) :
-        Screens(createBaseRoute("$parentRoute##${Const.ROUTE}", Const.ARG_TITLE, Const.ARG_SUBTITLE, Const.ARG_IMG_URL, Const.ARG_URL)) {
+    data class Player(val parentRoute: String) : Screens(
+        createBaseRoute(
+            "$parentRoute##${Const.ROUTE}",
+            Const.ARG_TITLE,
+            Const.ARG_SUBTITLE,
+            Const.ARG_IMG_URL,
+            Const.ARG_URL,
+            Const.ARG_ID,
+            Const.ARG_IS_FAV
+        )
+    ) {
         object Const {
             const val ROUTE: String = "player"
             const val ARG_TITLE: String = "title"
             const val ARG_SUBTITLE: String = "subtitle"
             const val ARG_IMG_URL: String = "imgUrl"
             const val ARG_URL: String = "url"
+            const val ARG_ID: String = "id"
+            const val ARG_IS_FAV: String = "isFav"
         }
 
-        fun createRoute(stationName: String, stationImgUrl: String, rawUrl: String): String {
-            return createNewRoute("$parentRoute##${Const.ROUTE}", stationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl())
-        }
-
-        fun createRoute(stationName: String, locationName: String, stationImgUrl: String, rawUrl: String): String {
-            return createNewRoute("$parentRoute##${Const.ROUTE}", stationName, locationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl())
+        fun createRoute(stationName: String, locationName: String, stationImgUrl: String, rawUrl: String, id: String, isFav: Boolean): String {
+            return createNewRoute(
+                route = "$parentRoute##${Const.ROUTE}",
+                args = arrayOf(stationName, locationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl(), id.encodeUrl(), isFav)
+            )
         }
     }
 
@@ -76,20 +82,12 @@ sealed class Screens(val route: String) {
         }
     }
 }
-//don't want to make if inside... for now will duplicate
-private fun createBaseRoute(route: String, vararg args: String) = route + args.joinToString { "/{$it}" }
 
-private fun createNewRoute(route: String, vararg args: String) = route + args.joinToString { "/$it" }
+//don't want to make if inside... for now will duplicate
+private fun createBaseRoute(route: String, vararg args: Any) = route + args.joinToString(separator = "/") { "{$it}" }
+
+private fun createNewRoute(route: String, vararg args: Any) = route + args.joinToString(separator = "/") { "$it" }
 
 // ugly workaround. compose navigation can't use links in args
 private fun String.encodeUrl() = replace("/", "!").replace("?", "*")
 fun String.decodeUrl() = replace("!", "/").replace("*", "?")
-
-fun createListOfStringArgs(vararg args: String) = args.map { navArgument(it, defaultStringArg()) }
-
-private fun defaultStringArg(): NavArgumentBuilder.() -> Unit = {
-    type = NavType.StringType
-    defaultValue = String.EMPTY
-}
-
-fun NavBackStackEntry.getArg(arg: String) = arguments?.getString(arg).orEmpty()

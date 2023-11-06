@@ -185,8 +185,8 @@ private fun FavIcon(
 @Composable
 fun StationListItemPreview() {
     val item = CategoryItemDto(
+        id = "",
         url = "",
-        originalText = "",
         subText = "Hello",
         text = "Station NameStation NameStation NameStation Name",
         type = DtoItemType.AUDIO,

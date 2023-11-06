@@ -42,14 +42,14 @@ fun ShimmerLoading() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(vertical = 8.dp, horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         repeat(6) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(55.dp)
+                    .height(60.dp)
                     .shimmerEffect(shape = CardDefaults.shape),
                 content = {}
             )

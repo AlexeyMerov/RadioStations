@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -110,9 +111,18 @@ private fun CategoryScreen(
                 categoryItems = categoryItems,
                 headerItems = viewState.headerItems,
                 onHeaderFilterClick = { onAction.invoke(ViewAction.FilterByHeader(it)) },
-                onCategoryClick = { onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url)) },
+                onCategoryClick = {
+                    onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
+                },
                 onAudioClick = {
-                    val route = Screens.Player(parentRoute).createRoute(it.text, it.subText.orEmpty(), it.image.orEmpty(), it.url)
+                    val route = Screens.Player(parentRoute).createRoute(
+                        stationName = it.text,
+                        locationName = it.subText.orEmpty(),
+                        stationImgUrl = it.image.orEmpty(),
+                        rawUrl = it.url,
+                        id = it.id,
+                        isFav = it.isFavorite
+                    )
                     onNavigate.invoke(route)
                 },
                 onFavClick = { onAction.invoke(ViewAction.ToggleFavorite(it)) }
@@ -142,7 +152,7 @@ private fun MainContent(
         }
         items(
             items = categoryItems,
-            key = CategoryItemDto::url,
+            key = CategoryItemDto::id,
             contentType = CategoryItemDto::type
         ) { itemDto ->
             val defaultModifier = Modifier
@@ -212,16 +222,23 @@ fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
 @Composable
 fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier.padding(horizontal = 16.dp),
+        modifier = modifier
+            .height(60.dp)
+            .padding(horizontal = 16.dp),
         onClick = { onCategoryClick.invoke(itemDto) },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        BasicText(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            text = itemDto.text
-        )
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                text = itemDto.text
+            )
+        }
     }
 }
 
@@ -256,29 +273,29 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
 @Composable
 private fun MainContentPreview() {
     val categoryItems: List<CategoryItemDto> = listOf(
-        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, subItemsCount = 1, initials = "G"),
-        CategoryItemDto("url#2", originalText = "", text = "Category", type = DtoItemType.CATEGORY, initials = "G"),
-        CategoryItemDto("url#3", originalText = "", text = "Very Long Category Name", type = DtoItemType.CATEGORY, initials = "G"),
-        CategoryItemDto("url#4", originalText = "", text = "Another Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
-        CategoryItemDto("url#5", originalText = "", text = "Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
-        CategoryItemDto("url#6", originalText = "", text = "Long Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
-        CategoryItemDto("url#7", originalText = "", text = "Station (City)", type = DtoItemType.AUDIO, initials = "G"),
-        CategoryItemDto("url#8", originalText = "", text = "Station", type = DtoItemType.AUDIO, initials = "G"),
+        CategoryItemDto("url#1", "", text = "Header", type = DtoItemType.HEADER, subItemsCount = 1, initials = "G"),
+        CategoryItemDto("url#2", "", text = "Category", type = DtoItemType.CATEGORY, initials = "G"),
+        CategoryItemDto("url#3", "", text = "Very Long Category Name", type = DtoItemType.CATEGORY, initials = "G"),
+        CategoryItemDto("url#4", "", text = "Another Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
+        CategoryItemDto("url#5", "", text = "Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
+        CategoryItemDto("url#6", "", text = "Long Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
+        CategoryItemDto("url#7", "", text = "Station (City)", type = DtoItemType.AUDIO, initials = "G"),
+        CategoryItemDto("url#8", "", text = "Station", type = DtoItemType.AUDIO, initials = "G"),
     )
     val headers = listOf(
-        CategoryItemDto("url#1", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 1, initials = "G"),
-        CategoryItemDto("url#2", originalText = "", text = "Long Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
+        CategoryItemDto("url#1", "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 1, initials = "G"),
+        CategoryItemDto("url#1", "", text = "Long Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
         CategoryItemDto(
-            "url#3",
-            originalText = "",
+            id = "url#3",
+            url = "",
             text = "Very Long Header",
             type = DtoItemType.HEADER,
             isFiltered = true,
             subItemsCount = 999,
             initials = "G"
         ),
-        CategoryItemDto("url#4", originalText = "", text = "Tiny", type = DtoItemType.HEADER, initials = "G"),
-        CategoryItemDto("url#5", originalText = "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, initials = "G"),
+        CategoryItemDto("url#4", "", text = "Tiny", type = DtoItemType.HEADER, initials = "G"),
+        CategoryItemDto("url#5", "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, initials = "G"),
     )
     MainContent(categoryItems, headers, {}, {}, {}, {})
 }
