@@ -10,7 +10,6 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
     kotlin("android")
-    kotlin("kapt")
     kotlin("plugin.parcelize")
 }
 
@@ -98,7 +97,7 @@ android {
 
 dependencies {
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler) // https://issuetracker.google.com/issues/179057202
+    ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
@@ -161,7 +160,7 @@ dependencies {
     androidTestUtil(libs.test.orchestrator)
 
     androidTestImplementation(libs.hilt.testing)
-    kaptAndroidTest(libs.hilt.compiler)
+    kspAndroidTest(libs.hilt.compiler)
 
     testImplementation(libs.coroutines.test)
     androidTestImplementation(libs.coroutines.test)
@@ -173,10 +172,6 @@ dependencies {
 
     testImplementation(libs.mockk.android)
     testImplementation(libs.mockk.agent)
-}
-
-kapt {
-    correctErrorTypes = true
 }
 
 ksp {
