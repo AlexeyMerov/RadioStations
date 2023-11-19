@@ -7,20 +7,30 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
+import com.alexeymerov.radiostations.data.local.db.dao.MediaDao
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
 
 
-@Database(entities = [CategoryEntity::class], version = 4)
+@Database(
+    version = 5,
+    entities = [
+        CategoryEntity::class,
+        MediaEntity::class
+    ]
+)
 abstract class RadioDatabase : RoomDatabase() {
 
     abstract fun categoryDao(): CategoryDao
+
+    abstract fun mediaDao(): MediaDao
 
     companion object {
         private const val DB_NAME = "radio_stations"
 
         fun buildDatabase(context: Context): RadioDatabase {
             return Room.databaseBuilder(context, RadioDatabase::class.java, DB_NAME)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
         }
     }
@@ -68,5 +78,19 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
 
         db.execSQL("DROP TABLE $tableName")
         db.execSQL("ALTER TABLE $tempTableName RENAME TO $tableName")
+    }
+}
+
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS media (" +
+                "id INTEGER PRIMARY KEY NOT NULL, " +
+                "url TEXT NOT NULL, " +
+                "directMediaUrl TEXT NOT NULL, " +
+                "imageUrl TEXT NOT NULL, " +
+                "title TEXT NOT NULL, " +
+                "subtitle TEXT NOT NULL)"
+        )
     }
 }

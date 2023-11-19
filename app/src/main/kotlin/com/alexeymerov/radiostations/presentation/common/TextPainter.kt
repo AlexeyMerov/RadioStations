@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.sp
 class TextPainter(
     private val containerColor: Color = Color.Black,
     private val containerSize: Size = Size.Unspecified,
-    private val textStyle: TextStyle = TextStyle(color = Color.White, fontSize = 20.sp),
-    private val textMeasurer: TextMeasurer,
-    private val text: String,
+    textStyle: TextStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+    textMeasurer: TextMeasurer,
+    text: String
 ) : Painter() {
 
     private val textLayoutResult: TextLayoutResult = textMeasurer.measure(

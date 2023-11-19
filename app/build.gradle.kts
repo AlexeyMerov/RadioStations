@@ -104,6 +104,7 @@ dependencies {
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
     implementation(libs.timber)
     implementation(libs.dataStore.base)
+    implementation(libs.kotlin.guava)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
@@ -119,6 +120,7 @@ dependencies {
     implementation(libs.media3.exoplayer.base)
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.ui)
+    implementation(libs.media3.session)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

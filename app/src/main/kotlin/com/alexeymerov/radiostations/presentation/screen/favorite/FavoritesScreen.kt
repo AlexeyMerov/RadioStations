@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.StarHalf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,21 +14,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
-import com.alexeymerov.radiostations.presentation.common.DropDownItem
 import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.common.LoaderView
 import com.alexeymerov.radiostations.presentation.common.StationListItem
+import com.alexeymerov.radiostations.presentation.navigation.DropDownItem
+import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
+import com.alexeymerov.radiostations.presentation.navigation.TopBarIcon
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.*
 import timber.log.Timber
@@ -38,7 +35,7 @@ import timber.log.Timber
 
 @Composable
 fun BaseFavoriteScreen(
-    viewModel: FavoritesViewModel = hiltViewModel(),
+    viewModel: FavoritesViewModel,
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
     parentRoute: String,
@@ -85,17 +82,14 @@ private fun TopBarSetup(
     onAction: (ViewAction) -> Unit
 ) {
     val title = stringResource(R.string.favorites)
-    val rightIcon = ImageVector.vectorResource(R.drawable.icon_settings)
-
     LaunchedEffect(Unit, selectedItemsCount) {
         val topBarState = when (selectedItemsCount) {
             0 -> {
                 TopBarState(
                     title = title,
-                    rightIcon = rightIcon,
-                    dropDownMenu = {
-                        DropDownItems { type ->
-                            onAction.invoke(ViewAction.SetViewType(type))
+                    rightIcon = RightIconItem(TopBarIcon.SETTINGS).apply {
+                        dropDownMenu = dropDownItems { viewType ->
+                            onAction.invoke(ViewAction.SetViewType(viewType))
                         }
                     }
                 )
@@ -105,8 +99,9 @@ private fun TopBarSetup(
                 TopBarState(
                     title = "Selected: $selectedItemsCount",
                     selectedItems = selectedItemsCount,
-                    rightIcon = Icons.Rounded.StarHalf,
-                    rightIconAction = { onAction.invoke(ViewAction.UnfavoriteSelected) }
+                    rightIcon = RightIconItem(TopBarIcon.STAR_HALF).apply {
+                        action = { onAction.invoke(ViewAction.UnfavoriteSelected) }
+                    }
                 )
             }
         }
@@ -115,25 +110,23 @@ private fun TopBarSetup(
     }
 }
 
-@Composable
-private fun DropDownItems(onClick: (ViewType) -> Unit) {
+private fun dropDownItems(onClick: (ViewType) -> Unit): List<DropDownItem> = listOf(
     // not hiding after selection is intentional
     DropDownItem(
         iconId = R.drawable.icon_rows,
-        text = stringResource(R.string.rows),
-        action = { onClick.invoke(ViewType.LIST) }
-    )
+        stringId = R.string.rows,
+    ).apply { action = { onClick.invoke(ViewType.LIST) } },
+
     DropDownItem(
         iconId = R.drawable.icon_grid_2,
-        text = stringResource(R.string.grid_2),
-        action = { onClick.invoke(ViewType.GRID_2_COLUMN) }
-    )
+        stringId = R.string.grid_2,
+    ).apply { action = { onClick.invoke(ViewType.GRID_2_COLUMN) } },
+
     DropDownItem(
         iconId = R.drawable.icon_grid_3,
-        text = stringResource(R.string.grid_3),
-        action = { onClick.invoke(ViewType.GRID_3_COLUMN) }
-    )
-}
+        stringId = R.string.grid_3,
+    ).apply { action = { onClick.invoke(ViewType.GRID_3_COLUMN) } }
+)
 
 @Composable
 fun FavoriteScreen(

@@ -2,7 +2,8 @@ package com.alexeymerov.radiostations.presentation.theme
 
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
@@ -77,7 +78,7 @@ fun StationsAppTheme(
 @Composable
 fun animateColor(targetColor: Color) = animateColorAsState(
     targetValue = targetColor,
-    animationSpec = tween(500),
+    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
     label = String.EMPTY
 ).value
 

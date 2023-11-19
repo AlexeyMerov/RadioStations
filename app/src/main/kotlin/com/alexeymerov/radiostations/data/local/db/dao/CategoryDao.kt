@@ -13,6 +13,9 @@ abstract class CategoryDao {
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_ID} = :id")
     abstract suspend fun getById(id: String): CategoryEntity
 
+    @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_URL} = :url")
+    abstract suspend fun getByUrl(url: String): CategoryEntity
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertAll(list: List<CategoryEntity>)
 

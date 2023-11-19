@@ -29,8 +29,8 @@ data class CategoryBody(
     val children: List<CategoryBody>? = null
 ) : ServerBodyType
 
-data class AudioBody(
-    val url: String? = null,
+data class MediaBody(
+    val url: String,
     val bitrate: Int = 0,
     @Json(name = "media_type")
     val mediaType: String = String.EMPTY,

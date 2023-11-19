@@ -55,7 +55,8 @@ fun StationListItem(
 ) {
     Card(
         modifier = modifier.padding(horizontal = 16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Row(
             modifier = modifier
@@ -96,14 +97,16 @@ fun StationListItem(
 @Composable
 private fun StationImage(itemDto: CategoryItemDto) {
     val placeholder = rememberTextPainter(
-        containerColor = MaterialTheme.colorScheme.secondary,
+        containerColor = MaterialTheme.colorScheme.background,
         textStyle = MaterialTheme.typography.titleMedium.copy(
             color = MaterialTheme.colorScheme.onSecondary
         ),
         text = itemDto.initials
     )
     AsyncImage(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         model = ImageRequest.Builder(LocalContext.current)
             .data(itemDto.image)
             .crossfade(500)
@@ -125,7 +128,7 @@ private fun SelectedIcon() {
     ) {
         Icon(
             imageVector = Icons.Rounded.Check,
-            contentDescription = "",
+            contentDescription = String.EMPTY,
             tint = MaterialTheme.colorScheme.onSecondary
         )
     }
@@ -185,8 +188,8 @@ private fun FavIcon(
 @Composable
 fun StationListItemPreview() {
     val item = CategoryItemDto(
-        id = "",
-        url = "",
+        id = String.EMPTY,
+        url = String.EMPTY,
         subText = "Hello",
         text = "Station NameStation NameStation NameStation Name",
         type = DtoItemType.AUDIO,

@@ -16,18 +16,18 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
     private val cityRegex = "\\(.+\\)".toRegex()
     private val parenthesisRegex = "\\(|\\)".toRegex()
 
-    override suspend fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto> {
+    override fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto> {
         val resultList = mutableListOf<CategoryItemDto>()
 
         categories
             .asSequence()
-            .map(::mapCategoryEntityToDto)
+            .map(::mapEntityToDto)
             .forEach(resultList::add)
 
         return resultList
     }
 
-    private fun mapCategoryEntityToDto(entity: CategoryEntity): CategoryItemDto {
+    override fun mapEntityToDto(entity: CategoryEntity): CategoryItemDto {
         val type = when (entity.type) {
             EntityItemType.HEADER -> DtoItemType.HEADER
             EntityItemType.CATEGORY -> DtoItemType.CATEGORY
@@ -39,15 +39,9 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
         var locationText: String? = null
 
         if (type == DtoItemType.AUDIO) {
-            mainText = entity.text.replace(cityRegex) { match ->
-                locationText = match.value.replace(parenthesisRegex, String.EMPTY).trim()
-                return@replace String.EMPTY
-            }.trim()
-
-            locationText?.let {
-                val uniqueWords = it.split(String.SPACE).toSet()
-                locationText = uniqueWords.joinToString(String.SPACE)
-            }
+            val (name, location) = extractLocationIfExist(mainText)
+            mainText = name
+            locationText = location
         }
 
         val initials = mainText
@@ -66,6 +60,21 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             isFavorite = entity.isFavorite,
             initials = initials
         )
+    }
+
+    // if there is (Location), then save it separately and remove from main string.
+    override fun extractLocationIfExist(originalText: String): Pair<String, String?> {
+        var locationText: String? = null
+        val mainText = originalText.replace(cityRegex) { match ->
+            locationText = match.value.replace(parenthesisRegex, String.EMPTY).trim()
+            return@replace String.EMPTY
+        }.trim()
+
+        locationText?.let {
+            val uniqueWords = it.split(String.SPACE).toSet()
+            locationText = uniqueWords.joinToString(String.SPACE)
+        }
+        return Pair(mainText, locationText)
     }
 
 }

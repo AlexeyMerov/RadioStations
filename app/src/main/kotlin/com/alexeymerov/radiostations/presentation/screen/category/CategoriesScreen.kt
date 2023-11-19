@@ -1,62 +1,46 @@
 package com.alexeymerov.radiostations.presentation.screen.category
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.common.CallOnLaunch
-import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
-import com.alexeymerov.radiostations.presentation.common.BasicText
 import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.common.ShimmerLoading
 import com.alexeymerov.radiostations.presentation.common.StationListItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*
+import com.alexeymerov.radiostations.presentation.screen.category.item.CategoryListItem
+import com.alexeymerov.radiostations.presentation.screen.category.item.HeaderListItem
+import com.alexeymerov.radiostations.presentation.screen.category.item.SubCategoryListItem
 import timber.log.Timber
 
 
 @Composable
 fun BaseCategoryScreen(
-    viewModel: CategoriesViewModel = hiltViewModel(),
+    viewModel: CategoriesViewModel,
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
     defTitle: String,
@@ -191,81 +175,6 @@ private fun AddFiltersHeaders(headerItems: List<CategoryItemDto>, onHeaderFilter
                 selected = item.isFiltered
             )
         }
-    }
-}
-
-@Composable
-fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
-    Row(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
-        BasicText(
-            text = itemDto.text,
-            textStyle = MaterialTheme.typography.titleSmall
-        )
-
-        Box(
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .clip(CircleShape)
-                .background(color = MaterialTheme.colorScheme.primary),
-        ) {
-            BasicText(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                text = itemDto.subItemsCount.toString(),
-                textStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onPrimary)
-            )
-        }
-
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
-    Card(
-        modifier = modifier
-            .height(60.dp)
-            .padding(horizontal = 16.dp),
-        onClick = { onCategoryClick.invoke(itemDto) },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                text = itemDto.text
-            )
-        }
-    }
-}
-
-@Composable
-fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
-    Row(
-        modifier = modifier
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
-                onClick = { onCategoryClick.invoke(itemDto) }
-            )
-            .padding(
-                start = 32.dp,
-                end = 16.dp,
-                top = 4.dp,
-                bottom = 4.dp
-            ), // we need to duplicate paddings on each item for unbounded selection here
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        BasicText(text = itemDto.text, textStyle = MaterialTheme.typography.titleSmall)
-
-        Icon(
-            imageVector = Icons.Rounded.KeyboardArrowRight,
-            contentDescription = String.EMPTY
-        )
     }
 }
 

@@ -1,7 +1,5 @@
 package com.alexeymerov.radiostations.domain.usecase.settings.theme
 
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.intPreferencesKey
 import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
@@ -31,15 +29,15 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
     }
 
     override suspend fun updateThemeState(state: ThemeState) {
-        settingsStore.satPrefs(DARK_THEME_KEY, state.darkLightMode.id)
-        settingsStore.satPrefs(DYNAMIC_COLOR_KEY, state.useDynamicColor)
-        settingsStore.satPrefs(COLOR_KEY, state.colorTheme.id)
+        settingsStore.setIntPrefs(DARK_THEME_KEY, state.darkLightMode.id)
+        settingsStore.setBoolPrefs(DYNAMIC_COLOR_KEY, state.useDynamicColor)
+        settingsStore.setIntPrefs(COLOR_KEY, state.colorTheme.id)
     }
 
 
     companion object {
-        val DARK_THEME_KEY = intPreferencesKey("dark_theme")
-        val DYNAMIC_COLOR_KEY = booleanPreferencesKey("dynamic_color")
-        val COLOR_KEY = intPreferencesKey("color")
+        const val DARK_THEME_KEY = "dark_theme"
+        const val DYNAMIC_COLOR_KEY = "dynamic_color"
+        const val COLOR_KEY = "color"
     }
 }

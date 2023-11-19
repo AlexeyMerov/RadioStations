@@ -9,6 +9,7 @@ import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.decodeUrl
@@ -30,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val categoryUseCase: CategoryUseCase
+    private val categoryUseCase: CategoryUseCase,
+    private val audioUseCase: AudioUseCase
 ) : BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {
 
     private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()
@@ -38,7 +40,7 @@ class CategoriesViewModel @Inject constructor(
     private val headerFlow = MutableStateFlow(listOf<CategoryItemDto>())
 
     val categoriesFlow: StateFlow<List<CategoryItemDto>> = categoryUseCase
-        .getCategoriesByUrl(categoryUrl)
+        .getAllByUrl(categoryUrl)
         .catch { handleError(it) }
         .onEach(::prepareHeaders)
         .combine(headerFlow, ::filterCategories)
@@ -65,7 +67,7 @@ class CategoriesViewModel @Inject constructor(
 
     private fun toggleFavorite(action: ViewAction.ToggleFavorite) {
         viewModelScope.launch(ioContext) {
-            categoryUseCase.toggleFavorite(action.item)
+            audioUseCase.toggleFavorite(action.item)
         }
     }
 
@@ -128,11 +130,7 @@ class CategoriesViewModel @Inject constructor(
         viewModelScope.launch(ioContext) {
             when {
                 categoryDto.isError -> {
-                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
-                    setState(ViewState.NothingAvailable)
-                }
-
-                categoryDto.items.isEmpty() -> {
+                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categoryDto.isError")
                     setState(ViewState.NothingAvailable)
                 }
 
