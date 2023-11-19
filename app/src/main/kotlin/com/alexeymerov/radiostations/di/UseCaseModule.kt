@@ -3,6 +3,8 @@ package com.alexeymerov.radiostations.di
 
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapperImpl
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCaseImpl
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCaseImpl
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
@@ -14,35 +16,39 @@ import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettings
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module(includes = [UseCaseModule.Mapper::class])
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 abstract class UseCaseModule {
 
     @Binds
-    @ViewModelScoped
+    @Singleton
     abstract fun bindCategoryUseCase(useCase: CategoryUseCaseImpl): CategoryUseCase
 
     @Binds
-    @ViewModelScoped
+    @Singleton
     abstract fun bindFavoriteViewSettingsUseCase(useCase: FavoriteViewSettingsUseCaseImpl): FavoriteViewSettingsUseCase
 
     @Binds
-    @ViewModelScoped
+    @Singleton
     abstract fun bindThemeSettingsUseCase(useCase: ThemeSettingsUseCaseImpl): ThemeSettingsUseCase
 
     @Binds
-    @ViewModelScoped
+    @Singleton
     abstract fun bindConnectivitySettingsUseCase(useCase: ConnectivitySettingsUseCaseImpl): ConnectivitySettingsUseCase
 
+    @Binds
+    @Singleton
+    abstract fun bindMediaUseCase(useCase: AudioUseCaseImpl): AudioUseCase
+
     @Module
-    @InstallIn(ViewModelComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class Mapper {
 
         @Binds
-        @ViewModelScoped
+        @Singleton
         abstract fun bindDtoCategoriesMapper(mapper: DtoCategoriesMapperImpl): DtoCategoriesMapper
 
     }

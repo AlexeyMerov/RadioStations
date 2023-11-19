@@ -3,6 +3,7 @@ package com.alexeymerov.radiostations.di
 import android.content.Context
 import com.alexeymerov.radiostations.data.local.db.RadioDatabase
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
+import com.alexeymerov.radiostations.data.local.db.dao.MediaDao
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapperImpl
 import dagger.Binds
@@ -24,6 +25,10 @@ class DatabaseModule {
     @Singleton
     @Provides
     fun provideCategoryDao(db: RadioDatabase): CategoryDao = db.categoryDao()
+
+    @Singleton
+    @Provides
+    fun provideMediaDao(db: RadioDatabase): MediaDao = db.mediaDao()
 
     @Module
     @InstallIn(SingletonComponent::class)

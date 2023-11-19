@@ -3,9 +3,11 @@ package com.alexeymerov.radiostations.data.repository
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
 import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
-import com.alexeymerov.radiostations.data.remote.response.AudioBody
 import com.alexeymerov.radiostations.data.remote.response.CategoryBody
 import com.alexeymerov.radiostations.data.remote.response.MainBody
+import com.alexeymerov.radiostations.data.remote.response.MediaBody
+import com.alexeymerov.radiostations.data.repository.category.CategoryRepository
+import com.alexeymerov.radiostations.data.repository.category.CategoryRepositoryImpl
 import io.mockk.coEvery
 import io.mockk.coJustRun
 import io.mockk.coVerifyOrder
@@ -81,9 +83,9 @@ class CategoryRepositoryTest {
 
     @Test
     fun `load audio by url failed`() = runTest {
-        val responseMock = mockk<Response<MainBody<AudioBody>>>()
+        val responseMock = mockk<Response<MainBody<MediaBody>>>()
         coEvery { client.requestAudioByUrl(any()) } returns responseMock
-        every { repository["mapResponseBody"](responseMock) } returns emptyList<AudioBody>()
+        every { repository["mapResponseBody"](responseMock) } returns emptyList<MediaBody>()
 
         val audioByUrl = repository.getAudioByUrl("")
         assert(audioByUrl == null)
@@ -98,10 +100,10 @@ class CategoryRepositoryTest {
 
     @Test
     fun `load audio by url success`() = runTest {
-        val audioBody = mockk<AudioBody>()
-        val responseMock = mockk<Response<MainBody<AudioBody>>>()
+        val mediaBody = mockk<MediaBody>()
+        val responseMock = mockk<Response<MainBody<MediaBody>>>()
         coEvery { client.requestAudioByUrl(any()) } returns responseMock
-        every { repository["mapResponseBody"](responseMock) } returns listOf(audioBody)
+        every { repository["mapResponseBody"](responseMock) } returns listOf(mediaBody)
 
         val audioByUrl = repository.getAudioByUrl("")
         assert(audioByUrl != null)

@@ -1,10 +1,7 @@
 package com.alexeymerov.radiostations.domain.usecase.category
 
-import com.alexeymerov.radiostations.common.httpsEverywhere
-import com.alexeymerov.radiostations.data.repository.CategoryRepository
-import com.alexeymerov.radiostations.domain.dto.AudioItemDto
+import com.alexeymerov.radiostations.data.repository.category.CategoryRepository
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
-import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import kotlinx.coroutines.flow.Flow
@@ -23,21 +20,8 @@ class CategoryUseCaseImpl @Inject constructor(
      * Adding headers or audio flags.
      * Since we request stations, i prefer not to move it to mapper.
      * */
-    override fun getCategoriesByUrl(url: String): Flow<CategoryDto> {
+    override fun getAllByUrl(url: String): Flow<CategoryDto> {
         return categoryRepository.getCategoriesByUrl(url)
-            .distinctUntilChanged { old, new -> old == new }
-            .map { entityList ->
-                if (entityList.isNotEmpty() && entityList[0].text == ERROR) {
-                    return@map CategoryDto(emptyList(), isError = true)
-                }
-
-                val result = dtoCategoriesMapper.mapEntitiesToDto(entityList)
-                return@map CategoryDto(result)
-            }
-    }
-
-    override fun getFavorites(): Flow<CategoryDto> {
-        return categoryRepository.getFavorites()
             .distinctUntilChanged { old, new -> old == new }
             .map { entityList ->
                 if (entityList.isNotEmpty() && entityList[0].text == ERROR) {
@@ -52,27 +36,6 @@ class CategoryUseCaseImpl @Inject constructor(
     override suspend fun loadCategoriesByUrl(url: String) {
         if (connectivitySettings.isOnline()) {
             categoryRepository.loadCategoriesByUrl(url)
-        }
-    }
-
-    override suspend fun toggleFavorite(item: CategoryItemDto) {
-        categoryRepository.changeStationFavorite(item.id, !item.isFavorite)
-    }
-
-    override suspend fun toggleFavorite(id: String) {
-        val item = categoryRepository.getItemById(id)
-        categoryRepository.changeStationFavorite(id, !item.isFavorite)
-    }
-
-    override suspend fun unfavorite(item: CategoryItemDto) {
-        categoryRepository.changeStationFavorite(item.id, false)
-    }
-
-    override suspend fun getAudioUrl(url: String): AudioItemDto {
-        val audioUrl = categoryRepository.getAudioByUrl(url)?.url
-        return when (audioUrl) {
-            null -> AudioItemDto(isError = true)
-            else -> AudioItemDto(url = audioUrl.httpsEverywhere())
         }
     }
 

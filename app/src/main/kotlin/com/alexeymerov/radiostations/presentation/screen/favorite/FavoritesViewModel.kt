@@ -10,7 +10,7 @@ import com.alexeymerov.radiostations.common.BaseViewModel
 import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewAction
@@ -33,7 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
-    private val categoryUseCase: CategoryUseCase,
+    private val audioUseCase: AudioUseCase,
     private val settingsUseCase: FavoriteViewSettingsUseCase
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
@@ -55,7 +55,7 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    val categoriesFlow: StateFlow<List<CategoryItemDto>> = categoryUseCase.getFavorites()
+    val categoriesFlow: StateFlow<List<CategoryItemDto>> = audioUseCase.getFavorites()
         .catch { handleError(it) }
         .onEach(::validateNewData)
         .map { it.items }
@@ -96,13 +96,13 @@ class FavoritesViewModel @Inject constructor(
 
     private fun toggleFavorite(item: CategoryItemDto) {
         viewModelScope.launch(ioContext) {
-            categoryUseCase.toggleFavorite(item)
+            audioUseCase.toggleFavorite(item)
         }
     }
 
     private fun unfavoriteSelected() {
         viewModelScope.launch(ioContext) {
-            selectedItems.forEach { categoryUseCase.unfavorite(it) }
+            selectedItems.forEach { audioUseCase.unfavorite(it) }
             selectedItemsCount = 0
             selectedItems.clear()
         }

@@ -1,6 +1,5 @@
 package com.alexeymerov.radiostations.domain.usecase.settings.connectivity
 
-import androidx.datastore.preferences.core.intPreferencesKey
 import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import kotlinx.coroutines.flow.Flow
@@ -27,10 +26,10 @@ class ConnectivitySettingsUseCaseImpl @Inject constructor(
     }
 
     override suspend fun setConnectionStatus(status: ConnectionStatus) {
-        settingsStore.satPrefs(CONNECTION_KEY, status.value)
+        settingsStore.setIntPrefs(CONNECTION_KEY, status.value)
     }
 
     companion object {
-        val CONNECTION_KEY = intPreferencesKey("connection")
+        const val CONNECTION_KEY = "connection"
     }
 }

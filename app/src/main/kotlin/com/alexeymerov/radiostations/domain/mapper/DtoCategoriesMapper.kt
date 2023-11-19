@@ -5,6 +5,9 @@ import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 
 interface DtoCategoriesMapper {
 
-    suspend fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto>
+    fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto>
 
+    fun mapEntityToDto(entity: CategoryEntity): CategoryItemDto
+
+    fun extractLocationIfExist(originalText: String): Pair<String, String?>
 }

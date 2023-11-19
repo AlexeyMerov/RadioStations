@@ -58,7 +58,8 @@ fun StationGridItem(
 ) {
     Card(
         modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
     ) {
         Column(
             modifier = modifier
@@ -181,7 +182,7 @@ private fun SelectedIcon() {
     ) {
         Icon(
             imageVector = Icons.Rounded.Check,
-            contentDescription = "",
+            contentDescription = String.EMPTY,
             tint = MaterialTheme.colorScheme.onSecondary
         )
     }

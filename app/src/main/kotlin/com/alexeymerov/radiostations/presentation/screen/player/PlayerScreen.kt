@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.presentation.screen.player
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -9,9 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,10 +27,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.airbnb.lottie.LottieProperty
@@ -45,19 +39,23 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.R
-import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.common.CallOnLaunch
+import com.alexeymerov.radiostations.domain.dto.AudioItemDto
+import com.alexeymerov.radiostations.presentation.MainViewModel
+import com.alexeymerov.radiostations.presentation.MainViewModel.PlayerState
 import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.common.LoaderView
+import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
+import com.alexeymerov.radiostations.presentation.navigation.TopBarIcon
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
-import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.PlayerState
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewState
 import timber.log.Timber
 
 @Composable
 fun BasePlayerScreen(
-    viewModel: PlayerViewModel = hiltViewModel(),
+    viewModel: PlayerViewModel,
+    mainViewModel: MainViewModel,
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
     stationName: String,
@@ -80,14 +78,24 @@ fun BasePlayerScreen(
     }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val playState by viewModel.playerState.collectAsStateWithLifecycle()
+    val playerState by mainViewModel.playerState.collectAsStateWithLifecycle()
+    val bottomPlayerMedia by mainViewModel.currentAudioItem.collectAsStateWithLifecycle()
+
     PlayerScreen(
         viewState = viewState,
+        playerState = playerState,
         stationImgUrl = stationImgUrl,
-        rawUrl = rawUrl,
-        playState = playState,
-        onAction = { viewModel.setAction(it) }
+        onToggleAudio = { currentItem ->
+            var action: MainViewModel.ViewAction = MainViewModel.ViewAction.ToggleAudio
+            if (bottomPlayerMedia?.directUrl != currentItem.directUrl) {
+                action = MainViewModel.ViewAction.ChangeAudio(currentItem)
+            }
+
+            mainViewModel.setAction(action)
+        }
     )
+
+    CallOnLaunch { viewModel.setAction(ViewAction.LoadAudio(rawUrl)) }
 }
 
 @Composable
@@ -106,10 +114,11 @@ private fun TopBarSetup(
                 title = stationName,
                 subTitle = locationName,
                 displayBackButton = true,
-                rightIcon = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline,
-                rightIconAction = {
-                    isFavorite = !isFavorite
-                    onAction.invoke(ViewAction.ToggleFavorite(id))
+                rightIcon = RightIconItem(if (isFavorite) TopBarIcon.STAR else TopBarIcon.STAR_OUTLINE).apply {
+                    action = {
+                        isFavorite = !isFavorite
+                        onAction.invoke(ViewAction.ToggleFavorite(id))
+                    }
                 }
             )
         )
@@ -119,29 +128,25 @@ private fun TopBarSetup(
 @Composable
 private fun PlayerScreen(
     viewState: ViewState,
+    playerState: PlayerState,
     stationImgUrl: String,
-    rawUrl: String,
-    playState: PlayerState,
-    onAction: (ViewAction) -> Unit
+    onToggleAudio: (AudioItemDto) -> Unit
 ) {
     when (viewState) {
         is ViewState.Loading -> LoaderView()
         is ViewState.Error -> ErrorView()
         is ViewState.ReadyToPlay -> {
             MainContent(
-                playState = playState,
+                isPlaying = viewState.isPlaying && playerState is PlayerState.Playing,
                 imageUrl = stationImgUrl,
-                stationUrl = viewState.url,
-                onToggleAudio = { onAction.invoke(ViewAction.ToggleAudio) }
+                onToggleAudio = { onToggleAudio.invoke(viewState.item) }
             )
         }
     }
-
-    CallOnLaunch { onAction.invoke(ViewAction.LoadAudio(rawUrl)) }
 }
 
 @Composable
-private fun MainContent(playState: PlayerState, imageUrl: String, stationUrl: String, onToggleAudio: () -> Unit) {
+private fun MainContent(isPlaying: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
     val configuration = LocalConfiguration.current
     when (configuration.orientation) {
         Configuration.ORIENTATION_PORTRAIT -> {
@@ -151,7 +156,7 @@ private fun MainContent(playState: PlayerState, imageUrl: String, stationUrl: St
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 StationImage(imageUrl)
-                ControlButton(playState, onToggleAudio)
+                ControlButton(isPlaying, onToggleAudio)
             }
         }
 
@@ -162,35 +167,9 @@ private fun MainContent(playState: PlayerState, imageUrl: String, stationUrl: St
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 StationImage(imageUrl)
-                ControlButton(playState, onToggleAudio)
+                ControlButton(isPlaying, onToggleAudio)
             }
         }
-    }
-    ProcessPlayerState(playState, stationUrl)
-}
-
-@Composable
-private fun ProcessPlayerState(playState: PlayerState, stationUrl: String) {
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] audioLink $stationUrl")
-
-    val context = LocalContext.current
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(stationUrl))
-            prepare()
-            playWhenReady = true
-        }
-    }
-    CallOnDispose {
-        exoPlayer.stop()
-        exoPlayer.release()
-    }
-
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] playState ${playState.javaClass.simpleName}")
-    if (playState == PlayerState.Playing) {
-        exoPlayer.play()
-    } else {
-        exoPlayer.pause()
     }
 }
 
@@ -203,7 +182,9 @@ private fun StationImage(imageUrl: String) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         AsyncImage(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             model = ImageRequest.Builder(LocalContext.current)
                 .data(imageUrl)
                 .crossfade(500)
@@ -215,11 +196,11 @@ private fun StationImage(imageUrl: String) {
 }
 
 @Composable
-private fun ControlButton(playState: PlayerState, onToggleAudio: () -> Unit) {
+private fun ControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.playstop))
     val animationStateProgress by animateLottieCompositionAsState(
         composition = composition,
-        speed = playState.lottieSpeed,
+        speed = if (isPlaying) -2f else 2f,
         clipSpec = LottieClipSpec.Progress(max = 0.5f)
     )
     val dynamicProperties = rememberLottieDynamicProperties(

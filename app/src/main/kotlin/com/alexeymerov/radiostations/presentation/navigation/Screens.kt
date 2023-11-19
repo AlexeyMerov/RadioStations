@@ -1,9 +1,12 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavArgumentBuilder
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -35,6 +38,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavHost
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
 
         BaseCategoryScreen(
+            viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Categories.Const.ROUTE),
             topBarBlock = topBarBlock,
             defTitle = defTitle,
@@ -67,6 +71,8 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostCont
         val isFav by rememberSaveable { mutableStateOf(backStackEntry.getArgBool(Screens.Player.Const.ARG_IS_FAV)) }
 
         BasePlayerScreen(
+            viewModel = hiltViewModel(),
+            mainViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
             isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
             topBarBlock = topBarBlock,
             stationName = stationName,
@@ -87,6 +93,7 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavHostC
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
 
         BaseFavoriteScreen(
+            viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Favorites.Const.ROUTE),
             topBarBlock = topBarBlock,
             parentRoute = parentRoute,
@@ -103,6 +110,7 @@ fun NavGraphBuilder.profileScreen(navController: NavHostController, topBarBlock:
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
         BaseProfileScreen(
+            viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Profile.Const.ROUTE),
             topBarBlock = topBarBlock,
             onNavigate = { navController.navigate(it) }
@@ -118,6 +126,7 @@ fun NavGraphBuilder.settingsScreen(navController: NavHostController, topBarBlock
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
 
         BaseSettingsScreen(
+            viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Settings.Const.ROUTE),
             topBarBlock = topBarBlock
         )

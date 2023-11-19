@@ -1,6 +1,5 @@
 package com.alexeymerov.radiostations.domain.usecase.settings.favorite
 
-import androidx.datastore.preferences.core.intPreferencesKey
 import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import kotlinx.coroutines.flow.Flow
@@ -19,10 +18,10 @@ class FavoriteViewSettingsUseCaseImpl @Inject constructor(
     }
 
     override suspend fun setViewType(type: ViewType) {
-        settingsStore.satPrefs(VIEW_TYPE_KEY, type.value)
+        settingsStore.setIntPrefs(VIEW_TYPE_KEY, type.value)
     }
 
     companion object {
-        val VIEW_TYPE_KEY = intPreferencesKey("view_type")
+        const val VIEW_TYPE_KEY = "view_type"
     }
 }
