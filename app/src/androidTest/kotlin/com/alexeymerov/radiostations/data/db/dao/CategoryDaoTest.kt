@@ -28,7 +28,6 @@ class CategoryDaoTest {
     @Inject
     lateinit var database: RadioDatabase
 
-    @Named("AndroidTest")
     @Inject
     lateinit var categoryDao: CategoryDao
 
@@ -87,8 +86,9 @@ class CategoryDaoTest {
     @Test
     fun not_replace_item_in_db_if_same_URl_but_different_TEXT() = runTest {
         val parentUrl = "sameurl"
+
         val item = CategoryEntity(
-            id = String.EMPTY,
+            id = UUID.randomUUID().toString(),
             position = 0,
             url = String.EMPTY,
             parentUrl = parentUrl,
@@ -98,9 +98,9 @@ class CategoryDaoTest {
             type = EntityItemType.CATEGORY,
             childCount = null
         )
-        categoryDao.insert(item)
+        val newItem = item.copy(id = UUID.randomUUID().toString(), text = "222")
 
-        val newItem = item.copy(parentUrl = parentUrl, text = "222")
+        categoryDao.insert(item)
         categoryDao.insert(newItem)
 
         val entityList = categoryDao.getAllByParentUrl(parentUrl).first()
@@ -112,8 +112,9 @@ class CategoryDaoTest {
         val text = "text"
         val firstUrl = "one"
         val secondUrl = "two"
+
         val item = CategoryEntity(
-            id = String.EMPTY,
+            id = UUID.randomUUID().toString(),
             position = 0,
             url = String.EMPTY,
             parentUrl = firstUrl,
@@ -123,9 +124,9 @@ class CategoryDaoTest {
             type = EntityItemType.CATEGORY,
             childCount = null
         )
-        categoryDao.insert(item)
+        val newItem = item.copy(id = UUID.randomUUID().toString(), parentUrl = secondUrl)
 
-        val newItem = item.copy(parentUrl = secondUrl, text = text)
+        categoryDao.insert(item)
         categoryDao.insert(newItem)
 
         val firstList = categoryDao.getAllByParentUrl(firstUrl).first()
@@ -141,7 +142,7 @@ class CategoryDaoTest {
 
         repeat(10) {
             val item = CategoryEntity(
-                id = String.EMPTY,
+                id = UUID.randomUUID().toString(),
                 position = 0,
                 url = UUID.randomUUID().toString(),
                 parentUrl = parentUrl,
@@ -194,7 +195,7 @@ class CategoryDaoTest {
 
         for (i in 10 downTo 0) {
             val item = CategoryEntity(
-                id = String.EMPTY,
+                id = UUID.randomUUID().toString(),
                 position = i,
                 url = String.EMPTY,
                 parentUrl = parentUrl,

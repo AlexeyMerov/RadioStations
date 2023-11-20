@@ -5,6 +5,9 @@ import androidx.room.migration.AutoMigrationSpec
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.platform.app.InstrumentationRegistry
 import com.alexeymerov.radiostations.data.local.db.MIGRATION_1_2
+import com.alexeymerov.radiostations.data.local.db.MIGRATION_2_3
+import com.alexeymerov.radiostations.data.local.db.MIGRATION_3_4
+import com.alexeymerov.radiostations.data.local.db.MIGRATION_4_5
 import com.alexeymerov.radiostations.data.local.db.RadioDatabase
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
@@ -16,7 +19,7 @@ class DatabaseMigrationTest {
 
     private val TEST_DB = "migration_test"
 
-    private val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2)
+    private val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 
     @get:Rule
     val helper = MigrationTestHelper(
