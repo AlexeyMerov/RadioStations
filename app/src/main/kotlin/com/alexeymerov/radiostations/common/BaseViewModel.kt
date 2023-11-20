@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -12,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.concurrent.CancellationException
 
 interface BaseViewAction
 interface BaseViewEffect
@@ -29,6 +32,8 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
 
     private val _viewEffect = Channel<E>(Channel.CONFLATED)
     val viewEffect = _viewEffect.receiveAsFlow()
+
+    private var setStateJob: Job? = null
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Timber.e(throwable)
@@ -48,11 +53,16 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
         _viewAction.emit(viewModelScope, action)
     }
 
-    protected fun setState(state: S, expected: S? = null) {
-        if (expected != null) {
-            _viewState.compareAndSet(expected, state)
-        } else {
-            _viewState.value = state
+    protected fun setState(state: S, expected: S? = null, delay: Long? = null) {
+        setStateJob?.cancel(CancellationException("New state is coming"))
+        setStateJob = viewModelScope.launch {
+            if (delay != null) delay(delay)
+
+            if (expected != null) {
+                _viewState.compareAndSet(expected, state)
+            } else {
+                _viewState.value = state
+            }
         }
     }
 

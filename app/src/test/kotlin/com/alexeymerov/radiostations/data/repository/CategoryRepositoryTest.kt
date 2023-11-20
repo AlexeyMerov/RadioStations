@@ -1,11 +1,11 @@
 package com.alexeymerov.radiostations.data.repository
 
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
-import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
+import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
+import com.alexeymerov.radiostations.data.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.data.remote.response.CategoryBody
 import com.alexeymerov.radiostations.data.remote.response.MainBody
-import com.alexeymerov.radiostations.data.remote.response.MediaBody
 import com.alexeymerov.radiostations.data.repository.category.CategoryRepository
 import com.alexeymerov.radiostations.data.repository.category.CategoryRepositoryImpl
 import io.mockk.coEvery
@@ -38,13 +38,16 @@ class CategoryRepositoryTest {
     lateinit var categoryDao: CategoryDao
 
     @MockK
-    lateinit var categoryMapper: EntityCategoryMapper
+    lateinit var categoryMapper: CategoryMapper
+
+    @MockK
+    lateinit var responseMapper: ResponseMapper
 
     private lateinit var repository: CategoryRepository
 
     @Before
     fun setup() {
-        repository = spyk(CategoryRepositoryImpl(client, categoryDao, categoryMapper))
+        repository = spyk(CategoryRepositoryImpl(client, categoryDao, responseMapper, categoryMapper))
     }
 
     @Test
@@ -65,7 +68,7 @@ class CategoryRepositoryTest {
     fun `load categories by url`() = runTest {
         val responseMock = mockk<Response<MainBody<CategoryBody>>>()
         coEvery { client.requestCategoriesByUrl(any()) } returns responseMock
-        every { repository["mapResponseBody"](responseMock) } returns emptyList<CategoryBody>()
+        every { responseMapper.mapResponseBody(responseMock) } returns emptyList<CategoryBody>()
         coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
         coJustRun { categoryDao.insertAll(any()) }
 
@@ -80,41 +83,5 @@ class CategoryRepositoryTest {
 
         confirmVerified(repository, client, categoryMapper, categoryDao)
     }
-
-    @Test
-    fun `load audio by url failed`() = runTest {
-        val responseMock = mockk<Response<MainBody<MediaBody>>>()
-        coEvery { client.requestAudioByUrl(any()) } returns responseMock
-        every { repository["mapResponseBody"](responseMock) } returns emptyList<MediaBody>()
-
-        val audioByUrl = repository.getAudioByUrl("")
-        assert(audioByUrl == null)
-
-        coVerifyOrder {
-            repository.getAudioByUrl(any())
-            client.requestAudioByUrl(any())
-        }
-
-        confirmVerified(repository, client)
-    }
-
-    @Test
-    fun `load audio by url success`() = runTest {
-        val mediaBody = mockk<MediaBody>()
-        val responseMock = mockk<Response<MainBody<MediaBody>>>()
-        coEvery { client.requestAudioByUrl(any()) } returns responseMock
-        every { repository["mapResponseBody"](responseMock) } returns listOf(mediaBody)
-
-        val audioByUrl = repository.getAudioByUrl("")
-        assert(audioByUrl != null)
-
-        coVerifyOrder {
-            repository.getAudioByUrl(any())
-            client.requestAudioByUrl(any())
-        }
-
-        confirmVerified(repository, client)
-    }
-
 
 }

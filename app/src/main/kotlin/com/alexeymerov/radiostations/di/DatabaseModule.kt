@@ -4,8 +4,10 @@ import android.content.Context
 import com.alexeymerov.radiostations.data.local.db.RadioDatabase
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.local.db.dao.MediaDao
-import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapper
-import com.alexeymerov.radiostations.data.mapper.EntityCategoryMapperImpl
+import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
+import com.alexeymerov.radiostations.data.mapper.category.CategoryMapperImpl
+import com.alexeymerov.radiostations.data.mapper.media.MediaMapper
+import com.alexeymerov.radiostations.data.mapper.media.MediaMapperImp
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -36,7 +38,11 @@ class DatabaseModule {
 
         @Binds
         @Singleton
-        abstract fun bindCategoryMapper(repository: EntityCategoryMapperImpl): EntityCategoryMapper
+        abstract fun bindCategoryMapper(mapper: CategoryMapperImpl): CategoryMapper
+
+        @Binds
+        @Singleton
+        abstract fun bindMediaMapper(mapper: MediaMapperImp): MediaMapper
     }
 
 }

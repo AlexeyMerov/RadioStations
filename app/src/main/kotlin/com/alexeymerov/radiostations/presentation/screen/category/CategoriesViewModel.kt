@@ -134,6 +134,14 @@ class CategoriesViewModel @Inject constructor(
                     setState(ViewState.NothingAvailable)
                 }
 
+                categoryDto.items.isEmpty() -> {
+                    if (viewState.value != ViewState.Loading) {
+                        setState(ViewState.NothingAvailable)
+                    } else {
+                        setState(ViewState.NothingAvailable, delay = 3000)
+                    }
+                }
+
                 else -> {
                     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${categoryDto.items.size}")
                     setState(ViewState.CategoriesLoaded(headerFlow.value))

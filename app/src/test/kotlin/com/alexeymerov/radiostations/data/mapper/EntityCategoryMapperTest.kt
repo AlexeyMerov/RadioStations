@@ -2,6 +2,7 @@ package com.alexeymerov.radiostations.data.mapper
 
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.data.local.db.entity.EntityItemType
+import com.alexeymerov.radiostations.data.mapper.category.CategoryMapperImpl
 import com.alexeymerov.radiostations.data.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.data.remote.response.CategoryBody
 import kotlinx.coroutines.test.runTest
@@ -13,7 +14,7 @@ import kotlin.random.Random
 @RunWith(JUnit4::class)
 class EntityCategoryMapperTest {
 
-    private val categoryMapper = EntityCategoryMapperImpl()
+    private val categoryMapper = CategoryMapperImpl()
 
     @Test
     fun `map empty category list`() = runTest {
