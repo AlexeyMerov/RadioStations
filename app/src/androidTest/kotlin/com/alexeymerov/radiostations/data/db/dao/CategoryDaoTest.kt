@@ -47,6 +47,7 @@ class CategoryDaoTest {
     fun insert_category_in_db() = runTest {
         val parentUrl = "someurl"
         val item = CategoryEntity(
+            id = String.EMPTY,
             position = 0,
             url = String.EMPTY,
             parentUrl = parentUrl,
@@ -65,6 +66,7 @@ class CategoryDaoTest {
     fun replace_item_in_db_if_same_URl_and_TEXT() = runTest {
         val parentUrl = "uniqueUrl"
         val item = CategoryEntity(
+            id = String.EMPTY,
             position = 0,
             url = String.EMPTY,
             parentUrl = parentUrl,
@@ -86,6 +88,7 @@ class CategoryDaoTest {
     fun not_replace_item_in_db_if_same_URl_but_different_TEXT() = runTest {
         val parentUrl = "sameurl"
         val item = CategoryEntity(
+            id = String.EMPTY,
             position = 0,
             url = String.EMPTY,
             parentUrl = parentUrl,
@@ -110,6 +113,7 @@ class CategoryDaoTest {
         val firstUrl = "one"
         val secondUrl = "two"
         val item = CategoryEntity(
+            id = String.EMPTY,
             position = 0,
             url = String.EMPTY,
             parentUrl = firstUrl,
@@ -137,6 +141,7 @@ class CategoryDaoTest {
 
         repeat(10) {
             val item = CategoryEntity(
+                id = String.EMPTY,
                 position = 0,
                 url = UUID.randomUUID().toString(),
                 parentUrl = parentUrl,
@@ -163,6 +168,7 @@ class CategoryDaoTest {
 
         repeat(10) {
             val item = CategoryEntity(
+                id = String.EMPTY,
                 position = 0,
                 url = UUID.randomUUID().toString(),
                 parentUrl = parentUrl,
@@ -188,6 +194,7 @@ class CategoryDaoTest {
 
         for (i in 10 downTo 0) {
             val item = CategoryEntity(
+                id = String.EMPTY,
                 position = i,
                 url = String.EMPTY,
                 parentUrl = parentUrl,

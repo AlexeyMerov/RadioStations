@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.data.mapper
+package com.alexeymerov.radiostations.data.mapper.category
 
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.common.httpsEverywhere
@@ -9,7 +9,7 @@ import com.alexeymerov.radiostations.data.remote.response.CategoryBody
 import timber.log.Timber
 import javax.inject.Inject
 
-class EntityCategoryMapperImpl @Inject constructor() : EntityCategoryMapper {
+class CategoryMapperImpl @Inject constructor() : CategoryMapper {
 
     private val invalidChildCountStringRegex = " \\(\\d+\\)".toRegex()
 

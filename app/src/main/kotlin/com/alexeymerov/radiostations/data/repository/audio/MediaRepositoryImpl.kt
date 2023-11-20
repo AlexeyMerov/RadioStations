@@ -1,20 +1,21 @@
 package com.alexeymerov.radiostations.data.repository.audio
 
-import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.common.toInt
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.local.db.dao.MediaDao
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
+import com.alexeymerov.radiostations.data.mapper.media.MediaMapper
+import com.alexeymerov.radiostations.data.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
-import com.alexeymerov.radiostations.data.repository.mapResponseBody
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class MediaRepositoryImpl @Inject constructor(
     private val radioClient: RadioClient,
     private val categoryDao: CategoryDao, // one day i'll separate db, but not today
+    private val responseMapper: ResponseMapper,
+    private val mediaMapper: MediaMapper,
     private val mediaDao: MediaDao
 ) : MediaRepository {
 
@@ -23,16 +24,10 @@ class MediaRepositoryImpl @Inject constructor(
     override suspend fun getMediaByUrl(url: String): MediaEntity? {
         val item = categoryDao.getByUrl(url)
         val audioBodyResponse = radioClient.requestAudioByUrl(url)
-        val audioBodyList = mapResponseBody(audioBodyResponse)
+        val audioBodyList = responseMapper.mapResponseBody(audioBodyResponse)
         val mediaBody = audioBodyList.getOrNull(0)
         if (mediaBody != null) {
-            return MediaEntity( //too tired for mapper today
-                url = url,
-                directMediaUrl = mediaBody.url.httpsEverywhere(),
-                imageUrl = item.image,
-                title = item.text,
-                subtitle = String.EMPTY
-            )
+            return mediaMapper.mapToEntity(item, mediaBody)
         }
 
         return null
