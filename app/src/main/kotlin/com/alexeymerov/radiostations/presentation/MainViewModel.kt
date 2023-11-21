@@ -7,18 +7,17 @@ import com.alexeymerov.radiostations.common.BaseViewModel
 import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,30 +37,17 @@ class MainViewModel @Inject constructor(
             initialValue = ViewState.Loading
         )
 
-    private val _playerState = MutableStateFlow<PlayerState>(PlayerState.Empty)
-    val playerState = _playerState.asStateFlow()
-
-    // in case service is playing on clean start
-    fun getPlayerState(isPlaying: Boolean = false): StateFlow<PlayerState> {
-        Timber.d("getPlayerState ${_playerState.value}")
-        if (isPlaying && _playerState.value !is PlayerState.Playing) {
-            _playerState.value = PlayerState.Playing
-        }
-        return _playerState.asStateFlow()
-    }
-
-    val currentAudioItem: StateFlow<AudioItemDto?> = audioUseCase.getLastPlayingMediaItem()
-        .onEach {
-            Timber.d("currentMediaItem $it")
-            if (it == null) {
-                _playerState.value = PlayerState.Empty
-            } else if (_playerState.value is PlayerState.Empty) {
-                _playerState.value = PlayerState.Stopped
-            }
-        }
+    val playerState: StateFlow<PlayerState> = audioUseCase.getPlayerState()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Lazily,
+            started = SharingStarted.Eagerly,
+            initialValue = PlayerState.Empty
+        )
+
+    val currentAudioItem: StateFlow<AudioItemDto?> = audioUseCase.getLastPlayingMediaItem()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
             initialValue = null
         )
 
@@ -71,16 +57,10 @@ class MainViewModel @Inject constructor(
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${action.javaClass.simpleName}")
 
         viewModelScope.launch(ioContext) {
-            _playerState.value = when (action) {
-                is ViewAction.PlayAudio -> PlayerState.Playing
-                is ViewAction.StopAudio -> PlayerState.Stopped
-                is ViewAction.ToggleAudio -> {
-                    when (_playerState.value) {
-                        is PlayerState.Stopped -> PlayerState.Playing
-                        else -> PlayerState.Stopped
-                    }
-                }
-
+            when (action) {
+                is ViewAction.PlayAudio -> audioUseCase.updatePlayerState(PlayerState.Playing)
+                is ViewAction.StopAudio -> audioUseCase.updatePlayerState(PlayerState.Stopped)
+                is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
                 is ViewAction.ChangeAudio -> {
                     val newMediaUrl = action.mediaItem
                     Timber.d("new url $newMediaUrl")
@@ -89,11 +69,13 @@ class MainViewModel @Inject constructor(
                         audioUseCase.setLastPlayingMediaItem(newMediaUrl)
                     }
 
-                    when (newMediaUrl) {
-                        null -> PlayerState.Empty
-                        else -> PlayerState.Playing
-                    }
+                    // temp workaround since we handling isPlaying in service and it works slower then the bottom line.
+                    // Should be fixed with Buffering state implementation
+                    delay(500)
+                    audioUseCase.updatePlayerState(PlayerState.Playing)
                 }
+
+                ViewAction.NukePlayer -> audioUseCase.updatePlayerState(PlayerState.Empty)
             }
         }
     }
@@ -104,20 +86,15 @@ class MainViewModel @Inject constructor(
     }
 
     sealed interface ViewAction : BaseViewAction {
-        data class ChangeAudio(val mediaItem: AudioItemDto?) : ViewAction
+        data class ChangeAudio(val mediaItem: AudioItemDto) : ViewAction
         data object ToggleAudio : ViewAction
         data object PlayAudio : ViewAction
         data object StopAudio : ViewAction
+        data object NukePlayer : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
         class ShowToast(val text: String) : ViewEffect //errors or anything
-    }
-
-    sealed interface PlayerState {
-        data object Empty : PlayerState
-        data object Playing : PlayerState
-        data object Stopped : PlayerState
     }
 
 }

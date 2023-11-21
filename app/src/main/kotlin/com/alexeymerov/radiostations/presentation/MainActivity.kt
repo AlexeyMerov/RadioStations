@@ -1,7 +1,6 @@
 package com.alexeymerov.radiostations.presentation
 
 import android.content.ComponentName
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,20 +13,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
-import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.common.collectWhenStarted
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
+import com.alexeymerov.radiostations.presentation.common.mapToMediaItem
 import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.filterNotNull
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -73,8 +72,6 @@ class MainActivity : ComponentActivity() {
         setupPlayer()
     }
 
-    // todo remove hidden media notification under control buttons. currently resume playback will work only from usual notification
-    // todo add buffering state
     private fun setupPlayer() {
         val sessionToken = SessionToken(this, ComponentName(this, PlayerService::class.java))
         controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
@@ -82,16 +79,11 @@ class MainActivity : ComponentActivity() {
             val listener: () -> Unit = {
                 mediaController = future.get()
                 mediaController?.let { controller ->
-                    controller.onIsPlaying { isPlaying ->
-                        val action = if (isPlaying) MainViewModel.ViewAction.PlayAudio else MainViewModel.ViewAction.StopAudio
-                        viewModel.setAction(action)
-                    }
-
-                    viewModel.currentAudioItem.collectWhenStarted(this) { item ->
+                    viewModel.currentAudioItem.filterNotNull().collectWhenStarted(this) { item ->
                         processCurrentAudioItem(item, controller)
                     }
 
-                    viewModel.getPlayerState(controller.isPlaying).collectWhenStarted(this) {
+                    viewModel.playerState.collectWhenStarted(this) {
                         processPlayerState(it, controller)
                     }
                 }
@@ -101,51 +93,33 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun MediaController.onIsPlaying(action: (Boolean) -> Unit) {
-        addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                super.onIsPlayingChanged(isPlaying)
-                action.invoke(isPlaying)
-            }
-        })
-    }
-
-    private fun processCurrentAudioItem(item: AudioItemDto?, controller: MediaController) {
+    private fun processCurrentAudioItem(item: AudioItemDto, controller: MediaController) {
         Timber.d("activity currentMediaItem $item")
 
-        if (item != null && item.directUrl != controller.currentMediaItem?.mediaId) {
-            val mediaMetadata = MediaMetadata.Builder()
-                .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION)
-                .setTitle(item.title)
-                .setArtist(item.subTitle)
-                .setArtworkUri(Uri.parse(item.image))
-                .build()
-
-            val mediaItem = MediaItem.Builder()
-                .setMediaId(item.directUrl)
-                .setUri(item.directUrl)
-                .setMediaMetadata(mediaMetadata)
-                .build()
-
-            controller.setMediaItem(mediaItem)
+        if (item.directUrl != controller.currentMediaItem?.mediaId) {
+            controller.setMediaItem(mapToMediaItem(item))
             controller.prepare()
         }
     }
 
-    private fun processPlayerState(it: MainViewModel.PlayerState, controller: MediaController) {
+    private fun processPlayerState(it: PlayerState, controller: MediaController) {
+        Timber.d("activity playerState $it")
         when (it) {
-            is MainViewModel.PlayerState.Empty -> {
+            is PlayerState.Empty -> {
                 controller.stop()
                 controller.clearMediaItems()
             }
 
-            is MainViewModel.PlayerState.Playing -> {
+            is PlayerState.Playing -> {
                 if (!controller.isPlaying) {
                     controller.playWhenReady = true
                 }
             }
 
-            is MainViewModel.PlayerState.Stopped -> controller.pause()
+            is PlayerState.Stopped -> controller.pause()
+            is PlayerState.Buffering -> {
+                // nothing at the moment but todo
+            }
         }
     }
 

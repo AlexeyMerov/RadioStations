@@ -202,27 +202,27 @@ private fun DarkThemeOptions(
     )
 
     BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.System,
+        isSelected = darkLightMode == DarkLightMode.SYSTEM,
         text = stringResource(R.string.system),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.System)) }
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.SYSTEM)) }
     )
 
     BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.Light,
+        isSelected = darkLightMode == DarkLightMode.LIGHT,
         text = stringResource(R.string.light),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.Light)) }
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.LIGHT)) }
     )
 
     BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.Dark,
+        isSelected = darkLightMode == DarkLightMode.DARK,
         text = stringResource(R.string.dark),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.Dark)) }
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.DARK)) }
     )
 
     BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.Night,
+        isSelected = darkLightMode == DarkLightMode.NIGHT,
         text = stringResource(R.string.night),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.Night)) }
+        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.NIGHT)) }
     )
 }
 
@@ -264,21 +264,21 @@ private fun ColorOptions(
     )
 
     BasicRadioButton(
-        isSelected = colorTheme == ColorTheme.DefaultBlue,
+        isSelected = colorTheme == ColorTheme.DEFAULT_BLUE,
         text = stringResource(R.string.default_blue),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.DefaultBlue)) }
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.DEFAULT_BLUE)) }
     )
 
     BasicRadioButton(
-        isSelected = colorTheme == ColorTheme.Green,
+        isSelected = colorTheme == ColorTheme.GREEN,
         text = stringResource(R.string.green),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.Green)) }
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.GREEN)) }
     )
 
     BasicRadioButton(
-        isSelected = colorTheme == ColorTheme.Orange,
+        isSelected = colorTheme == ColorTheme.ORANGE,
         text = stringResource(R.string.orange),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.Orange)) }
+        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.ORANGE)) }
     )
 }
 

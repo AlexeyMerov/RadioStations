@@ -81,6 +81,7 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.*
 import com.alexeymerov.radiostations.presentation.MainViewModel
 import com.alexeymerov.radiostations.presentation.common.BasicText
 import com.alexeymerov.radiostations.presentation.common.DropDownRow
@@ -90,7 +91,7 @@ import kotlinx.parcelize.Parcelize
 
 @Composable
 fun MainNavGraph(
-    playerState: MainViewModel.PlayerState,
+    playerState: PlayerState,
     playerTitle: String,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
@@ -231,7 +232,7 @@ private fun RowScope.TopBarActions(
 @Composable
 private fun CreateBottomBar(
     navController: NavHostController,
-    playerState: MainViewModel.PlayerState,
+    playerState: PlayerState,
     playerTitle: String,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
@@ -255,7 +256,7 @@ private fun CreateBottomBar(
 
 @Composable
 private fun BottomPlayer(
-    playerState: MainViewModel.PlayerState,
+    playerState: PlayerState,
     playerTitle: String,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
@@ -266,7 +267,7 @@ private fun BottomPlayer(
             .background(MaterialTheme.colorScheme.secondary),
 
         ) {
-        val isVisible = playerState !is MainViewModel.PlayerState.Empty
+        val isVisible = playerState !is PlayerState.Empty
         AnimatedVisibility(visible = isVisible) {
             Row(
                 Modifier
@@ -275,7 +276,7 @@ private fun BottomPlayer(
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val isPlaying = playerState is MainViewModel.PlayerState.Playing
+                val isPlaying = playerState is PlayerState.Playing
 
                 PlayingWaves(isPlaying)
 
@@ -294,7 +295,7 @@ private fun BottomPlayer(
 
                 IconButton(
                     modifier = Modifier.padding(start = 4.dp),
-                    onClick = { onPlayerAction.invoke(MainViewModel.ViewAction.ChangeAudio(null)) }
+                    onClick = { onPlayerAction.invoke(MainViewModel.ViewAction.NukePlayer) }
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,

@@ -14,12 +14,12 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
 
     override fun getThemeState(): Flow<ThemeState> {
         return combine(
-            flow = settingsStore.getIntPrefsFlow(DARK_THEME_KEY, defValue = 0),
+            flow = settingsStore.getIntPrefsFlow(DARK_THEME_KEY, defValue = DarkLightMode.SYSTEM.value),
             flow2 = settingsStore.getBoolPrefsFlow(DYNAMIC_COLOR_KEY, defValue = true),
             flow3 = settingsStore.getIntPrefsFlow(COLOR_KEY, defValue = 0)
         ) { darkLightId, dynamicColorValue, colorThemeId ->
-            val darkLightMode = DarkLightMode.values().first { it.id == darkLightId }
-            val colorTheme = ColorTheme.values().first { it.id == colorThemeId }
+            val darkLightMode = DarkLightMode.values().first { it.value == darkLightId }
+            val colorTheme = ColorTheme.values().first { it.value == colorThemeId }
             ThemeState(
                 darkLightMode = darkLightMode,
                 useDynamicColor = dynamicColorValue,
@@ -29,9 +29,9 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
     }
 
     override suspend fun updateThemeState(state: ThemeState) {
-        settingsStore.setIntPrefs(DARK_THEME_KEY, state.darkLightMode.id)
+        settingsStore.setIntPrefs(DARK_THEME_KEY, state.darkLightMode.value)
         settingsStore.setBoolPrefs(DYNAMIC_COLOR_KEY, state.useDynamicColor)
-        settingsStore.setIntPrefs(COLOR_KEY, state.colorTheme.id)
+        settingsStore.setIntPrefs(COLOR_KEY, state.colorTheme.value)
     }
 
 

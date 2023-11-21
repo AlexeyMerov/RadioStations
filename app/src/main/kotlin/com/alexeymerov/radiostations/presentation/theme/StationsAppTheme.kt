@@ -34,9 +34,9 @@ fun StationsAppTheme(
     val systemUiController = rememberSystemUiController()
 
     val useDarkTheme = when (themeState.darkLightMode) {
-        DarkLightMode.System -> isSystemInDarkTheme()
-        DarkLightMode.Light -> false
-        DarkLightMode.Dark, DarkLightMode.Night -> true
+        DarkLightMode.SYSTEM -> isSystemInDarkTheme()
+        DarkLightMode.LIGHT -> false
+        DarkLightMode.DARK, DarkLightMode.NIGHT -> true
     }
 
     val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S // 31
@@ -46,13 +46,13 @@ fun StationsAppTheme(
         isS && themeState.useDynamicColor && useDarkTheme -> dynamicDarkColorScheme(context)
         isS && themeState.useDynamicColor -> dynamicLightColorScheme(context)
         else -> when (themeState.colorTheme) {
-            ColorTheme.Green -> getGreenColorScheme(useDarkTheme)
-            ColorTheme.Orange -> getOrangeColorScheme(useDarkTheme)
-            ColorTheme.DefaultBlue -> getBlueColorScheme(useDarkTheme)
+            ColorTheme.GREEN -> getGreenColorScheme(useDarkTheme)
+            ColorTheme.ORANGE -> getOrangeColorScheme(useDarkTheme)
+            ColorTheme.DEFAULT_BLUE -> getBlueColorScheme(useDarkTheme)
         }
     }
 
-    if (themeState.darkLightMode == DarkLightMode.Night) {
+    if (themeState.darkLightMode == DarkLightMode.NIGHT) {
         colors = colors.copy(
             surface = Color.Black,
             background = Color.Black,

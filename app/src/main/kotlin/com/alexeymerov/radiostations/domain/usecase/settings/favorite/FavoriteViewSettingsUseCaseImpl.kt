@@ -11,7 +11,7 @@ class FavoriteViewSettingsUseCaseImpl @Inject constructor(
 ) : FavoriteViewSettingsUseCase {
 
     override fun getViewType(): Flow<ViewType> {
-        return settingsStore.getIntPrefsFlow(VIEW_TYPE_KEY, defValue = 0)
+        return settingsStore.getIntPrefsFlow(VIEW_TYPE_KEY, defValue = ViewType.LIST.value)
             .map { prefValue ->
                 ViewType.values().first { it.value == prefValue }
             }

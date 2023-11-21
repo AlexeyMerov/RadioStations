@@ -11,7 +11,7 @@ interface AudioUseCase {
 
     fun getLastPlayingMediaItem(): Flow<AudioItemDto?>
 
-    suspend fun setLastPlayingMediaItem(item: AudioItemDto?)
+    suspend fun setLastPlayingMediaItem(item: AudioItemDto)
 
     suspend fun getByUrl(url: String): CategoryItemDto
 
@@ -22,5 +22,18 @@ interface AudioUseCase {
     suspend fun toggleFavorite(id: String)
 
     suspend fun unfavorite(item: CategoryItemDto)
+
+    fun getPlayerState(): Flow<PlayerState>
+
+    suspend fun updatePlayerState(state: PlayerState)
+
+    suspend fun togglePlayerPlayStop()
+
+    sealed class PlayerState(val value: Int) {
+        data object Empty : PlayerState(0)
+        data object Playing : PlayerState(1)
+        data object Stopped : PlayerState(2)
+        data object Buffering : PlayerState(3)
+    }
 
 }
