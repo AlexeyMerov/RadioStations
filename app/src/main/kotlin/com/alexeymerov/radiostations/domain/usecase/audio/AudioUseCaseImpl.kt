@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.domain.usecase.audio
 
 import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
 import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
 import com.alexeymerov.radiostations.data.repository.audio.MediaRepository
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
@@ -9,12 +10,15 @@ import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 class AudioUseCaseImpl @Inject constructor(
     private val mediaRepository: MediaRepository,
-    private val dtoCategoriesMapper: DtoCategoriesMapper
+    private val dtoCategoriesMapper: DtoCategoriesMapper,
+    private val settingsStore: SettingsStore
 ) : AudioUseCase {
 
     override suspend fun getByUrl(url: String): CategoryItemDto {
@@ -81,18 +85,39 @@ class AudioUseCaseImpl @Inject constructor(
             }
     }
 
-    override suspend fun setLastPlayingMediaItem(item: AudioItemDto?) {
-        val body = if (item == null) null else {
-            MediaEntity(
-                url = item.parentUrl,
-                directMediaUrl = item.directUrl,
-                imageUrl = item.image,
-                title = item.title,
-                subtitle = item.subTitle
-            )
-        }
+    override suspend fun setLastPlayingMediaItem(item: AudioItemDto) {
+        val mediaEntity = MediaEntity(
+            url = item.parentUrl,
+            directMediaUrl = item.directUrl,
+            imageUrl = item.image,
+            title = item.title,
+            subtitle = item.subTitle
+        )
 
-        mediaRepository.setLastPlayingMediaItem(body)
+        mediaRepository.setLastPlayingMediaItem(mediaEntity)
+    }
+
+    override fun getPlayerState(): Flow<AudioUseCase.PlayerState> {
+        val nestedClasses = AudioUseCase.PlayerState::class.nestedClasses
+        return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = AudioUseCase.PlayerState.Empty.value)
+            .map { prefValue ->
+                return@map nestedClasses
+                    .map { it.objectInstance as AudioUseCase.PlayerState }
+                    .first { it.value == prefValue }
+            }
+    }
+
+    override suspend fun updatePlayerState(state: AudioUseCase.PlayerState) {
+        Timber.d("updatePlayerState $state")
+        settingsStore.setIntPrefs(PLAYER_STATE_KEY, state.value)
+    }
+
+    override suspend fun togglePlayerPlayStop() {
+        val newState = when (getPlayerState().first()) {
+            is AudioUseCase.PlayerState.Stopped -> AudioUseCase.PlayerState.Playing
+            else -> AudioUseCase.PlayerState.Stopped
+        }
+        updatePlayerState(newState)
     }
 
     companion object {
@@ -101,5 +126,7 @@ class AudioUseCaseImpl @Inject constructor(
          * so we just checking with hardcoded strings
          * */
         private const val ERROR = "No stations or shows available"
+
+        private const val PLAYER_STATE_KEY = "player_state"
     }
 }

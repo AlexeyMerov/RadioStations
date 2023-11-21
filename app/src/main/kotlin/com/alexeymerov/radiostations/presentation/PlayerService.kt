@@ -1,16 +1,14 @@
 package com.alexeymerov.radiostations.presentation
 
 import android.content.Intent
-import android.net.Uri
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
-import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.presentation.common.mapToMediaItem
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.asListenableFuture
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -60,6 +59,17 @@ class PlayerService : MediaLibraryService() {
     override fun onCreate() {
         super.onCreate()
         val player = ExoPlayer.Builder(this).build()
+
+        player.onIsPlaying { isPlaying ->
+            ioScope.launch {
+                if (isPlaying) {
+                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.Playing)
+                } else {
+                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.Stopped)
+                }
+            }
+        }
+
         mediaLibrarySession = MediaLibrarySession.Builder(this, player, callback).build()
     }
 
@@ -82,18 +92,12 @@ class PlayerService : MediaLibraryService() {
         super.onDestroy()
     }
 
-    private fun mapToMediaItem(item: AudioItemDto): MediaItem {
-        val mediaMetadata = MediaMetadata.Builder()
-            .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION)
-            .setArtist(item.title)
-            .setTitle(item.subTitle)
-            .setArtworkUri(Uri.parse(item.image))
-            .build()
-
-        return MediaItem.Builder()
-            .setMediaId(item.directUrl)
-            .setUri(item.directUrl)
-            .setMediaMetadata(mediaMetadata)
-            .build()
+    private fun Player.onIsPlaying(action: (Boolean) -> Unit) {
+        addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                action.invoke(isPlaying)
+            }
+        })
     }
 }

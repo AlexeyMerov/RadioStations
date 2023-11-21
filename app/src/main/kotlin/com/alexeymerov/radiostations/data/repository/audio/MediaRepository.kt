@@ -18,6 +18,6 @@ interface MediaRepository {
 
     fun getLastPlayingMediaItem(): Flow<MediaEntity?>
 
-    suspend fun setLastPlayingMediaItem(item: MediaEntity?)
+    suspend fun setLastPlayingMediaItem(item: MediaEntity)
 
 }

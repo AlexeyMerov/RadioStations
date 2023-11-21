@@ -13,7 +13,7 @@ class ConnectivitySettingsUseCaseImpl @Inject constructor(
 
     override fun getConnectionStatusFlow(): Flow<ConnectionStatus> {
         return settingsStore
-            .getIntPrefsFlow(CONNECTION_KEY, defValue = 0)
+            .getIntPrefsFlow(CONNECTION_KEY, defValue = ConnectionStatus.ONLINE.value)
             .map { prefValue -> ConnectionStatus.values().first { it.value == prefValue } }
     }
 

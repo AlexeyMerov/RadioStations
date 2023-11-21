@@ -42,7 +42,6 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.presentation.MainViewModel
-import com.alexeymerov.radiostations.presentation.MainViewModel.PlayerState
 import com.alexeymerov.radiostations.presentation.common.ErrorView
 import com.alexeymerov.radiostations.presentation.common.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
@@ -78,12 +77,10 @@ fun BasePlayerScreen(
     }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val playerState by mainViewModel.playerState.collectAsStateWithLifecycle()
     val bottomPlayerMedia by mainViewModel.currentAudioItem.collectAsStateWithLifecycle()
 
     PlayerScreen(
         viewState = viewState,
-        playerState = playerState,
         stationImgUrl = stationImgUrl,
         onToggleAudio = { currentItem ->
             var action: MainViewModel.ViewAction = MainViewModel.ViewAction.ToggleAudio
@@ -128,7 +125,6 @@ private fun TopBarSetup(
 @Composable
 private fun PlayerScreen(
     viewState: ViewState,
-    playerState: PlayerState,
     stationImgUrl: String,
     onToggleAudio: (AudioItemDto) -> Unit
 ) {
@@ -137,7 +133,7 @@ private fun PlayerScreen(
         is ViewState.Error -> ErrorView()
         is ViewState.ReadyToPlay -> {
             MainContent(
-                isPlaying = viewState.isPlaying && playerState is PlayerState.Playing,
+                isPlaying = viewState.isPlaying,
                 imageUrl = stationImgUrl,
                 onToggleAudio = { onToggleAudio.invoke(viewState.item) }
             )

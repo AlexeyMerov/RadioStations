@@ -9,6 +9,7 @@ import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -34,10 +35,17 @@ class PlayerViewModel @Inject constructor(
                 audioUseCase.getMediaItem(originalUrl)?.let { currentItem ->
                     Timber.d("loadAudioLink $currentItem")
 
-                    audioUseCase.getLastPlayingMediaItem().collectLatest { lastPlayingMediaItem ->
-                        val isPlaying = lastPlayingMediaItem?.parentUrl == originalUrl
-                        setState(ViewState.ReadyToPlay(currentItem, isPlaying))
+                    // kinda ugly
+                    combine(
+                        flow = audioUseCase.getLastPlayingMediaItem(),
+                        flow2 = audioUseCase.getPlayerState()
+                    ) { item, state ->
+                        item?.parentUrl == originalUrl && state == AudioUseCase.PlayerState.Playing
                     }
+                        .collectLatest { isPlaying ->
+                            setState(ViewState.ReadyToPlay(currentItem, isPlaying))
+                        }
+
                 } ?: setState(ViewState.Error)
             }
         }

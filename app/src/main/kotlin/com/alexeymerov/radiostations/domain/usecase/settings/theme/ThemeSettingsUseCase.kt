@@ -9,16 +9,16 @@ interface ThemeSettingsUseCase {
     suspend fun updateThemeState(state: ThemeState)
 
     data class ThemeState(
-        val darkLightMode: DarkLightMode = DarkLightMode.System,
+        val darkLightMode: DarkLightMode = DarkLightMode.SYSTEM,
         val useDynamicColor: Boolean = true,
-        val colorTheme: ColorTheme = ColorTheme.DefaultBlue
+        val colorTheme: ColorTheme = ColorTheme.DEFAULT_BLUE
     )
 
-    enum class DarkLightMode(val id: Int) {
-        System(0), Light(1), Dark(2), Night(3)
+    enum class DarkLightMode(val value: Int) {
+        SYSTEM(0), LIGHT(1), DARK(2), NIGHT(3)
     }
 
-    enum class ColorTheme(val id: Int) {
-        DefaultBlue(0), Green(1), Orange(2)
+    enum class ColorTheme(val value: Int) {
+        DEFAULT_BLUE(0), GREEN(1), ORANGE(2)
     }
 }
