@@ -170,7 +170,7 @@ private fun MainContent(
     val isList by rememberSaveable(viewType) { mutableStateOf(viewType == ViewType.LIST) }
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Fixed(viewType.value),
+        columns = GridCells.Fixed(viewType.columnCount),
         contentPadding = PaddingValues(horizontal = if (isList) 0.dp else 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)

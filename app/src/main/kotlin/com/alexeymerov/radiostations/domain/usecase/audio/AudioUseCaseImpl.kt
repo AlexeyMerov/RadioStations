@@ -98,12 +98,11 @@ class AudioUseCaseImpl @Inject constructor(
     }
 
     override fun getPlayerState(): Flow<AudioUseCase.PlayerState> {
-        val nestedClasses = AudioUseCase.PlayerState::class.nestedClasses
-        return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = AudioUseCase.PlayerState.Empty.value)
+        return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = AudioUseCase.PlayerState.EMPTY.value)
             .map { prefValue ->
-                return@map nestedClasses
-                    .map { it.objectInstance as AudioUseCase.PlayerState }
-                    .first { it.value == prefValue }
+                return@map AudioUseCase.PlayerState.values().first {
+                    it.value == prefValue
+                }
             }
     }
 
@@ -114,8 +113,8 @@ class AudioUseCaseImpl @Inject constructor(
 
     override suspend fun togglePlayerPlayStop() {
         val newState = when (getPlayerState().first()) {
-            is AudioUseCase.PlayerState.Stopped -> AudioUseCase.PlayerState.Playing
-            else -> AudioUseCase.PlayerState.Stopped
+            AudioUseCase.PlayerState.STOPPED -> AudioUseCase.PlayerState.PLAYING
+            else -> AudioUseCase.PlayerState.STOPPED
         }
         updatePlayerState(newState)
     }

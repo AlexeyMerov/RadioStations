@@ -40,7 +40,7 @@ class PlayerViewModel @Inject constructor(
                         flow = audioUseCase.getLastPlayingMediaItem(),
                         flow2 = audioUseCase.getPlayerState()
                     ) { item, state ->
-                        item?.parentUrl == originalUrl && state == AudioUseCase.PlayerState.Playing
+                        item?.parentUrl == originalUrl && state == AudioUseCase.PlayerState.PLAYING
                     }
                         .collectLatest { isPlaying ->
                             setState(ViewState.ReadyToPlay(currentItem, isPlaying))

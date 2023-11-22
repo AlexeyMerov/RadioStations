@@ -29,11 +29,11 @@ interface AudioUseCase {
 
     suspend fun togglePlayerPlayStop()
 
-    sealed class PlayerState(val value: Int) {
-        data object Empty : PlayerState(0)
-        data object Playing : PlayerState(1)
-        data object Stopped : PlayerState(2)
-        data object Buffering : PlayerState(3)
+    enum class PlayerState(val value: Int) {
+        EMPTY(0),
+        PLAYING(1),
+        STOPPED(2),
+        BUFFERING(3)
     }
 
 }

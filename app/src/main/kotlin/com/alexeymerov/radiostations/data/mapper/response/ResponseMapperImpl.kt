@@ -16,7 +16,7 @@ class ResponseMapperImpl @Inject constructor() : ResponseMapper {
         when {
             !body.isSuccessful -> errorText = body.message()
             mainBody == null -> errorText = "Response body is null"
-            mainBody.head.status != Companion.STATUS_OK -> errorText = mainBody.head.title ?: "Response status: ${mainBody.head.status}"
+            mainBody.head.status != STATUS_OK -> errorText = mainBody.head.title ?: "Response status: ${mainBody.head.status}"
             else -> resultList = mainBody.body
         }
 
