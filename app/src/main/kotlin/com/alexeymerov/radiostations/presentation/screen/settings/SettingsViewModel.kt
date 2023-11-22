@@ -52,9 +52,7 @@ class SettingsViewModel @Inject constructor(
                 is ViewAction.ChangeDarkMode -> changeChangeDarkMode(action.value)
                 is ViewAction.ChangeDynamicColor -> changeChangeDynamicColor(action.useDynamic)
                 is ViewAction.ChangeColorScheme -> changeChangeColorScheme(action.value)
-                is ViewAction.ChangeConnection -> {
-                    connectivitySettings.setConnectionStatus(action.status)
-                }
+                is ViewAction.ChangeConnection -> connectivitySettings.setConnectionStatus(action.status)
             }
         }
     }
@@ -79,10 +77,7 @@ class SettingsViewModel @Inject constructor(
 
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
-        data class Loaded(
-            val themeState: ThemeState,
-            val connectionStatus: ConnectionStatus
-        ) : ViewState
+        data class Loaded(val themeState: ThemeState, val connectionStatus: ConnectionStatus) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {

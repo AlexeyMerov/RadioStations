@@ -11,14 +11,14 @@ class FavoriteViewSettingsUseCaseImpl @Inject constructor(
 ) : FavoriteViewSettingsUseCase {
 
     override fun getViewType(): Flow<ViewType> {
-        return settingsStore.getIntPrefsFlow(VIEW_TYPE_KEY, defValue = ViewType.LIST.value)
+        return settingsStore.getIntPrefsFlow(VIEW_TYPE_KEY, defValue = ViewType.LIST.columnCount)
             .map { prefValue ->
-                ViewType.values().first { it.value == prefValue }
+                ViewType.values().first { it.columnCount == prefValue }
             }
     }
 
     override suspend fun setViewType(type: ViewType) {
-        settingsStore.setIntPrefs(VIEW_TYPE_KEY, type.value)
+        settingsStore.setIntPrefs(VIEW_TYPE_KEY, type.columnCount)
     }
 
     companion object {

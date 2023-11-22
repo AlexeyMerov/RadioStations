@@ -63,9 +63,9 @@ class PlayerService : MediaLibraryService() {
         player.onIsPlaying { isPlaying ->
             ioScope.launch {
                 if (isPlaying) {
-                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.Playing)
+                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.PLAYING)
                 } else {
-                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.Stopped)
+                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.STOPPED)
                 }
             }
         }

@@ -105,19 +105,19 @@ class MainActivity : ComponentActivity() {
     private fun processPlayerState(it: PlayerState, controller: MediaController) {
         Timber.d("activity playerState $it")
         when (it) {
-            is PlayerState.Empty -> {
+            PlayerState.EMPTY -> {
                 controller.stop()
                 controller.clearMediaItems()
             }
 
-            is PlayerState.Playing -> {
+            PlayerState.PLAYING -> {
                 if (!controller.isPlaying) {
                     controller.playWhenReady = true
                 }
             }
 
-            is PlayerState.Stopped -> controller.pause()
-            is PlayerState.Buffering -> {
+            PlayerState.STOPPED -> controller.pause()
+            PlayerState.BUFFERING -> {
                 // nothing at the moment but todo
             }
         }

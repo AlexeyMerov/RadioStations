@@ -267,7 +267,7 @@ private fun BottomPlayer(
             .background(MaterialTheme.colorScheme.secondary),
 
         ) {
-        val isVisible = playerState !is PlayerState.Empty
+        val isVisible = playerState != PlayerState.EMPTY
         AnimatedVisibility(visible = isVisible) {
             Row(
                 Modifier
@@ -276,7 +276,7 @@ private fun BottomPlayer(
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val isPlaying = playerState is PlayerState.Playing
+                val isPlaying = playerState == PlayerState.PLAYING
 
                 PlayingWaves(isPlaying)
 

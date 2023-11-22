@@ -41,7 +41,7 @@ class MainViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = PlayerState.Empty
+            initialValue = PlayerState.EMPTY
         )
 
     val currentAudioItem: StateFlow<AudioItemDto?> = audioUseCase.getLastPlayingMediaItem()
@@ -58,26 +58,26 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch(ioContext) {
             when (action) {
-                is ViewAction.PlayAudio -> audioUseCase.updatePlayerState(PlayerState.Playing)
-                is ViewAction.StopAudio -> audioUseCase.updatePlayerState(PlayerState.Stopped)
+                is ViewAction.PlayAudio -> audioUseCase.updatePlayerState(PlayerState.PLAYING)
+                is ViewAction.StopAudio -> audioUseCase.updatePlayerState(PlayerState.STOPPED)
                 is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
                 is ViewAction.ChangeAudio -> {
-                    val newMediaUrl = action.mediaItem
-                    Timber.d("new url $newMediaUrl")
-
-                    if (currentAudioItem.value != newMediaUrl) {
-                        audioUseCase.setLastPlayingMediaItem(newMediaUrl)
-                    }
-
-                    // temp workaround since we handling isPlaying in service and it works slower then the bottom line.
-                    // Should be fixed with Buffering state implementation
-                    delay(500)
-                    audioUseCase.updatePlayerState(PlayerState.Playing)
+                    handleAudioChanged(action.mediaItem)
                 }
 
-                ViewAction.NukePlayer -> audioUseCase.updatePlayerState(PlayerState.Empty)
+                ViewAction.NukePlayer -> audioUseCase.updatePlayerState(PlayerState.EMPTY)
             }
         }
+    }
+
+    private suspend fun handleAudioChanged(newMediaUrl: AudioItemDto) {
+        Timber.d("new url $newMediaUrl")
+        audioUseCase.setLastPlayingMediaItem(newMediaUrl)
+
+        // temp workaround since we handling isPlaying in service and it works slower then the bottom line.
+        // Should be fixed with Buffering state implementation
+        delay(500)
+        audioUseCase.updatePlayerState(PlayerState.PLAYING)
     }
 
     sealed interface ViewState : BaseViewState {
