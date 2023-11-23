@@ -59,7 +59,7 @@ class MediaRepositoryTest {
         val categoryEntity = mockk<CategoryEntity>()
         coEvery { categoryDao.getByUrl(any()) } returns categoryEntity
         coEvery { client.requestAudioByUrl(any()) } returns responseMock
-        every { responseMapper.mapResponseBody(responseMock) } returns emptyList<MediaBody>()
+        every { responseMapper.mapResponseBody(responseMock) } returns emptyList()
 
         val audioByUrl = repository.getMediaByUrl("")
         assert(audioByUrl == null)

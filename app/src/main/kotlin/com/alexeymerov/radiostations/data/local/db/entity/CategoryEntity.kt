@@ -28,7 +28,6 @@ data class CategoryEntity(
         const val FIELD_URL = "url"
         const val FIELD_PARENT_URL = "parentUrl"
         const val FIELD_POSITION = "position"
-        const val FIELD_TEXT = "text"
         const val FIELD_FAVORITE = "isFavorite"
     }
 }

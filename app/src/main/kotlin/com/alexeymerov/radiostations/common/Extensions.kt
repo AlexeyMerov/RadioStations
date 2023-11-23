@@ -5,9 +5,11 @@ package com.alexeymerov.radiostations.common
  * */
 fun String.httpsEverywhere() = replace("http:", "https:")
 
+@Suppress("SameReturnValue")
 val String.Companion.EMPTY: String
     get() = ""
 
+@Suppress("SameReturnValue")
 val String.Companion.SPACE: String
     get() = " "
 

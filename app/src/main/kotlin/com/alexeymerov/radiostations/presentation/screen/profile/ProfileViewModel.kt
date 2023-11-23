@@ -25,8 +25,7 @@ class ProfileViewModel @Inject constructor() : BaseViewModel<ViewState, ViewActi
         data object Loaded : ViewState
     }
 
-    sealed interface ViewAction : BaseViewAction {
-    }
+    sealed interface ViewAction : BaseViewAction
 
     sealed interface ViewEffect : BaseViewEffect {
         class ShowToast(val text: String) : ViewEffect //errors or anything

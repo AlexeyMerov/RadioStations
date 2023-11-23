@@ -103,8 +103,7 @@ class NetworkClientTest {
         if (responseList == null) assert(false)
         else {
             val audio = responseList[0]
-            assert(audio.url != null)
-            assert(audio.url?.matches(NetworkDefaults.REGEX_VALID_URL) != null)
+            assert(audio.url.matches(NetworkDefaults.REGEX_VALID_URL))
             assert(audio.bitrate > 0)
             assert(audio.mediaType == "mp3")
         }

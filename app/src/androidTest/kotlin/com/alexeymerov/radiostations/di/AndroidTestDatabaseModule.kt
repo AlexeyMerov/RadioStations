@@ -14,7 +14,6 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
-/*(includes = [AndroidTestDatabaseModule.Mapper::class])*/
 @TestInstallIn(components = [SingletonComponent::class], replaces = [DatabaseModule::class])
 @Named("AndroidTest")
 class AndroidTestDatabaseModule {
@@ -39,14 +38,5 @@ class AndroidTestDatabaseModule {
     @Singleton
     @Provides
     fun provideMediaDao(@Named("AndroidTest") db: RadioDatabase): MediaDao = db.mediaDao()
-
-//    @Module
-//    @TestInstallIn(components = [SingletonComponent::class], replaces = [DatabaseModule.Mapper::class])
-//    abstract class Mapper {
-//
-//        @Binds
-//        @Singleton
-//        abstract fun bindCategoryMapper(mapper: CategoryMapperImpl): CategoryMapper
-//    }
 
 }

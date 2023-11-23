@@ -24,7 +24,7 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
 
     val initialState: S by lazy { createInitialState() }
 
-    private val _viewState = MutableStateFlow<S>(initialState)
+    private val _viewState = MutableStateFlow(initialState)
     open val viewState = _viewState.asStateFlow()
 
     private val _viewAction = MutableSharedFlow<A>()

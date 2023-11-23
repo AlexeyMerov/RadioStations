@@ -2,8 +2,6 @@
     <string name="app_name" translatable="false">Radio Stations</string>
     <string name="sorry_nothing_found">Sorry\nNothing found</string>
     <string name="back">Back</string>
-    <string name="stop" translatable="false">Stop</string>
-    <string name="play" translatable="false">Play</string>
     <string name="browse">Browse</string>
     <string name="favorites">Favorites</string>
     <string name="you_need_to_add_some_stations">You need to add some stations</string>

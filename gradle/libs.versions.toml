@@ -17,7 +17,7 @@ room = "2.6.0"
 retrofit = "2.9.0"
 moshi = "1.15.0"
 okhttp = "4.12.0"
-exoplayer = "1.1.1"
+exoplayer = "1.2.0"
 composeLifecycle = "2.6.2"
 
 test = "1.5.0"
@@ -71,7 +71,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeLifecycle" }
 compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeLifecycle" }
-compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.0" }
+compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.1" }
 compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.5" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
 compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }

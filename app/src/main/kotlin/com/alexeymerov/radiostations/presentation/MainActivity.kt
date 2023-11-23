@@ -47,6 +47,9 @@ class MainActivity : ComponentActivity() {
 
         viewModel.viewState.collectWhenStarted(this) { viewState = it }
 
+        viewModel.currentAudioItem.filterNotNull().collectWhenStarted(this, ::processCurrentAudioItem)
+        viewModel.playerState.collectWhenStarted(this, ::processPlayerState)
+
         enableEdgeToEdge()
         setContent {
             val themeState = when (val state = viewState) {
@@ -76,49 +79,40 @@ class MainActivity : ComponentActivity() {
         val sessionToken = SessionToken(this, ComponentName(this, PlayerService::class.java))
         controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
         controllerFuture?.let { future ->
-            val listener: () -> Unit = {
-                mediaController = future.get()
-                mediaController?.let { controller ->
-                    viewModel.currentAudioItem.filterNotNull().collectWhenStarted(this) { item ->
-                        processCurrentAudioItem(item, controller)
-                    }
-
-                    viewModel.playerState.collectWhenStarted(this) {
-                        processPlayerState(it, controller)
-                    }
-                }
-            }
-
+            val listener: () -> Unit = { mediaController = future.get() }
             future.addListener(listener, MoreExecutors.directExecutor())
         }
     }
 
-    private fun processCurrentAudioItem(item: AudioItemDto, controller: MediaController) {
+    private fun processCurrentAudioItem(item: AudioItemDto) {
         Timber.d("activity currentMediaItem $item")
-
-        if (item.directUrl != controller.currentMediaItem?.mediaId) {
-            controller.setMediaItem(mapToMediaItem(item))
-            controller.prepare()
+        mediaController?.also { controller ->
+            if (item.directUrl != controller.currentMediaItem?.mediaId) {
+                controller.setMediaItem(mapToMediaItem(item))
+                controller.prepare()
+            }
         }
     }
 
-    private fun processPlayerState(it: PlayerState, controller: MediaController) {
+    private fun processPlayerState(it: PlayerState) {
         Timber.d("activity playerState $it")
-        when (it) {
-            PlayerState.EMPTY -> {
-                controller.stop()
-                controller.clearMediaItems()
-            }
-
-            PlayerState.PLAYING -> {
-                if (!controller.isPlaying) {
-                    controller.playWhenReady = true
+        mediaController?.also { controller ->
+            when (it) {
+                PlayerState.EMPTY -> {
+                    controller.stop()
+                    controller.clearMediaItems()
                 }
-            }
 
-            PlayerState.STOPPED -> controller.pause()
-            PlayerState.BUFFERING -> {
-                // nothing at the moment but todo
+                PlayerState.PLAYING -> {
+                    if (!controller.isPlaying) {
+                        controller.playWhenReady = true
+                    }
+                }
+
+                PlayerState.STOPPED -> controller.pause()
+                PlayerState.BUFFERING -> {
+                    // nothing at the moment but todo
+                }
             }
         }
     }

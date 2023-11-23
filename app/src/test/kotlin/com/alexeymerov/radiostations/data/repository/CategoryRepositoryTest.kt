@@ -68,7 +68,7 @@ class CategoryRepositoryTest {
     fun `load categories by url`() = runTest {
         val responseMock = mockk<Response<MainBody<CategoryBody>>>()
         coEvery { client.requestCategoriesByUrl(any()) } returns responseMock
-        every { responseMapper.mapResponseBody(responseMock) } returns emptyList<CategoryBody>()
+        every { responseMapper.mapResponseBody(responseMock) } returns emptyList()
         coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
         coJustRun { categoryDao.insertAll(any()) }
 

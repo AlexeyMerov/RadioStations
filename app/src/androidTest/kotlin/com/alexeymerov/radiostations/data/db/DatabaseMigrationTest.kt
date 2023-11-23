@@ -1,7 +1,6 @@
 package com.alexeymerov.radiostations.data.db
 
 import androidx.room.Room
-import androidx.room.migration.AutoMigrationSpec
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.platform.app.InstrumentationRegistry
 import com.alexeymerov.radiostations.data.local.db.MIGRATION_1_2
@@ -17,15 +16,11 @@ import java.io.IOException
 @HiltAndroidTest
 class DatabaseMigrationTest {
 
-    private val TEST_DB = "migration_test"
-
-    private val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
-
     @get:Rule
     val helper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
         RadioDatabase::class.java,
-        emptyList<AutoMigrationSpec>()
+        emptyList()
     )
 
     @Test
@@ -40,5 +35,10 @@ class DatabaseMigrationTest {
             TEST_DB
         ).addMigrations(*ALL_MIGRATIONS).build()
         databaseLast.openHelper.writableDatabase.close()
+    }
+
+    companion object {
+        private const val TEST_DB = "migration_test"
+        private val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
     }
 }
