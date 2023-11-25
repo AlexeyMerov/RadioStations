@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.data.local.db
+package com.alexeymerov.radiostations.database
 
 import android.content.Context
 import androidx.room.Database
@@ -6,10 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
-import com.alexeymerov.radiostations.data.local.db.dao.MediaDao
-import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
+import com.alexeymerov.radiostations.database.dao.CategoryDao
+import com.alexeymerov.radiostations.database.dao.MediaDao
+import com.alexeymerov.radiostations.database.entity.CategoryEntity
+import com.alexeymerov.radiostations.database.entity.MediaEntity
 
 
 @Database(

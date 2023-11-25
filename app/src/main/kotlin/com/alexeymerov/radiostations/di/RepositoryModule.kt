@@ -1,6 +1,10 @@
 package com.alexeymerov.radiostations.di
 
 
+import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
+import com.alexeymerov.radiostations.data.mapper.category.CategoryMapperImpl
+import com.alexeymerov.radiostations.data.mapper.media.MediaMapper
+import com.alexeymerov.radiostations.data.mapper.media.MediaMapperImp
 import com.alexeymerov.radiostations.data.repository.audio.MediaRepository
 import com.alexeymerov.radiostations.data.repository.audio.MediaRepositoryImpl
 import com.alexeymerov.radiostations.data.repository.category.CategoryRepository
@@ -32,6 +36,14 @@ abstract class RepositoryModule {
         @Binds
         @Singleton
         abstract fun bindResponseMapper(mapper: ResponseMapperImpl): ResponseMapper
+
+        @Binds
+        @Singleton
+        abstract fun bindCategoryMapper(mapper: CategoryMapperImpl): CategoryMapper
+
+        @Binds
+        @Singleton
+        abstract fun bindMediaMapper(mapper: MediaMapperImp): MediaMapper
     }
 
 }

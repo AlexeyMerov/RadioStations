@@ -1,9 +1,9 @@
 package com.alexeymerov.radiostations.domain.usecase.audio
 
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
-import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
 import com.alexeymerov.radiostations.data.repository.audio.MediaRepository
+import com.alexeymerov.radiostations.database.entity.MediaEntity
+import com.alexeymerov.radiostations.datastore.SettingsStore
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto

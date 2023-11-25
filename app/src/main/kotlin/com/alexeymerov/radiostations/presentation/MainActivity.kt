@@ -16,10 +16,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.common.collectWhenStarted
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
+import com.alexeymerov.radiostations.presentation.common.collectWhenStarted
 import com.alexeymerov.radiostations.presentation.common.mapToMediaItem
 import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme

@@ -12,7 +12,6 @@ import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 
 @Composable
 fun BaseProfileScreen(
-    viewModel: ProfileViewModel,
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
     onNavigate: (String) -> Unit

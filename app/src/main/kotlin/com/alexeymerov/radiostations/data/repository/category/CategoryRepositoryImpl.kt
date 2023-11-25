@@ -1,10 +1,11 @@
 package com.alexeymerov.radiostations.data.repository.category
 
-import com.alexeymerov.radiostations.BuildConfig
+
+import com.alexeymerov.radiostations.common.BuildConfig
 import com.alexeymerov.radiostations.common.httpsEverywhere
-import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
-import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
+import com.alexeymerov.radiostations.database.dao.CategoryDao
+import com.alexeymerov.radiostations.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.remote.client.radio.RadioClient
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber

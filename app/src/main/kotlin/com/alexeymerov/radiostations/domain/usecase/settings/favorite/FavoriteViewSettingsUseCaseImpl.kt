@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.domain.usecase.settings.favorite
 
-import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
+import com.alexeymerov.radiostations.datastore.SettingsStore
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

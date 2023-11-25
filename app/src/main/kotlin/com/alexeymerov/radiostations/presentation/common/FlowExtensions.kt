@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.common
+package com.alexeymerov.radiostations.presentation.common
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner

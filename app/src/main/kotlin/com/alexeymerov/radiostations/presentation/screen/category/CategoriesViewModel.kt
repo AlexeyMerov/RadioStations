@@ -2,15 +2,15 @@ package com.alexeymerov.radiostations.presentation.screen.category
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.alexeymerov.radiostations.common.BaseViewAction
-import com.alexeymerov.radiostations.common.BaseViewEffect
-import com.alexeymerov.radiostations.common.BaseViewModel
-import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
+import com.alexeymerov.radiostations.presentation.common.BaseViewAction
+import com.alexeymerov.radiostations.presentation.common.BaseViewEffect
+import com.alexeymerov.radiostations.presentation.common.BaseViewModel
+import com.alexeymerov.radiostations.presentation.common.BaseViewState
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.decodeUrl
 import dagger.hilt.android.lifecycle.HiltViewModel

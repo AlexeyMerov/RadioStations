@@ -1,9 +1,9 @@
 package com.alexeymerov.radiostations.presentation.screen.profile
 
-import com.alexeymerov.radiostations.common.BaseViewAction
-import com.alexeymerov.radiostations.common.BaseViewEffect
-import com.alexeymerov.radiostations.common.BaseViewModel
-import com.alexeymerov.radiostations.common.BaseViewState
+import com.alexeymerov.radiostations.presentation.common.BaseViewAction
+import com.alexeymerov.radiostations.presentation.common.BaseViewEffect
+import com.alexeymerov.radiostations.presentation.common.BaseViewModel
+import com.alexeymerov.radiostations.presentation.common.BaseViewState
 import com.alexeymerov.radiostations.presentation.screen.profile.ProfileViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.profile.ProfileViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.screen.profile.ProfileViewModel.ViewState

@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.data.local.datastore
+package com.alexeymerov.radiostations.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

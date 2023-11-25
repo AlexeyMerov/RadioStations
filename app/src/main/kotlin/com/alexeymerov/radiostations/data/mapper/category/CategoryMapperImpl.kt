@@ -2,8 +2,8 @@ package com.alexeymerov.radiostations.data.mapper.category
 
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.common.httpsEverywhere
-import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.local.db.entity.EntityItemType
+import com.alexeymerov.radiostations.database.entity.CategoryEntity
+import com.alexeymerov.radiostations.database.entity.EntityItemType
 import com.alexeymerov.radiostations.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.remote.response.CategoryBody
 import timber.log.Timber

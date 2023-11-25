@@ -5,6 +5,9 @@ plugins {
 
 android {
     namespace = "com.alexeymerov.radiostations.common"
+
+    buildFeatures.buildConfig = true
+    defaultConfig.buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
 }
 
 dependencies {

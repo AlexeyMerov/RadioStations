@@ -22,10 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.alexeymerov.radiostations.common.CallOnDispose
-import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
+import com.alexeymerov.radiostations.presentation.common.CallOnDispose
+import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.ShimmerLoading
 import com.alexeymerov.radiostations.presentation.common.view.StationListItem

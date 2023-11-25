@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.domain.usecase.settings.theme
 
-import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
+import com.alexeymerov.radiostations.datastore.SettingsStore
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState

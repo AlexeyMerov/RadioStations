@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.domain.mapper
 
-import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
+import com.alexeymerov.radiostations.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 
 interface DtoCategoriesMapper {

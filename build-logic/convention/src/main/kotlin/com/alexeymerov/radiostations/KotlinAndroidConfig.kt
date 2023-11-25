@@ -13,12 +13,7 @@ internal fun Project.configureKotlinAndroid(
     commonExtension.apply {
         compileSdk = libs.getIntVersion("compileSdk")
 
-        buildFeatures.buildConfig = true
-
-        defaultConfig {
-            minSdk = libs.getIntVersion("minSdk")
-            buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
-        }
+        defaultConfig.minSdk = libs.getIntVersion("minSdk")
 
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_17

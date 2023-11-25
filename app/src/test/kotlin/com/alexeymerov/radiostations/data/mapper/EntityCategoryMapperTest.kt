@@ -1,8 +1,8 @@
 package com.alexeymerov.radiostations.data.mapper
 
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.data.local.db.entity.EntityItemType
 import com.alexeymerov.radiostations.data.mapper.category.CategoryMapperImpl
+import com.alexeymerov.radiostations.database.entity.EntityItemType
 import com.alexeymerov.radiostations.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.remote.response.CategoryBody
 import kotlinx.coroutines.test.runTest

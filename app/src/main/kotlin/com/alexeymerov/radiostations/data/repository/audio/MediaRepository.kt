@@ -1,7 +1,7 @@
 package com.alexeymerov.radiostations.data.repository.audio
 
-import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
+import com.alexeymerov.radiostations.database.entity.CategoryEntity
+import com.alexeymerov.radiostations.database.entity.MediaEntity
 import kotlinx.coroutines.flow.Flow
 
 interface MediaRepository {

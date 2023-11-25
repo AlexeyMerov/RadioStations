@@ -9,8 +9,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.alexeymerov.radiostations.data.local.datastore.SettingsStore
-import com.alexeymerov.radiostations.data.local.datastore.SettingsStoreImpl
+import com.alexeymerov.radiostations.datastore.SettingsStore
+import com.alexeymerov.radiostations.datastore.SettingsStoreImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

@@ -1,16 +1,16 @@
 package com.alexeymerov.radiostations.presentation.screen.settings
 
 import androidx.lifecycle.viewModelScope
-import com.alexeymerov.radiostations.common.BaseViewAction
-import com.alexeymerov.radiostations.common.BaseViewEffect
-import com.alexeymerov.radiostations.common.BaseViewModel
-import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.presentation.common.BaseViewAction
+import com.alexeymerov.radiostations.presentation.common.BaseViewEffect
+import com.alexeymerov.radiostations.presentation.common.BaseViewModel
+import com.alexeymerov.radiostations.presentation.common.BaseViewState
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewState

@@ -2,8 +2,8 @@ package com.alexeymerov.radiostations.data.mapper.media
 
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.common.httpsEverywhere
-import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
+import com.alexeymerov.radiostations.database.entity.CategoryEntity
+import com.alexeymerov.radiostations.database.entity.MediaEntity
 import com.alexeymerov.radiostations.remote.response.MediaBody
 import javax.inject.Inject
 

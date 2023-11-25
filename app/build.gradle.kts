@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.radiostations.android.application)
     alias(libs.plugins.radiostations.android.hilt)
     alias(libs.plugins.radiostations.android.application.compose)
-    alias(libs.plugins.radiostations.android.room)
 
     kotlin("plugin.parcelize")
 }
@@ -58,15 +57,13 @@ android {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
         unitTests.isIncludeAndroidResources = true
     }
-
-    // Adds exported schema location as test app assets.
-    sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
 }
 
 dependencies {
     implementation(projects.core.common)
     implementation(projects.data.remote)
     implementation(projects.data.datastore)
+    implementation(projects.data.database)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
     implementation(libs.kotlin.guava)

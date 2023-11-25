@@ -27,3 +27,4 @@ include(":core:common")
 
 include(":data:remote")
 include(":data:datastore")
+include(":data:database")

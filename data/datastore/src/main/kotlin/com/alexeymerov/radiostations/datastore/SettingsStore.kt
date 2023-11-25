@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.data.local.datastore
+package com.alexeymerov.radiostations.datastore
 
 import kotlinx.coroutines.flow.Flow
 
