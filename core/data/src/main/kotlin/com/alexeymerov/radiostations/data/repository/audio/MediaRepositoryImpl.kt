@@ -7,7 +7,6 @@ import com.alexeymerov.radiostations.database.dao.MediaDao
 import com.alexeymerov.radiostations.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.database.entity.MediaEntity
 import com.alexeymerov.radiostations.remote.client.radio.RadioClient
-import com.alexeymerov.radiostations.remote.response.MediaBody
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -23,13 +22,8 @@ class MediaRepositoryImpl @Inject constructor(
 
     override suspend fun getMediaByUrl(url: String): MediaEntity? {
         val item = categoryDao.getByUrl(url)
-        val audioBodyList: List<MediaBody> = radioClient.requestAudioByUrl(url)
-        val mediaBody = audioBodyList.getOrNull(0)
-        if (mediaBody != null) {
-            return mediaMapper.mapToEntity(item, mediaBody)
-        }
-
-        return null
+        val mediaBody = radioClient.requestAudioByUrl(url)
+        return mediaBody?.let { mediaMapper.mapToEntity(item, it) }
     }
 
     override suspend fun changeIsMediaFavorite(itemId: String, isFavorite: Boolean) {

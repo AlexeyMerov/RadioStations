@@ -7,6 +7,7 @@ import com.alexeymerov.radiostations.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.remote.client.radio.RadioClientImpl
 import com.alexeymerov.radiostations.remote.response.CategoryBody
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -21,6 +22,7 @@ class NetworkClientTest {
 
     private lateinit var mockWebServer: MockWebServer
     private lateinit var radioClient: RadioClient
+    private lateinit var radioApi: RadioApi
 
     @MockK
     lateinit var responseMapper: ResponseMapper
@@ -41,9 +43,8 @@ class NetworkClientTest {
             .addConverterFactory(moshiConverterFactory)
             .build()
 
-        val radioApi = retrofit.create(RadioApi::class.java)
-
-        radioClient = RadioClientImpl(radioApi)
+        radioApi = retrofit.create(RadioApi::class.java)
+        radioClient = RadioClientImpl(radioApi, responseMapper)
     }
 
     @After
@@ -56,7 +57,8 @@ class NetworkClientTest {
         val responseBody = readResourceFile(RESPONSE_200_CATEGORIES)
         mockWebServer.enqueue(MockResponse().setBody(responseBody))
 
-        val response = radioClient.requestCategoriesByUrl(String.EMPTY)
+
+        val response = radioApi.getCategoriesByUrl(String.EMPTY)
         val renderParam = response.raw().request.url.queryParameter(NetworkDefaults.QUERY_RENDER_NAME)
         assert(renderParam == NetworkDefaults.QUERY_RENDER_JSON_PARAMETER)
     }
@@ -66,7 +68,7 @@ class NetworkClientTest {
         val responseBody = readResourceFile(RESPONSE_200_CATEGORIES)
         mockWebServer.enqueue(MockResponse().setBody(responseBody))
 
-        val response = radioClient.requestCategoriesByUrl(String.EMPTY)
+        val response = radioApi.getCategoriesByUrl(String.EMPTY)
         val categoryList = response.body()?.body
         if (categoryList == null) assert(false)
         else {
@@ -80,7 +82,7 @@ class NetworkClientTest {
         val responseBody = readResourceFile(RESPONSE_200_TOP40)
         mockWebServer.enqueue(MockResponse().setBody(responseBody))
 
-        val response = radioClient.requestCategoriesByUrl(String.EMPTY)
+        val response = radioApi.getCategoriesByUrl(String.EMPTY)
         val audiosList = response.body()?.body
         if (audiosList == null) assert(false)
         else {
@@ -102,7 +104,7 @@ class NetworkClientTest {
         val responseBody = readResourceFile(RESPONSE_200_AUDIO)
         mockWebServer.enqueue(MockResponse().setBody(responseBody))
 
-        val response = radioClient.requestAudioByUrl(String.EMPTY)
+        val response = radioApi.getAudioByUrl(String.EMPTY)
         val responseList = response.body()?.body
         if (responseList == null) assert(false)
         else {

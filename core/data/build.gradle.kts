@@ -12,4 +12,6 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.remote)
     implementation(projects.core.database)
+
+    testImplementation(projects.core.test)
 }

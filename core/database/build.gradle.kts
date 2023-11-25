@@ -8,6 +8,17 @@ plugins {
 android {
     namespace = "com.alexeymerov.radiostations.database"
 
+    defaultConfig {
+        testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+    }
+
+    @Suppress("UnstableApiUsage")
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        unitTests.isIncludeAndroidResources = true
+    }
+
     // Adds exported schema location as test app assets.
     sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
 }
@@ -15,6 +26,6 @@ android {
 dependencies {
     implementation(projects.core.common)
 
-    testImplementation(libs.coroutines.test)
-    androidTestImplementation(libs.coroutines.test)
+    androidTestImplementation(projects.core.test)
+    androidTestUtil(libs.test.orchestrator)
 }

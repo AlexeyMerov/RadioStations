@@ -8,7 +8,6 @@ import com.alexeymerov.radiostations.database.dao.MediaDao
 import com.alexeymerov.radiostations.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.database.entity.MediaEntity
 import com.alexeymerov.radiostations.remote.client.radio.RadioClient
-import com.alexeymerov.radiostations.remote.response.MainBody
 import com.alexeymerov.radiostations.remote.response.MediaBody
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
@@ -22,7 +21,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import retrofit2.Response
 
 
 class MediaRepositoryTest {
@@ -51,10 +49,9 @@ class MediaRepositoryTest {
 
     @Test
     fun `load audio by url failed`() = runTest {
-        val responseMock = mockk<Response<MainBody<MediaBody>>>()
         val categoryEntity = mockk<CategoryEntity>()
         coEvery { categoryDao.getByUrl(any()) } returns categoryEntity
-        coEvery { client.requestAudioByUrl(any()) } returns responseMock
+        coEvery { client.requestAudioByUrl(any()) } returns null
 
         val audioByUrl = repository.getMediaByUrl("")
         assert(audioByUrl == null)
@@ -69,12 +66,11 @@ class MediaRepositoryTest {
 
     @Test
     fun `load audio by url success`() = runTest {
-        val mediaBody = mockk<MediaBody>()
-        val responseMock = mockk<Response<MainBody<MediaBody>>>()
         val categoryEntity = mockk<CategoryEntity>()
+        val mediaBody = mockk<MediaBody>()
         val mediaEntity = mockk<MediaEntity>()
         coEvery { categoryDao.getByUrl(any()) } returns categoryEntity
-        coEvery { client.requestAudioByUrl(any()) } returns responseMock
+        coEvery { client.requestAudioByUrl(any()) } returns mediaBody
         every { mediaMapper.mapToEntity(any(), any()) } returns mediaEntity
 
         val audioByUrl = repository.getMediaByUrl("")

@@ -7,6 +7,11 @@ plugins {
 
 android {
     namespace = "com.alexeymerov.radiostations.remote"
+
+    defaultConfig {
+        testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+    }
 }
 
 dependencies {
@@ -14,15 +19,15 @@ dependencies {
 
     implementation(libs.retrofit.base)
     implementation(libs.retrofit.converter.moshi)
+
     implementation(libs.moshi.kotlin.base)
     ksp(libs.moshi.kotlin.codegen)
+
     implementation(libs.okhttp.base)
     implementation(libs.okhttp.logging)
 
     testImplementation(libs.okhttp.test)
     testImplementation(libs.retrofit.test)
 
-    testImplementation(libs.coroutines.test)
-    androidTestImplementation(libs.coroutines.test)
-
+    testImplementation(projects.core.test)
 }

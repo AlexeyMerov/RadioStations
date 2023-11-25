@@ -1,13 +1,8 @@
-package com.alexeymerov.radiostations.data.db
+package com.alexeymerov.radiostations.database
 
 import androidx.room.Room
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.platform.app.InstrumentationRegistry
-import com.alexeymerov.radiostations.database.MIGRATION_1_2
-import com.alexeymerov.radiostations.database.MIGRATION_2_3
-import com.alexeymerov.radiostations.database.MIGRATION_3_4
-import com.alexeymerov.radiostations.database.MIGRATION_4_5
-import com.alexeymerov.radiostations.database.RadioDatabase
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
 import org.junit.Test
@@ -29,11 +24,15 @@ class DatabaseMigrationTest {
         val databaseFirst = helper.createDatabase(TEST_DB, 1)
         databaseFirst.close()
 
-        val databaseLast = Room.databaseBuilder(
-            InstrumentationRegistry.getInstrumentation().targetContext,
-            RadioDatabase::class.java,
-            TEST_DB
-        ).addMigrations(*ALL_MIGRATIONS).build()
+        val databaseLast = Room
+            .databaseBuilder(
+                InstrumentationRegistry.getInstrumentation().targetContext,
+                RadioDatabase::class.java,
+                TEST_DB
+            )
+            .addMigrations(*ALL_MIGRATIONS)
+            .build()
+
         databaseLast.openHelper.writableDatabase.close()
     }
 

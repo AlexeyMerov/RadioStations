@@ -1,8 +1,7 @@
-package com.alexeymerov.radiostations.data.db.dao
+package com.alexeymerov.radiostations.database.dao
 
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.database.RadioDatabase
-import com.alexeymerov.radiostations.database.dao.CategoryDao
 import com.alexeymerov.radiostations.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.database.entity.EntityItemType
 import dagger.hilt.android.testing.HiltAndroidRule

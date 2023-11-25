@@ -21,10 +21,10 @@ class RadioClientImpl @Inject constructor(
         return responseMapper.mapResponseBody(response)
     }
 
-    override suspend fun requestAudioByUrl(url: String): List<MediaBody> {
+    override suspend fun requestAudioByUrl(url: String): MediaBody? {
         //since server operates with links, we have to remove BASE_URL part before requests.
         val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
         val response = radioApi.getAudioByUrl(finalUrl)
-        return responseMapper.mapResponseBody(response)
+        return responseMapper.mapResponseBody(response).getOrNull(0)
     }
 }

@@ -23,9 +23,6 @@ android {
 
         vectorDrawables.useSupportLibrary = true
         resourceConfigurations.addAll(listOf("en", "uk", "ru"))
-
-        testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
-        testInstrumentationRunnerArguments["clearPackageData"] = "true"
     }
 
     signingConfigs {
@@ -50,12 +47,6 @@ android {
 
             signingConfig = signingConfigs.getByName("release")
         }
-    }
-
-    @Suppress("UnstableApiUsage")
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -84,24 +75,4 @@ dependencies {
 
     implementation(libs.lottie)
     implementation(libs.splashScreen)
-
-    /* --- TESTS --- */
-
-    testImplementation(libs.junit)
-    testImplementation(libs.junitExt)
-    androidTestImplementation(libs.junitExt)
-
-    testImplementation(libs.test.core)
-    androidTestImplementation(libs.test.core)
-
-    testImplementation(libs.test.coreKtx)
-    androidTestImplementation(libs.test.coreKtx)
-
-    testImplementation(libs.test.runner)
-    androidTestImplementation(libs.test.runner)
-
-    androidTestUtil(libs.test.orchestrator)
-
-    testImplementation(libs.mockk.android)
-    testImplementation(libs.mockk.agent)
 }
