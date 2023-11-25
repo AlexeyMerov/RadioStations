@@ -61,9 +61,9 @@ android {
 
 dependencies {
     implementation(projects.core.common)
-    implementation(projects.data.remote)
-    implementation(projects.data.datastore)
-    implementation(projects.data.database)
+    implementation(projects.core.remote)
+    implementation(projects.core.datastore)
+    implementation(projects.core.database)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
     implementation(libs.kotlin.guava)
