@@ -66,9 +66,9 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.data.remote)
+    implementation(projects.data.datastore)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
-    implementation(libs.dataStore.base)
     implementation(libs.kotlin.guava)
 
     implementation(libs.media3.exoplayer.base)
