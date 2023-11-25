@@ -7,7 +7,6 @@ import com.alexeymerov.radiostations.database.dao.CategoryDao
 import com.alexeymerov.radiostations.database.dao.MediaDao
 import com.alexeymerov.radiostations.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.database.entity.MediaEntity
-import com.alexeymerov.radiostations.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.remote.response.MainBody
 import com.alexeymerov.radiostations.remote.response.MediaBody
@@ -41,16 +40,13 @@ class MediaRepositoryTest {
     lateinit var mediaDao: MediaDao
 
     @MockK
-    lateinit var responseMapper: ResponseMapper
-
-    @MockK
     lateinit var mediaMapper: MediaMapper
 
     private lateinit var repository: MediaRepository
 
     @Before
     fun setup() {
-        repository = spyk(MediaRepositoryImpl(client, categoryDao, responseMapper, mediaMapper, mediaDao))
+        repository = spyk(MediaRepositoryImpl(client, categoryDao, mediaMapper, mediaDao))
     }
 
     @Test
@@ -59,7 +55,6 @@ class MediaRepositoryTest {
         val categoryEntity = mockk<CategoryEntity>()
         coEvery { categoryDao.getByUrl(any()) } returns categoryEntity
         coEvery { client.requestAudioByUrl(any()) } returns responseMock
-        every { responseMapper.mapResponseBody(responseMock) } returns emptyList()
 
         val audioByUrl = repository.getMediaByUrl("")
         assert(audioByUrl == null)
@@ -80,7 +75,6 @@ class MediaRepositoryTest {
         val mediaEntity = mockk<MediaEntity>()
         coEvery { categoryDao.getByUrl(any()) } returns categoryEntity
         coEvery { client.requestAudioByUrl(any()) } returns responseMock
-        every { responseMapper.mapResponseBody(responseMock) } returns listOf(mediaBody)
         every { mediaMapper.mapToEntity(any(), any()) } returns mediaEntity
 
         val audioByUrl = repository.getMediaByUrl("")
@@ -89,11 +83,10 @@ class MediaRepositoryTest {
         coVerifyOrder {
             repository.getMediaByUrl(any())
             client.requestAudioByUrl(any())
-            responseMapper.mapResponseBody(responseMock)
             mediaMapper.mapToEntity(any(), any())
         }
 
-        confirmVerified(repository, client, responseMapper, mediaMapper)
+        confirmVerified(repository, client, mediaMapper)
     }
 
 

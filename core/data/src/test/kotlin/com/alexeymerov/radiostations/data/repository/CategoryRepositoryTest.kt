@@ -4,7 +4,6 @@ import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
 import com.alexeymerov.radiostations.data.repository.category.CategoryRepository
 import com.alexeymerov.radiostations.data.repository.category.CategoryRepositoryImpl
 import com.alexeymerov.radiostations.database.dao.CategoryDao
-import com.alexeymerov.radiostations.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.remote.response.CategoryBody
 import com.alexeymerov.radiostations.remote.response.MainBody
@@ -40,14 +39,11 @@ class CategoryRepositoryTest {
     @MockK
     lateinit var categoryMapper: CategoryMapper
 
-    @MockK
-    lateinit var responseMapper: ResponseMapper
-
     private lateinit var repository: CategoryRepository
 
     @Before
     fun setup() {
-        repository = spyk(CategoryRepositoryImpl(client, categoryDao, responseMapper, categoryMapper))
+        repository = spyk(CategoryRepositoryImpl(client, categoryDao, categoryMapper))
     }
 
     @Test
@@ -68,7 +64,6 @@ class CategoryRepositoryTest {
     fun `load categories by url`() = runTest {
         val responseMock = mockk<Response<MainBody<CategoryBody>>>()
         coEvery { client.requestCategoriesByUrl(any()) } returns responseMock
-        every { responseMapper.mapResponseBody(responseMock) } returns emptyList()
         coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
         coJustRun { categoryDao.insertAll(any()) }
 

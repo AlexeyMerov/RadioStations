@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alexeymerov.radiostations.datastore"
+    namespace = "com.alexeymerov.radiostations.database"
 
     // Adds exported schema location as test app assets.
     sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")

@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.remote
 
 import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.remote.api.RadioApi
 import com.alexeymerov.radiostations.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.remote.client.radio.RadioClient
@@ -20,6 +21,9 @@ class NetworkClientTest {
 
     private lateinit var mockWebServer: MockWebServer
     private lateinit var radioClient: RadioClient
+
+    @MockK
+    lateinit var responseMapper: ResponseMapper
 
     @Before
     fun setup() {
