@@ -41,9 +41,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.presentation.common.BasicText
-import com.alexeymerov.radiostations.presentation.common.FlipBox
 import com.alexeymerov.radiostations.presentation.common.rememberTextPainter
+import com.alexeymerov.radiostations.presentation.common.view.BasicText
+import com.alexeymerov.radiostations.presentation.common.view.FlipBox
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

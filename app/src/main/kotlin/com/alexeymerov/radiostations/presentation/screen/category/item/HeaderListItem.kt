@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.presentation.common.BasicText
+import com.alexeymerov.radiostations.presentation.common.view.BasicText
 
 @Composable
 fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {

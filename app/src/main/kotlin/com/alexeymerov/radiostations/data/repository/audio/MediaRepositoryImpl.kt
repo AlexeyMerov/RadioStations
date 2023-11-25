@@ -6,15 +6,15 @@ import com.alexeymerov.radiostations.data.local.db.dao.MediaDao
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
 import com.alexeymerov.radiostations.data.mapper.media.MediaMapper
-import com.alexeymerov.radiostations.data.mapper.response.ResponseMapper
-import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
+import com.alexeymerov.radiostations.remote.client.radio.RadioClient
+import com.alexeymerov.radiostations.remote.response.MediaBody
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class MediaRepositoryImpl @Inject constructor(
     private val radioClient: RadioClient,
     private val categoryDao: CategoryDao, // one day i'll separate db, but not today
-    private val responseMapper: ResponseMapper,
+
     private val mediaMapper: MediaMapper,
     private val mediaDao: MediaDao
 ) : MediaRepository {
@@ -23,8 +23,7 @@ class MediaRepositoryImpl @Inject constructor(
 
     override suspend fun getMediaByUrl(url: String): MediaEntity? {
         val item = categoryDao.getByUrl(url)
-        val audioBodyResponse = radioClient.requestAudioByUrl(url)
-        val audioBodyList = responseMapper.mapResponseBody(audioBodyResponse)
+        val audioBodyList: List<MediaBody> = radioClient.requestAudioByUrl(url)
         val mediaBody = audioBodyList.getOrNull(0)
         if (mediaBody != null) {
             return mediaMapper.mapToEntity(item, mediaBody)

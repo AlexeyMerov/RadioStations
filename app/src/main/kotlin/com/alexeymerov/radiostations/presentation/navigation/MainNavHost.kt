@@ -83,8 +83,8 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.*
 import com.alexeymerov.radiostations.presentation.MainViewModel
-import com.alexeymerov.radiostations.presentation.common.BasicText
-import com.alexeymerov.radiostations.presentation.common.DropDownRow
+import com.alexeymerov.radiostations.presentation.common.view.BasicText
+import com.alexeymerov.radiostations.presentation.common.view.DropDownRow
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 

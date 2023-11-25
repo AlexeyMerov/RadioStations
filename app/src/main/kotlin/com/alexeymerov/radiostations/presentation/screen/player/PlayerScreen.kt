@@ -42,8 +42,8 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.presentation.MainViewModel
-import com.alexeymerov.radiostations.presentation.common.ErrorView
-import com.alexeymerov.radiostations.presentation.common.LoaderView
+import com.alexeymerov.radiostations.presentation.common.view.ErrorView
+import com.alexeymerov.radiostations.presentation.common.view.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
 import com.alexeymerov.radiostations.presentation.navigation.TopBarIcon
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState

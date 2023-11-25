@@ -2,12 +2,12 @@ package com.alexeymerov.radiostations.data.repository
 
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
-import com.alexeymerov.radiostations.data.mapper.response.ResponseMapper
-import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
-import com.alexeymerov.radiostations.data.remote.response.CategoryBody
-import com.alexeymerov.radiostations.data.remote.response.MainBody
 import com.alexeymerov.radiostations.data.repository.category.CategoryRepository
 import com.alexeymerov.radiostations.data.repository.category.CategoryRepositoryImpl
+import com.alexeymerov.radiostations.mapper.response.ResponseMapper
+import com.alexeymerov.radiostations.remote.client.radio.RadioClient
+import com.alexeymerov.radiostations.remote.response.CategoryBody
+import com.alexeymerov.radiostations.remote.response.MainBody
 import io.mockk.coEvery
 import io.mockk.coJustRun
 import io.mockk.coVerifyOrder

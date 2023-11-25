@@ -1,7 +1,7 @@
 package com.alexeymerov.radiostations.data.mapper.category
 
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
-import com.alexeymerov.radiostations.data.remote.response.CategoryBody
+import com.alexeymerov.radiostations.remote.response.CategoryBody
 
 interface CategoryMapper {
 

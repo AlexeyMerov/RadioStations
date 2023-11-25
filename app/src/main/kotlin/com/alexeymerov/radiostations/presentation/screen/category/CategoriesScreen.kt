@@ -26,9 +26,9 @@ import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.common.CallOnLaunch
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
-import com.alexeymerov.radiostations.presentation.common.ErrorView
-import com.alexeymerov.radiostations.presentation.common.ShimmerLoading
-import com.alexeymerov.radiostations.presentation.common.StationListItem
+import com.alexeymerov.radiostations.presentation.common.view.ErrorView
+import com.alexeymerov.radiostations.presentation.common.view.ShimmerLoading
+import com.alexeymerov.radiostations.presentation.common.view.StationListItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*

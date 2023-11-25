@@ -17,10 +17,10 @@ class HiltPlugin : Plugin<Project> {
             }
 
             dependencies {
-                implementation(libs.getLibrary("hilt.android"))
-                ksp(libs.getLibrary("hilt.compiler"))
-                androidTestImplementation(libs.getLibrary("hilt.testing"))
-                kspAndroidTest(libs.getLibrary("hilt.compiler"))
+                implementation(libs.getLibrary("hilt-android"))
+                ksp(libs.getLibrary("hilt-compiler"))
+                androidTestImplementation(libs.getLibrary("hilt-testing"))
+                kspAndroidTest(libs.getLibrary("hilt-compiler"))
             }
         }
     }

@@ -3,6 +3,7 @@ package com.alexeymerov.radiostations
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -12,13 +13,21 @@ internal fun Project.configureKotlinAndroid(
     commonExtension.apply {
         compileSdk = libs.getIntVersion("compileSdk")
 
+        buildFeatures.buildConfig = true
+
         defaultConfig {
             minSdk = libs.getIntVersion("minSdk")
+            buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
         }
 
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_17
             targetCompatibility = JavaVersion.VERSION_17
+        }
+
+        dependencies {
+            implementation(libs.getLibrary("timber"))
+            implementation(libs.getLibrary("androidx-core-ktx"))
         }
     }
 

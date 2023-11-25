@@ -19,5 +19,10 @@ dependencyResolutionManagement {
     }
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "RadioStations"
 include(":app")
+
+include(":core:common")
+
+include(":data:remote")

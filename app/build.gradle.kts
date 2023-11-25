@@ -8,7 +8,7 @@ keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 plugins {
     alias(libs.plugins.radiostations.android.application)
     alias(libs.plugins.radiostations.android.hilt)
-    alias(libs.plugins.radiostations.android.app.compose)
+    alias(libs.plugins.radiostations.android.application.compose)
     alias(libs.plugins.radiostations.android.room)
 
     kotlin("plugin.parcelize")
@@ -17,8 +17,6 @@ plugins {
 android {
     namespace = "com.alexeymerov.radiostations"
 
-    buildFeatures.buildConfig = true
-
     defaultConfig {
         applicationId = "com.alexeymerov.radiostations"
         versionCode = libs.versions.versionCode.get().toInt()
@@ -26,7 +24,6 @@ android {
 
         vectorDrawables.useSupportLibrary = true
         resourceConfigurations.addAll(listOf("en", "uk", "ru"))
-        buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
 
         testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
@@ -67,18 +64,12 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
+    implementation(projects.core.common)
+    implementation(projects.data.remote)
+
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
-    implementation(libs.timber)
     implementation(libs.dataStore.base)
     implementation(libs.kotlin.guava)
-
-    implementation(libs.retrofit.base)
-    implementation(libs.retrofit.converter.moshi)
-    implementation(libs.moshi.kotlin.base)
-    ksp(libs.moshi.kotlin.codegen)
-    implementation(libs.okhttp.base)
-    implementation(libs.okhttp.logging)
 
     implementation(libs.media3.exoplayer.base)
     implementation(libs.media3.exoplayer.dash)
@@ -113,12 +104,6 @@ dependencies {
     androidTestImplementation(libs.test.runner)
 
     androidTestUtil(libs.test.orchestrator)
-
-    testImplementation(libs.coroutines.test)
-    androidTestImplementation(libs.coroutines.test)
-
-    testImplementation(libs.okhttp.test)
-    testImplementation(libs.retrofit.test)
 
     testImplementation(libs.mockk.android)
     testImplementation(libs.mockk.agent)

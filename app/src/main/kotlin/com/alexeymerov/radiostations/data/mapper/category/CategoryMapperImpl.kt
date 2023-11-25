@@ -4,8 +4,8 @@ import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.local.db.entity.EntityItemType
-import com.alexeymerov.radiostations.data.remote.client.NetworkDefaults
-import com.alexeymerov.radiostations.data.remote.response.CategoryBody
+import com.alexeymerov.radiostations.remote.client.NetworkDefaults
+import com.alexeymerov.radiostations.remote.response.CategoryBody
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -56,11 +56,13 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
         // text and link should be valid
         if (!parentUrl.matches(NetworkDefaults.REGEX_VALID_URL) || responseBody.text.isEmpty()) return true
 
+        val responseUrl = responseBody.url
+
         // if header but without children
-        if (responseBody.url.isNullOrEmpty() && responseBody.children.isNullOrEmpty()) return true
+        if (responseUrl.isNullOrEmpty() && responseBody.children.isNullOrEmpty()) return true
 
         // if subcategory/audio with broken link
-        if (isChildren && (responseBody.url == null || !responseBody.url.matches(NetworkDefaults.REGEX_VALID_URL))) return true
+        if (isChildren && (responseUrl == null || !responseUrl.matches(NetworkDefaults.REGEX_VALID_URL))) return true
 
         return false
     }

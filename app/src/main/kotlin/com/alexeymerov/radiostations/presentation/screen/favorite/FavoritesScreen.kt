@@ -21,9 +21,9 @@ import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.CallOnDispose
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
-import com.alexeymerov.radiostations.presentation.common.ErrorView
-import com.alexeymerov.radiostations.presentation.common.LoaderView
-import com.alexeymerov.radiostations.presentation.common.StationListItem
+import com.alexeymerov.radiostations.presentation.common.view.ErrorView
+import com.alexeymerov.radiostations.presentation.common.view.LoaderView
+import com.alexeymerov.radiostations.presentation.common.view.StationListItem
 import com.alexeymerov.radiostations.presentation.navigation.DropDownItem
 import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens

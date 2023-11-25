@@ -5,12 +5,12 @@ import com.alexeymerov.radiostations.data.local.db.dao.MediaDao
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
 import com.alexeymerov.radiostations.data.mapper.media.MediaMapper
-import com.alexeymerov.radiostations.data.mapper.response.ResponseMapper
-import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
-import com.alexeymerov.radiostations.data.remote.response.MainBody
-import com.alexeymerov.radiostations.data.remote.response.MediaBody
 import com.alexeymerov.radiostations.data.repository.audio.MediaRepository
 import com.alexeymerov.radiostations.data.repository.audio.MediaRepositoryImpl
+import com.alexeymerov.radiostations.mapper.response.ResponseMapper
+import com.alexeymerov.radiostations.remote.client.radio.RadioClient
+import com.alexeymerov.radiostations.remote.response.MainBody
+import com.alexeymerov.radiostations.remote.response.MediaBody
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified

@@ -2,7 +2,7 @@ package com.alexeymerov.radiostations.data.mapper.media
 
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
-import com.alexeymerov.radiostations.data.remote.response.MediaBody
+import com.alexeymerov.radiostations.remote.response.MediaBody
 
 interface MediaMapper {
 

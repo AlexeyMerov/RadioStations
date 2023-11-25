@@ -4,7 +4,7 @@ import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.local.db.entity.MediaEntity
-import com.alexeymerov.radiostations.data.remote.response.MediaBody
+import com.alexeymerov.radiostations.remote.response.MediaBody
 import javax.inject.Inject
 
 class MediaMapperImp @Inject constructor() : MediaMapper {

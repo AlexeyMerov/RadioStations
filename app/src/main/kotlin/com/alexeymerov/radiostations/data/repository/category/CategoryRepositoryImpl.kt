@@ -5,8 +5,7 @@ import com.alexeymerov.radiostations.common.httpsEverywhere
 import com.alexeymerov.radiostations.data.local.db.dao.CategoryDao
 import com.alexeymerov.radiostations.data.local.db.entity.CategoryEntity
 import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
-import com.alexeymerov.radiostations.data.mapper.response.ResponseMapper
-import com.alexeymerov.radiostations.data.remote.client.radio.RadioClient
+import com.alexeymerov.radiostations.remote.client.radio.RadioClient
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 import javax.inject.Inject
@@ -14,7 +13,6 @@ import javax.inject.Inject
 class CategoryRepositoryImpl @Inject constructor(
     private val radioClient: RadioClient,
     private val categoryDao: CategoryDao,
-    private val responseMapper: ResponseMapper,
     private val categoryMapper: CategoryMapper
 ) : CategoryRepository {
 
@@ -30,8 +28,7 @@ class CategoryRepositoryImpl @Inject constructor(
     override suspend fun loadCategoriesByUrl(url: String) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  request new data")
         val parentUrl = url.prepareUrl()
-        val categoriesResponse = radioClient.requestCategoriesByUrl(parentUrl)
-        val categoryList = responseMapper.mapResponseBody(categoriesResponse)
+        val categoryList = radioClient.requestCategoriesByUrl(parentUrl)
         val categoryEntities = categoryMapper.mapCategoryResponseToEntity(categoryList, parentUrl)
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  inserting ${categoryEntities.size} entities")
         categoryDao.insertAll(categoryEntities)
