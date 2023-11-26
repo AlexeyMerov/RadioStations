@@ -57,15 +57,11 @@ dependencies {
     implementation(projects.feature.favorite)
     implementation(projects.feature.settings)
     implementation(projects.feature.profile)
-    implementation(projects.feature.player)
+    implementation(projects.feature.player.screen)
+    implementation(projects.feature.player.service)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
-    implementation(libs.kotlin.guava)
 
-    implementation(libs.media3.exoplayer.base)
-    implementation(libs.media3.exoplayer.dash)
-    implementation(libs.media3.ui)
-    implementation(libs.media3.session)
 
     implementation(libs.compose.activity)
 

@@ -8,6 +8,7 @@ import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -83,6 +84,15 @@ class AudioUseCaseImpl @Inject constructor(
                     subTitle = it.subtitle
                 )
             }
+    }
+
+    override suspend fun updateMediaAndPlay(item: AudioItemDto) {
+        setLastPlayingMediaItem(item)
+
+        // temp workaround since we handling isPlaying in service and it works slower then the bottom line.
+        // Should be fixed with Buffering state implementation
+        delay(500)
+        updatePlayerState(AudioUseCase.PlayerState.PLAYING)
     }
 
     override suspend fun setLastPlayingMediaItem(item: AudioItemDto) {

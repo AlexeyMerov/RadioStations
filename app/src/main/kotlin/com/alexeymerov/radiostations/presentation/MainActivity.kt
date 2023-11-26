@@ -20,7 +20,6 @@ import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
 import com.alexeymerov.radiostations.presentation.common.collectWhenStarted
-import com.alexeymerov.radiostations.presentation.common.mapToMediaItem
 import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import com.google.common.util.concurrent.ListenableFuture

@@ -8,8 +8,11 @@ import com.alexeymerov.radiostations.presentation.common.BaseViewEffect
 import com.alexeymerov.radiostations.presentation.common.BaseViewModel
 import com.alexeymerov.radiostations.presentation.common.BaseViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -19,13 +22,24 @@ class PlayerViewModel @Inject constructor(
     private val audioUseCase: AudioUseCase
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
+    val currentAudioItem: StateFlow<AudioItemDto?> = audioUseCase.getLastPlayingMediaItem()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+
     override fun createInitialState() = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${action.javaClass.simpleName}")
-        when (action) {
-            is ViewAction.ToggleFavorite -> toggleFavorite(action.id)
-            is ViewAction.LoadAudio -> loadAudioLink(action.url)
+        viewModelScope.launch(ioContext) {
+            when (action) {
+                is ViewAction.ToggleFavorite -> toggleFavorite(action.id)
+                is ViewAction.LoadAudio -> loadAudioLink(action.url)
+                is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
+                is ViewAction.ChangeAudio -> audioUseCase.updateMediaAndPlay(action.mediaItem)
+            }
         }
     }
 
@@ -66,6 +80,9 @@ class PlayerViewModel @Inject constructor(
     sealed interface ViewAction : BaseViewAction {
         data class ToggleFavorite(val id: String) : ViewAction
         data class LoadAudio(val url: String) : ViewAction
+
+        data class ChangeAudio(val mediaItem: AudioItemDto) : ViewAction
+        data object ToggleAudio : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {

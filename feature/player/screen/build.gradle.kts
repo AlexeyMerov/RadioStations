@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alexeymerov.radiostations.feature.player"
+    namespace = "com.alexeymerov.radiostations.feature.player.screen"
 }
 
 dependencies {

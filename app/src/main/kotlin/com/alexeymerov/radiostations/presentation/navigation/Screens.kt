@@ -1,10 +1,8 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavArgumentBuilder
@@ -72,7 +70,6 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostCont
 
         BasePlayerScreen(
             viewModel = hiltViewModel(),
-            mainViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
             isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
             topBarBlock = topBarBlock,
             stationName = stationName,

@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.common
+package com.alexeymerov.radiostations.presentation
 
 import android.net.Uri
 import androidx.media3.common.MediaItem

@@ -11,6 +11,8 @@ interface AudioUseCase {
 
     fun getLastPlayingMediaItem(): Flow<AudioItemDto?>
 
+    suspend fun updateMediaAndPlay(item: AudioItemDto)
+
     suspend fun setLastPlayingMediaItem(item: AudioItemDto)
 
     suspend fun getByUrl(url: String): CategoryItemDto

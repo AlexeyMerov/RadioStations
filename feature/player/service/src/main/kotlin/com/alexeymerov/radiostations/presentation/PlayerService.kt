@@ -8,7 +8,6 @@ import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
-import com.alexeymerov.radiostations.presentation.common.mapToMediaItem
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import dagger.hilt.android.AndroidEntryPoint

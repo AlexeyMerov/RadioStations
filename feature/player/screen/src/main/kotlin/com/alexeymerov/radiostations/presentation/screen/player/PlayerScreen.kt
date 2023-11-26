@@ -40,7 +40,6 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
-import com.alexeymerov.radiostations.presentation.MainViewModel
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
@@ -53,7 +52,6 @@ import timber.log.Timber
 @Composable
 fun BasePlayerScreen(
     viewModel: PlayerViewModel,
-    mainViewModel: MainViewModel,
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
     stationName: String,
@@ -76,18 +74,18 @@ fun BasePlayerScreen(
     }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val bottomPlayerMedia by mainViewModel.currentAudioItem.collectAsStateWithLifecycle()
+    val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
 
     PlayerScreen(
         viewState = viewState,
         stationImgUrl = stationImgUrl,
         onToggleAudio = { currentItem ->
-            var action: MainViewModel.ViewAction = MainViewModel.ViewAction.ToggleAudio
+            var action: ViewAction = ViewAction.ToggleAudio
             if (bottomPlayerMedia?.directUrl != currentItem.directUrl) {
-                action = MainViewModel.ViewAction.ChangeAudio(currentItem)
+                action = ViewAction.ChangeAudio(currentItem)
             }
 
-            mainViewModel.setAction(action)
+            viewModel.setAction(action)
         }
     )
 
