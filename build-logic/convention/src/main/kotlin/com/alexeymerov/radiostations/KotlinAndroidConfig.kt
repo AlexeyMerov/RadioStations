@@ -16,8 +16,8 @@ internal fun Project.configureKotlinAndroid(
         defaultConfig.minSdk = libs.getIntVersion("minSdk")
 
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_17
-            targetCompatibility = JavaVersion.VERSION_17
+            sourceCompatibility = JavaVersion.toVersion(libs.getStringVersion("javaVersion"))
+            targetCompatibility = JavaVersion.toVersion(libs.getStringVersion("javaVersion"))
         }
 
         dependencies {
@@ -34,7 +34,7 @@ internal fun Project.configureKotlinAndroid(
 private fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_17.toString()
+            jvmTarget = libs.getStringVersion("javaVersion")
             languageVersion = libs.getStringVersion("kotlinLanguage")
 
             // Enable experimental APIs

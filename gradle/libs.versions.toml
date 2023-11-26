@@ -7,6 +7,7 @@ compileSdk = "34"
 minSdk = "24"
 targetSdk = "34"
 
+javaVersion = "17"
 kotlinLanguage = "1.9"
 composeCompiler = "1.5.1"
 
