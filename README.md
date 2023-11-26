@@ -3,11 +3,11 @@
 ## Preview
 
 <p>
-  <img src="./preview/categories.png" width="15%" /> 
-  <img src="./preview/stations.png" width="15%" />
-  <img src="./preview/favorites.png" width="15%" /> 
-  <img src="./preview/player.png" width="15%" /> 
-  <img src="./preview/theme.png" width="15%" /> 
+  <img src="./preview/categories.png" width="19%" /> 
+  <img src="./preview/stations.png" width="19%" />
+  <img src="./preview/favorites.png" width="19%" /> 
+  <img src="./preview/player.png" width="19%" /> 
+  <img src="./preview/theme.png" width="19%" /> 
 </p>
 
 ### About:
