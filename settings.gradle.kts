@@ -36,3 +36,4 @@ include(":core:dto")
 include(":core:ui")
 
 include(":feature:category")
+include(":feature:favorite")
