@@ -57,6 +57,7 @@ dependencies {
     implementation(projects.feature.favorite)
     implementation(projects.feature.settings)
     implementation(projects.feature.profile)
+    implementation(projects.feature.player)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
     implementation(libs.kotlin.guava)
@@ -68,10 +69,8 @@ dependencies {
 
     implementation(libs.compose.activity)
 
-
     implementation(libs.compose.navigation.base)
     implementation(libs.compose.navigation.hilt)
-
 
     implementation(libs.accompanist.systemUiController)
     implementation(libs.splashScreen)
