@@ -38,7 +38,6 @@
 - Lottie
 - ExoPlayer
 - JUnit4 + MockK
--
 
 ### Bottlenecks:
 
