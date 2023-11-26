@@ -10,7 +10,7 @@
   <img src="./preview/theme.png" width="19%" /> 
 </p>
 
-### About:
+## About:
 
 - Display list of categories and go for every nested links which represents new categories or radio stations.
 - Favorites (locally).
@@ -24,16 +24,7 @@
 - Dark/Light theme.
 - Tests... not 100% coverage.
 
-### Bottlenecks:
-
-Server.
-
-- Response type, the whole 'logic' and everything... not the best.
-- The problem is that it requires some core workarounds, which impact the whole app.
-- I left only one Entity type and made it all-on-one/dumb.
-- The whole 'position' thing for saving in DB is wierd. There is a predefined sort from server but no response param for that.
-
-### Tech stack:
+## Tech stack:
 
 - Multi-module
 - Clean Architecture
@@ -47,3 +38,13 @@ Server.
 - Lottie
 - ExoPlayer
 - JUnit4 + MockK
+-
+
+### Bottlenecks:
+
+Server.
+
+- Response type, the whole 'logic' and everything... not the best.
+- The problem is that it requires some core workarounds, which impact the whole app.
+- I left only one Entity type and made it all-on-one/dumb.
+- The whole 'position' thing for saving in DB is wierd. There is a predefined sort from server but no response param for that.
