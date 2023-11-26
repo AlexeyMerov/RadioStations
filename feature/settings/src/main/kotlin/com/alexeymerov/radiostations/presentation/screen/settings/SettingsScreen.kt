@@ -42,9 +42,6 @@ import com.alexeymerov.radiostations.presentation.common.view.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.settings.SettingsViewModel.ViewState
-import com.alexeymerov.radiostations.presentation.theme.blue.BlueLightColors
-import com.alexeymerov.radiostations.presentation.theme.green.GreenLightColors
-import com.alexeymerov.radiostations.presentation.theme.orange.OrangeLightColors
 
 @Composable
 fun BaseSettingsScreen(
@@ -137,9 +134,9 @@ private fun ThemeSettings(
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        BlueLightColors.primary,
-                        GreenLightColors.primary,
-                        OrangeLightColors.primary,
+                        Color(0xFF00639C),
+                        Color(0xFF1D6C30),
+                        Color(0xFF954A05),
                     )
                 ),
                 shape = ButtonDefaults.shape

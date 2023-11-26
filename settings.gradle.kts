@@ -37,3 +37,4 @@ include(":core:ui")
 
 include(":feature:category")
 include(":feature:favorite")
+include(":feature:settings")
