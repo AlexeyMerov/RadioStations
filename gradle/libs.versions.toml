@@ -1,10 +1,13 @@
 [versions]
-versionCode = "115"
-versionName = "1.6.0"
+
+versionCode = "116"
+versionName = "1.7.0"
 
 compileSdk = "34"
 minSdk = "24"
 targetSdk = "34"
+
+javaVersion = "17"
 kotlinLanguage = "1.9"
 composeCompiler = "1.5.1"
 
@@ -12,28 +15,45 @@ gradle = "8.1.4"
 kotlin = "1.9.0"
 versionsChecker = "0.47.0"
 
+ksp = "1.9.0-1.0.12"
 hilt = "2.48.1"
 room = "2.6.0"
 retrofit = "2.9.0"
 moshi = "1.15.0"
 okhttp = "4.12.0"
-exoplayer = "1.1.1"
+exoplayer = "1.2.0"
 composeLifecycle = "2.6.2"
-
 test = "1.5.0"
 mockk = "1.13.8"
+espresso-core = "3.5.1"
+appcompat = "1.6.1"
+material = "1.10.0"
 
 [plugins]
+
 androidApplication = { id = "com.android.application", version.ref = "gradle" }
 androidLibrary = { id = "com.android.library", version.ref = "gradle" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-ksp = { id = "com.google.devtools.ksp", version = "1.9.0-1.0.12" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "11.5.0" }
 versionsChecker = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
 
+radiostations-android-application = { id = "radiostations.android.application", version = "unspecified" }
+radiostations-android-library = { id = "radiostations.android.library", version = "unspecified" }
+radiostations-android-feature = { id = "radiostations.android.feature", version = "unspecified" }
+radiostations-android-hilt = { id = "radiostations.android.hilt", version = "unspecified" }
+radiostations-android-application-compose = { id = "radiostations.android.application.compose", version = "unspecified" }
+radiostations-android-library-compose = { id = "radiostations.android.library.compose", version = "unspecified" }
+radiostations-android-room = { id = "radiostations.android.room", version = "unspecified" }
+
 
 [libraries]
+
+android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kspGradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" }
 work-runtime = { module = "androidx.work:work-runtime-ktx", version = "2.8.1" }
@@ -71,7 +91,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeLifecycle" }
 compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeLifecycle" }
-compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.0" }
+compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.1" }
 compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.5" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
 compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }
@@ -95,6 +115,6 @@ mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-agent = { module = "io.mockk:mockk-agent", version.ref = "mockk" }
 
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.7.3" }
-
-
-
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }

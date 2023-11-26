@@ -1,15 +1,26 @@
 *.iml
-.gradle
-/local.properties
-/.idea/*
-.idea/*
+*.apk
+*.ap_
+*.dex
+*.class
+
 .DS_Store
-/build
-/captures
 .externalNativeBuild
 .cxx
-local.properties
 
+.gradle
+.idea/*
+
+bin/
+gen/
+out/
+build/
+captures/
+release/
+
+local.properties
+keystore.properties
+key_radiostations.jks
 
 # Can be shared across team
 !.idea/dictionaries/
@@ -17,7 +28,3 @@ local.properties
 !.idea/codeStyles/
 !.idea/codeStyles/*
 !.idea/icon.png
-
-/keystore.properties
-
-/key_radiostations.jks

@@ -16,11 +16,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.common.collectWhenStarted
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
-import com.alexeymerov.radiostations.presentation.common.mapToMediaItem
+import com.alexeymerov.radiostations.presentation.common.collectWhenStarted
 import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import com.google.common.util.concurrent.ListenableFuture
@@ -46,6 +45,9 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { viewState == ViewState.Loading }
 
         viewModel.viewState.collectWhenStarted(this) { viewState = it }
+
+        viewModel.currentAudioItem.filterNotNull().collectWhenStarted(this, ::processCurrentAudioItem)
+        viewModel.playerState.collectWhenStarted(this, ::processPlayerState)
 
         enableEdgeToEdge()
         setContent {
@@ -76,49 +78,40 @@ class MainActivity : ComponentActivity() {
         val sessionToken = SessionToken(this, ComponentName(this, PlayerService::class.java))
         controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
         controllerFuture?.let { future ->
-            val listener: () -> Unit = {
-                mediaController = future.get()
-                mediaController?.let { controller ->
-                    viewModel.currentAudioItem.filterNotNull().collectWhenStarted(this) { item ->
-                        processCurrentAudioItem(item, controller)
-                    }
-
-                    viewModel.playerState.collectWhenStarted(this) {
-                        processPlayerState(it, controller)
-                    }
-                }
-            }
-
+            val listener: () -> Unit = { mediaController = future.get() }
             future.addListener(listener, MoreExecutors.directExecutor())
         }
     }
 
-    private fun processCurrentAudioItem(item: AudioItemDto, controller: MediaController) {
+    private fun processCurrentAudioItem(item: AudioItemDto) {
         Timber.d("activity currentMediaItem $item")
-
-        if (item.directUrl != controller.currentMediaItem?.mediaId) {
-            controller.setMediaItem(mapToMediaItem(item))
-            controller.prepare()
+        mediaController?.also { controller ->
+            if (item.directUrl != controller.currentMediaItem?.mediaId) {
+                controller.setMediaItem(mapToMediaItem(item))
+                controller.prepare()
+            }
         }
     }
 
-    private fun processPlayerState(it: PlayerState, controller: MediaController) {
+    private fun processPlayerState(it: PlayerState) {
         Timber.d("activity playerState $it")
-        when (it) {
-            PlayerState.EMPTY -> {
-                controller.stop()
-                controller.clearMediaItems()
-            }
-
-            PlayerState.PLAYING -> {
-                if (!controller.isPlaying) {
-                    controller.playWhenReady = true
+        mediaController?.also { controller ->
+            when (it) {
+                PlayerState.EMPTY -> {
+                    controller.stop()
+                    controller.clearMediaItems()
                 }
-            }
 
-            PlayerState.STOPPED -> controller.pause()
-            PlayerState.BUFFERING -> {
-                // nothing at the moment but todo
+                PlayerState.PLAYING -> {
+                    if (!controller.isPlaying) {
+                        controller.playWhenReady = true
+                    }
+                }
+
+                PlayerState.STOPPED -> controller.pause()
+                PlayerState.BUFFERING -> {
+                    // nothing at the moment but todo
+                }
             }
         }
     }

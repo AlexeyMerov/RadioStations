@@ -2,6 +2,7 @@ package com.alexeymerov.radiostations
 
 import android.app.Application
 import com.alexeymerov.radiostations.common.NumberedTimberTree
+import com.alexeymerov.radiostations.core.common.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 

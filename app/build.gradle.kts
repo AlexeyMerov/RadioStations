@@ -6,50 +6,21 @@ val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
 plugins {
-    id("com.android.application")
-    id("dagger.hilt.android.plugin")
-    id("com.google.devtools.ksp")
-    kotlin("android")
-    kotlin("plugin.parcelize")
+    alias(libs.plugins.radiostations.android.application)
+    alias(libs.plugins.radiostations.android.hilt)
+    alias(libs.plugins.radiostations.android.application.compose)
 }
 
 android {
     namespace = "com.alexeymerov.radiostations"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-        languageVersion = libs.versions.kotlinLanguage.get()
-    }
-
-    buildFeatures {
-        buildConfig = true
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
-    }
 
     defaultConfig {
         applicationId = "com.alexeymerov.radiostations"
         versionCode = libs.versions.versionCode.get().toInt()
         versionName = libs.versions.versionName.get()
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
+
         vectorDrawables.useSupportLibrary = true
-
         resourceConfigurations.addAll(listOf("en", "uk", "ru"))
-
-        testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
-        testInstrumentationRunnerArguments["clearPackageData"] = "true"
-
-        buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
     }
 
     signingConfigs {
@@ -62,11 +33,12 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {
+        debug {
             isDebuggable = true
             isMinifyEnabled = false
         }
-        getByName("release") {
+
+        release {
             isDebuggable = false
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -74,114 +46,26 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
-
-    lint {
-        abortOnError = true
-        checkReleaseBuilds = true
-        xmlReport = false
-//        disable.add("UnsafeExperimentalUsageError")
-//        disable.add("UnsafeExperimentalUsageWarning")
-    }
-
-    @Suppress("UnstableApiUsage")
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-        unitTests.isIncludeAndroidResources = true
-    }
-
-    sourceSets {
-        // Adds exported schema location as test app assets.
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
-    }
 }
 
 dependencies {
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(projects.core.common)
+    implementation(projects.core.domain)
+    implementation(projects.core.ui)
 
-    implementation(libs.androidx.core.ktx)
+    implementation(projects.feature.category)
+    implementation(projects.feature.favorite)
+    implementation(projects.feature.settings)
+    implementation(projects.feature.profile)
+    implementation(projects.feature.player.screen)
+    implementation(projects.feature.player.service)
+
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
-    implementation(libs.timber)
-    implementation(libs.dataStore.base)
-    implementation(libs.kotlin.guava)
-
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
-
-    implementation(libs.retrofit.base)
-    implementation(libs.retrofit.converter.moshi)
-    implementation(libs.moshi.kotlin.base)
-    ksp(libs.moshi.kotlin.codegen)
-    implementation(libs.okhttp.base)
-    implementation(libs.okhttp.logging)
-
-    implementation(libs.media3.exoplayer.base)
-    implementation(libs.media3.exoplayer.dash)
-    implementation(libs.media3.ui)
-    implementation(libs.media3.session)
-
-    val composeBom = platform(libs.compose.bom)
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
-
-    implementation(libs.compose.material3)
-    implementation(libs.compose.ui.toolingPreview)
-    debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.compose.activity)
-    implementation(libs.compose.viewmodel)
-    implementation(libs.compose.runtime)
     implementation(libs.compose.navigation.base)
     implementation(libs.compose.navigation.hilt)
-    implementation(libs.compose.materialIcons)
 
-    implementation(libs.coil.compose)
     implementation(libs.accompanist.systemUiController)
-
-    implementation(libs.lottie)
     implementation(libs.splashScreen)
-
-    /* --- TESTS --- */
-
-    testImplementation(libs.junit)
-    testImplementation(libs.junitExt)
-    androidTestImplementation(libs.junitExt)
-
-    testImplementation(libs.test.core)
-    androidTestImplementation(libs.test.core)
-
-    testImplementation(libs.test.coreKtx)
-    androidTestImplementation(libs.test.coreKtx)
-
-    testImplementation(libs.test.runner)
-    androidTestImplementation(libs.test.runner)
-
-    androidTestUtil(libs.test.orchestrator)
-
-    androidTestImplementation(libs.hilt.testing)
-    kspAndroidTest(libs.hilt.compiler)
-
-    testImplementation(libs.coroutines.test)
-    androidTestImplementation(libs.coroutines.test)
-
-    androidTestImplementation(libs.room.testing)
-
-    testImplementation(libs.okhttp.test)
-    testImplementation(libs.retrofit.test)
-
-    testImplementation(libs.mockk.android)
-    testImplementation(libs.mockk.agent)
-}
-
-ksp {
-    arg(RoomSchemaArgProvider(File(projectDir, "schemas")))
-}
-
-class RoomSchemaArgProvider(
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    val schemaDir: File
-) : CommandLineArgumentProvider {
-    override fun asArguments(): Iterable<String> = listOf("room.schemaLocation=${schemaDir.path}")
 }

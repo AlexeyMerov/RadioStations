@@ -1,10 +1,8 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavArgumentBuilder
@@ -14,8 +12,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.presentation.screen.category.BaseCategoryScreen
 import com.alexeymerov.radiostations.presentation.screen.favorite.BaseFavoriteScreen
 import com.alexeymerov.radiostations.presentation.screen.player.BasePlayerScreen
@@ -72,7 +70,6 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostCont
 
         BasePlayerScreen(
             viewModel = hiltViewModel(),
-            mainViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
             isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
             topBarBlock = topBarBlock,
             stationName = stationName,
@@ -110,7 +107,6 @@ fun NavGraphBuilder.profileScreen(navController: NavHostController, topBarBlock:
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
         BaseProfileScreen(
-            viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Profile.Const.ROUTE),
             topBarBlock = topBarBlock,
             onNavigate = { navController.navigate(it) }
@@ -135,10 +131,9 @@ fun NavGraphBuilder.settingsScreen(navController: NavHostController, topBarBlock
 
 
 /**
- * idk...
- * IF you will switch BottomNav items really fast it will cause the wrong TopBar state
- * This approach resolve the issue but looks not right either.
- * Will research later.
+ * idk... will research later.
+ * IF you'll switch BottomNav items really fast it'll cause the wrong TopBar state
+ * This approach resolves the issue but doesn't look right.
  * */
 private fun NavHostController.isVisibleToUser(route: String) = currentDestination?.route?.contains(route) ?: true
 

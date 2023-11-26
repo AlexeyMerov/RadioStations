@@ -1,10 +1,6 @@
 package com.alexeymerov.radiostations.presentation
 
 import androidx.lifecycle.viewModelScope
-import com.alexeymerov.radiostations.common.BaseViewAction
-import com.alexeymerov.radiostations.common.BaseViewEffect
-import com.alexeymerov.radiostations.common.BaseViewModel
-import com.alexeymerov.radiostations.common.BaseViewState
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
@@ -13,8 +9,11 @@ import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettings
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
+import com.alexeymerov.radiostations.presentation.common.BaseViewAction
+import com.alexeymerov.radiostations.presentation.common.BaseViewEffect
+import com.alexeymerov.radiostations.presentation.common.BaseViewModel
+import com.alexeymerov.radiostations.presentation.common.BaseViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -61,23 +60,10 @@ class MainViewModel @Inject constructor(
                 is ViewAction.PlayAudio -> audioUseCase.updatePlayerState(PlayerState.PLAYING)
                 is ViewAction.StopAudio -> audioUseCase.updatePlayerState(PlayerState.STOPPED)
                 is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
-                is ViewAction.ChangeAudio -> {
-                    handleAudioChanged(action.mediaItem)
-                }
-
-                ViewAction.NukePlayer -> audioUseCase.updatePlayerState(PlayerState.EMPTY)
+                is ViewAction.ChangeAudio -> audioUseCase.updateMediaAndPlay(action.mediaItem)
+                is ViewAction.NukePlayer -> audioUseCase.updatePlayerState(PlayerState.EMPTY)
             }
         }
-    }
-
-    private suspend fun handleAudioChanged(newMediaUrl: AudioItemDto) {
-        Timber.d("new url $newMediaUrl")
-        audioUseCase.setLastPlayingMediaItem(newMediaUrl)
-
-        // temp workaround since we handling isPlaying in service and it works slower then the bottom line.
-        // Should be fixed with Buffering state implementation
-        delay(500)
-        audioUseCase.updatePlayerState(PlayerState.PLAYING)
     }
 
     sealed interface ViewState : BaseViewState {
