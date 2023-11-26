@@ -32,6 +32,12 @@ class CategoryRepositoryImpl @Inject constructor(
         val categoryList = radioClient.requestCategoriesByUrl(parentUrl)
         val categoryEntities = categoryMapper.mapCategoryResponseToEntity(categoryList, parentUrl)
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  inserting ${categoryEntities.size} entities")
+        val favorites = categoryDao.getFavorites()
+
+        favorites.forEach { favEntity ->
+            categoryEntities.find { it.id == favEntity.id }?.let { it.isFavorite = true }
+        }
+
         categoryDao.insertAll(categoryEntities)
     }
 

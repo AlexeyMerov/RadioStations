@@ -18,7 +18,7 @@ class MediaRepositoryImpl @Inject constructor(
     private val mediaDao: MediaDao
 ) : MediaRepository {
 
-    override fun getAllFavorites(): Flow<List<CategoryEntity>> = categoryDao.getFavorites()
+    override fun getAllFavorites(): Flow<List<CategoryEntity>> = categoryDao.getFavoritesFlow()
 
     override suspend fun getMediaByUrl(url: String): MediaEntity? {
         val item = categoryDao.getByUrl(url)

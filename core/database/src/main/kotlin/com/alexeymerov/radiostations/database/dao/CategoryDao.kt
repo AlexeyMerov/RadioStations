@@ -26,7 +26,10 @@ abstract class CategoryDao {
     abstract fun getAllByParentUrl(url: String): Flow<List<CategoryEntity>>
 
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_FAVORITE} = 1 ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
-    abstract fun getFavorites(): Flow<List<CategoryEntity>>
+    abstract fun getFavoritesFlow(): Flow<List<CategoryEntity>>
+
+    @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_FAVORITE} = 1 ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
+    abstract fun getFavorites(): List<CategoryEntity>
 
     @Query(
         "UPDATE ${CategoryEntity.TABLE_NAME} " +

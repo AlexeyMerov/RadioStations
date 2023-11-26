@@ -62,9 +62,7 @@ dependencies {
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
 
-
     implementation(libs.compose.activity)
-
     implementation(libs.compose.navigation.base)
     implementation(libs.compose.navigation.hilt)
 

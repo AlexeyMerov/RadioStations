@@ -16,7 +16,7 @@ data class CategoryEntity(
     val currentTrack: String = String.EMPTY,
     val type: EntityItemType,
     val childCount: Int? = null,
-    val isFavorite: Boolean = false
+    var isFavorite: Boolean = false
 ) {
 
     companion object {
