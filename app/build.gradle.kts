@@ -56,6 +56,7 @@ dependencies {
     implementation(projects.feature.category)
     implementation(projects.feature.favorite)
     implementation(projects.feature.settings)
+    implementation(projects.feature.profile)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
     implementation(libs.kotlin.guava)
