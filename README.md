@@ -3,11 +3,16 @@
 ### About:
 
 - Display list of categories and go for every nested links which represents new categories or radio stations.
-- Different types of items.
-- Play audio.
-- Be good with performance, architecture and use best practices.
-- Animations and up-to-date design guideline.
-- Tests... after taking a deep breath.
+- Favorites (locally).
+- Settings for the app.
+- Play/control audio as a service.
+- Different item types.
+- Performance, architecture and use best practices.
+- Offline mode.
+- Design guideline (Material3).
+- Animations.
+- Dark/Light theme.
+- Tests... not 100% coverage.
 
 ### Bottlenecks:
 
@@ -20,6 +25,8 @@ Server.
 
 ### Tech stack:
 
+- Multi-module
+- Clean Architecture
 - Kotlin + KTS
 - Coroutines + Flow
 - Retrofit + Moshi
