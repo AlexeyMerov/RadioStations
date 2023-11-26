@@ -1,10 +1,8 @@
 package com.alexeymerov.radiostations
 
 import org.gradle.api.Project
-import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.getByType
 
@@ -17,30 +15,30 @@ fun VersionCatalog.getStringVersion(alias: String) = findVersion(alias).get().to
 
 fun VersionCatalog.getIntVersion(alias: String) = getStringVersion(alias).toInt()
 
-fun DependencyHandlerScope.implementation(alias: Provider<MinimalExternalModuleDependency>) {
-    add("implementation", alias)
+fun DependencyHandlerScope.implementation(dependency: Any) {
+    add("implementation", dependency)
 }
 
-fun DependencyHandlerScope.testImplementation(alias: Provider<MinimalExternalModuleDependency>) {
-    add("testImplementation", alias)
+fun DependencyHandlerScope.testImplementation(dependency: Any) {
+    add("testImplementation", dependency)
 }
 
-fun DependencyHandlerScope.androidTestImplementation(alias: Provider<MinimalExternalModuleDependency>) {
-    add("androidTestImplementation", alias)
+fun DependencyHandlerScope.androidTestImplementation(dependency: Any) {
+    add("androidTestImplementation", dependency)
 }
 
-fun DependencyHandlerScope.debugImplementation(alias: Provider<MinimalExternalModuleDependency>) {
-    add("debugImplementation", alias)
+fun DependencyHandlerScope.debugImplementation(dependency: Any) {
+    add("debugImplementation", dependency)
 }
 
-fun DependencyHandlerScope.ksp(alias: Provider<MinimalExternalModuleDependency>) {
-    add("ksp", alias)
+fun DependencyHandlerScope.ksp(dependency: Any) {
+    add("ksp", dependency)
 }
 
-fun DependencyHandlerScope.kspAndroidTest(alias: Provider<MinimalExternalModuleDependency>) {
-    add("kspAndroidTest", alias)
+fun DependencyHandlerScope.kspAndroidTest(dependency: Any) {
+    add("kspAndroidTest", dependency)
 }
 
-fun DependencyHandlerScope.androidTestUtil(alias: Provider<MinimalExternalModuleDependency>) {
-    add("androidTestUtil", alias)
+fun DependencyHandlerScope.androidTestUtil(dependency: Any) {
+    add("androidTestUtil", dependency)
 }

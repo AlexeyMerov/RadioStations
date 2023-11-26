@@ -14,8 +14,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.presentation.screen.category.BaseCategoryScreen
 import com.alexeymerov.radiostations.presentation.screen.favorite.BaseFavoriteScreen
 import com.alexeymerov.radiostations.presentation.screen.player.BasePlayerScreen
@@ -134,10 +134,9 @@ fun NavGraphBuilder.settingsScreen(navController: NavHostController, topBarBlock
 
 
 /**
- * idk...
- * IF you will switch BottomNav items really fast it will cause the wrong TopBar state
- * This approach resolve the issue but looks not right either.
- * Will research later.
+ * idk... will research later.
+ * IF you'll switch BottomNav items really fast it'll cause the wrong TopBar state
+ * This approach resolves the issue but doesn't look right.
  * */
 private fun NavHostController.isVisibleToUser(route: String) = currentDestination?.route?.contains(route) ?: true
 

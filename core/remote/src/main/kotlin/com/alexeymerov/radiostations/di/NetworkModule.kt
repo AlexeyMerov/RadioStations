@@ -1,7 +1,7 @@
 package com.alexeymerov.radiostations.di
 
 
-import com.alexeymerov.radiostations.common.BuildConfig
+import com.alexeymerov.radiostations.core.common.BuildConfig
 
 import com.alexeymerov.radiostations.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.remote.interceptor.JsonResponseInterceptor

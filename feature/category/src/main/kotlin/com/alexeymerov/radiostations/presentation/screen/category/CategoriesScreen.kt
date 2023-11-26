@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
-import com.alexeymerov.radiostations.presentation.common.CallOnDispose
-import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.ShimmerLoading
 import com.alexeymerov.radiostations.presentation.common.view.StationListItem
@@ -52,8 +51,12 @@ fun BaseCategoryScreen(
 
     if (isVisibleToUser) TopBarSetup(categoryTitle, defTitle, topBarBlock)
 
-    CallOnDispose { viewModel.clear() }
-    CallOnLaunch { viewModel.setAction(ViewAction.LoadCategories) }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clear()
+        }
+    }
+    LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadCategories) }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()

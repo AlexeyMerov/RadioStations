@@ -9,8 +9,8 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.alexeymerov.radiostations.R
 import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.core.ui.R
 
 
 sealed class Tabs(val route: String, @StringRes val stringId: Int, val icon: ImageVector, val selectedIcon: ImageVector) {

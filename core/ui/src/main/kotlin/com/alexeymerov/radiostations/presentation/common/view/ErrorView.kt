@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.core.ui.R
 
 @Composable
 fun ErrorView(errorText: String = stringResource(R.string.sorry_nothing_found), showImage: Boolean = true) {

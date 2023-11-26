@@ -38,10 +38,9 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
-import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.presentation.MainViewModel
-import com.alexeymerov.radiostations.presentation.common.CallOnLaunch
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
@@ -92,7 +91,7 @@ fun BasePlayerScreen(
         }
     )
 
-    CallOnLaunch { viewModel.setAction(ViewAction.LoadAudio(rawUrl)) }
+    LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadAudio(rawUrl)) }
 }
 
 @Composable

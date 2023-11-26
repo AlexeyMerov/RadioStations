@@ -9,8 +9,6 @@ plugins {
     alias(libs.plugins.radiostations.android.application)
     alias(libs.plugins.radiostations.android.hilt)
     alias(libs.plugins.radiostations.android.application.compose)
-
-    kotlin("plugin.parcelize")
 }
 
 android {
@@ -53,6 +51,9 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.domain)
+    implementation(projects.core.ui)
+
+    implementation(projects.feature.category)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
     implementation(libs.kotlin.guava)
@@ -63,14 +64,12 @@ dependencies {
     implementation(libs.media3.session)
 
     implementation(libs.compose.activity)
-    implementation(libs.compose.viewmodel)
-    implementation(libs.compose.runtime)
+
+
     implementation(libs.compose.navigation.base)
     implementation(libs.compose.navigation.hilt)
 
-    implementation(libs.coil.compose)
-    implementation(libs.accompanist.systemUiController)
 
-    implementation(libs.lottie)
+    implementation(libs.accompanist.systemUiController)
     implementation(libs.splashScreen)
 }

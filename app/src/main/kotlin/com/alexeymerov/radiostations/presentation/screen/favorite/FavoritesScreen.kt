@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,10 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
-import com.alexeymerov.radiostations.presentation.common.CallOnDispose
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.LoaderView
 import com.alexeymerov.radiostations.presentation.common.view.StationListItem
@@ -51,7 +51,11 @@ fun BaseFavoriteScreen(
         )
     }
 
-    CallOnDispose { viewModel.clear() }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clear()
+        }
+    }
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
 

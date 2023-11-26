@@ -22,9 +22,9 @@ internal fun Project.configureCompose(
             androidTestImplementation(composeBom)
 
             implementation(libs.getLibrary("compose-material3"))
+            implementation(libs.getLibrary("compose-materialIcons"))
             implementation(libs.getLibrary("compose-ui-toolingPreview"))
             debugImplementation(libs.getLibrary("compose-ui-tooling"))
-            implementation(libs.getLibrary("compose-materialIcons"))
         }
     }
 }

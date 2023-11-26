@@ -18,7 +18,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.presentation.common.shimmerEffect
 
 @Composable

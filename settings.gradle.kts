@@ -24,9 +24,15 @@ rootProject.name = "RadioStations"
 include(":app")
 
 include(":core:common")
+include(":core:test")
+
 include(":core:remote")
 include(":core:datastore")
 include(":core:database")
 include(":core:data")
-include(":core:test")
 include(":core:domain")
+include(":core:dto")
+
+include(":core:ui")
+
+include(":feature:category")

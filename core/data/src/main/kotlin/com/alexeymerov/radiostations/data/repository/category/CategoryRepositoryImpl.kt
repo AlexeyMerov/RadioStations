@@ -1,8 +1,8 @@
 package com.alexeymerov.radiostations.data.repository.category
 
 
-import com.alexeymerov.radiostations.common.BuildConfig
 import com.alexeymerov.radiostations.common.httpsEverywhere
+import com.alexeymerov.radiostations.core.common.BuildConfig
 import com.alexeymerov.radiostations.data.mapper.category.CategoryMapper
 import com.alexeymerov.radiostations.database.dao.CategoryDao
 import com.alexeymerov.radiostations.database.entity.CategoryEntity

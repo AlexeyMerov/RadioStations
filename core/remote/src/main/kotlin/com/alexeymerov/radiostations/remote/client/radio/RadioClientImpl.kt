@@ -1,7 +1,8 @@
 package com.alexeymerov.radiostations.remote.client.radio
 
-import com.alexeymerov.radiostations.common.BuildConfig
+
 import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.core.common.BuildConfig
 import com.alexeymerov.radiostations.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.remote.api.RadioApi
 import com.alexeymerov.radiostations.remote.client.BaseClient

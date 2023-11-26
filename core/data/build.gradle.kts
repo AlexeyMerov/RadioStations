@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alexeymerov.radiostations.data"
+    namespace = "com.alexeymerov.radiostations.core.data"
 }
 
 dependencies {

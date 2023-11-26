@@ -3,7 +3,7 @@ package com.alexeymerov.radiostations.presentation.screen.profile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
-import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens

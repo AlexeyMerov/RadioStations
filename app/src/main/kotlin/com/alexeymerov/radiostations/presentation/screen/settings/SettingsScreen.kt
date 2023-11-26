@@ -32,7 +32,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.alexeymerov.radiostations.R
+import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode

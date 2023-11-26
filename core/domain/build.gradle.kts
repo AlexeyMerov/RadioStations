@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alexeymerov.radiostations.domain"
+    namespace = "com.alexeymerov.radiostations.core.domain"
 }
 
 dependencies {
@@ -13,4 +13,5 @@ dependencies {
     implementation(projects.core.database)
     implementation(projects.core.datastore)
     implementation(projects.core.data)
+    api(projects.core.dto)
 }
