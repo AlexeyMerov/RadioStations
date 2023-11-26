@@ -1,5 +1,15 @@
 # RadioStations (Sandbox)
 
+## Preview
+
+<p>
+  <img src="./preview/categories.png" width="15%" /> 
+  <img src="./preview/stations.png" width="15%" />
+  <img src="./preview/favorites.png" width="15%" /> 
+  <img src="./preview/player.png" width="15%" /> 
+  <img src="./preview/theme.png" width="15%" /> 
+</p>
+
 ### About:
 
 - Display list of categories and go for every nested links which represents new categories or radio stations.
