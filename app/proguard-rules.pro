@@ -40,4 +40,4 @@
 }
 
 # -keep class * extends com.alexeymerov.radiostations.data.remote.response.ServerBodyType { *; }
- -keep class com.alexeymerov.radiostations.data.remote.response.** { *; }
+ -keep class com.alexeymerov.radiostations.remote.response.** { *; }
