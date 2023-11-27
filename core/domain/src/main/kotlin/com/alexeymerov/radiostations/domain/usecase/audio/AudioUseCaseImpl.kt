@@ -8,6 +8,7 @@ import com.alexeymerov.radiostations.domain.dto.AudioItemDto
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.mapper.DtoCategoriesMapper
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -92,7 +93,7 @@ class AudioUseCaseImpl @Inject constructor(
         // temp workaround since we handling isPlaying in service and it works slower then the bottom line.
         // Should be fixed with Buffering state implementation
         delay(500)
-        updatePlayerState(AudioUseCase.PlayerState.PLAYING)
+        updatePlayerState(PlayerState.PLAYING)
     }
 
     override suspend fun setLastPlayingMediaItem(item: AudioItemDto) {
@@ -107,24 +108,25 @@ class AudioUseCaseImpl @Inject constructor(
         mediaRepository.setLastPlayingMediaItem(mediaEntity)
     }
 
-    override fun getPlayerState(): Flow<AudioUseCase.PlayerState> {
-        return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = AudioUseCase.PlayerState.EMPTY.value)
+    override fun getPlayerState(): Flow<PlayerState> {
+        return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = PlayerState.EMPTY.value)
             .map { prefValue ->
-                return@map AudioUseCase.PlayerState.values().first {
+                return@map PlayerState.values().first {
                     it.value == prefValue
                 }
             }
     }
 
-    override suspend fun updatePlayerState(state: AudioUseCase.PlayerState) {
+    override suspend fun updatePlayerState(state: PlayerState) {
         Timber.d("updatePlayerState $state")
+        if (state == PlayerState.STOPPED && getPlayerState().first() == PlayerState.EMPTY) return
         settingsStore.setIntPrefs(PLAYER_STATE_KEY, state.value)
     }
 
     override suspend fun togglePlayerPlayStop() {
         val newState = when (getPlayerState().first()) {
-            AudioUseCase.PlayerState.STOPPED -> AudioUseCase.PlayerState.PLAYING
-            else -> AudioUseCase.PlayerState.STOPPED
+            PlayerState.PLAYING -> PlayerState.STOPPED
+            else -> PlayerState.PLAYING
         }
         updatePlayerState(newState)
     }

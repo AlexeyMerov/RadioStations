@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
+import com.alexeymerov.radiostations.presentation.common.view.ComposedTimberD
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.LoaderView
 import com.alexeymerov.radiostations.presentation.common.view.StationListItem
@@ -30,7 +31,6 @@ import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarIcon
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.*
-import timber.log.Timber
 
 
 @Composable
@@ -141,7 +141,7 @@ fun FavoriteScreen(
     onFavClick: (CategoryItemDto) -> Unit,
     onLongClick: (CategoryItemDto) -> Unit
 ) {
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView(stringResource(R.string.you_need_to_add_some_stations), showImage = false)
@@ -169,7 +169,7 @@ private fun MainContent(
     onFavClick: (CategoryItemDto) -> Unit,
     parentLongClick: (CategoryItemDto) -> Unit
 ) {
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
     val isList by rememberSaveable(viewType) { mutableStateOf(viewType == ViewType.LIST) }
     LazyVerticalGrid(

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.domain.dto.DtoItemType
+import com.alexeymerov.radiostations.presentation.common.view.ComposedTimberD
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.ShimmerLoading
 import com.alexeymerov.radiostations.presentation.common.view.StationListItem
@@ -34,7 +35,6 @@ import com.alexeymerov.radiostations.presentation.screen.category.CategoriesView
 import com.alexeymerov.radiostations.presentation.screen.category.item.CategoryListItem
 import com.alexeymerov.radiostations.presentation.screen.category.item.HeaderListItem
 import com.alexeymerov.radiostations.presentation.screen.category.item.SubCategoryListItem
-import timber.log.Timber
 
 
 @Composable
@@ -47,7 +47,7 @@ fun BaseCategoryScreen(
     parentRoute: String,
     onNavigate: (String) -> Unit
 ) {
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
     if (isVisibleToUser) TopBarSetup(categoryTitle, defTitle, topBarBlock)
 
@@ -128,7 +128,7 @@ private fun MainContent(
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
