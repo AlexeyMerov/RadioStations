@@ -40,6 +40,7 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.domain.dto.AudioItemDto
+import com.alexeymerov.radiostations.presentation.common.view.ComposedTimberD
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.LoaderView
 import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
@@ -47,7 +48,6 @@ import com.alexeymerov.radiostations.presentation.navigation.TopBarIcon
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.screen.player.PlayerViewModel.ViewState
-import timber.log.Timber
 
 @Composable
 fun BasePlayerScreen(
@@ -61,7 +61,7 @@ fun BasePlayerScreen(
     id: String,
     isFav: Boolean
 ) {
-    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
     if (isVisibleToUser) {
         TopBarSetup(
             topBarBlock = topBarBlock,

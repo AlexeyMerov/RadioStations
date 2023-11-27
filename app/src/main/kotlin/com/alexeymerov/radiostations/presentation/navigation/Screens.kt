@@ -14,12 +14,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.presentation.common.view.ComposedTimberD
 import com.alexeymerov.radiostations.presentation.screen.category.BaseCategoryScreen
 import com.alexeymerov.radiostations.presentation.screen.favorite.BaseFavoriteScreen
 import com.alexeymerov.radiostations.presentation.screen.player.BasePlayerScreen
 import com.alexeymerov.radiostations.presentation.screen.profile.BaseProfileScreen
 import com.alexeymerov.radiostations.presentation.screen.settings.BaseSettingsScreen
-import timber.log.Timber
 
 
 fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
@@ -30,7 +30,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavHost
             navArgument(Screens.Categories.Const.ARG_URL, defaultStringArg()),
         )
     ) { backStackEntry ->
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.categoriesScreen")
+        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.categoriesScreen")
 
         val defTitle = stringResource(R.string.browse)
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
@@ -59,7 +59,7 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostCont
             navArgument(Screens.Player.Const.ARG_IS_FAV, defaultBoolArg()),
         ),
     ) { backStackEntry ->
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.playerScreen")
 
         val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
         val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_SUBTITLE)) }
@@ -87,7 +87,7 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavHostC
         route = Screens.Favorites.route,
         arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
     ) { _ ->
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
+        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
 
         BaseFavoriteScreen(
             viewModel = hiltViewModel(),
@@ -104,7 +104,7 @@ fun NavGraphBuilder.profileScreen(navController: NavHostController, topBarBlock:
         route = Screens.Profile.route,
         arguments = listOf(navArgument(Screens.Profile.Const.ARG_TITLE, defaultStringArg())),
     ) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
+        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
         BaseProfileScreen(
             isVisibleToUser = navController.isVisibleToUser(Screens.Profile.Const.ROUTE),
@@ -119,7 +119,7 @@ fun NavGraphBuilder.settingsScreen(navController: NavHostController, topBarBlock
         route = Screens.Settings.route,
         arguments = listOf(navArgument(Screens.Settings.Const.ARG_TITLE, defaultStringArg())),
     ) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
+        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
 
         BaseSettingsScreen(
             viewModel = hiltViewModel(),

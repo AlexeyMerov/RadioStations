@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         val sessionToken = SessionToken(this, ComponentName(this, PlayerService::class.java))
         controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
         controllerFuture?.let { future ->
-            val listener: () -> Unit = { mediaController = future.get() }
+            val listener = { mediaController = future.get() }
             future.addListener(listener, MoreExecutors.directExecutor())
         }
     }
@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun processPlayerState(it: PlayerState) {
-        Timber.d("activity playerState $it")
+        Timber.d("activity playerState $it" + " == currentMediaItem ${mediaController?.currentMediaItem}")
         mediaController?.also { controller ->
             when (it) {
                 PlayerState.EMPTY -> {
@@ -104,6 +104,12 @@ class MainActivity : ComponentActivity() {
 
                 PlayerState.PLAYING -> {
                     if (!controller.isPlaying) {
+                        if (controller.currentMediaItem == null) {
+                            viewModel.currentAudioItem.value?.let { item ->
+                                processCurrentAudioItem(item)
+                            }
+                        }
+
                         controller.playWhenReady = true
                     }
                 }
