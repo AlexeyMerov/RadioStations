@@ -16,7 +16,6 @@ import com.alexeymerov.radiostations.presentation.navigation.decodeUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
@@ -39,15 +38,16 @@ class CategoriesViewModel @Inject constructor(
 
     private val headerFlow = MutableStateFlow(listOf<CategoryItemDto>())
 
-    val categoriesFlow: StateFlow<List<CategoryItemDto>> = categoryUseCase
+    val categoriesFlow = categoryUseCase
         .getAllByUrl(categoryUrl)
         .catch { handleError(it) }
         .onEach(::prepareHeaders)
         .combine(headerFlow, ::filterCategories)
         .onEach(::validateNewData)
         .map { it.items }
+        .map(::createHeaderAndItemsMap)
         .flowOn(ioContext)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
 
     override fun setAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")
@@ -148,6 +148,32 @@ class CategoriesViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun createHeaderAndItemsMap(items: List<CategoryItemDto>): MutableMap<CategoryItemDto?, List<CategoryItemDto>> {
+        val resultMap = mutableMapOf<CategoryItemDto?, List<CategoryItemDto>>()
+
+        if (items.any { it.type == DtoItemType.HEADER }) {
+            var index = 0
+            while (index < items.size) {
+                val item = items[index]
+                item.absoluteIndex = index
+                if (item.type == DtoItemType.HEADER) {
+                    val fromIndex = index + 1
+                    val toIndex = index + item.subItemsCount + 1
+
+                    resultMap[item] = items.subList(fromIndex, toIndex)
+                    index = toIndex
+                } else {
+                    resultMap[item] = emptyList()
+                    index++
+                }
+            }
+        } else {
+            resultMap[null] = items
+        }
+
+        return resultMap
     }
 
     sealed interface ViewState : BaseViewState {
