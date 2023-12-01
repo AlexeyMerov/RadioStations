@@ -107,6 +107,7 @@ fun NavGraphBuilder.profileScreen(navController: NavHostController, topBarBlock:
         ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
         BaseProfileScreen(
+            viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Profile.Const.ROUTE),
             topBarBlock = topBarBlock,
             onNavigate = { navController.navigate(it) }

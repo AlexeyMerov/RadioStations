@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -173,7 +174,7 @@ private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String
 
     Box(Modifier.size(60.dp)) {
         if (isLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(strokeCap = StrokeCap.Round)
         } else {
             ControlButton(isPlaying, onToggleAudio)
         }

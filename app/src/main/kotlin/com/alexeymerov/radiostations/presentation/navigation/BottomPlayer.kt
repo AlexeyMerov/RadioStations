@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.LottieProperty
@@ -77,7 +78,8 @@ fun BottomPlayer(
                     CircularProgressIndicator(
                         modifier = Modifier.size(25.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        strokeCap = StrokeCap.Round
                     )
                 } else {
                     PlayButton(

@@ -25,4 +25,11 @@
     <string name="done">Готово</string>
     <string name="theme_settings">Налаштування теми</string>
     <string name="night">Чорний</string>
+    <string name="avatar">АВАТАР</string>
+    <string name="gallery">Галерея</string>
+    <string name="camera">Камера</string>
+    <string name="camera_permission_needed_title">Необхідно дозвіл</string>
+    <string name="camera_permission_needed_description">Цей додаток потребує доступу до вашої камери для зйомки фотографій.</string>
+    <string name="grant">Дозволити</string>
+    <string name="dismiss">Відхилити</string>
 </resources>

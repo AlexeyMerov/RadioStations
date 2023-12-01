@@ -28,6 +28,7 @@ mockk = "1.13.8"
 espresso-core = "3.5.1"
 appcompat = "1.6.1"
 material = "1.10.0"
+accompanist = "0.32.0"
 
 [plugins]
 
@@ -97,7 +98,8 @@ compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", ve
 compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }
 coil-compose = { module = "io.coil-kt:coil-compose", version = "2.5.0" }
 
-accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version = "0.32.0" }
+accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 lottie = { module = "com.airbnb.android:lottie-compose", version = "6.1.0" }
 splashScreen = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
@@ -109,7 +111,6 @@ test-core = { module = "androidx.test:core", version.ref = "test" }
 test-coreKtx = { module = "androidx.test:core-ktx", version.ref = "test" }
 test-runner = { module = "androidx.test:runner", version = "1.5.2" }
 test-orchestrator = { module = "androidx.test:orchestrator", version = "1.4.2" }
-
 
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-agent = { module = "io.mockk:mockk-agent", version.ref = "mockk" }

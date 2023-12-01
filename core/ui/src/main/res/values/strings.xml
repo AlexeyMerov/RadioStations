@@ -25,4 +25,11 @@
     <string name="done">Done</string>
     <string name="theme_settings">Theme settings</string>
     <string name="night">Night</string>
+    <string name="avatar">AVATAR</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="camera_permission_needed_title">Permission Needed</string>
+    <string name="camera_permission_needed_description">This app needs access to your camera to take photos.</string>
+    <string name="grant">Grant</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

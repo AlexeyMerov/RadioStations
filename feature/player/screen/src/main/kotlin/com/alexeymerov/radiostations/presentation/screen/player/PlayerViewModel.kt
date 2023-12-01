@@ -29,13 +29,6 @@ class PlayerViewModel @Inject constructor(
             initialValue = null
         )
 
-    val playerState: StateFlow<AudioUseCase.PlayerState> = audioUseCase.getPlayerState()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = AudioUseCase.PlayerState.EMPTY
-        )
-
     override fun createInitialState() = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
