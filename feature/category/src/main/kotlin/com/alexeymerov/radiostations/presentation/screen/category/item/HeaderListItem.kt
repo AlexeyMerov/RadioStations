@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.presentation.screen.category.item
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -14,8 +15,15 @@ import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
 import com.alexeymerov.radiostations.presentation.common.view.BasicText
 
 @Composable
-fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto) {
-    Row(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
+fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto, onClick: () -> Unit) {
+    Row(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable {
+                onClick.invoke()
+            }
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+    ) {
         BasicText(
             text = itemDto.text,
             textStyle = MaterialTheme.typography.titleSmall

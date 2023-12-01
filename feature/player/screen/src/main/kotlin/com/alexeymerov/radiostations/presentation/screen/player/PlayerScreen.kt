@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -129,8 +132,9 @@ private fun PlayerScreen(
         is ViewState.Loading -> LoaderView()
         is ViewState.Error -> ErrorView()
         is ViewState.ReadyToPlay -> {
-            MainContent(
+            MainContentWithOrientation(
                 isPlaying = viewState.isPlaying,
+                isLoading = viewState.isLoading,
                 imageUrl = stationImgUrl,
                 onToggleAudio = { onToggleAudio.invoke(viewState.item) }
             )
@@ -139,7 +143,7 @@ private fun PlayerScreen(
 }
 
 @Composable
-private fun MainContent(isPlaying: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
+private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
     val configuration = LocalConfiguration.current
     when (configuration.orientation) {
         Configuration.ORIENTATION_PORTRAIT -> {
@@ -148,8 +152,7 @@ private fun MainContent(isPlaying: Boolean, imageUrl: String, onToggleAudio: () 
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                StationImage(imageUrl)
-                ControlButton(isPlaying, onToggleAudio)
+                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio)
             }
         }
 
@@ -159,9 +162,21 @@ private fun MainContent(isPlaying: Boolean, imageUrl: String, onToggleAudio: () 
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StationImage(imageUrl)
-                ControlButton(isPlaying, onToggleAudio)
+                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio)
             }
+        }
+    }
+}
+
+@Composable
+private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
+    StationImage(imageUrl)
+
+    Box(Modifier.size(60.dp)) {
+        if (isLoading) {
+            CircularProgressIndicator(strokeCap = StrokeCap.Round)
+        } else {
+            ControlButton(isPlaying, onToggleAudio)
         }
     }
 }
@@ -206,7 +221,7 @@ private fun ControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
 
     LottieAnimation(
         modifier = Modifier
-            .size(60.dp)
+            .fillMaxSize()
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(
@@ -214,7 +229,7 @@ private fun ControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
                     bounded = false,
                     radius = 40.dp
                 ),
-                onClick = onToggleAudio::invoke
+                onClick = { onToggleAudio.invoke() }
             ),
         composition = composition,
         dynamicProperties = dynamicProperties,

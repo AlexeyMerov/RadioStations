@@ -7,6 +7,8 @@ import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCaseImpl
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.domain.usecase.category.CategoryUseCaseImpl
+import com.alexeymerov.radiostations.domain.usecase.profile.ProfileUsaCase
+import com.alexeymerov.radiostations.domain.usecase.profile.ProfileUsaCaseImpl
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.domain.usecase.settings.connectivity.ConnectivitySettingsUseCaseImpl
 import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase
@@ -42,6 +44,10 @@ abstract class UseCaseModule {
     @Binds
     @Singleton
     abstract fun bindMediaUseCase(useCase: AudioUseCaseImpl): AudioUseCase
+
+    @Binds
+    @Singleton
+    abstract fun bindProfileUsaCase(useCase: ProfileUsaCaseImpl): ProfileUsaCase
 
     @Module
     @InstallIn(SingletonComponent::class)

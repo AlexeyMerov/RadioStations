@@ -32,6 +32,7 @@ include(":core:database")
 include(":core:data")
 include(":core:domain")
 include(":core:dto")
+include(":core:filestore")
 
 include(":core:ui")
 

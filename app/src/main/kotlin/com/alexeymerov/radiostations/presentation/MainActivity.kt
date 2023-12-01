@@ -115,8 +115,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 PlayerState.STOPPED -> controller.pause()
-                PlayerState.BUFFERING -> {
-                    // nothing at the moment but todo
+                PlayerState.LOADING -> { /* no action needed */
                 }
             }
         }

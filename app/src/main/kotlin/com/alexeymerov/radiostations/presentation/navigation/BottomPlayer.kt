@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.LottieProperty
@@ -33,13 +35,13 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
-import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.presentation.MainViewModel
 import com.alexeymerov.radiostations.presentation.common.view.BasicText
 
 @Composable
 fun BottomPlayer(
-    playerState: AudioUseCase.PlayerState,
+    playerState: PlayerState,
     playerTitle: String,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
@@ -50,7 +52,7 @@ fun BottomPlayer(
             .background(MaterialTheme.colorScheme.secondary),
 
         ) {
-        val isVisible = playerState != AudioUseCase.PlayerState.EMPTY
+        val isVisible = playerState != PlayerState.EMPTY
         AnimatedVisibility(visible = isVisible) {
             Row(
                 Modifier
@@ -59,7 +61,8 @@ fun BottomPlayer(
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val isPlaying = playerState == AudioUseCase.PlayerState.PLAYING
+                val isPlaying = playerState == PlayerState.PLAYING
+                val isLoading = playerState == PlayerState.LOADING
 
                 PlayingWaves(isPlaying)
 
@@ -71,10 +74,19 @@ fun BottomPlayer(
                     color = MaterialTheme.colorScheme.onSecondary
                 )
 
-                PlayButton(
-                    isPlaying = isPlaying,
-                    onTogglePlay = { onPlayerAction.invoke(MainViewModel.ViewAction.ToggleAudio) }
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(25.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        strokeCap = StrokeCap.Round
+                    )
+                } else {
+                    PlayButton(
+                        isPlaying = isPlaying,
+                        onTogglePlay = { onPlayerAction.invoke(MainViewModel.ViewAction.ToggleAudio) }
+                    )
+                }
 
                 IconButton(
                     modifier = Modifier.padding(start = 4.dp),

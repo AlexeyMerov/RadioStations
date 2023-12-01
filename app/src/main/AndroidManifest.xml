@@ -3,11 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"
+        />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".RadioApp"
@@ -41,8 +48,8 @@
 
         <service
             android:name=".presentation.PlayerService"
-            android:foregroundServiceType="mediaPlayback"
             android:exported="true"
+            android:foregroundServiceType="mediaPlayback"
             tools:ignore="ExportedService"
             >
             <intent-filter>
@@ -59,6 +66,18 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.alexeymerov.radiostations.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"
+                />
+        </provider>
 
     </application>
 

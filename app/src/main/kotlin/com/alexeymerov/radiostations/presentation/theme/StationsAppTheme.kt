@@ -8,9 +8,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Typography
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -71,8 +73,14 @@ fun StationsAppTheme(
         colorScheme = colors.withAnimation(),
         typography = typography,
         shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp)), // at the moment only for DropDownMenu
-        content = content
-    )
+
+    ) {
+        systemUiController.setNavigationBarColor(
+            color = MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation)
+        )
+
+        content.invoke()
+    }
 }
 
 @Composable

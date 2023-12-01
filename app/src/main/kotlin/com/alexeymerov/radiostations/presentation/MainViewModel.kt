@@ -60,7 +60,7 @@ class MainViewModel @Inject constructor(
                 is ViewAction.PlayAudio -> audioUseCase.updatePlayerState(PlayerState.PLAYING)
                 is ViewAction.StopAudio -> audioUseCase.updatePlayerState(PlayerState.STOPPED)
                 is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
-                is ViewAction.ChangeAudio -> audioUseCase.updateMediaAndPlay(action.mediaItem)
+                is ViewAction.ChangeAudio -> audioUseCase.setLastPlayingMedia(action.mediaItem)
                 is ViewAction.NukePlayer -> audioUseCase.updatePlayerState(PlayerState.EMPTY)
             }
         }

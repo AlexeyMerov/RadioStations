@@ -2,12 +2,15 @@ package com.alexeymerov.radiostations.presentation
 
 import android.content.Intent
 import androidx.media3.common.Player
+import androidx.media3.common.Player.STATE_BUFFERING
+import androidx.media3.common.Player.STATE_READY
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,6 +19,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.asListenableFuture
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -59,15 +63,22 @@ class PlayerService : MediaLibraryService() {
         super.onCreate()
         val player = ExoPlayer.Builder(this).build()
 
-        player.onIsPlaying { isPlaying ->
-            ioScope.launch {
-                if (isPlaying) {
-                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.PLAYING)
-                } else {
-                    audioUseCase.updatePlayerState(AudioUseCase.PlayerState.STOPPED)
+        player.onStateChange(
+            onIsPlaying = { isPlaying ->
+                Timber.d("onIsPlaying $isPlaying")
+                ioScope.launch {
+                    val state = if (isPlaying) PlayerState.PLAYING else PlayerState.STOPPED
+                    audioUseCase.updatePlayerState(state)
+                }
+            },
+            onIsLoading = { isLoading ->
+                Timber.d("onIsLoading $isLoading")
+                ioScope.launch {
+                    val state = if (isLoading) PlayerState.LOADING else PlayerState.PLAYING
+                    audioUseCase.updatePlayerState(state)
                 }
             }
-        }
+        )
 
         mediaLibrarySession = MediaLibrarySession.Builder(this, player, callback).build()
     }
@@ -91,11 +102,27 @@ class PlayerService : MediaLibraryService() {
         super.onDestroy()
     }
 
-    private fun Player.onIsPlaying(action: (Boolean) -> Unit) {
+    private fun Player.onStateChange(
+        onIsPlaying: (Boolean) -> Unit = {},
+        onIsLoading: (Boolean) -> Unit = {}
+    ) {
         addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 super.onIsPlayingChanged(isPlaying)
-                action.invoke(isPlaying)
+                if (!isLoading) onIsPlaying.invoke(isPlaying)
+            }
+
+            /**
+             * onIsLoadingChanged not working as expected
+             * */
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                Timber.d("onPlaybackStateChanged $playbackState")
+
+                when {
+                    playbackState == STATE_READY -> onIsLoading.invoke(false)
+                    playbackState == STATE_BUFFERING || isLoading -> onIsLoading.invoke(true)
+                }
             }
         })
     }

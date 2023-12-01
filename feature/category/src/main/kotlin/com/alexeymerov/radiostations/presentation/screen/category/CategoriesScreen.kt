@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,10 +33,12 @@ import com.alexeymerov.radiostations.presentation.common.view.ShimmerLoading
 import com.alexeymerov.radiostations.presentation.common.view.StationListItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
-import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*
+import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.ViewAction
+import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.ViewState
 import com.alexeymerov.radiostations.presentation.screen.category.item.CategoryListItem
 import com.alexeymerov.radiostations.presentation.screen.category.item.HeaderListItem
 import com.alexeymerov.radiostations.presentation.screen.category.item.SubCategoryListItem
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -85,7 +89,7 @@ private fun TopBarSetup(
 @Composable
 private fun CategoryScreen(
     viewState: ViewState,
-    categoryItems: List<CategoryItemDto>,
+    categoryItems: Map<CategoryItemDto?, List<CategoryItemDto>>,
     parentRoute: String,
     onNavigate: (String) -> Unit,
     onAction: (ViewAction) -> Unit
@@ -121,7 +125,7 @@ private fun CategoryScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    categoryItems: List<CategoryItemDto>,
+    categoryItems: Map<CategoryItemDto?, List<CategoryItemDto>>,
     headerItems: List<CategoryItemDto>,
     onHeaderFilterClick: (CategoryItemDto) -> Unit,
     onCategoryClick: (CategoryItemDto) -> Unit,
@@ -129,7 +133,10 @@ private fun MainContent(
     onFavClick: (CategoryItemDto) -> Unit
 ) {
     ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -137,28 +144,47 @@ private fun MainContent(
         if (headerItems.isNotEmpty()) {
             item { AddFiltersHeaders(headerItems, onHeaderFilterClick) }
         }
-        items(
-            items = categoryItems,
-            key = CategoryItemDto::id,
-            contentType = CategoryItemDto::type
-        ) { itemDto ->
-            val defaultModifier = Modifier
-                .fillMaxWidth()
-                .animateItemPlacement()
 
-            when (itemDto.type) {
-                DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
-                DtoItemType.AUDIO -> StationListItem(
-                    modifier = defaultModifier,
-                    itemDto = itemDto,
-                    inSelection = false,
-                    isSelected = false,
-                    onAudioClick = onAudioClick,
-                    onFavClick = onFavClick
-                )
+        categoryItems.forEach { (header, items) ->
+            if (header != null) {
+                stickyHeader {
+                    HeaderListItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateItemPlacement(),
+                        itemDto = header,
+                        onClick = {
+                            coroutineScope.launch {
+                                listState.animateScrollToItem(header.absoluteIndex)
+                            }
+                        }
+                    )
+                }
+            }
+            items(
+                items = items,
+                key = CategoryItemDto::id,
+                contentType = CategoryItemDto::type
+            ) { itemDto ->
+                val defaultModifier = Modifier
+                    .fillMaxWidth()
+                    .animateItemPlacement()
 
-                DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
-                DtoItemType.HEADER -> HeaderListItem(defaultModifier, itemDto)
+                when (itemDto.type) {
+                    DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
+                    DtoItemType.AUDIO -> StationListItem(
+                        modifier = defaultModifier,
+                        itemDto = itemDto,
+                        inSelection = false,
+                        isSelected = false,
+                        onAudioClick = onAudioClick,
+                        onFavClick = onFavClick
+                    )
+
+                    DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
+                    DtoItemType.HEADER -> {}
+                }
+
             }
         }
     }
@@ -209,5 +235,5 @@ private fun MainContentPreview() {
         CategoryItemDto("url#4", "", text = "Tiny", type = DtoItemType.HEADER, initials = "G"),
         CategoryItemDto("url#5", "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, initials = "G"),
     )
-    MainContent(categoryItems, headers, {}, {}, {}, {})
+    MainContent(mapOf(null to categoryItems), headers, {}, {}, {}, {})
 }

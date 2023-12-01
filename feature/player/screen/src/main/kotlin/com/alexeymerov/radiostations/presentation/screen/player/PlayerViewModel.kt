@@ -38,7 +38,7 @@ class PlayerViewModel @Inject constructor(
                 is ViewAction.ToggleFavorite -> toggleFavorite(action.id)
                 is ViewAction.LoadAudio -> loadAudioLink(action.url)
                 is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
-                is ViewAction.ChangeAudio -> audioUseCase.updateMediaAndPlay(action.mediaItem)
+                is ViewAction.ChangeAudio -> audioUseCase.setLastPlayingMedia(action.mediaItem)
             }
         }
     }
@@ -49,16 +49,17 @@ class PlayerViewModel @Inject constructor(
                 audioUseCase.getMediaItem(originalUrl)?.let { currentItem ->
                     Timber.d("loadAudioLink $currentItem")
 
-                    // kinda ugly
                     combine(
                         flow = audioUseCase.getLastPlayingMediaItem(),
                         flow2 = audioUseCase.getPlayerState()
                     ) { item, state ->
-                        item?.parentUrl == originalUrl && state == AudioUseCase.PlayerState.PLAYING
+                        val isSameItem = item?.parentUrl == originalUrl
+                        val isPlaying = isSameItem && state == AudioUseCase.PlayerState.PLAYING
+                        val isLoading = isSameItem && state == AudioUseCase.PlayerState.LOADING
+                        isPlaying to isLoading
+                    }.collectLatest { pair ->
+                        setState(ViewState.ReadyToPlay(currentItem, pair.first, pair.second))
                     }
-                        .collectLatest { isPlaying ->
-                            setState(ViewState.ReadyToPlay(currentItem, isPlaying))
-                        }
 
                 } ?: setState(ViewState.Error)
             }
@@ -74,7 +75,7 @@ class PlayerViewModel @Inject constructor(
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object Error : ViewState
-        data class ReadyToPlay(val item: AudioItemDto, val isPlaying: Boolean) : ViewState
+        data class ReadyToPlay(val item: AudioItemDto, val isPlaying: Boolean, val isLoading: Boolean) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {
