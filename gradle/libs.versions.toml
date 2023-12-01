@@ -1,23 +1,23 @@
 [versions]
 
-versionCode = "116"
-versionName = "1.7.0"
+versionCode = "118"
+versionName = "1.8.0"
 
 compileSdk = "34"
-minSdk = "24"
+minSdk = "26"
 targetSdk = "34"
 
 javaVersion = "17"
 kotlinLanguage = "1.9"
-composeCompiler = "1.5.1"
+composeCompiler = "1.5.5"
 
-gradle = "8.1.4"
-kotlin = "1.9.0"
+gradle = "8.2.0"
+kotlin = "1.9.20"
 versionsChecker = "0.47.0"
 
-ksp = "1.9.0-1.0.12"
+ksp = "1.9.20-1.0.14"
 hilt = "2.48.1"
-room = "2.6.0"
+room = "2.6.1"
 retrofit = "2.9.0"
 moshi = "1.15.0"
 okhttp = "4.12.0"
@@ -57,7 +57,7 @@ kspGradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gr
 
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" }
-work-runtime = { module = "androidx.work:work-runtime-ktx", version = "2.8.1" }
+work-runtime = { module = "androidx.work:work-runtime-ktx", version = "2.9.0" }
 dataStore-base = { module = "androidx.datastore:datastore-preferences", version = "1.0.0" }
 kotlin-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version = "1.7.3" }
 

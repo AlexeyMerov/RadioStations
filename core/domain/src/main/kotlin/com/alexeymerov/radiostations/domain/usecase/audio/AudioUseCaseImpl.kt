@@ -100,11 +100,7 @@ class AudioUseCaseImpl @Inject constructor(
 
     override fun getPlayerState(): Flow<PlayerState> {
         return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = PlayerState.EMPTY.value)
-            .map { prefValue ->
-                return@map PlayerState.values().first {
-                    it.value == prefValue
-                }
-            }
+            .map { prefValue -> PlayerState.entries.first { it.value == prefValue } }
     }
 
     override suspend fun updatePlayerState(state: PlayerState) {

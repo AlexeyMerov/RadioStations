@@ -229,7 +229,7 @@ private fun ControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
                     bounded = false,
                     radius = 40.dp
                 ),
-                onClick = onToggleAudio::invoke
+                onClick = { onToggleAudio.invoke() }
             ),
         composition = composition,
         dynamicProperties = dynamicProperties,

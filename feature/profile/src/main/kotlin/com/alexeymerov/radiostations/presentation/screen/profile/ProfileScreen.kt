@@ -135,7 +135,7 @@ fun CameraPermissionRationale(
         text = { Text(stringResource(R.string.camera_permission_needed_description)) },
         confirmButton = {
             TextButton(
-                onClick = { onPermissionRequested() },
+                onClick = { onPermissionRequested.invoke() },
                 content = { Text(stringResource(R.string.grant)) }
             )
         },

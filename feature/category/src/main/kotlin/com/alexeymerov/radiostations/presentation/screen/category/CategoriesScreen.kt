@@ -33,7 +33,8 @@ import com.alexeymerov.radiostations.presentation.common.view.ShimmerLoading
 import com.alexeymerov.radiostations.presentation.common.view.StationListItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
-import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.*
+import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.ViewAction
+import com.alexeymerov.radiostations.presentation.screen.category.CategoriesViewModel.ViewState
 import com.alexeymerov.radiostations.presentation.screen.category.item.CategoryListItem
 import com.alexeymerov.radiostations.presentation.screen.category.item.HeaderListItem
 import com.alexeymerov.radiostations.presentation.screen.category.item.SubCategoryListItem
@@ -234,5 +235,5 @@ private fun MainContentPreview() {
         CategoryItemDto("url#4", "", text = "Tiny", type = DtoItemType.HEADER, initials = "G"),
         CategoryItemDto("url#5", "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, initials = "G"),
     )
-    MainContent(emptyMap(), headers, {}, {}, {}, {})
+    MainContent(mapOf(null to categoryItems), headers, {}, {}, {}, {})
 }

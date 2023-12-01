@@ -12,9 +12,7 @@ class FavoriteViewSettingsUseCaseImpl @Inject constructor(
 
     override fun getViewType(): Flow<ViewType> {
         return settingsStore.getIntPrefsFlow(VIEW_TYPE_KEY, defValue = ViewType.LIST.columnCount)
-            .map { prefValue ->
-                ViewType.values().first { it.columnCount == prefValue }
-            }
+            .map { prefValue -> ViewType.entries.first { it.columnCount == prefValue } }
     }
 
     override suspend fun setViewType(type: ViewType) {
