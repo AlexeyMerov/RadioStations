@@ -9,5 +9,7 @@ interface ProfileUsaCase {
 
     suspend fun saveAvatar(uri: Uri, isFromCamera: Boolean)
 
+    suspend fun deleteAvatar()
+
     fun getTempUri(): Uri
 }

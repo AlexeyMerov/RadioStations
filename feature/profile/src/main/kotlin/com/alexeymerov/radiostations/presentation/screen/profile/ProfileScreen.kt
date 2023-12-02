@@ -6,18 +6,25 @@ import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -39,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.common.EMPTY
@@ -83,7 +91,8 @@ fun BaseProfileScreen(
 
     MainContent(
         avatarFile = avatarFile,
-        onAvatarClick = { showBottomSheet = true }
+        onEdit = { showBottomSheet = true },
+        onDelete = { viewModel.setAction(ViewAction.DeleteImage) }
     )
 
     BottomSheet(
@@ -216,7 +225,8 @@ fun BottomSheetItem(
 @Composable
 private fun MainContent(
     avatarFile: File?,
-    onAvatarClick: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -224,27 +234,71 @@ private fun MainContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val placeholder = rememberTextPainter(
-            containerColor = MaterialTheme.colorScheme.primary,
-            textStyle = MaterialTheme.typography.titleMedium.copy(
-                color = MaterialTheme.colorScheme.onPrimary
-            ),
-            text = stringResource(R.string.avatar)
-        )
+        var needShowBigPicture by remember { mutableStateOf(false) }
 
-        AsyncImage(
-            modifier = Modifier
-                .size(150.dp)
-                .clip(CircleShape)
-                .clickable { onAvatarClick.invoke() },
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(avatarFile)
-                .crossfade(500)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            error = placeholder
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+
+            IconButton(onClick = { onDelete.invoke() }) {
+                Icon(
+                    modifier = Modifier.size(25.dp),
+                    tint = MaterialTheme.colorScheme.error,
+                    imageVector = Icons.Outlined.DeleteForever,
+                    contentDescription = null
+                )
+            }
+
+            val placeholder = rememberTextPainter(
+                containerColor = MaterialTheme.colorScheme.primary,
+                textStyle = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onPrimary
+                ),
+                text = stringResource(R.string.avatar)
+            )
+
+            AsyncImage(
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape)
+                    .clickable { if (avatarFile != null) needShowBigPicture = true },
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(avatarFile)
+                    .crossfade(500)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                error = placeholder
+            )
+
+            IconButton(onClick = { onEdit.invoke() }) {
+                Icon(
+                    modifier = Modifier.size(25.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = null
+                )
+            }
+        }
+
+        if (needShowBigPicture) {
+            Dialog(
+                onDismissRequest = { needShowBigPicture = !needShowBigPicture },
+                content = {
+                    AsyncImage(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(avatarFile)
+                            .build(),
+                        contentDescription = null
+                    )
+                }
+            )
+        }
     }
 }
 

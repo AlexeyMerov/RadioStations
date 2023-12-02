@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.domain.usecase.profile
 
 import android.net.Uri
+import androidx.core.net.toUri
 import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.datastore.SettingsStore
 import com.alexeymerov.radiostations.filestore.AppFileStore
@@ -23,6 +24,12 @@ class ProfileUsaCaseImpl @Inject constructor(
         fileStore.copyFromUriToFile(uri, avatarFileName)
         settingsStore.setStringPrefs(AVATAR_PREFIX, avatarFileName)
         if (isFromCamera) fileStore.removeFileByUri(uri)
+    }
+
+    override suspend fun deleteAvatar() {
+        val avatar = getAvatar() ?: return
+        fileStore.removeFileByUri(avatar.toUri())
+        settingsStore.setStringPrefs(AVATAR_PREFIX, String.EMPTY)
     }
 
     override fun getTempUri(): Uri {

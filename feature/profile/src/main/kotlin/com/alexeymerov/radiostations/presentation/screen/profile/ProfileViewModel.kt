@@ -56,6 +56,11 @@ class ProfileViewModel @Inject constructor(
                     profileUsaCase.saveAvatar(action.uri, false)
                     updateAvatar()
                 }
+
+                ViewAction.DeleteImage -> {
+                    profileUsaCase.deleteAvatar()
+                    updateAvatar()
+                }
             }
         }
     }
@@ -67,6 +72,7 @@ class ProfileViewModel @Inject constructor(
     sealed interface ViewAction : BaseViewAction {
         data class SaveGalleryImage(val uri: Uri) : ViewAction
         data object SaveCameraImage : ViewAction
+        data object DeleteImage : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
