@@ -11,14 +11,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.presentation.MainViewModel
 
 @Composable
 fun BottomBar(
-    navController: NavHostController,
     playerState: AudioUseCase.PlayerState,
     playerTitle: String,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
@@ -29,12 +27,12 @@ fun BottomBar(
         BottomPlayer(playerState, playerTitle, onPlayerAction)
 
         NavigationBar {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val navBackStackEntry by LocalNavController.current.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
             tabs.forEach { tab ->
                 val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                BottomBarItem(tab, isSelected, navController)
+                BottomBarItem(tab, isSelected)
             }
         }
     }
@@ -44,9 +42,9 @@ fun BottomBar(
 @Composable
 private fun RowScope.BottomBarItem(
     tab: Tabs,
-    isSelected: Boolean,
-    navController: NavHostController
+    isSelected: Boolean
 ) {
+    val navController = LocalNavController.current
     val icon = if (isSelected) tab.selectedIcon else tab.icon
     NavigationBarItem(
         icon = { Icon(icon, contentDescription = stringResource(tab.stringId)) },

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -23,6 +25,7 @@ import com.alexeymerov.radiostations.common.EMPTY
 import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.presentation.MainViewModel
 
+val LocalNavController = compositionLocalOf<NavHostController> { error("NavHostController not found") }
 
 @Composable
 fun MainNavGraph(
@@ -34,25 +37,26 @@ fun MainNavGraph(
     var topBarState by rememberSaveable { mutableStateOf(TopBarState(String.EMPTY)) }
     val topBarBlock: (TopBarState) -> Unit = { topBarState = it }
 
-    Surface {
-        Scaffold(
-            topBar = { TopBar(topBarState, navController) },
-            bottomBar = { BottomBar(navController, playerState, playerTitle, onPlayerAction) },
-            content = { paddingValues -> CreateScaffoldContent(navController, paddingValues, topBarBlock) }
-        )
+    CompositionLocalProvider(LocalNavController provides navController) {
+        Surface {
+            Scaffold(
+                topBar = { TopBar(topBarState) },
+                bottomBar = { BottomBar(playerState, playerTitle, onPlayerAction) },
+                content = { paddingValues -> CreateScaffoldContent(paddingValues, topBarBlock) }
+            )
+        }
     }
 }
 
 @Composable
 private fun CreateScaffoldContent(
-    navController: NavHostController,
     paddingValues: PaddingValues,
     topBarBlock: (TopBarState) -> Unit
 ) {
     Surface(Modifier.fillMaxSize()) {
         NavHost(
             modifier = Modifier.padding(paddingValues),
-            navController = navController,
+            navController = LocalNavController.current,
             startDestination = Tabs.Browse.route,
             enterTransition = {
                 slideIntoContainer(SlideDirection.Left, spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn()
@@ -67,9 +71,9 @@ private fun CreateScaffoldContent(
                 slideOutOfContainer(SlideDirection.Right, spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
             }
         ) {
-            browseGraph(navController, topBarBlock)
-            favoriteGraph(navController, topBarBlock)
-            youGraph(navController, topBarBlock)
+            browseGraph(topBarBlock)
+            favoriteGraph(topBarBlock)
+            youGraph(topBarBlock)
         }
     }
 }
