@@ -234,6 +234,7 @@ private fun MainContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        var isLoaded by remember { mutableStateOf(false) }
         var needShowBigPicture by remember { mutableStateOf(false) }
 
         Row(
@@ -263,14 +264,16 @@ private fun MainContent(
                 modifier = Modifier
                     .size(150.dp)
                     .clip(CircleShape)
-                    .clickable { if (avatarFile != null) needShowBigPicture = true },
+                    .clickable { if (isLoaded) needShowBigPicture = true },
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(avatarFile)
                     .crossfade(500)
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                error = placeholder
+                error = placeholder,
+                onSuccess = { isLoaded = true },
+                onError = { isLoaded = false }
             )
 
             IconButton(onClick = { onEdit.invoke() }) {
