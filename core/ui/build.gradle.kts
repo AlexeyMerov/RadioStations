@@ -12,11 +12,4 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.dto)
-
-    api(libs.compose.activity)
-    api(libs.compose.viewmodel)
-    api(libs.compose.runtime)
-
-    api(libs.coil.compose)
-    api(libs.lottie)
 }

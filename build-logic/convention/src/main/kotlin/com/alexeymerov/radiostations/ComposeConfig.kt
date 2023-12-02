@@ -21,10 +21,22 @@ internal fun Project.configureCompose(
             implementation(composeBom)
             androidTestImplementation(composeBom)
 
+            implementation(libs.getLibrary("compose-animation"))
+            implementation(libs.getLibrary("compose-foundation"))
+            implementation(libs.getLibrary("compose-material"))
             implementation(libs.getLibrary("compose-material3"))
             implementation(libs.getLibrary("compose-materialIcons"))
-            implementation(libs.getLibrary("compose-ui-toolingPreview"))
-            debugImplementation(libs.getLibrary("compose-ui-tooling"))
+            implementation(libs.getLibrary("compose-ui-tooling"))
+            debugImplementation(libs.getLibrary("compose-ui-toolingPreview"))
+
+            implementation(libs.getLibrary("compose-runtime"))
+            implementation(libs.getLibrary("compose-lifecycleRuntime"))
+
+            implementation(libs.getLibrary("compose-activity"))
+            implementation(libs.getLibrary("compose-viewmodel"))
+
+            implementation(libs.getLibrary("coil-compose"))
+            implementation(libs.getLibrary("lottie"))
         }
     }
 }

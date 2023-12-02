@@ -2,6 +2,7 @@ package com.alexeymerov.radiostations.presentation.screen.category
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
@@ -21,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +47,7 @@ import com.alexeymerov.radiostations.presentation.screen.category.item.SubCatego
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BaseCategoryScreen(
     viewModel: CategoriesViewModel,
@@ -65,13 +72,23 @@ fun BaseCategoryScreen(
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
 
-    CategoryScreen(
-        viewState = viewState,
-        categoryItems = categoryItems,
-        parentRoute = parentRoute,
-        onNavigate = onNavigate,
-        onAction = { viewModel.setAction(it) }
+    val refreshing by viewModel.isRefreshing
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = refreshing,
+        onRefresh = { viewModel.setAction(ViewAction.UpdateCategories) }
     )
+
+    Box(Modifier.pullRefresh(pullRefreshState)) {
+        CategoryScreen(
+            viewState = viewState,
+            categoryItems = categoryItems,
+            parentRoute = parentRoute,
+            onNavigate = onNavigate,
+            onAction = { viewModel.setAction(it) }
+        )
+
+        PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
+    }
 }
 
 @Composable
@@ -135,9 +152,10 @@ private fun MainContent(
     ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
     LazyColumn(
-        state = listState,
         modifier = Modifier.fillMaxSize(),
+        state = listState,
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

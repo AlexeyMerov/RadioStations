@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.presentation.screen.category
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.domain.dto.CategoryDto
@@ -14,6 +15,7 @@ import com.alexeymerov.radiostations.presentation.common.BaseViewState
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.decodeUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
@@ -37,6 +39,8 @@ class CategoriesViewModel @Inject constructor(
     private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()
 
     private val headerFlow = MutableStateFlow(listOf<CategoryItemDto>())
+
+    var isRefreshing = mutableStateOf(false)
 
     val categoriesFlow = categoryUseCase
         .getAllByUrl(categoryUrl)
@@ -62,6 +66,7 @@ class CategoriesViewModel @Inject constructor(
             is ViewAction.LoadCategories -> loadCategories(categoryUrl)
             is ViewAction.FilterByHeader -> updateHeaderFlow(action.headerItem)
             is ViewAction.ToggleFavorite -> toggleFavorite(action)
+            is ViewAction.UpdateCategories -> updateCategories(categoryUrl)
         }
     }
 
@@ -118,8 +123,19 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
+    private fun updateCategories(categoryUrl: String) {
+        viewModelScope.launch(ioContext) {
+            isRefreshing.value = true
+            categoryUseCase.loadCategoriesByUrl(categoryUrl)
+
+            delay(10_000) // just random
+            if (isRefreshing.value) isRefreshing.value = false
+        }
+    }
+
     private fun handleError(throwable: Throwable) {
         Timber.e(throwable, "[ ${object {}.javaClass.enclosingMethod?.name} ] handleError")
+        isRefreshing.value = false
         if (viewState.value == ViewState.Loading) {
             setState(ViewState.NothingAvailable)
         }
@@ -128,6 +144,7 @@ class CategoriesViewModel @Inject constructor(
     private fun validateNewData(categoryDto: CategoryDto) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] validateNewData")
         viewModelScope.launch(ioContext) {
+            isRefreshing.value = false
             when {
                 categoryDto.isError -> {
                     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categoryDto.isError")
@@ -184,6 +201,7 @@ class CategoriesViewModel @Inject constructor(
 
     sealed interface ViewAction : BaseViewAction {
         data object LoadCategories : ViewAction
+        data object UpdateCategories : ViewAction
         data class ToggleFavorite(val item: CategoryItemDto) : ViewAction
         data class FilterByHeader(val headerItem: CategoryItemDto) : ViewAction
     }

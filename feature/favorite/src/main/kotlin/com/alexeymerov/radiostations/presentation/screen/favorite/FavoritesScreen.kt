@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.domain.dto.CategoryItemDto
-import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
+import com.alexeymerov.radiostations.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.presentation.common.view.ComposedTimberD
 import com.alexeymerov.radiostations.presentation.common.view.ErrorView
 import com.alexeymerov.radiostations.presentation.common.view.LoaderView
@@ -30,7 +30,8 @@ import com.alexeymerov.radiostations.presentation.navigation.RightIconItem
 import com.alexeymerov.radiostations.presentation.navigation.Screens
 import com.alexeymerov.radiostations.presentation.navigation.TopBarIcon
 import com.alexeymerov.radiostations.presentation.navigation.TopBarState
-import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.*
+import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewAction
+import com.alexeymerov.radiostations.presentation.screen.favorite.FavoritesViewModel.ViewState
 
 
 @Composable
@@ -144,7 +145,11 @@ fun FavoriteScreen(
     ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
 
     when (viewState) {
-        is ViewState.NothingAvailable -> ErrorView(stringResource(R.string.you_need_to_add_some_stations), showImage = false)
+        is ViewState.NothingAvailable -> ErrorView(
+            errorText = stringResource(R.string.you_need_to_add_some_stations),
+            showImage = false
+        )
+
         is ViewState.Loading -> LoaderView()
         is ViewState.FavoritesLoaded -> {
             MainContent(
