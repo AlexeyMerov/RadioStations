@@ -3,7 +3,6 @@ package com.alexeymerov.radiostations.presentation
 import android.content.Intent
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_BUFFERING
-import androidx.media3.common.Player.STATE_READY
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
@@ -65,17 +64,16 @@ class PlayerService : MediaLibraryService() {
 
         player.onStateChange(
             onIsPlaying = { isPlaying ->
-                Timber.d("onIsPlaying $isPlaying")
+                Timber.d("PlayerService -- onStateChange -- onIsPlaying $isPlaying")
                 ioScope.launch {
                     val state = if (isPlaying) PlayerState.PLAYING else PlayerState.STOPPED
                     audioUseCase.updatePlayerState(state)
                 }
             },
-            onIsLoading = { isLoading ->
-                Timber.d("onIsLoading $isLoading")
+            onIsLoading = {
+                Timber.d("PlayerService -- onStateChange -- onIsLoading")
                 ioScope.launch {
-                    val state = if (isLoading) PlayerState.LOADING else PlayerState.PLAYING
-                    audioUseCase.updatePlayerState(state)
+                    audioUseCase.updatePlayerState(PlayerState.LOADING)
                 }
             }
         )
@@ -104,25 +102,20 @@ class PlayerService : MediaLibraryService() {
 
     private fun Player.onStateChange(
         onIsPlaying: (Boolean) -> Unit = {},
-        onIsLoading: (Boolean) -> Unit = {}
+        onIsLoading: () -> Unit = {}
     ) {
         addListener(object : Player.Listener {
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 super.onIsPlayingChanged(isPlaying)
-                if (!isLoading) onIsPlaying.invoke(isPlaying)
+                Timber.d("PlayerService -- onIsPlayingChanged $isPlaying")
+                if (playbackState != STATE_BUFFERING) onIsPlaying.invoke(isPlaying)
             }
 
-            /**
-             * onIsLoadingChanged not working as expected
-             * */
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
-                Timber.d("onPlaybackStateChanged $playbackState")
-
-                when {
-                    playbackState == STATE_READY -> onIsLoading.invoke(false)
-                    playbackState == STATE_BUFFERING || isLoading -> onIsLoading.invoke(true)
-                }
+                Timber.d("PlayerService -- onPlaybackStateChanged $playbackState")
+                if (playbackState == STATE_BUFFERING) onIsLoading.invoke()
             }
         })
     }
