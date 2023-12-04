@@ -9,7 +9,7 @@ android {
     namespace = "com.alexeymerov.radiostations.core.remote"
 
     defaultConfig {
-        testInstrumentationRunner = "com.alexeymerov.radiostations.HiltTestRunner"
+        testInstrumentationRunner = "com.alexeymerov.radiostations.core.test.HiltTestRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
     }
 }

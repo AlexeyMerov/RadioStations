@@ -1,11 +1,10 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -18,11 +17,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
+import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
+import com.alexeymerov.radiostations.core.ui.navigation.Tabs
+import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.presentation.MainViewModel
 
 val LocalNavController = compositionLocalOf<NavHostController> { error("NavHostController not found") }
@@ -36,44 +40,52 @@ fun MainNavGraph(
     val navController = rememberNavController()
     var topBarState by rememberSaveable { mutableStateOf(TopBarState(String.EMPTY)) }
     val topBarBlock: (TopBarState) -> Unit = { topBarState = it }
+    val configuration = LocalConfiguration.current
 
     CompositionLocalProvider(LocalNavController provides navController) {
         Surface {
             Scaffold(
-                topBar = { TopBar(topBarState) },
-                bottomBar = { BottomBar(playerState, playerTitle, onPlayerAction) },
-                content = { paddingValues -> CreateScaffoldContent(paddingValues, topBarBlock) }
+                topBar = { TopBar(navController, topBarState) },
+                bottomBar = { if (configuration.isPortrait()) BottomBarWithPlayer(navController, playerState, playerTitle, onPlayerAction) },
+                content = { paddingValues ->
+                    Surface(Modifier.fillMaxSize()) {
+                        if (configuration.isLandscape()) {
+                            Row(Modifier.fillMaxSize()) {
+                                CreateNavigationRail(navController)
+                                CreateNavHost(
+                                    paddingValues = paddingValues,
+                                    topBarBlock = topBarBlock,
+                                )
+                            }
+                        } else {
+                            CreateNavHost(
+                                paddingValues = paddingValues,
+                                topBarBlock = topBarBlock,
+                            )
+                        }
+
+                    }
+                }
             )
         }
     }
 }
 
 @Composable
-private fun CreateScaffoldContent(
+private fun CreateNavHost(
     paddingValues: PaddingValues,
     topBarBlock: (TopBarState) -> Unit
 ) {
-    Surface(Modifier.fillMaxSize()) {
-        NavHost(
-            modifier = Modifier.padding(paddingValues),
-            navController = LocalNavController.current,
-            startDestination = Tabs.Browse.route,
-            enterTransition = {
-                slideIntoContainer(SlideDirection.Left, spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn()
-            },
-            exitTransition = {
-                slideOutOfContainer(SlideDirection.Left, spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
-            },
-            popEnterTransition = {
-                slideIntoContainer(SlideDirection.Right, spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn()
-            },
-            popExitTransition = {
-                slideOutOfContainer(SlideDirection.Right, spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
-            }
-        ) {
-            browseGraph(topBarBlock)
-            favoriteGraph(topBarBlock)
-            youGraph(topBarBlock)
-        }
+    val navController = LocalNavController.current
+    NavHost(
+        modifier = Modifier.padding(paddingValues),
+        navController = navController,
+        startDestination = Tabs.Browse.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+    ) {
+        browseGraph(topBarBlock)
+        favoriteGraph(topBarBlock)
+        youGraph(topBarBlock)
     }
 }

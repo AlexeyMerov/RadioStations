@@ -15,11 +15,13 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.domain.dto.AudioItemDto
-import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.dto.AudioItemDto
+import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
+import com.alexeymerov.radiostations.feature.player.service.PlayerService
+import com.alexeymerov.radiostations.feature.player.service.mapToMediaItem
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
-import com.alexeymerov.radiostations.presentation.common.collectWhenStarted
 import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import com.google.common.util.concurrent.ListenableFuture

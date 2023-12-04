@@ -19,10 +19,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.alexeymerov.radiostations.common.EMPTY
-import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
-import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
-import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
+import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
+import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.presentation.theme.blue.getBlueColorScheme
 import com.alexeymerov.radiostations.presentation.theme.green.getGreenColorScheme
 import com.alexeymerov.radiostations.presentation.theme.orange.getOrangeColorScheme

@@ -2,6 +2,9 @@ package com.alexeymerov.radiostations.presentation.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
+import com.alexeymerov.radiostations.core.ui.navigation.Screens
+import com.alexeymerov.radiostations.core.ui.navigation.Tabs
+import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 
 
 fun NavGraphBuilder.browseGraph(topBarBlock: (TopBarState) -> Unit) {

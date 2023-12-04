@@ -47,7 +47,7 @@
         </activity>
 
         <service
-            android:name=".presentation.PlayerService"
+            android:name=".feature.player.service.PlayerService"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
             tools:ignore="ExportedService"

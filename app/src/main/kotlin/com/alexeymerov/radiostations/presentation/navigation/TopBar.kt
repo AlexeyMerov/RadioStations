@@ -33,20 +33,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.alexeymerov.radiostations.common.EMPTY
+import androidx.navigation.NavHostController
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
-import com.alexeymerov.radiostations.presentation.common.view.DropDownRow
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
+import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
+import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.core.ui.view.DropDownRow
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun TopBar(barState: TopBarState) {
-    val navController = LocalNavController.current
+fun TopBar(
+    navController: NavHostController,
+    barState: TopBarState
+) {
+    val config = LocalConfiguration.current
+    val modifier = if (config.isLandscape()) Modifier.padding(start = 16.dp) else Modifier
     CenterAlignedTopAppBar(
+        modifier = modifier,
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
         title = { TopBarTitle(barState.title, barState.subTitle) },
         navigationIcon = {

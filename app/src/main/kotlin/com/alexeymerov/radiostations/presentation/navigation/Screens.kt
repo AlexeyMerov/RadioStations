@@ -12,14 +12,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
-import com.alexeymerov.radiostations.presentation.common.view.ComposedTimberD
-import com.alexeymerov.radiostations.presentation.screen.category.BaseCategoryScreen
-import com.alexeymerov.radiostations.presentation.screen.favorite.BaseFavoriteScreen
-import com.alexeymerov.radiostations.presentation.screen.player.BasePlayerScreen
-import com.alexeymerov.radiostations.presentation.screen.profile.BaseProfileScreen
-import com.alexeymerov.radiostations.presentation.screen.settings.BaseSettingsScreen
+import com.alexeymerov.radiostations.core.ui.navigation.Screens
+import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
+import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
+import com.alexeymerov.radiostations.feature.category.BaseCategoryScreen
+import com.alexeymerov.radiostations.feature.favorite.BaseFavoriteScreen
+import com.alexeymerov.radiostations.feature.player.screen.BasePlayerScreen
+import com.alexeymerov.radiostations.feature.profile.BaseProfileScreen
+import com.alexeymerov.radiostations.feature.settings.BaseSettingsScreen
 
 
 fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {

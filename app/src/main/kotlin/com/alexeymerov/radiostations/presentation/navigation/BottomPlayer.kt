@@ -33,11 +33,11 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
-import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.ui.R
-import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.presentation.MainViewModel
-import com.alexeymerov.radiostations.presentation.common.view.BasicText
 
 @Composable
 fun BottomPlayer(
