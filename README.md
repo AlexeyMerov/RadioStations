@@ -12,11 +12,13 @@
 
 ## About:
 
+- Portrait, landscape, tablet support.
 - Display list of categories and go for every nested links which represents new categories or radio stations.
 - Favorites (locally).
 - Settings for the app.
 - Play/control audio as a service.
 - Different item types.
+- Profile picture from gallery or camera.
 - Performance, architecture and use best practices.
 - Offline mode.
 - Design guideline (Material3).

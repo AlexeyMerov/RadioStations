@@ -12,17 +12,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.alexeymerov.radiostations.common.EMPTY
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
-import com.alexeymerov.radiostations.presentation.common.view.ComposedTimberD
-import com.alexeymerov.radiostations.presentation.screen.category.BaseCategoryScreen
-import com.alexeymerov.radiostations.presentation.screen.favorite.BaseFavoriteScreen
-import com.alexeymerov.radiostations.presentation.screen.player.BasePlayerScreen
-import com.alexeymerov.radiostations.presentation.screen.profile.BaseProfileScreen
-import com.alexeymerov.radiostations.presentation.screen.settings.BaseSettingsScreen
+import com.alexeymerov.radiostations.core.ui.navigation.Screens
+import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
+import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
+import com.alexeymerov.radiostations.feature.category.BaseCategoryScreen
+import com.alexeymerov.radiostations.feature.favorite.BaseFavoriteScreen
+import com.alexeymerov.radiostations.feature.player.screen.BasePlayerScreen
+import com.alexeymerov.radiostations.feature.profile.BaseProfileScreen
+import com.alexeymerov.radiostations.feature.settings.BaseSettingsScreen
 
 
-fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Categories.route,
         arguments = listOf(
@@ -35,6 +38,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavHost
         val defTitle = stringResource(R.string.browse)
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
 
+        val navController = LocalNavController.current
         BaseCategoryScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Categories.Const.ROUTE),
@@ -47,7 +51,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, navController: NavHost
     }
 }
 
-fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Player(parentRoute).route,
         arguments = listOf(
@@ -68,6 +72,7 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostCont
         val id by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_ID)) }
         val isFav by rememberSaveable { mutableStateOf(backStackEntry.getArgBool(Screens.Player.Const.ARG_IS_FAV)) }
 
+        val navController = LocalNavController.current
         BasePlayerScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
@@ -82,13 +87,14 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, navController: NavHostCont
     }
 }
 
-fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.favoritesScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Favorites.route,
         arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
     ) { _ ->
         ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
 
+        val navController = LocalNavController.current
         BaseFavoriteScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Favorites.Const.ROUTE),
@@ -99,13 +105,14 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, navController: NavHostC
     }
 }
 
-fun NavGraphBuilder.profileScreen(navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.profileScreen(topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Profile.route,
         arguments = listOf(navArgument(Screens.Profile.Const.ARG_TITLE, defaultStringArg())),
     ) {
         ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
 
+        val navController = LocalNavController.current
         BaseProfileScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Profile.Const.ROUTE),
@@ -115,13 +122,14 @@ fun NavGraphBuilder.profileScreen(navController: NavHostController, topBarBlock:
     }
 }
 
-fun NavGraphBuilder.settingsScreen(navController: NavHostController, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.settingsScreen(topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Settings.route,
         arguments = listOf(navArgument(Screens.Settings.Const.ARG_TITLE, defaultStringArg())),
     ) {
         ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
 
+        val navController = LocalNavController.current
         BaseSettingsScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Settings.Const.ROUTE),

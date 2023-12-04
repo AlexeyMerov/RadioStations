@@ -1,18 +1,18 @@
 package com.alexeymerov.radiostations.presentation
 
 import androidx.lifecycle.viewModelScope
-import com.alexeymerov.radiostations.domain.dto.AudioItemDto
-import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase
-import com.alexeymerov.radiostations.domain.usecase.audio.AudioUseCase.PlayerState
-import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase
-import com.alexeymerov.radiostations.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.core.dto.AudioItemDto
+import com.alexeymerov.radiostations.core.ui.common.BaseViewAction
+import com.alexeymerov.radiostations.core.ui.common.BaseViewEffect
+import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
+import com.alexeymerov.radiostations.core.ui.common.BaseViewState
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
-import com.alexeymerov.radiostations.presentation.common.BaseViewAction
-import com.alexeymerov.radiostations.presentation.common.BaseViewEffect
-import com.alexeymerov.radiostations.presentation.common.BaseViewModel
-import com.alexeymerov.radiostations.presentation.common.BaseViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

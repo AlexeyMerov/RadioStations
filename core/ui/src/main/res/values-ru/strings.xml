@@ -20,8 +20,8 @@
     <string name="green">Зелёный</string>
     <string name="orange">Оранжевый</string>
     <string name="rows">Список</string>
-    <string name="grid_2">Сетка 2</string>
-    <string name="grid_3">Сетка 3</string>
+    <string name="grid_2">Сетка</string>
+    <string name="grid_3">Сетка +1</string>
     <string name="done">Готово</string>
     <string name="theme_settings">Настройки темы</string>
     <string name="night">Чёрный</string>
