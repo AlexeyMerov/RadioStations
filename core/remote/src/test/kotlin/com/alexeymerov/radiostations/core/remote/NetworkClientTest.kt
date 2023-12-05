@@ -7,7 +7,7 @@ import com.alexeymerov.radiostations.core.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.core.remote.client.radio.RadioClientImpl
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.core.remote.response.CategoryBody
-import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -24,8 +24,7 @@ class NetworkClientTest {
     private lateinit var radioClient: RadioClient
     private lateinit var radioApi: RadioApi
 
-    @MockK
-    lateinit var responseMapper: ResponseMapper
+    private val responseMapper = mockk<ResponseMapper>()
 
     @Before
     fun setup() {

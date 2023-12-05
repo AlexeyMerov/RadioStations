@@ -19,7 +19,7 @@ object NetworkDefaults {
     const val QUERY_RENDER_JSON_PARAMETER = "json"
     const val TYPE_AUDIO = "audio"
     const val TYPE_LINK = "link"
-    val REGEX_VALID_URL = Regex("(http(s)?)://[(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&/=]*)")
+    val REGEX_VALID_URL = Regex("(http(s)?)://[(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@;:%_+.~#?&/=]*)")
 
     fun getJsonAdapterFactory() = KotlinJsonAdapterFactory()
 

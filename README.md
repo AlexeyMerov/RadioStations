@@ -1,5 +1,7 @@
 # RadioStations (Sandbox)
 
+[![Android CI status](https://github.com/AlexeyMerov/RadioStations/workflows/Android%20CI/badge.svg)](https://github.com/AlexeyMerov/RadioStations/actions) [![GitHub release](https://img.shields.io/github/v/release/AlexeyMerov/RadioStations)](https://github.com/AlexeyMerov/RadioStations/releases) [![License](https://img.shields.io/github/license/AlexeyMerov/RadioStations?color=blue)](LICENSE)
+
 ## Preview
 
 <p>

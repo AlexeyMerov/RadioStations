@@ -1,0 +1,57 @@
+name: Android CI
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Lint, Test, Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Create keystrore.properties
+        run: touch keystore.properties
+
+      - name: Decode keystore file
+        run: echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > key_radiostations.jks
+
+      - name: Add keystore data to keystore.properties
+        run: echo "${{ secrets.KEYSTORE_DATA }}" >> keystore.properties
+
+      - name: Run lint
+        run: ./gradlew lint
+
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Build debug
+        run: ./gradlew build

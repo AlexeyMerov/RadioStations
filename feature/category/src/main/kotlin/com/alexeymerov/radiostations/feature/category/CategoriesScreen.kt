@@ -123,7 +123,6 @@ private fun CategoryScreen(
     onNavigate: (String) -> Unit,
     onAction: (ViewAction) -> Unit
 ) {
-    val config = LocalConfiguration.current
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
         is ViewState.Loading -> ShimmerLoading()
