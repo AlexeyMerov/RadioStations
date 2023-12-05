@@ -60,6 +60,7 @@ class CategoryRepositoryTest {
     fun `load categories by url`() = runTest {
         coEvery { client.requestCategoriesByUrl(any()) } returns emptyList()
         coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
+        coEvery { categoryDao.getFavorites() } returns emptyList()
         coJustRun { categoryDao.insertAll(any()) }
 
         repository.loadCategoriesByUrl("")
@@ -68,6 +69,7 @@ class CategoryRepositoryTest {
             repository.loadCategoriesByUrl(any())
             client.requestCategoriesByUrl(any())
             categoryMapper.mapCategoryResponseToEntity(any(), any())
+            categoryDao.getFavorites()
             categoryDao.insertAll(any())
         }
 
