@@ -32,4 +32,5 @@
     <string name="camera_permission_needed_description">Цей додаток потребує доступу до вашої камери для зйомки фотографій.</string>
     <string name="grant">Дозволити</string>
     <string name="dismiss">Відхилити</string>
+    <string name="currently_playing">Зараз грає</string>
 </resources>

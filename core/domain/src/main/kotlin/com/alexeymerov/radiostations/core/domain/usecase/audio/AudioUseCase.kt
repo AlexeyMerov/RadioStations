@@ -25,7 +25,7 @@ interface AudioUseCase {
 
     fun getPlayerState(): Flow<PlayerState>
 
-    suspend fun updatePlayerState(state: PlayerState)
+    suspend fun updatePlayerState(newState: PlayerState)
 
     suspend fun togglePlayerPlayStop()
 
