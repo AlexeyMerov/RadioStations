@@ -103,10 +103,14 @@ class AudioUseCaseImpl @Inject constructor(
             .map { prefValue -> PlayerState.entries.first { it.value == prefValue } }
     }
 
-    override suspend fun updatePlayerState(state: PlayerState) {
-        Timber.d("updatePlayerState $state")
-        if (state == PlayerState.STOPPED && getPlayerState().first() == PlayerState.EMPTY) return
-        settingsStore.setIntPrefs(PLAYER_STATE_KEY, state.value)
+    override suspend fun updatePlayerState(newState: PlayerState) {
+        Timber.d("updatePlayerState $newState")
+
+        val currentState = getPlayerState().first()
+        if (newState == currentState) return
+        if (newState == PlayerState.STOPPED && currentState == PlayerState.EMPTY) return
+
+        settingsStore.setIntPrefs(PLAYER_STATE_KEY, newState.value)
     }
 
     override suspend fun togglePlayerPlayStop() {

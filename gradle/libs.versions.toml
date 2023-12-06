@@ -29,6 +29,7 @@ espresso-core = "3.5.1"
 appcompat = "1.6.1"
 material = "1.10.0"
 accompanist = "0.32.0"
+glance = "1.0.0"
 
 [plugins]
 
@@ -102,6 +103,9 @@ compose-activity = { module = "androidx.activity:activity-compose", version = "1
 compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.5" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
 compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }
+
+glance-widget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
 
 accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }

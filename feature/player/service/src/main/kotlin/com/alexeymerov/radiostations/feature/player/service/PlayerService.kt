@@ -1,6 +1,9 @@
 package com.alexeymerov.radiostations.feature.player.service
 
 import android.content.Intent
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.util.UnstableApi
@@ -10,6 +13,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.feature.player.widget.PlayerWidget
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import dagger.hilt.android.AndroidEntryPoint
@@ -68,17 +72,37 @@ class PlayerService : MediaLibraryService() {
                 ioScope.launch {
                     val state = if (isPlaying) PlayerState.PLAYING else PlayerState.STOPPED
                     audioUseCase.updatePlayerState(state)
+                    updateWidget()
                 }
             },
-            onIsLoading = {
+            onIsLoading = { isLoading ->
                 Timber.d("PlayerService -- onStateChange -- onIsLoading")
                 ioScope.launch {
-                    audioUseCase.updatePlayerState(PlayerState.LOADING)
+                    val playerState = audioUseCase.getPlayerState().first()
+                    when {
+                        isLoading -> audioUseCase.updatePlayerState(PlayerState.LOADING)
+                        playerState == PlayerState.LOADING -> audioUseCase.updatePlayerState(PlayerState.PLAYING)
+                    }
                 }
             }
         )
 
         mediaLibrarySession = MediaLibrarySession.Builder(this, player, callback).build()
+    }
+
+    private suspend fun updateWidget() {
+        val currentMediaItem = audioUseCase.getLastPlayingMediaItem().first()
+
+        GlanceAppWidgetManager(this@PlayerService)
+            .getGlanceIds(PlayerWidget::class.java)
+            .forEach {
+                updateAppWidgetState(this@PlayerService, PreferencesGlanceStateDefinition, it) { pref ->
+                    pref.toMutablePreferences().apply {
+                        this[PlayerWidget.prefTitleKey] = currentMediaItem?.title.toString()
+                    }
+                }
+                PlayerWidget().update(this@PlayerService, it)
+            }
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? = mediaLibrarySession
@@ -102,7 +126,7 @@ class PlayerService : MediaLibraryService() {
 
     private fun Player.onStateChange(
         onIsPlaying: (Boolean) -> Unit = {},
-        onIsLoading: () -> Unit = {}
+        onIsLoading: (Boolean) -> Unit = {}
     ) {
         addListener(object : Player.Listener {
 
@@ -115,7 +139,7 @@ class PlayerService : MediaLibraryService() {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
                 Timber.d("PlayerService -- onPlaybackStateChanged $playbackState")
-                if (playbackState == STATE_BUFFERING) onIsLoading.invoke()
+                onIsLoading.invoke(playbackState == STATE_BUFFERING)
             }
         })
     }

@@ -60,6 +60,7 @@ dependencies {
     implementation(projects.feature.profile)
     implementation(projects.feature.player.screen)
     implementation(projects.feature.player.service)
+    implementation(projects.feature.player.widget)
 
     implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
 

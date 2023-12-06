@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.domain)
+    implementation(projects.feature.player.widget)
 
     implementation(libs.kotlin.guava)
 
