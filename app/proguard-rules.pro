@@ -39,5 +39,5 @@
     public static ** valueOf(java.lang.String);
 }
 
-# -keep class * extends com.alexeymerov.radiostations.data.remote.response.ServerBodyType { *; }
- -keep class com.alexeymerov.radiostations.remote.response.** { *; }
+# -keep class * extends com.alexeymerov.radiostations.core.remote.response.ServerBodyType { *; }
+ -keep class com.alexeymerov.radiostations.core.remote.response.** { *; }
