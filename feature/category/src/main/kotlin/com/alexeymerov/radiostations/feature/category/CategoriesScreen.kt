@@ -246,25 +246,13 @@ private fun LazyListScope.mainListItems(
         key = CategoryItemDto::id,
         contentType = CategoryItemDto::type
     ) { itemDto ->
-        val defaultModifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .animateItemPlacement()
-
-        when (itemDto.type) {
-            DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
-            DtoItemType.AUDIO -> StationListItem(
-                modifier = defaultModifier,
-                itemDto = itemDto,
-                inSelection = false,
-                isSelected = false,
-                onAudioClick = onAudioClick,
-                onFavClick = onFavClick
-            )
-
-            DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
-            DtoItemType.HEADER -> {}
-        }
+        DrawItems(
+            modifier = Modifier.animateItemPlacement(),
+            itemDto = itemDto,
+            onCategoryClick = onCategoryClick,
+            onAudioClick = onAudioClick,
+            onFavClick = onFavClick
+        )
     }
 }
 
@@ -294,27 +282,43 @@ private fun LazyListScope.mainGridItems(
                 key = CategoryItemDto::id,
                 contentType = CategoryItemDto::type
             ) { itemDto ->
-                val defaultModifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .animateItemPlacement()
-
-                when (itemDto.type) {
-                    DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
-                    DtoItemType.AUDIO -> StationListItem(
-                        modifier = defaultModifier,
-                        itemDto = itemDto,
-                        inSelection = false,
-                        isSelected = false,
-                        onAudioClick = onAudioClick,
-                        onFavClick = onFavClick
-                    )
-
-                    DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
-                    DtoItemType.HEADER -> {}
-                }
+                DrawItems(
+                    modifier = Modifier.animateItemPlacement(),
+                    itemDto = itemDto,
+                    onCategoryClick = onCategoryClick,
+                    onAudioClick = onAudioClick,
+                    onFavClick = onFavClick
+                )
             }
         }
+    }
+}
+
+@Composable
+fun DrawItems(
+    modifier: Modifier,
+    itemDto: CategoryItemDto,
+    onCategoryClick: (CategoryItemDto) -> Unit,
+    onAudioClick: (CategoryItemDto) -> Unit,
+    onFavClick: (CategoryItemDto) -> Unit
+) {
+    val defaultModifier = modifier
+        .fillMaxWidth()
+        .padding(vertical = 6.dp)
+
+    when (itemDto.type) {
+        DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
+        DtoItemType.AUDIO -> StationListItem(
+            modifier = defaultModifier,
+            itemDto = itemDto,
+            inSelection = false,
+            isSelected = false,
+            onAudioClick = onAudioClick,
+            onFavClick = onFavClick
+        )
+
+        DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
+        DtoItemType.HEADER -> {}
     }
 }
 
