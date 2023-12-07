@@ -33,6 +33,7 @@ val LocalNavController = compositionLocalOf<NavHostController> { error("NavHostC
 
 @Composable
 fun MainNavGraph(
+    starDest: Tabs,
     playerState: PlayerState,
     playerTitle: String,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
@@ -53,12 +54,14 @@ fun MainNavGraph(
                             Row(Modifier.fillMaxSize()) {
                                 CreateNavigationRail(navController)
                                 CreateNavHost(
+                                    starDest = starDest,
                                     paddingValues = paddingValues,
                                     topBarBlock = topBarBlock,
                                 )
                             }
                         } else {
                             CreateNavHost(
+                                starDest = starDest,
                                 paddingValues = paddingValues,
                                 topBarBlock = topBarBlock,
                             )
@@ -73,14 +76,15 @@ fun MainNavGraph(
 
 @Composable
 private fun CreateNavHost(
+    starDest: Tabs = Tabs.Browse,
     paddingValues: PaddingValues,
-    topBarBlock: (TopBarState) -> Unit
+    topBarBlock: (TopBarState) -> Unit,
 ) {
     val navController = LocalNavController.current
     NavHost(
         modifier = Modifier.padding(paddingValues),
         navController = navController,
-        startDestination = Tabs.Browse.route,
+        startDestination = starDest.route,
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
     ) {

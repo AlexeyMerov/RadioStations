@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.presentation
 
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
+import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.feature.player.service.PlayerService
 import com.alexeymerov.radiostations.feature.player.service.mapToMediaItem
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
@@ -42,6 +44,11 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        var starDest: Tabs = Tabs.Browse
+        intent.getStringExtra("screen")?.let { // extract somwewhere later
+            if (it == "favorites") starDest = Tabs.Favorites
+        }
+
         var viewState by mutableStateOf(viewModel.initialState)
 
         splashScreen.setKeepOnScreenCondition { viewState == ViewState.Loading }
@@ -63,12 +70,17 @@ class MainActivity : ComponentActivity() {
                 val currentMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
                 val playerTitle by remember { derivedStateOf { currentMedia?.title ?: String.EMPTY } }
                 MainNavGraph(
+                    starDest = starDest,
                     playerState = playerState,
                     playerTitle = playerTitle,
                     onPlayerAction = { viewModel.setAction(it) }
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
     }
 
     override fun onStart() {
