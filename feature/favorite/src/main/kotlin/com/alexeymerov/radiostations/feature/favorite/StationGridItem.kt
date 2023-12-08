@@ -57,7 +57,7 @@ fun StationGridItem(
     onLongClick: (CategoryItemDto) -> Unit = {}
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.padding(vertical = 4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
     ) {

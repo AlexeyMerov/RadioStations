@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -42,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
+import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -57,7 +57,6 @@ import com.alexeymerov.radiostations.feature.category.item.HeaderListItem
 import com.alexeymerov.radiostations.feature.category.item.SubCategoryListItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -125,7 +124,7 @@ private fun CategoryScreen(
 ) {
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
-        is ViewState.Loading -> ShimmerLoading()
+        is ViewState.Loading -> ShimmerLoading(defListItemModifier)
         is ViewState.CategoriesLoaded -> {
             MainContent(
                 categoryItems = categoryItems,
@@ -175,7 +174,7 @@ private fun MainContent(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = listState,
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 4.dp)
     ) {
         if (headerItems.isNotEmpty()) filtersHeader(headerItems, onHeaderFilterClick)
 
@@ -247,7 +246,7 @@ private fun LazyListScope.mainListItems(
         contentType = CategoryItemDto::type
     ) { itemDto ->
         DrawItems(
-            modifier = Modifier.animateItemPlacement(),
+            modifier = defListItemModifier.animateItemPlacement(),
             itemDto = itemDto,
             onCategoryClick = onCategoryClick,
             onAudioClick = onAudioClick,
@@ -283,7 +282,7 @@ private fun LazyListScope.mainGridItems(
                 contentType = CategoryItemDto::type
             ) { itemDto ->
                 DrawItems(
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = defListItemModifier.animateItemPlacement(),
                     itemDto = itemDto,
                     onCategoryClick = onCategoryClick,
                     onAudioClick = onAudioClick,
@@ -302,14 +301,10 @@ fun DrawItems(
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
-    val defaultModifier = modifier
-        .fillMaxWidth()
-        .padding(vertical = 6.dp)
-
     when (itemDto.type) {
-        DtoItemType.CATEGORY -> CategoryListItem(defaultModifier, itemDto, onCategoryClick)
+        DtoItemType.CATEGORY -> CategoryListItem(modifier, itemDto, onCategoryClick)
         DtoItemType.AUDIO -> StationListItem(
-            modifier = defaultModifier,
+            modifier = modifier,
             itemDto = itemDto,
             inSelection = false,
             isSelected = false,
@@ -317,7 +312,7 @@ fun DrawItems(
             onFavClick = onFavClick
         )
 
-        DtoItemType.SUBCATEGORY -> SubCategoryListItem(defaultModifier, itemDto, onCategoryClick)
+        DtoItemType.SUBCATEGORY -> SubCategoryListItem(modifier, itemDto, onCategoryClick)
         DtoItemType.HEADER -> {}
     }
 }

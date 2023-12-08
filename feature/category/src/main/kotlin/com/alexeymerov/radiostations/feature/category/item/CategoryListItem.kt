@@ -2,8 +2,6 @@ package com.alexeymerov.radiostations.feature.category.item
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,7 +18,7 @@ import com.alexeymerov.radiostations.core.ui.view.BasicText
 @Composable
 fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
     Card(
-        modifier = modifier.height(60.dp),
+        modifier = modifier,
         onClick = { onCategoryClick.invoke(itemDto) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -30,9 +28,7 @@ fun CategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryCli
             verticalAlignment = Alignment.CenterVertically
         ) {
             BasicText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.padding(16.dp),
                 text = itemDto.text
             )
         }
