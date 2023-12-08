@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.DropDownItem
@@ -193,17 +194,14 @@ private fun MainContent(
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
         columns = GridCells.Fixed(columnCount),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
             items = categoryItems,
             key = CategoryItemDto::id,
             contentType = CategoryItemDto::type
         ) { itemDto ->
-            val defaultModifier = Modifier.animateItemPlacement()
-
             var isSelected by rememberSaveable { mutableStateOf(false) }
 
             val onLongClick: (CategoryItemDto) -> Unit = {
@@ -221,7 +219,7 @@ private fun MainContent(
 
             if (isList) { // try animate between rows and grid
                 StationListItem(
-                    modifier = defaultModifier,
+                    modifier = defListItemModifier.animateItemPlacement(),
                     itemDto = itemDto,
                     inSelection = inSelection,
                     isSelected = isSelected,
@@ -231,7 +229,7 @@ private fun MainContent(
                 )
             } else {
                 StationGridItem(
-                    modifier = defaultModifier,
+                    modifier = Modifier.animateItemPlacement(),
                     itemDto = itemDto,
                     inSelection = inSelection,
                     isSelected = isSelected,

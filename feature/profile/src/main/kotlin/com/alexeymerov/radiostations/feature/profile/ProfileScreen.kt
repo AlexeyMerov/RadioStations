@@ -5,6 +5,12 @@ import android.net.Uri
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -61,7 +69,6 @@ import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.remembers.rememberGalleyPicker
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTakePicture
-import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -154,21 +161,21 @@ private fun MainContent(
                 .padding(16.dp)
                 .sizeIn(maxWidth = 150.dp)
         ) {
-            val placeholder = rememberTextPainter(
-                containerColor = MaterialTheme.colorScheme.primary,
-                textStyle = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary
-                ),
-                text = stringResource(R.string.avatar)
-            )
+            val colorScheme = MaterialTheme.colorScheme
+            val colorFilter: ColorFilter? by remember(isLoaded) {
+                derivedStateOf {
+                    if (isLoaded) null else ColorFilter.tint(colorScheme.onPrimary)
+                }
+            }
 
             AsyncImage(
                 modifier = Modifier
                     .size(150.dp)
                     .clip(CircleShape)
+                    .background(colorScheme.primary)
                     .border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        width = 1.dp,
+                        color = colorScheme.primaryContainer,
                         shape = CircleShape
                     )
                     .clickable { if (isLoaded) needShowBigPicture = true },
@@ -178,7 +185,8 @@ private fun MainContent(
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                error = placeholder,
+                error = painterResource(id = R.drawable.icon_person),
+                colorFilter = colorFilter,
                 onSuccess = { isLoaded = true },
                 onError = { isLoaded = false }
             )
@@ -187,12 +195,18 @@ private fun MainContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(onClick = { onDelete.invoke() }) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.error,
-                        imageVector = Icons.Outlined.DeleteForever,
-                        contentDescription = null
-                    )
+                AnimatedVisibility(
+                    visible = isLoaded,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
+                ) {
+                    IconButton(onClick = { onDelete.invoke() }) {
+                        Icon(
+                            tint = MaterialTheme.colorScheme.error,
+                            imageVector = Icons.Outlined.DeleteForever,
+                            contentDescription = null
+                        )
+                    }
                 }
 
                 IconButton(onClick = { onEdit.invoke() }) {
@@ -205,8 +219,6 @@ private fun MainContent(
             }
         }
 
-
-
         Spacer(modifier = Modifier.weight(1f))
 
         IconButton(
@@ -216,7 +228,6 @@ private fun MainContent(
                 contentDescription = null
             )
         }
-
     }
 
     if (needShowBigPicture) {

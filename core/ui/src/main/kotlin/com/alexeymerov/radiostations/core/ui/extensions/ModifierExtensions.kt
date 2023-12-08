@@ -5,6 +5,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +23,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 
 @Suppress("InfiniteTransitionLabel", "InfinitePropertiesLabel")
@@ -70,3 +74,8 @@ fun Modifier.ignoreWidthConstrains(dp: Dp) = layout { measurable, constraints ->
         placeable.place(+padding.roundToPx(), 0)
     }
 }
+
+val defListItemModifier = Modifier
+    .height(68.dp)
+    .padding(vertical = 4.dp)
+    .fillMaxWidth()
