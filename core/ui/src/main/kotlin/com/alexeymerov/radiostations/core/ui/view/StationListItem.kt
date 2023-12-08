@@ -71,7 +71,7 @@ fun StationListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FlipBox(
-                modifier = Modifier.size(68.dp),
+                modifier = Modifier.size(76.dp),
                 isFlipped = isSelected,
                 frontSide = { StationImage(itemDto) },
                 backSide = { SelectedIcon() }
@@ -79,7 +79,7 @@ fun StationListItem(
 
             Column(
                 modifier = Modifier
-                    .padding(start = 4.dp)
+                    .padding(start = 8.dp)
                     .weight(1f)
             ) {
                 TextBlock(itemDto)
