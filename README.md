@@ -1,9 +1,15 @@
-# RadioStations (Sandbox)
+<div align="center">
 
-[![Android CI status](https://github.com/AlexeyMerov/RadioStations/workflows/Android%20CI/badge.svg)](https://github.com/AlexeyMerov/RadioStations/actions) [![GitHub release](https://img.shields.io/github/v/release/AlexeyMerov/RadioStations)](https://github.com/AlexeyMerov/RadioStations/releases) [![License](https://img.shields.io/github/license/AlexeyMerov/RadioStations?color=blue)](LICENSE)
+# Radio Stations
 
-## Preview
+[![GitHub release](https://img.shields.io/github/v/release/AlexeyMerov/RadioStations)](https://github.com/AlexeyMerov/RadioStations/releases)
+![Static Badge](https://img.shields.io/badge/26-blue?logo=android&label=minSdk)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/AlexeyMerov/RadioStations/android.yml?event=push&logo=github&logoColor=white)](https://github.com/AlexeyMerov/RadioStations/actions)
+[![License](https://img.shields.io/github/license/AlexeyMerov/RadioStations?color=blue)](LICENSE)
 
+### Sandbox to test my skills and learn new ones
+
+<br>
 <p>
   <img src="./preview/categories.png" width="19%" /> 
   <img src="./preview/stations.png" width="19%" />
@@ -12,23 +18,25 @@
   <img src="./preview/theme.png" width="19%" /> 
 </p>
 
-## About:
+</div>
+
+### About:
 
 - Portrait, landscape, tablet support.
-- Display list of categories and go for every nested links which represents new categories or radio stations.
-- Favorites (locally).
-- Settings for the app.
-- Play/control audio as a service.
+- Display list of categories or radio stations.
 - Different item types.
-- Profile picture from gallery or camera.
-- Performance, architecture and use best practices.
 - Offline mode.
+- Favorites (locally).
+- Play/control audio as a service.
+- Profile picture from gallery or camera.
+- Settings for the app.
+- Dark/Light theme.
 - Design guideline (Material3).
 - Animations.
-- Dark/Light theme.
+- Performance, architecture, best practices.
 - Tests... not 100% coverage.
 
-## Tech stack:
+### Tech stack:
 
 - Multi-module
 - Clean Architecture
@@ -45,8 +53,7 @@
 
 ### Bottlenecks:
 
-Server.
-
+- Server.
 - Response type, the whole 'logic' and everything... not the best.
 - The problem is that it requires some core workarounds, which impact the whole app.
 - I left only one Entity type and made it all-on-one/dumb.
