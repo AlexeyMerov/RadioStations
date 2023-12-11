@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -27,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -175,19 +174,29 @@ private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, i
 
 @Composable
 private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
-    StationImage(imageUrl)
+    PlayerArtwork(
+        modifier = Modifier
+            .size(250.dp)
+            .graphicsLayer {
+                shadowElevation = 16f
+                clip = true
+                shape = RoundedCornerShape(16.dp)
+            },
+        imageUrl = imageUrl
+    )
+
 
     Box(Modifier.size(60.dp)) {
         if (isLoading) {
             CircularProgressIndicator(strokeCap = StrokeCap.Round)
         } else {
-            ControlButton(isPlaying, onToggleAudio)
+            PlayerControlButton(isPlaying, onToggleAudio)
         }
     }
 }
 
 @Composable
-private fun StationImage(imageUrl: String) {
+fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
     val colorFilter: ColorFilter? by remember(isLoaded) {
@@ -195,31 +204,23 @@ private fun StationImage(imageUrl: String) {
             if (isLoaded) null else ColorFilter.tint(colorScheme.primary)
         }
     }
-    Card(
-        modifier = Modifier
-            .size(250.dp)
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        AsyncImage(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
-                .crossfade(500)
-                .build(),
-            contentDescription = null,
-            error = painterResource(id = R.drawable.icon_radio),
-            colorFilter = colorFilter,
-            onSuccess = { isLoaded = true },
-            onError = { isLoaded = false }
-        )
-    }
+
+    AsyncImage(
+        modifier = modifier.background(MaterialTheme.colorScheme.background),
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUrl)
+            .crossfade(500)
+            .build(),
+        contentDescription = null,
+        error = painterResource(id = R.drawable.icon_radio),
+        colorFilter = colorFilter,
+        onSuccess = { isLoaded = true },
+        onError = { isLoaded = false }
+    )
 }
 
 @Composable
-private fun ControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
+fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.playstop))
     val animationStateProgress by animateLottieCompositionAsState(
         composition = composition,

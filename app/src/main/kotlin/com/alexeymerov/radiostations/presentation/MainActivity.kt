@@ -6,16 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
@@ -67,11 +64,11 @@ class MainActivity : ComponentActivity() {
             StationsAppTheme(themeState) {
                 val playerState by viewModel.playerState.collectAsStateWithLifecycle()
                 val currentMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
-                val playerTitle by remember { derivedStateOf { currentMedia?.title ?: String.EMPTY } }
+
                 MainNavGraph(
                     starDest = starDest,
                     playerState = playerState,
-                    playerTitle = playerTitle,
+                    currentMedia = currentMedia,
                     onPlayerAction = { viewModel.setAction(it) }
                 )
             }

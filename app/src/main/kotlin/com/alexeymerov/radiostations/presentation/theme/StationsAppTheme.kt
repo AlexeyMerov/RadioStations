@@ -67,7 +67,7 @@ fun StationsAppTheme(
         titleSmall = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
     )
 
-    systemUiController.setStatusBarColor(color = animateColor(colors.surface))
+    systemUiController.setStatusBarColor(color = Color.Transparent, darkIcons = !useDarkTheme)
 
     MaterialTheme(
         colorScheme = colors.withAnimation(),

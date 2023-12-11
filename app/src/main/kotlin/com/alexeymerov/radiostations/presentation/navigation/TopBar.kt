@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -37,6 +39,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -68,6 +71,7 @@ fun TopBar(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarTitle(title: String, subTitle: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -78,7 +82,16 @@ private fun TopBarTitle(title: String, subTitle: String) {
             },
             label = String.EMPTY
         ) { targetText ->
-            Text(text = targetText, fontWeight = FontWeight.Bold)
+            Text(
+                modifier = Modifier.basicMarquee(
+                    iterations = 10,
+                    velocity = 20.dp
+                ),
+                text = targetText,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
         if (subTitle.isNotEmpty()) {
             AnimatedContent(
