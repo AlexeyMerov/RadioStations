@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.radiostations.android.application)
     alias(libs.plugins.radiostations.android.hilt)
     alias(libs.plugins.radiostations.android.application.compose)
+    alias(libs.plugins.radiostations.android.firebase)
 }
 
 android {

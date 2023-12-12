@@ -6,8 +6,10 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.ktlint)
-    alias(libs.plugins.versionsChecker)
+    alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.versionsChecker) apply false
+    alias(libs.plugins.googleServices) apply false
+    alias(libs.plugins.firebaseCrashlytics) apply false
 }
 
 allprojects {
