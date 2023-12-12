@@ -39,10 +39,11 @@ fun CreateBottomBar(
 
 @Composable
 fun CreateNavigationRail(
+    modifier: Modifier,
     navController: NavHostController,
 ) {
     val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
-    NavigationRail {
+    NavigationRail(modifier) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 

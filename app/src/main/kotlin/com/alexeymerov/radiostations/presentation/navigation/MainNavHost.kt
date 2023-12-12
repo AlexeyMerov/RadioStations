@@ -5,8 +5,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,11 +31,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.navigation.NavHostController
@@ -79,7 +81,12 @@ fun MainNavGraph(
 
             val scaffoldState = rememberBottomSheetScaffoldState(sheetState)
 
-            var bottomPaddingPx by remember { mutableFloatStateOf(0f) }
+            val railBarSize = if (config.isLandscape()) {
+                80.dp.toPx()
+            } else {
+                80.dp.toPx() + WindowInsets.navigationBars.getBottom(LocalDensity.current).toFloat()
+            }
+
             var sheetFullHeightPx by remember { mutableFloatStateOf(0f) }
 
             val sheetOffset by remember(sheetState) {
@@ -88,16 +95,28 @@ fun MainNavGraph(
                 }
             }
 
-            val progress by remember(sheetOffset, sheetFullHeightPx, bottomPaddingPx) {
+            val progress by remember(sheetOffset, sheetFullHeightPx) {
                 derivedStateOf {
-                    val maxOffset = sheetFullHeightPx - bottomPaddingPx - peekHightPx
+                    val maxOffset = sheetFullHeightPx - railBarSize - peekHightPx
                     ((maxOffset - sheetOffset) / maxOffset).coerceIn(0f, 1f)
                 }
             }
 
-            val bottomBarYOffset by remember(progress) {
+            val bottomBarOffsetY by remember(progress) {
                 derivedStateOf {
-                    lerp(0f, bottomPaddingPx, progress)
+                    lerp(0f, railBarSize, progress)
+                }
+            }
+
+            val railBarOffsetX by remember(progress) {
+                derivedStateOf {
+                    lerp(0f, -railBarSize, progress)
+                }
+            }
+
+            val scaleContent by remember(progress) {
+                derivedStateOf {
+                    lerp(1f, 0f, progress)
                 }
             }
 
@@ -106,15 +125,13 @@ fun MainNavGraph(
                     if (config.isPortrait()) {
                         CreateBottomBar(
                             modifier = Modifier.graphicsLayer {
-                                translationY = bottomBarYOffset
+                                translationY = bottomBarOffsetY
                             },
                             navController = navController
                         )
                     }
                 },
                 content = { scaffoldPaddingValues ->
-                    bottomPaddingPx = scaffoldPaddingValues.calculateBottomPadding().toPx()
-
                     BottomSheetScaffold(
                         modifier = Modifier,
                         scaffoldState = scaffoldState,
@@ -152,8 +169,20 @@ fun MainNavGraph(
                             Surface(Modifier.fillMaxSize()) {
                                 if (config.isLandscape()) {
                                     Row(Modifier.fillMaxSize()) {
-                                        CreateNavigationRail(navController)
+                                        CreateNavigationRail(
+                                            modifier = Modifier
+                                                .graphicsLayer {
+                                                    translationX = railBarOffsetX
+                                                },
+                                            navController = navController
+                                        )
                                         CreateNavHost(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .graphicsLayer {
+                                                    scaleY = scaleContent
+                                                    scaleX = scaleContent
+                                                },
                                             starDest = starDest,
                                             paddingValues = sheetContentPadding,
                                             topBarBlock = topBarBlock,
@@ -161,7 +190,12 @@ fun MainNavGraph(
                                     }
                                 } else {
                                     CreateNavHost(
-                                        modifier = Modifier.alpha(1f - progress),
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .graphicsLayer {
+                                                scaleY = scaleContent
+                                                scaleX = scaleContent
+                                            },
                                         starDest = starDest,
                                         paddingValues = sheetContentPadding,
                                         topBarBlock = topBarBlock,

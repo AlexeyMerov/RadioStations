@@ -57,6 +57,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.feature.player.screen.PlayerArtwork
 import com.alexeymerov.radiostations.presentation.MainViewModel
 
@@ -86,10 +87,11 @@ fun ExpandableBottomPlayer(
     val animationData by remember(progress, textHeight, textWidth) {
         derivedStateOf {
             calculateAnimationData(
+                isLandscape = config.isLandscape(),
                 density = density,
                 statusBarInsets = statusBarInsets,
-                screenHeightDp = config.screenHeightDp.dp,
-                screenWidthDp = config.screenWidthDp.dp,
+                parentHeightDp = config.screenHeightDp.dp,
+                parentWidthDp = config.screenWidthDp.dp,
                 progress = progress,
                 peekHightDp = peekHightDp,
                 textWidth = textWidth,
@@ -262,8 +264,8 @@ private fun PlayButton(modifier: Modifier, onColor: Color, isPlaying: Boolean, o
  *
  * @param density - LocalDensity.current
  * @param statusBarInsets - WindowInsets.statusBars
- * @param screenHeightDp - LocalConfiguration.current.screenHeightDp.dp
- * @param screenWidthDp - LocalConfiguration.current.screenWidthDp.dp
+ * @param parentHeightDp - bottomSheet height by default or LocalConfiguration.current.screenHeightDp.dp
+ * @param parentWidthDp - bottomSheet width by default or LocalConfiguration.current.screenWidthDp.dp
  * @param progress - current expand/collapse progress
  * @param peekHightDp - peek height of bottom sheet
  * @param textWidth - width of text in px
@@ -271,10 +273,11 @@ private fun PlayButton(modifier: Modifier, onColor: Color, isPlaying: Boolean, o
  * @param iconPlayLoadingSizeDp - size of play/loading icon
  * */
 private fun calculateAnimationData(
+    isLandscape: Boolean,
     density: Density,
     statusBarInsets: WindowInsets,
-    screenHeightDp: Dp,
-    screenWidthDp: Dp,
+    parentHeightDp: Dp,
+    parentWidthDp: Dp,
     progress: Float,
     peekHightDp: Dp,
     textWidth: Float,
@@ -284,17 +287,19 @@ private fun calculateAnimationData(
     return with(density) {
         val peekHight = peekHightDp.toPx()
 
-        val screenHeight = screenHeightDp.toPx()
-        val screenWidth = screenWidthDp.toPx()
-        val screenHalfHight = screenHeight.div(2f)
-        val screenHalfWidth = screenWidth.div(2f)
+        val maxWidthDp = 640.dp // default for bottomSheet
+        val parentWidth = (if (parentWidthDp > maxWidthDp) maxWidthDp else parentWidthDp).toPx()
+        val parentHeight = parentHeightDp.toPx()
 
-        val padding16 = 16.dp.toPx()
+        val parentHalfWidth = parentWidth.div(2f)
+        val parentHalfHight = parentHeight.div(2f)
+
+        val padding16AsPx = 16.dp.toPx()
         val iconSizeDp = 48.dp
         val iconSize = iconSizeDp.toPx()
 
         val imgCollapsedSizeDp = 26.dp
-        val imgExpandedSizeDp = 260.dp
+        val imgExpandedSizeDp = if (isLandscape) 208.dp else 260.dp
         val imgCollapsedCorenres = 2.dp.toPx()
         val imgExapandedCoreners = 8.dp.toPx()
         val imgCollapsedSize = imgCollapsedSizeDp.toPx()
@@ -302,9 +307,11 @@ private fun calculateAnimationData(
 
         val iconPlayLoadingSize = iconPlayLoadingSizeDp.toPx()
 
+        val textMaxSize = if (isLandscape) 20.sp else 28.sp
+
         // Calculate status bar top offset
-        val statusBarPadding = statusBarInsets.getTop(density).toFloat()
-        val statusBarTopOffset = lerp(0f, statusBarPadding, progress)
+        val defaultStatusBarOffsetX = statusBarInsets.getTop(density).toFloat()
+        val statusBarOffsetX = lerp(0f, defaultStatusBarOffsetX, progress)
 
         /* -- CALCULATE IMAGE -- */
 
@@ -313,51 +320,63 @@ private fun calculateAnimationData(
         val imgCorners = lerp(imgCollapsedCorenres, imgExapandedCoreners, progress)
         val imgElevation = lerp(0f, 16f, progress)
 
-        val imgExapandedStartPadding = screenHalfWidth - imgExpandedSize.div(2f) - padding16
-        val imgOffsetX = lerp(0f, imgExapandedStartPadding, progress)
+        val imgExapandedOffsetX = when {
+            isLandscape -> parentHalfWidth.div(2f) - imgExpandedSize.div(2f) - padding16AsPx
+            else -> parentHalfWidth - imgExpandedSize.div(2f) - padding16AsPx
+        }
+        val imgOffsetX = lerp(0f, imgExapandedOffsetX, progress)
 
-        val imgCollapsedTopPadding = (peekHight - imgCollapsedSize).div(2f)
-        val imgExpandedTopPadding = screenHalfHight - imgExpandedSize - padding16
-        val imgOffsetY = lerp(imgCollapsedTopPadding, imgExpandedTopPadding, progress)
+        val imgCollapsedOffsetY = (peekHight - imgCollapsedSize).div(2f)
+        val imgExpandedOffsetY = when {
+            isLandscape -> parentHalfHight - imgExpandedSize.div(2f) - padding16AsPx
+            else -> parentHalfHight - imgExpandedSize - padding16AsPx
+        }
+        val imgOffsetY = lerp(imgCollapsedOffsetY, imgExpandedOffsetY, progress)
 
         /* -- CALCULATE TEXT -- */
 
         // Calculate text X offset
-        val textCollapsedStartPadding = imgCollapsedSize + 8.dp.toPx()
-        val textExpandedStartPadding = screenHalfWidth - textWidth.div(2f) - padding16
-        val textOffsetX = lerp(textCollapsedStartPadding, textExpandedStartPadding, progress)
+        val textCollapsedOffsetX = imgCollapsedSize + 8.dp.toPx()
+        val textExpandedOffsetX = parentHalfWidth - textWidth.div(2f) - padding16AsPx
+        val textOffsetX = lerp(textCollapsedOffsetX, textExpandedOffsetX, progress)
 
         // Calculate text Y offset
-        val textCollapsedPaddingTop = (peekHight - textHeight).div(2f)
-        val textExpandedPaddingTop = imgExpandedSize + imgExpandedTopPadding + padding16.times(2f)
-        val textOffsetY = lerp(textCollapsedPaddingTop, textExpandedPaddingTop, progress)
+        val textCollapsedOffsetY = (peekHight - textHeight).div(2f)
+        val textExpandedOffsetY = imgExpandedSize + imgExpandedOffsetY + padding16AsPx.times(2f)
+        val textOffsetY = lerp(textCollapsedOffsetY, textExpandedOffsetY, progress)
 
         // Calculate text max width
-        val textCollapsedMaxWidth = screenWidthDp - imgCollapsedSizeDp - 8.dp - (iconSizeDp * 2)
-        val textExpandedMaxWidth = screenWidthDp - 62.dp
+        val textCollapsedMaxWidth = parentWidthDp - imgCollapsedSizeDp - 8.dp - (iconSizeDp * 2)
+        val textExpandedMaxWidth = parentWidthDp - 62.dp
         val textMaxWidth = lerp(textCollapsedMaxWidth, textExpandedMaxWidth, progress)
 
         // Calculate other text params
-        val textSize = lerp(16.sp, 28.sp, progress)
+        val textSize = lerp(16.sp, textMaxSize, progress)
         val textMaxLines = lerp(1, 4, progress)
 
         /* -- CALCULATE ICONS -- */
 
         // Calculate close icon X offset
-        val iconCloseOffsetX = screenWidth - iconSize - padding16
+        val iconCloseOffsetX = parentWidth - iconSize - padding16AsPx
 
         // Calculate play/loading icon X offset
         val iconPlayLoadingCollapsedOffsetX = iconCloseOffsetX - iconPlayLoadingSize
-        val iconPlayLoadingExpandedOffsetX = screenHalfWidth - iconPlayLoadingSize.div(2f) - padding16
+        val iconPlayLoadingExpandedOffsetX = when {
+            isLandscape -> parentHalfWidth + parentHalfWidth.div(2)
+            else -> parentHalfWidth - iconPlayLoadingSize.div(2f) - padding16AsPx
+        }
         val iconPlayLoadingOffsetX = lerp(iconPlayLoadingCollapsedOffsetX, iconPlayLoadingExpandedOffsetX, progress)
 
         // Calculate play/loading Y offset
         val iconPlayLoadingCollapsedOffsetY = (peekHight - iconPlayLoadingSize).div(2f)
-        val iconPlayLoadingExpandedOffsetY = textExpandedPaddingTop + textHeight + padding16.times(4f)
+        val iconPlayLoadingExpandedOffsetY = when {
+            isLandscape -> imgExpandedOffsetY + imgExpandedSize.div(2f) - padding16AsPx
+            else -> textExpandedOffsetY + textHeight + padding16AsPx.times(4f)
+        }
         val iconPlayLoadingOffsetY = lerp(iconPlayLoadingCollapsedOffsetY, iconPlayLoadingExpandedOffsetY, progress)
 
         CollapseExpandData(
-            statusBarTopOffset = statusBarTopOffset,
+            statusBarTopOffset = statusBarOffsetX,
 
             imgSize = imgSize,
             imgCorners = imgCorners,
