@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.presentation.navigation
+package com.alexeymerov.radiostations.feature.player.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,8 +58,6 @@ import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.Play
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
-import com.alexeymerov.radiostations.feature.player.screen.PlayerArtwork
-import com.alexeymerov.radiostations.presentation.MainViewModel
 
 @Composable
 fun ExpandableBottomPlayer(
@@ -70,7 +68,8 @@ fun ExpandableBottomPlayer(
     onContainerColor: Color,
     playerState: PlayerState,
     currentMedia: AudioItemDto?,
-    onPlayerAction: (MainViewModel.ViewAction) -> Unit,
+    onCloseAction: () -> Unit,
+    onToggleAudio: () -> Unit,
     onCollapse: () -> Unit
 ) {
     val density = LocalDensity.current
@@ -159,7 +158,7 @@ fun ExpandableBottomPlayer(
             modifier = Modifier.graphicsLayer(
                 translationX = animationData.iconCloseOffset.x,
             ),
-            onClick = { onPlayerAction.invoke(MainViewModel.ViewAction.NukePlayer) }
+            onClick = { onCloseAction.invoke() }
         ) {
             Icon(
                 imageVector = Icons.Rounded.Close,
@@ -190,7 +189,7 @@ fun ExpandableBottomPlayer(
                     modifier = Modifier,
                     onColor = onContainerColor,
                     isPlaying = isPlaying,
-                    onTogglePlay = { onPlayerAction.invoke(MainViewModel.ViewAction.ToggleAudio) }
+                    onTogglePlay = { onToggleAudio.invoke() }
                 )
             }
         }

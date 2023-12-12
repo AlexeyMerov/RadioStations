@@ -49,6 +49,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.extensions.toPx
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.feature.player.screen.ExpandableBottomPlayer
 import com.alexeymerov.radiostations.presentation.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -150,13 +151,14 @@ fun MainNavGraph(
                                 onContainerColor = MaterialTheme.colorScheme.onPrimary,
                                 playerState = playerState,
                                 currentMedia = currentMedia,
-                                onPlayerAction = {
-                                    if (it is MainViewModel.ViewAction.NukePlayer) {
-                                        coroutineScope.launch {
-                                            sheetState.hide()
-                                        }
+                                onCloseAction = {
+                                    coroutineScope.launch {
+                                        sheetState.hide()
                                     }
-                                    onPlayerAction.invoke(it)
+                                    onPlayerAction.invoke(MainViewModel.ViewAction.NukePlayer)
+                                },
+                                onToggleAudio = {
+                                    onPlayerAction.invoke(MainViewModel.ViewAction.ToggleAudio)
                                 },
                                 onCollapse = {
                                     coroutineScope.launch {
