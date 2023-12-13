@@ -17,10 +17,7 @@ class FirebasePlugin : Plugin<Project> {
             }
 
             dependencies {
-                val composeBom = platform(libs.getLibrary("firebase-bom"))
-                implementation(composeBom)
-
-                implementation(libs.getLibrary("firebase-analytics"))
+                implementation(platform(libs.getLibrary("firebase-bom")))
                 implementation(libs.getLibrary("firebase-crashlytics"))
             }
 

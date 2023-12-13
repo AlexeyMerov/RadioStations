@@ -25,7 +25,6 @@ include(":app")
 
 include(":core:common")
 include(":core:test")
-
 include(":core:remote")
 include(":core:datastore")
 include(":core:database")
@@ -33,8 +32,8 @@ include(":core:data")
 include(":core:domain")
 include(":core:dto")
 include(":core:filestore")
-
 include(":core:ui")
+include(":core:analytics")
 
 include(":feature:category")
 include(":feature:favorite")

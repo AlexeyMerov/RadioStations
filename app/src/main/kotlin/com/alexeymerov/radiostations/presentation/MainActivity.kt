@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.presentation
 
 import android.content.ComponentName
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,7 @@ import androidx.media3.session.SessionToken
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.feature.player.service.PlayerService
 import com.alexeymerov.radiostations.feature.player.service.mapToMediaItem
@@ -24,12 +26,18 @@ import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var analytics: FirebaseAnalytics
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -43,6 +51,14 @@ class MainActivity : ComponentActivity() {
         var starDest: Tabs = Tabs.Browse
         intent.getStringExtra("screen")?.let { // extract somwewhere later
             if (it == "favorites") starDest = Tabs.Favorites
+        }
+
+        val config = Configuration(resources.configuration)
+
+        analytics.logEvent(FirebaseAnalytics.Event.APP_OPEN) {
+            param("start_tab", starDest.route)
+            param("is_andscape", config.isLandscape().toString())
+            param("screen_size", "${config.screenWidthDp} x ${config.screenHeightDp}")
         }
 
         var viewState by mutableStateOf(viewModel.initialState)

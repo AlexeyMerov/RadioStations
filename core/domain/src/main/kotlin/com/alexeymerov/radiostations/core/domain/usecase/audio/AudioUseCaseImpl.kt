@@ -9,6 +9,8 @@ import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.Play
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.dto.CategoryDto
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -19,7 +21,8 @@ import javax.inject.Inject
 class AudioUseCaseImpl @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val dtoCategoriesMapper: DtoCategoriesMapper,
-    private val settingsStore: SettingsStore
+    private val settingsStore: SettingsStore,
+    private val analytics: FirebaseAnalytics
 ) : AudioUseCase {
 
     override suspend fun getByUrl(url: String): CategoryItemDto {
@@ -41,16 +44,24 @@ class AudioUseCaseImpl @Inject constructor(
     }
 
     override suspend fun toggleFavorite(item: CategoryItemDto) {
-        mediaRepository.changeIsMediaFavorite(item.id, !item.isFavorite)
+        changeIsMediaFavorite(item.id, item.text, !item.isFavorite)
     }
 
     override suspend fun toggleFavorite(id: String) {
         val item = mediaRepository.getItemById(id)
-        mediaRepository.changeIsMediaFavorite(id, !item.isFavorite)
+        changeIsMediaFavorite(id, item.text, !item.isFavorite)
     }
 
     override suspend fun unfavorite(item: CategoryItemDto) {
-        mediaRepository.changeIsMediaFavorite(item.id, false)
+        changeIsMediaFavorite(item.id, item.text, false)
+    }
+
+    private suspend fun changeIsMediaFavorite(id: String, title: String, isFavorite: Boolean) {
+        val eventName = if (isFavorite) "favorite_media" else "unfavorite_media"
+        analytics.logEvent(eventName) {
+            param("title", title)
+        }
+        mediaRepository.changeIsMediaFavorite(id, isFavorite)
     }
 
     override suspend fun getMediaItem(url: String): AudioItemDto? {
@@ -87,6 +98,9 @@ class AudioUseCaseImpl @Inject constructor(
     }
 
     override suspend fun setLastPlayingMedia(item: AudioItemDto) {
+        analytics.logEvent("play_media") {
+            param("title", item.title)
+        }
         val mediaEntity = MediaEntity(
             url = item.parentUrl,
             directMediaUrl = item.directUrl,
