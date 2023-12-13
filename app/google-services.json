@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "750769964839",
+    "project_id": "radio-stations-e880d",
+    "storage_bucket": "radio-stations-e880d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750769964839:android:237a0b32e24b8ee9000b02",
+        "android_client_info": {
+          "package_name": "com.alexeymerov.radiostations"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdoVxotQJi0ha_vJBBzLMds5wsv6MVMYY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

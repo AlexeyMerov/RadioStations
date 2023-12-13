@@ -14,6 +14,8 @@ import com.alexeymerov.radiostations.core.ui.common.BaseViewState
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewEffect
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewState
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val themeSettings: ThemeSettingsUseCase,
-    private val connectivitySettings: ConnectivitySettingsUseCase
+    private val connectivitySettings: ConnectivitySettingsUseCase,
+    private val analytics: FirebaseAnalytics
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     private lateinit var currentThemeState: ThemeState
@@ -52,24 +55,37 @@ class SettingsViewModel @Inject constructor(
                 is ViewAction.ChangeDarkMode -> changeChangeDarkMode(action.value)
                 is ViewAction.ChangeDynamicColor -> changeChangeDynamicColor(action.useDynamic)
                 is ViewAction.ChangeColorScheme -> changeChangeColorScheme(action.value)
-                is ViewAction.ChangeConnection -> connectivitySettings.setConnectionStatus(action.status)
+                is ViewAction.ChangeConnection -> changeConnectionStatus(action.status)
             }
         }
     }
 
+    private suspend fun changeConnectionStatus(status: ConnectionStatus) {
+        connectivitySettings.setConnectionStatus(status)
+    }
+
     private suspend fun changeChangeDarkMode(value: DarkLightMode) {
+        analytics.logEvent("theme_settings") {
+            param("dark_mode", value.name.lowercase())
+        }
         themeSettings.updateThemeState(
             currentThemeState.copy(darkLightMode = value)
         )
     }
 
     private suspend fun changeChangeDynamicColor(useDynamic: Boolean) {
+        analytics.logEvent("theme_settings") {
+            param("dynamic_color", useDynamic.toString())
+        }
         themeSettings.updateThemeState(
             currentThemeState.copy(useDynamicColor = useDynamic)
         )
     }
 
     private suspend fun changeChangeColorScheme(value: ColorTheme) {
+        analytics.logEvent("theme_settings") {
+            param("color_scheme", value.name.lowercase())
+        }
         themeSettings.updateThemeState(
             currentThemeState.copy(colorTheme = value)
         )

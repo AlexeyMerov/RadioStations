@@ -7,7 +7,10 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.versionsChecker)
+    alias(libs.plugins.versionsChecker) apply false
+    alias(libs.plugins.googleServices) apply false
+    alias(libs.plugins.firebase.crashlytics) apply false
+    alias(libs.plugins.firebase.perf) apply false
 }
 
 allprojects {

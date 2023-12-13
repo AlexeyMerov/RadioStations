@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.radiostations.android.application)
     alias(libs.plugins.radiostations.android.hilt)
     alias(libs.plugins.radiostations.android.application.compose)
+    alias(libs.plugins.radiostations.android.firebase)
 }
 
 android {
@@ -53,6 +54,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.domain)
     implementation(projects.core.ui)
+    implementation(projects.core.analytics)
 
     implementation(projects.feature.category)
     implementation(projects.feature.favorite)

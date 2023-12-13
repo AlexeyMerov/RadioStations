@@ -1,7 +1,7 @@
 [versions]
 
-versionCode = "123"
-versionName = "1.8.5"
+versionCode = "124"
+versionName = "1.8.6"
 
 compileSdk = "34"
 minSdk = "26"
@@ -31,6 +31,9 @@ material = "1.10.0"
 accompanist = "0.32.0"
 glance = "1.0.0"
 
+fierbaseCrashlyticsPlugin = "2.9.9"
+fierbasePerfPlugin = "1.4.2"
+
 [plugins]
 
 androidApplication = { id = "com.android.application", version.ref = "gradle" }
@@ -40,6 +43,9 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "11.5.0" }
 versionsChecker = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
+googleServices = { id = "com.google.gms.google-services", version = "4.4.0" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "fierbaseCrashlyticsPlugin" }
+firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "fierbasePerfPlugin" }
 
 radiostations-android-application = { id = "radiostations.android.application", version = "unspecified" }
 radiostations-android-library = { id = "radiostations.android.library", version = "unspecified" }
@@ -48,6 +54,7 @@ radiostations-android-hilt = { id = "radiostations.android.hilt", version = "uns
 radiostations-android-application-compose = { id = "radiostations.android.application.compose", version = "unspecified" }
 radiostations-android-library-compose = { id = "radiostations.android.library.compose", version = "unspecified" }
 radiostations-android-room = { id = "radiostations.android.room", version = "unspecified" }
+radiostations-android-firebase = { id = "radiostations.android.firebase", version = "unspecified" }
 
 
 [libraries]
@@ -55,6 +62,7 @@ radiostations-android-room = { id = "radiostations.android.room", version = "uns
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kspGradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+firebaseCrashlyticsGradlePlugin = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "fierbaseCrashlyticsPlugin" }
 
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" }
@@ -94,6 +102,7 @@ compose-foundation = { module = "androidx.compose.foundation:foundation" }
 compose-runtime = { module = "androidx.compose.runtime:runtime" }
 compose-material = { module = "androidx.compose.material:material" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-ui-util = { module = "androidx.compose.ui:ui-util" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
 
@@ -129,3 +138,8 @@ coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ve
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+firebase-bom = { module = "com.google.firebase:firebase-bom", version = "32.7.0" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-perf = { module = "com.google.firebase:firebase-perf" }

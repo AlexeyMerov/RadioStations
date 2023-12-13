@@ -22,6 +22,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.kspGradlePlugin)
+    compileOnly(libs.firebaseCrashlyticsGradlePlugin)
 }
 
 gradlePlugin {
@@ -53,6 +54,10 @@ gradlePlugin {
         register("androidRoom") {
             id = "radiostations.android.room"
             implementationClass = "RoomPlugin"
+        }
+        register("androidFirebase") {
+            id = "radiostations.android.firebase"
+            implementationClass = "FirebasePlugin"
         }
 
     }

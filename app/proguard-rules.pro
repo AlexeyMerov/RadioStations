@@ -12,25 +12,23 @@
 #   public *;
 #}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Uncomment this to preserve the line number information for debugging stack traces.
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception  # Keep custom exceptions.
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
+# If you keep the line number information, uncomment this to hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
 -dontwarn com.google.**
 
 # Keep generic signature of Call, Response (R8 full mode strips signatures from non-kept items).
- #noinspection ShrinkerUnresolvedReference
- -keep,allowobfuscation,allowshrinking interface retrofit2.Call
- -keep,allowobfuscation,allowshrinking class retrofit2.Response
+#noinspection ShrinkerUnresolvedReference
+-keep,allowobfuscation,allowshrinking interface retrofit2.Call
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
 
- # With R8 full mode generic signatures are stripped for classes that are not
- # kept. Suspend functions are wrapped in continuations where the type argument
- # is used.
- -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+# With R8 full mode generic signatures are stripped for classes that are not  kept.
+# Suspend functions are wrapped in continuations where the type argument is used.
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
 
 
 -keepclassmembers class * extends java.lang.Enum {
@@ -40,4 +38,4 @@
 }
 
 # -keep class * extends com.alexeymerov.radiostations.core.remote.response.ServerBodyType { *; }
- -keep class com.alexeymerov.radiostations.core.remote.response.** { *; }
+-keep class com.alexeymerov.radiostations.core.remote.response.** { *; }

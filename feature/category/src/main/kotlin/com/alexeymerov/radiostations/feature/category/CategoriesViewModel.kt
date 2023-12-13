@@ -14,6 +14,8 @@ import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
 import com.alexeymerov.radiostations.core.ui.common.BaseViewState
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,10 +35,12 @@ import javax.inject.Inject
 class CategoriesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val categoryUseCase: CategoryUseCase,
-    private val audioUseCase: AudioUseCase
+    private val audioUseCase: AudioUseCase,
+    private val analytics: FirebaseAnalytics
 ) : BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {
 
     private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()
+    private val categoryTitle = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_TITLE)).decodeUrl()
 
     private val headerFlow = MutableStateFlow(listOf<CategoryItemDto>())
 
@@ -52,6 +56,12 @@ class CategoriesViewModel @Inject constructor(
         .map(::createHeaderAndItemsMap)
         .flowOn(ioContext)
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
+
+    init {
+        analytics.logEvent("load_category") {
+            param("title", categoryTitle)
+        }
+    }
 
     override fun setAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")

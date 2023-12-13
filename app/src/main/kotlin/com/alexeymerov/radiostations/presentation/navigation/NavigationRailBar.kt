@@ -1,6 +1,5 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -18,40 +17,33 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
-import com.alexeymerov.radiostations.presentation.MainViewModel
 
 @Composable
-fun BottomBarWithPlayer(
+fun CreateBottomBar(
+    modifier: Modifier,
     navController: NavHostController,
-    playerState: AudioUseCase.PlayerState,
-    playerTitle: String,
-    onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
     val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
 
-    Column {
-        BottomPlayer(playerState, playerTitle, onPlayerAction)
+    NavigationBar(modifier) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
 
-        NavigationBar {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-
-            tabs.forEach { tab ->
-                val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                BottomBarItem(navController, tab, isSelected)
-            }
+        tabs.forEach { tab ->
+            val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+            BottomBarItem(navController, tab, isSelected)
         }
     }
 }
 
 @Composable
 fun CreateNavigationRail(
+    modifier: Modifier,
     navController: NavHostController,
 ) {
     val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
-    NavigationRail {
+    NavigationRail(modifier) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 

@@ -14,6 +14,7 @@ dependencies {
     implementation(projects.core.datastore)
     implementation(projects.core.data)
     implementation(projects.core.filestore)
+    implementation(projects.core.analytics)
 
     api(projects.core.dto)
 }

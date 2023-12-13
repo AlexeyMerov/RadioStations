@@ -13,4 +13,5 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.ui)
     implementation(projects.core.domain)
+    implementation(projects.core.analytics)
 }
