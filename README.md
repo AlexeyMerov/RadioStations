@@ -35,6 +35,7 @@
 - Animations.
 - Performance, architecture, best practices.
 - Tests... not 100% coverage.
+- Firebase crashlytics, analytics, perfomance.
 
 ### Tech stack:
 

@@ -14,11 +14,13 @@ class FirebasePlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("com.google.gms.google-services")
                 apply("com.google.firebase.crashlytics")
+                apply("com.google.firebase.firebase-perf")
             }
 
             dependencies {
                 implementation(platform(libs.getLibrary("firebase-bom")))
                 implementation(libs.getLibrary("firebase-crashlytics"))
+                implementation(libs.getLibrary("firebase-perf"))
             }
 
             extensions.configure<ApplicationExtension> {
