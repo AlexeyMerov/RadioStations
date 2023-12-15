@@ -33,6 +33,7 @@
 - Dark/Light theme.
 - Design guideline (Material3).
 - Animations.
+- Static and dynamic shortcuts.
 - Performance, architecture, best practices.
 - Tests... not 100% coverage.
 - Firebase crashlytics, analytics, perfomance.

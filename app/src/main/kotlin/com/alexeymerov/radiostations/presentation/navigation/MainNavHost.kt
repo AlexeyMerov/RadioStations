@@ -44,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
+import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.extensions.toPx
@@ -59,6 +60,7 @@ val LocalNavController = compositionLocalOf<NavHostController> { error("NavHostC
 @Composable
 fun MainNavGraph(
     starDest: Tabs,
+    goToRoute: String? = null,
     playerState: PlayerState,
     currentMedia: AudioItemDto?,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
@@ -125,9 +127,7 @@ fun MainNavGraph(
                 bottomBar = {
                     if (config.isPortrait()) {
                         CreateBottomBar(
-                            modifier = Modifier.graphicsLayer {
-                                translationY = bottomBarOffsetY
-                            },
+                            modifier = Modifier.graphicsLayer { translationY = bottomBarOffsetY },
                             navController = navController
                         )
                     }
@@ -172,19 +172,14 @@ fun MainNavGraph(
                                 if (config.isLandscape()) {
                                     Row(Modifier.fillMaxSize()) {
                                         CreateNavigationRail(
-                                            modifier = Modifier
-                                                .graphicsLayer {
-                                                    translationX = railBarOffsetX
-                                                },
+                                            modifier = Modifier.graphicsLayer { translationX = railBarOffsetX },
                                             navController = navController
                                         )
                                         CreateNavHost(
                                             modifier = Modifier
                                                 .fillMaxSize()
-                                                .graphicsLayer {
-                                                    scaleY = scaleContent
-                                                    scaleX = scaleContent
-                                                },
+                                                .graphicsScale(scaleContent),
+                                            goToRoute = goToRoute,
                                             starDest = starDest,
                                             paddingValues = sheetContentPadding,
                                             topBarBlock = topBarBlock,
@@ -194,16 +189,13 @@ fun MainNavGraph(
                                     CreateNavHost(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .graphicsLayer {
-                                                scaleY = scaleContent
-                                                scaleX = scaleContent
-                                            },
+                                            .graphicsScale(scaleContent),
                                         starDest = starDest,
+                                        goToRoute = goToRoute,
                                         paddingValues = sheetContentPadding,
                                         topBarBlock = topBarBlock,
                                     )
                                 }
-
                             }
                         }
                     )
@@ -224,6 +216,7 @@ fun MainNavGraph(
 private fun CreateNavHost(
     modifier: Modifier = Modifier,
     starDest: Tabs = Tabs.Browse,
+    goToRoute: String? = null,
     paddingValues: PaddingValues,
     topBarBlock: (TopBarState) -> Unit,
 ) {
@@ -240,5 +233,8 @@ private fun CreateNavHost(
         browseGraph(topBarBlock)
         favoriteGraph(topBarBlock)
         youGraph(topBarBlock)
+    }
+    LaunchedEffect(Unit) {
+        goToRoute?.let { navController.navigate(it) }
     }
 }

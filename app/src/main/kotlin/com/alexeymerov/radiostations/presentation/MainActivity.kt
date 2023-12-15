@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.presentation
 
 import android.content.ComponentName
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,6 +11,9 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.session.MediaController
@@ -18,6 +22,7 @@ import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.Play
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
+import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.feature.player.service.PlayerService
 import com.alexeymerov.radiostations.feature.player.service.mapToMediaItem
@@ -49,12 +54,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         var starDest: Tabs = Tabs.Browse
-        intent.getStringExtra("screen")?.let { // extract somwewhere later
-            if (it == "favorites") starDest = Tabs.Favorites
+        intent.getStringExtra(FAV_SHORTCUT_INTENT_NAME)?.let {
+            if (it == FAV_SHORTCUT_ID) starDest = Tabs.Favorites
+        }
+
+        val goToRoute: String? = intent.getStringExtra(INTENT_KEY_URL)?.let {
+            Screens.Player(starDest.route).createRoute(it)
         }
 
         val config = Configuration(resources.configuration)
-
         analytics.logEvent(FirebaseAnalytics.Event.APP_OPEN) {
             param("start_tab", starDest.route)
             param("is_andscape", config.isLandscape().toString())
@@ -83,6 +91,7 @@ class MainActivity : ComponentActivity() {
 
                 MainNavGraph(
                     starDest = starDest,
+                    goToRoute = goToRoute,
                     playerState = playerState,
                     currentMedia = currentMedia,
                     onPlayerAction = { viewModel.setAction(it) }
@@ -113,6 +122,26 @@ class MainActivity : ComponentActivity() {
                 controller.prepare()
             }
         }
+
+        val shortLabel = item.title.substring(0, 10) + "..." // todo --------------------
+        val longLabel = "${item.title} (${item.subTitle})"
+
+        val shortcut = ShortcutInfoCompat.Builder(this, DYNAMIC_SHORTCUT_ID)
+            .setShortLabel(shortLabel)
+            .setLongLabel(longLabel)
+            .setDisabledMessage("Not")
+            .setIcon(IconCompat.createWithResource(this, com.alexeymerov.radiostations.core.ui.R.drawable.icon_radio))
+            .setIntent(
+                Intent(this, MainActivity::class.java).apply {
+                    action = Intent.ACTION_VIEW
+                    val bundle = Bundle()
+                    bundle.putString(INTENT_KEY_URL, item.parentUrl)
+                    putExtras(bundle)
+                }
+            )
+            .build()
+
+        ShortcutManagerCompat.pushDynamicShortcut(this, shortcut)
     }
 
     private fun processPlayerState(it: PlayerState) {
@@ -122,6 +151,12 @@ class MainActivity : ComponentActivity() {
                 PlayerState.EMPTY -> {
                     controller.stop()
                     controller.clearMediaItems()
+                    ShortcutManagerCompat.disableShortcuts(
+                        /* context = */ this,
+                        /* shortcutIds = */ listOf(DYNAMIC_SHORTCUT_ID),
+                        /* disabledMessage = */ "Not available" // kinda wierd we can't remove pinned icon
+                    )
+                    ShortcutManagerCompat.removeAllDynamicShortcuts(this)
                 }
 
                 PlayerState.PLAYING -> {
@@ -148,6 +183,13 @@ class MainActivity : ComponentActivity() {
             MediaController.releaseFuture(it)
         }
         super.onStop()
+    }
+
+    companion object {
+        private const val FAV_SHORTCUT_INTENT_NAME = "screen"
+        private const val FAV_SHORTCUT_ID = "favorites"
+        private const val DYNAMIC_SHORTCUT_ID = "latest_station_static_id"
+        private const val INTENT_KEY_URL = "parent_url"
     }
 
 }
