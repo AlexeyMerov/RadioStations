@@ -29,10 +29,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.compose.LottieAnimation
@@ -270,7 +270,7 @@ internal fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
             .crossfade(500)
             .build(),
         contentDescription = null,
-        error = painterResource(id = R.drawable.icon_radio),
+        error = rememberAsyncImagePainter(R.drawable.icon_radio),
         colorFilter = colorFilter,
         onSuccess = { isLoaded = true },
         onError = { isLoaded = false }
