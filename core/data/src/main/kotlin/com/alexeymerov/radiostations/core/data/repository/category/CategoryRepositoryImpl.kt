@@ -38,6 +38,7 @@ class CategoryRepositoryImpl @Inject constructor(
             categoryEntities.find { it.id == favEntity.id }?.let { it.isFavorite = true }
         }
 
+        categoryDao.removeAllByParentUrl(parentUrl)
         categoryDao.insertAll(categoryEntities)
     }
 

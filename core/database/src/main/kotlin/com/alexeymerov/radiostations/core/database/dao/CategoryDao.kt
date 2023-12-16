@@ -19,6 +19,9 @@ abstract class CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertAll(list: List<CategoryEntity>)
 
+    @Query("DELETE FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url")
+    abstract suspend fun removeAllByParentUrl(url: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(entity: CategoryEntity)
 

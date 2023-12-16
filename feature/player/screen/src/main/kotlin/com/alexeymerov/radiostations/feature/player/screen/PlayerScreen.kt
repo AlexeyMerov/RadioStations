@@ -254,7 +254,7 @@ private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String
 }
 
 @Composable
-fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
+internal fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
     val colorFilter: ColorFilter? by remember(isLoaded) {
@@ -278,7 +278,7 @@ fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
 }
 
 @Composable
-fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
+internal fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.playstop))
     val animationStateProgress by animateLottieCompositionAsState(
         composition = composition,

@@ -47,6 +47,7 @@ import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
+import com.alexeymerov.radiostations.core.ui.extensions.lerp
 import com.alexeymerov.radiostations.core.ui.extensions.toPx
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
@@ -123,6 +124,22 @@ fun MainNavGraph(
                 }
             }
 
+            val primary = MaterialTheme.colorScheme.primary
+            val surface = MaterialTheme.colorScheme.surface
+            val containerColor by remember(progress) {
+                derivedStateOf {
+                    primary.lerp(surface, progress)
+                }
+            }
+
+            val onPrimary = MaterialTheme.colorScheme.onPrimary
+            val onSurface = MaterialTheme.colorScheme.onSurface
+            val onContainerColor by remember(progress) {
+                derivedStateOf {
+                    onPrimary.lerp(onSurface, progress)
+                }
+            }
+
             Scaffold(
                 bottomBar = {
                     if (config.isPortrait()) {
@@ -147,8 +164,8 @@ fun MainNavGraph(
                                     .onGloballyPositioned { sheetFullHeightPx = it.size.height.toFloat() },
                                 peekHightDp = peekHightDp,
                                 progress = progress,
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                onContainerColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = containerColor,
+                                onContainerColor = onContainerColor,
                                 playerState = playerState,
                                 currentMedia = currentMedia,
                                 onCloseAction = {
