@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
@@ -75,7 +76,12 @@ fun Modifier.ignoreWidthConstrains(dp: Dp) = layout { measurable, constraints ->
     }
 }
 
+val defListItemHeight = 76.dp
+
 val defListItemModifier = Modifier
-    .height(76.dp)
+    .height(defListItemHeight)
     .padding(vertical = 4.dp)
     .fillMaxWidth()
+
+
+fun Modifier.graphicsScale(value: Float): Modifier = this.graphicsLayer { scaleX = value; scaleY = value }

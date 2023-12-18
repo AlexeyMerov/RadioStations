@@ -32,9 +32,10 @@ sealed class Screens(val route: String) {
         }
     }
 
-    data class Player(val parentRoute: String) : Screens(
+    data class Player(val parentRoute: String, val byUrl: Boolean = false) : Screens(
         createBaseRoute(
             "$parentRoute##${Const.ROUTE}",
+            Const.ARG_PARENT_URL,
             Const.ARG_TITLE,
             Const.ARG_SUBTITLE,
             Const.ARG_IMG_URL,
@@ -45,6 +46,7 @@ sealed class Screens(val route: String) {
     ) {
         object Const {
             const val ROUTE: String = "player"
+            const val ARG_PARENT_URL: String = "parentUrl"
             const val ARG_TITLE: String = "title"
             const val ARG_SUBTITLE: String = "subtitle"
             const val ARG_IMG_URL: String = "imgUrl"
@@ -54,9 +56,23 @@ sealed class Screens(val route: String) {
         }
 
         fun createRoute(stationName: String, locationName: String, stationImgUrl: String, rawUrl: String, id: String, isFav: Boolean): String {
+            return createNewRoute(null, stationName, locationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl(), id.encodeUrl(), isFav)
+        }
+
+        fun createRoute(parentUrl: String): String = createNewRoute(parentUrl.encodeUrl())
+
+        private fun createNewRoute(
+            parentUrl: String? = null,
+            stationName: String? = null,
+            locationName: String? = null,
+            stationImgUrl: String? = null,
+            rawUrl: String? = null,
+            id: String? = null,
+            isFav: Boolean = false
+        ): String {
             return createNewRoute(
                 route = "$parentRoute##${Const.ROUTE}",
-                args = arrayOf(stationName, locationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl(), id.encodeUrl(), isFav)
+                args = arrayOf(parentUrl, stationName, locationName, stationImgUrl, rawUrl, id, isFav)
             )
         }
     }
@@ -84,9 +100,9 @@ sealed class Screens(val route: String) {
 }
 
 //don't want to make if inside... for now will duplicate
-private fun createBaseRoute(route: String, vararg args: Any) = route + args.joinToString(separator = "/") { "{$it}" }
+private fun createBaseRoute(route: String, vararg args: Any) = route + args.joinToString(prefix = "/", separator = "/") { "{$it}" }
 
-private fun createNewRoute(route: String, vararg args: Any) = route + args.joinToString(separator = "/") { "$it" }
+private fun createNewRoute(route: String, vararg args: Any?) = route + args.joinToString(prefix = "/", separator = "/") { "$it" }
 
 // ugly workaround. compose navigation can't use links in args
 private fun String.encodeUrl() = replace("/", "!").replace("?", "*")

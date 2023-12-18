@@ -20,7 +20,8 @@ import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.feature.category.BaseCategoryScreen
 import com.alexeymerov.radiostations.feature.favorite.BaseFavoriteScreen
-import com.alexeymerov.radiostations.feature.player.screen.BasePlayerScreen
+import com.alexeymerov.radiostations.feature.player.screen.LoadPlayerScreen
+import com.alexeymerov.radiostations.feature.player.screen.PreloadedPlayerScreen
 import com.alexeymerov.radiostations.feature.profile.BaseProfileScreen
 import com.alexeymerov.radiostations.feature.settings.BaseSettingsScreen
 
@@ -39,6 +40,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
 
         val navController = LocalNavController.current
+
         BaseCategoryScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Categories.Const.ROUTE),
@@ -51,39 +53,52 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
     }
 }
 
+// not sure if it's a good idea to have 2 composable() for one screen, not cheked if it'll work either
 fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Player(parentRoute).route,
         arguments = listOf(
-            navArgument(Screens.Player.Const.ARG_TITLE, defaultStringArg()),
-            navArgument(Screens.Player.Const.ARG_SUBTITLE, defaultStringArg()),
-            navArgument(Screens.Player.Const.ARG_IMG_URL, defaultStringArg()),
-            navArgument(Screens.Player.Const.ARG_URL, defaultStringArg()),
-            navArgument(Screens.Player.Const.ARG_ID, defaultStringArg()),
+            navArgument(Screens.Player.Const.ARG_PARENT_URL, defaultStringArg(isNullable = true)),
+            navArgument(Screens.Player.Const.ARG_TITLE, defaultStringArg(isNullable = true)),
+            navArgument(Screens.Player.Const.ARG_SUBTITLE, defaultStringArg(isNullable = true)),
+            navArgument(Screens.Player.Const.ARG_IMG_URL, defaultStringArg(isNullable = true)),
+            navArgument(Screens.Player.Const.ARG_URL, defaultStringArg(isNullable = true)),
+            navArgument(Screens.Player.Const.ARG_ID, defaultStringArg(isNullable = true)),
             navArgument(Screens.Player.Const.ARG_IS_FAV, defaultBoolArg()),
         ),
     ) { backStackEntry ->
-        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.playerScreen")
-
-        val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
-        val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_SUBTITLE)) }
-        val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_IMG_URL)) }
-        val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_URL)) }
-        val id by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_ID)) }
-        val isFav by rememberSaveable { mutableStateOf(backStackEntry.getArgBool(Screens.Player.Const.ARG_IS_FAV)) }
+        ComposedTimberD("[ NavGraphBuilder.playerScreen ] ")
 
         val navController = LocalNavController.current
-        BasePlayerScreen(
-            viewModel = hiltViewModel(),
-            isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
-            topBarBlock = topBarBlock,
-            stationName = stationName,
-            locationName = locationName,
-            stationImgUrl = stationImgUrl.decodeUrl(),
-            rawUrl = rawUrl.decodeUrl(),
-            id = id.decodeUrl(),
-            isFav = isFav
-        )
+
+        val parentUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStrOrNull(Screens.Player.Const.ARG_PARENT_URL)) }
+        parentUrl?.let {
+            LoadPlayerScreen(
+                viewModel = hiltViewModel(),
+                isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
+                parentUrl = it.decodeUrl(),
+                topBarBlock = topBarBlock
+            )
+        } ?: run {
+            val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
+            val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_SUBTITLE)) }
+            val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_IMG_URL)) }
+            val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_URL)) }
+            val id by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_ID)) }
+            val isFav by rememberSaveable { mutableStateOf(backStackEntry.getArgBool(Screens.Player.Const.ARG_IS_FAV)) }
+
+            PreloadedPlayerScreen(
+                viewModel = hiltViewModel(),
+                isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
+                topBarBlock = topBarBlock,
+                stationName = stationName,
+                locationName = locationName,
+                stationImgUrl = stationImgUrl.decodeUrl(),
+                rawUrl = rawUrl.decodeUrl(),
+                id = id.decodeUrl(),
+                isFav = isFav
+            )
+        }
     }
 }
 
@@ -146,9 +161,10 @@ fun NavGraphBuilder.settingsScreen(topBarBlock: (TopBarState) -> Unit) {
  * */
 private fun NavHostController.isVisibleToUser(route: String) = currentDestination?.route?.contains(route) ?: true
 
-private fun defaultStringArg(): NavArgumentBuilder.() -> Unit = {
+private fun defaultStringArg(isNullable: Boolean = false): NavArgumentBuilder.() -> Unit = {
     type = NavType.StringType
-    defaultValue = String.EMPTY
+    nullable = isNullable
+    defaultValue = if (isNullable) null else String.EMPTY
 }
 
 private fun defaultBoolArg(): NavArgumentBuilder.() -> Unit = {
@@ -156,5 +172,6 @@ private fun defaultBoolArg(): NavArgumentBuilder.() -> Unit = {
     defaultValue = false
 }
 
-fun NavBackStackEntry.getArgStr(argName: String) = arguments?.getString(argName).orEmpty()
+fun NavBackStackEntry.getArgStrOrNull(argName: String) = arguments?.getString(argName)
+fun NavBackStackEntry.getArgStr(argName: String) = getArgStrOrNull(argName).orEmpty()
 fun NavBackStackEntry.getArgBool(argName: String) = arguments?.getBoolean(argName) ?: false

@@ -61,6 +61,7 @@ class CategoryRepositoryTest {
         coEvery { client.requestCategoriesByUrl(any()) } returns emptyList()
         coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
         coEvery { categoryDao.getFavorites() } returns emptyList()
+        coJustRun { categoryDao.removeAllByParentUrl(any()) }
         coJustRun { categoryDao.insertAll(any()) }
 
         repository.loadCategoriesByUrl("")
@@ -70,6 +71,7 @@ class CategoryRepositoryTest {
             client.requestCategoriesByUrl(any())
             categoryMapper.mapCategoryResponseToEntity(any(), any())
             categoryDao.getFavorites()
+            categoryDao.removeAllByParentUrl(any())
             categoryDao.insertAll(any())
         }
 

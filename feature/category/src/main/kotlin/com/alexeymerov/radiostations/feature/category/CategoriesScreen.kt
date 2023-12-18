@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.feature.category
 
-import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +24,8 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -36,11 +38,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
+import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
@@ -150,6 +155,7 @@ private fun CategoryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     categoryItems: Map<CategoryItemDto?, List<CategoryItemDto>>,
@@ -174,14 +180,14 @@ private fun MainContent(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = listState,
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 4.dp)
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp)
     ) {
         if (headerItems.isNotEmpty()) filtersHeader(headerItems, onHeaderFilterClick)
 
         categoryItems.forEach { (header, items) ->
             if (header != null) stickyHeader(header, coroutineScope, listState)
             if (columnCount > 1) {
-                mainGridItems(header, config, columnCount, items, onCategoryClick, onAudioClick, onFavClick)
+                mainGridItems(header, columnCount, items, onCategoryClick, onAudioClick, onFavClick)
             } else {
                 mainListItems(items, onCategoryClick, onAudioClick, onFavClick)
             }
@@ -258,13 +264,13 @@ private fun LazyListScope.mainListItems(
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.mainGridItems(
     header: CategoryItemDto?,
-    config: Configuration,
     columnCount: Int,
     items: List<CategoryItemDto>,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
+    val columnHeight = defListItemHeight.times(items.size / columnCount)
     item(
         key = header?.id + "_content",
         contentType = "CategoryContent"
@@ -272,8 +278,9 @@ private fun LazyListScope.mainGridItems(
         LazyVerticalGrid(
             modifier = Modifier
                 .animateItemPlacement()
-                .heightIn(max = config.screenHeightDp.dp),
+                .heightIn(max = columnHeight),
             columns = GridCells.Fixed(columnCount),
+            userScrollEnabled = false,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(
@@ -301,8 +308,28 @@ fun DrawItems(
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
+    val snackbar = LocalSnackbar.current
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
     when (itemDto.type) {
-        DtoItemType.CATEGORY -> CategoryListItem(modifier, itemDto, onCategoryClick)
+        DtoItemType.CATEGORY -> CategoryListItem(
+            modifier = modifier,
+            itemDto = itemDto,
+            onCategoryClick = onCategoryClick,
+            onRevealAction = {
+                coroutineScope.launch {
+                    val showSnackbar = snackbar.showSnackbar(
+                        message = "Snackbar message",
+                        actionLabel = "Undo",
+                        duration = SnackbarDuration.Short
+                    )
+                    if (showSnackbar == SnackbarResult.ActionPerformed) {
+                        Toast.makeText(context, "Undo clicked", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            })
+
         DtoItemType.AUDIO -> StationListItem(
             modifier = modifier,
             itemDto = itemDto,

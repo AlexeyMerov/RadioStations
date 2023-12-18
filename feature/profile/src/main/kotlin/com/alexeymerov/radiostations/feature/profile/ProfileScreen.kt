@@ -55,11 +55,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
@@ -185,7 +185,7 @@ private fun MainContent(
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.icon_person),
+                error = rememberAsyncImagePainter(R.drawable.icon_person),
                 colorFilter = colorFilter,
                 onSuccess = { isLoaded = true },
                 onError = { isLoaded = false }
@@ -224,7 +224,7 @@ private fun MainContent(
         IconButton(
             onClick = { onNavigate.invoke(Screens.Settings.route) }) {
             Icon(
-                painter = painterResource(R.drawable.icon_settings),
+                painter = rememberAsyncImagePainter(R.drawable.icon_settings),
                 contentDescription = null
             )
         }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
@@ -29,10 +30,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.compose.LottieAnimation
@@ -42,7 +43,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
-import com.alexeymerov.radiostations.core.dto.AudioItemDto
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
@@ -55,7 +56,7 @@ import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewA
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewState
 
 @Composable
-fun BasePlayerScreen(
+fun PreloadedPlayerScreen(
     viewModel: PlayerViewModel,
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
@@ -66,7 +67,72 @@ fun BasePlayerScreen(
     id: String,
     isFav: Boolean
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("[ PreloadedPlayerScreen ] ")
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
+
+    BasePlayerScreen(
+        viewState = viewState,
+        playerMediaDirectUrl = bottomPlayerMedia?.directUrl,
+        isVisibleToUser = isVisibleToUser,
+        topBarBlock = topBarBlock,
+        initStationName = stationName,
+        initLocationName = locationName,
+        initId = id,
+        initIsFav = isFav,
+        initStationImgUrl = stationImgUrl,
+        initRawUrl = rawUrl,
+        onAction = { viewModel.setAction(it) }
+    )
+}
+
+@Composable
+fun LoadPlayerScreen(
+    viewModel: PlayerViewModel,
+    isVisibleToUser: Boolean,
+    parentUrl: String,
+    topBarBlock: (TopBarState) -> Unit
+) {
+    ComposedTimberD("[ LoadPlayerScreen ] ")
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
+
+    BasePlayerScreen(
+        viewState = viewState,
+        isVisibleToUser = isVisibleToUser,
+        topBarBlock = topBarBlock,
+        playerMediaDirectUrl = bottomPlayerMedia?.directUrl,
+        onAction = { viewModel.setAction(it) }
+    )
+
+    LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadStationInfo(parentUrl)) }
+}
+
+@Composable
+private fun BasePlayerScreen(
+    viewState: ViewState,
+    playerMediaDirectUrl: String?,
+    isVisibleToUser: Boolean,
+    topBarBlock: (TopBarState) -> Unit,
+    initStationName: String = String.EMPTY,
+    initLocationName: String = String.EMPTY,
+    initId: String = String.EMPTY,
+    initIsFav: Boolean = false,
+    initStationImgUrl: String = String.EMPTY,
+    initRawUrl: String = String.EMPTY,
+    onAction: (ViewAction) -> Unit
+) {
+    ComposedTimberD("[ BasePlayerScreen ] ")
+
+    var stationName by rememberSaveable { mutableStateOf(initStationName) }
+    var locationName by rememberSaveable { mutableStateOf(initLocationName) }
+    var id by rememberSaveable { mutableStateOf(initId) }
+    var isFav by rememberSaveable { mutableStateOf(initIsFav) }
+    var stationImgUrl by rememberSaveable { mutableStateOf(initStationImgUrl) }
+    var rawUrl by rememberSaveable { mutableStateOf(initRawUrl) }
+
     if (isVisibleToUser) {
         TopBarSetup(
             topBarBlock = topBarBlock,
@@ -74,27 +140,43 @@ fun BasePlayerScreen(
             locationName = locationName,
             id = id,
             isFav = isFav,
-            onAction = { viewModel.setAction(it) }
+            onAction = { onAction.invoke(it) }
         )
     }
 
-    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
+    when (viewState) {
+        is ViewState.Loading -> LoaderView()
+        is ViewState.Error -> ErrorView()
+        is ViewState.Loaded -> {
+            LoaderView()
 
-    PlayerScreen(
-        viewState = viewState,
-        stationImgUrl = stationImgUrl,
-        onToggleAudio = { currentItem ->
-            var action: ViewAction = ViewAction.ToggleAudio
-            if (bottomPlayerMedia?.directUrl != currentItem.directUrl) {
-                action = ViewAction.ChangeAudio(currentItem)
-            }
-
-            viewModel.setAction(action)
+            stationName = viewState.item.text
+            locationName = viewState.item.subText.orEmpty()
+            id = viewState.item.id
+            isFav = viewState.item.isFavorite
+            stationImgUrl = viewState.item.image.orEmpty()
+            rawUrl = viewState.item.url
         }
-    )
 
-    LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadAudio(rawUrl)) }
+        is ViewState.ReadyToPlay -> {
+            MainContentWithOrientation(
+                isPlaying = viewState.isPlaying,
+                isLoading = viewState.isLoading,
+                imageUrl = stationImgUrl,
+                onToggleAudio = {
+                    var action: ViewAction = ViewAction.ToggleAudio
+                    if (playerMediaDirectUrl != viewState.item.directUrl) {
+                        action = ViewAction.ChangeAudio(viewState.item)
+                    }
+
+                    onAction.invoke(action)
+                }
+            )
+        }
+    }
+    if (rawUrl.isNotEmpty()) {
+        LaunchedEffect(Unit) { onAction.invoke(ViewAction.LoadAudio(rawUrl)) }
+    }
 }
 
 @Composable
@@ -107,7 +189,7 @@ private fun TopBarSetup(
     onAction: (ViewAction) -> Unit
 ) {
     var isFavorite by rememberSaveable { mutableStateOf(isFav) } // not the best way, consider VM param
-    LaunchedEffect(Unit, isFavorite) {
+    LaunchedEffect(Unit, stationName, isFavorite) {
         topBarBlock.invoke(
             TopBarState(
                 title = stationName,
@@ -125,44 +207,24 @@ private fun TopBarSetup(
 }
 
 @Composable
-private fun PlayerScreen(
-    viewState: ViewState,
-    stationImgUrl: String,
-    onToggleAudio: (AudioItemDto) -> Unit
-) {
-    when (viewState) {
-        is ViewState.Loading -> LoaderView()
-        is ViewState.Error -> ErrorView()
-        is ViewState.ReadyToPlay -> {
-            MainContentWithOrientation(
-                isPlaying = viewState.isPlaying,
-                isLoading = viewState.isLoading,
-                imageUrl = stationImgUrl,
-                onToggleAudio = { onToggleAudio.invoke(viewState.item) }
-            )
-        }
-    }
-}
-
-@Composable
 private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
     val configuration = LocalConfiguration.current
 
     when {
         configuration.isPortrait() -> {
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 MainContent(isPlaying, isLoading, imageUrl, onToggleAudio)
             }
         }
-
         else -> {
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 46.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -185,7 +247,6 @@ private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String
         imageUrl = imageUrl
     )
 
-
     Box(Modifier.size(60.dp)) {
         if (isLoading) {
             CircularProgressIndicator(strokeCap = StrokeCap.Round)
@@ -196,7 +257,7 @@ private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String
 }
 
 @Composable
-fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
+internal fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
     val colorFilter: ColorFilter? by remember(isLoaded) {
@@ -212,7 +273,7 @@ fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
             .crossfade(500)
             .build(),
         contentDescription = null,
-        error = painterResource(id = R.drawable.icon_radio),
+        error = rememberAsyncImagePainter(R.drawable.icon_radio),
         colorFilter = colorFilter,
         onSuccess = { isLoaded = true },
         onError = { isLoaded = false }
@@ -220,7 +281,7 @@ fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
 }
 
 @Composable
-fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
+internal fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.playstop))
     val animationStateProgress by animateLottieCompositionAsState(
         composition = composition,

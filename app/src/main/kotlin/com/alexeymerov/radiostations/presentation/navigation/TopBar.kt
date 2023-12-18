@@ -36,13 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
@@ -160,7 +160,7 @@ private fun RowScope.TopBarActions(
             ) {
                 it.icon.iconResId?.let { iconRes ->
                     Icon(
-                        painter = painterResource(iconRes),
+                        painter = rememberAsyncImagePainter(iconRes),
                         contentDescription = String.EMPTY
                     )
                 } ?: Icon(
