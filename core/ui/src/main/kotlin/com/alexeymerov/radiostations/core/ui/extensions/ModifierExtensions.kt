@@ -76,8 +76,10 @@ fun Modifier.ignoreWidthConstrains(dp: Dp) = layout { measurable, constraints ->
     }
 }
 
+val defListItemHeight = 76.dp
+
 val defListItemModifier = Modifier
-    .height(76.dp)
+    .height(defListItemHeight)
     .padding(vertical = 4.dp)
     .fillMaxWidth()
 

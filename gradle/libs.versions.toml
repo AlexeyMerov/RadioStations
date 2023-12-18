@@ -1,7 +1,7 @@
 [versions]
 
-versionCode = "124"
-versionName = "1.8.6"
+versionCode = "125"
+versionName = "1.8.7"
 
 compileSdk = "34"
 minSdk = "26"
@@ -122,6 +122,7 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 coil-compose = { module = "io.coil-kt:coil-compose", version = "2.5.0" }
 lottie = { module = "com.airbnb.android:lottie-compose", version = "6.1.0" }
 splashScreen = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
+revealSwipe = { module = "de.charlex.compose:revealswipe", version = "1.2.0" }
 
 junit = { module = "junit:junit", version = "4.13.2" }
 junitExt = { module = "androidx.test.ext:junit", version = "1.1.5" }

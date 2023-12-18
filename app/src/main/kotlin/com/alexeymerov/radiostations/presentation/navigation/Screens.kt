@@ -40,6 +40,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
 
         val navController = LocalNavController.current
+
         BaseCategoryScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Categories.Const.ROUTE),

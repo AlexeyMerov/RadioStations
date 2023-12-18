@@ -194,7 +194,7 @@ private fun MainContent(
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
         columns = GridCells.Fixed(columnCount),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 4.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
