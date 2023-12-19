@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +55,8 @@ import com.alexeymerov.radiostations.core.ui.view.DropDownRow
 @OptIn(ExperimentalMaterial3Api::class)
 fun TopBar(
     navController: NavHostController,
-    barState: TopBarState
+    barState: TopBarState,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     val config = LocalConfiguration.current
     val modifier = if (config.isLandscape()) Modifier.padding(start = 16.dp) else Modifier
@@ -67,6 +69,7 @@ fun TopBar(
                 NavigationIcon(barState.displayBackButton, onClick = { navController.popBackStack() })
             }
         },
+        scrollBehavior = scrollBehavior,
         actions = { TopBarActions(barState.rightIcon) }
     )
 }

@@ -6,6 +6,7 @@ import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -161,62 +162,19 @@ private fun MainContent(
                 .padding(16.dp)
                 .sizeIn(maxWidth = 150.dp)
         ) {
-            val colorScheme = MaterialTheme.colorScheme
-            val colorFilter: ColorFilter? by remember(isLoaded) {
-                derivedStateOf {
-                    if (isLoaded) null else ColorFilter.tint(colorScheme.onPrimary)
-                }
-            }
 
-            AsyncImage(
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .background(colorScheme.primary)
-                    .border(
-                        width = 1.dp,
-                        color = colorScheme.primaryContainer,
-                        shape = CircleShape
-                    )
-                    .clickable { if (isLoaded) needShowBigPicture = true },
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(avatarFile)
-                    .crossfade(500)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                error = rememberAsyncImagePainter(R.drawable.icon_person),
-                colorFilter = colorFilter,
-                onSuccess = { isLoaded = true },
-                onError = { isLoaded = false }
+            AvatarImage(
+                isLoaded = isLoaded,
+                avatarFile = avatarFile,
+                onLoadResult = { isLoaded = it },
+                onClick = { needShowBigPicture = true }
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                AnimatedVisibility(
-                    visible = isLoaded,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    IconButton(onClick = { onDelete.invoke() }) {
-                        Icon(
-                            tint = MaterialTheme.colorScheme.error,
-                            imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = null
-                        )
-                    }
-                }
-
-                IconButton(onClick = { onEdit.invoke() }) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.primary,
-                        imageVector = Icons.Outlined.Edit,
-                        contentDescription = null
-                    )
-                }
-            }
+            EditRemoveIcons(
+                isLoaded = isLoaded,
+                onDelete = onDelete,
+                onEdit = onEdit
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -230,26 +188,103 @@ private fun MainContent(
         }
     }
 
-    if (needShowBigPicture) {
-        Dialog(
-            onDismissRequest = { needShowBigPicture = !needShowBigPicture },
-            content = {
-                val config = LocalConfiguration.current
-                AsyncImage(
-                    modifier = Modifier
-                        .sizeIn(
-                            maxWidth = config.maxDialogWidth(),
-                            maxHeight = config.maxDialogHeight()
-                        )
-                        .clip(RoundedCornerShape(16.dp)),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(avatarFile)
-                        .build(),
+    if (needShowBigPicture && avatarFile != null) {
+        BigPicture(
+            avatarFile = avatarFile,
+            onDismiss = { needShowBigPicture = !needShowBigPicture }
+        )
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun AvatarImage(
+    isLoaded: Boolean,
+    avatarFile: File?,
+    onLoadResult: (Boolean) -> Unit,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val colorFilter: ColorFilter? by remember(isLoaded) {
+        derivedStateOf {
+            if (isLoaded) null else ColorFilter.tint(colorScheme.onPrimary)
+        }
+    }
+
+    AsyncImage(
+        modifier = Modifier
+            .size(150.dp)
+            .clip(CircleShape)
+            .background(colorScheme.primary)
+            .border(
+                width = 1.dp,
+                color = colorScheme.primaryContainer,
+                shape = CircleShape
+            )
+            .clickable { if (isLoaded) onClick.invoke() },
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(avatarFile)
+            .crossfade(500)
+            .build(),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        error = rememberAsyncImagePainter(R.drawable.icon_person),
+        colorFilter = colorFilter,
+        onSuccess = { onLoadResult.invoke(true) },
+        onError = { onLoadResult.invoke(false) }
+    )
+}
+
+@Composable
+private fun EditRemoveIcons(isLoaded: Boolean, onDelete: () -> Unit, onEdit: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        AnimatedVisibility(
+            visible = isLoaded,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut()
+        ) {
+            IconButton(onClick = { onDelete.invoke() }) {
+                Icon(
+                    tint = MaterialTheme.colorScheme.error,
+                    imageVector = Icons.Outlined.DeleteForever,
                     contentDescription = null
                 )
             }
-        )
+        }
+
+        IconButton(onClick = { onEdit.invoke() }) {
+            Icon(
+                tint = MaterialTheme.colorScheme.primary,
+                imageVector = Icons.Outlined.Edit,
+                contentDescription = null
+            )
+        }
     }
+}
+
+@Composable
+private fun BigPicture(avatarFile: File, onDismiss: () -> Unit) {
+    Dialog(
+        onDismissRequest = { onDismiss.invoke() },
+        content = {
+            val config = LocalConfiguration.current
+            AsyncImage(
+                modifier = Modifier
+                    .sizeIn(
+                        maxWidth = config.maxDialogWidth(),
+                        maxHeight = config.maxDialogHeight()
+                    )
+                    .clip(RoundedCornerShape(16.dp)),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(avatarFile)
+                    .build(),
+                contentDescription = null
+            )
+        }
+    )
 }
 
 @Composable

@@ -217,7 +217,7 @@ class CategoriesViewModel @Inject constructor(
     }
 
     sealed interface ViewEffect : BaseViewEffect {
-        data class ShowToast(val text: String) : ViewEffect //errors or anything
+        data class ShowToast(val text: String) : ViewEffect
     }
 
 }

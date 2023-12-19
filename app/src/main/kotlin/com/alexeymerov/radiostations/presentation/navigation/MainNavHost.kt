@@ -3,7 +3,6 @@ package com.alexeymerov.radiostations.presentation.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -12,16 +11,21 @@ import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -35,11 +39,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -50,6 +55,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
@@ -81,10 +87,16 @@ fun MainNavGraph(
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    navController.addOnDestinationChangedListener { _, _, _ ->
+        scrollBehavior.state.heightOffset = 0f
+    }
 
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
+        LocalTopBarScroll provides scrollBehavior
     ) {
         Surface {
             val peekHightDp = 46.dp
@@ -117,48 +129,32 @@ fun MainNavGraph(
                 }
             }
 
-            val bottomBarOffsetY by remember(progress) {
-                derivedStateOf {
-                    lerp(0f, railBarSize, progress)
-                }
-            }
+            val collapsedColor = MaterialTheme.colorScheme.primary
+            val expandedColor = MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation)
+            val onCollapsedColor = MaterialTheme.colorScheme.onPrimary
+            val onExpandedColor = MaterialTheme.colorScheme.onSurface
 
-            val railBarOffsetX by remember(progress) {
+            val animData by remember(progress) {
                 derivedStateOf {
-                    lerp(0f, -railBarSize, progress)
-                }
-            }
-
-            val scaleContent by remember(progress) {
-                derivedStateOf {
-                    lerp(1f, 0f, progress)
-                }
-            }
-
-            val primary = MaterialTheme.colorScheme.primary
-            val surface = MaterialTheme.colorScheme.surface
-            val containerColor by remember(progress) {
-                derivedStateOf {
-                    primary.lerp(surface, progress)
-                }
-            }
-
-            val onPrimary = MaterialTheme.colorScheme.onPrimary
-            val onSurface = MaterialTheme.colorScheme.onSurface
-            val onContainerColor by remember(progress) {
-                derivedStateOf {
-                    onPrimary.lerp(onSurface, progress)
+                    calculateAnimData(
+                        progress = progress,
+                        railBarSize = railBarSize,
+                        collapsedColor = collapsedColor,
+                        expandedColor = expandedColor,
+                        onCollapsedColor = onCollapsedColor,
+                        onExpandedColor = onExpandedColor
+                    )
                 }
             }
 
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
-                    .displayCutoutPadding(),
+                    .run { if (config.isLandscape()) displayCutoutPadding() else this },
                 bottomBar = {
                     if (config.isPortrait()) {
                         CreateBottomBar(
-                            modifier = Modifier.graphicsLayer { translationY = bottomBarOffsetY },
+                            modifier = Modifier.graphicsLayer { translationY = animData.bottomBarOffsetY },
                             navController = navController
                         )
                     }
@@ -175,11 +171,11 @@ fun MainNavGraph(
                                 start = scaffoldPaddingValues.calculateStartPadding(LayoutDirection.Ltr),
                             ),
                         scaffoldState = sheetScaffoldState,
-                        topBar = { TopBar(navController, topBarState) },
+                        topBar = { TopBar(navController, topBarState, scrollBehavior) },
                         snackbarHost = { SnackbarHost(snackbarHostState) },
                         sheetDragHandle = null,
                         sheetPeekHeight = peekHightDp + scaffoldPaddingValues.calculateBottomPadding(),
-                        sheetShape = RectangleShape,
+                        sheetShape = RoundedCornerShape(topStart = animData.shapeCornerRadius, topEnd = animData.shapeCornerRadius),
                         sheetContent = {
                             ExpandableBottomPlayer(
                                 modifier = Modifier
@@ -187,8 +183,8 @@ fun MainNavGraph(
                                     .onGloballyPositioned { sheetFullHeightPx = it.size.height.toFloat() },
                                 peekHightDp = peekHightDp,
                                 progress = progress,
-                                containerColor = containerColor,
-                                onContainerColor = onContainerColor,
+                                containerColor = animData.containerColor,
+                                onContainerColor = animData.onContainerColor,
                                 playerState = playerState,
                                 currentMedia = currentMedia,
                                 onCloseAction = {
@@ -213,16 +209,15 @@ fun MainNavGraph(
                                 if (config.isLandscape()) {
                                     Row(Modifier.fillMaxSize()) {
                                         CreateNavigationRail(
-                                            modifier = Modifier.graphicsLayer { translationX = railBarOffsetX },
+                                            modifier = Modifier.graphicsLayer { translationX = animData.railBarOffsetX },
                                             navController = navController
                                         )
                                         CreateNavHost(
                                             modifier = Modifier
                                                 .fillMaxSize()
-                                                .graphicsScale(scaleContent),
+                                                .graphicsScale(animData.scaleContent),
                                             goToRoute = goToRoute,
                                             starDest = starDest,
-                                            paddingValues = sheetContentPadding,
                                             topBarBlock = topBarBlock,
                                         )
                                     }
@@ -230,10 +225,9 @@ fun MainNavGraph(
                                     CreateNavHost(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .graphicsScale(scaleContent),
+                                            .graphicsScale(animData.scaleContent),
                                         starDest = starDest,
                                         goToRoute = goToRoute,
-                                        paddingValues = sheetContentPadding,
                                         topBarBlock = topBarBlock,
                                     )
                                 }
@@ -258,7 +252,6 @@ private fun CreateNavHost(
     modifier: Modifier = Modifier,
     starDest: Tabs = Tabs.Browse,
     goToRoute: String? = null,
-    paddingValues: PaddingValues,
     topBarBlock: (TopBarState) -> Unit,
 ) {
     val navController = LocalNavController.current
@@ -277,3 +270,39 @@ private fun CreateNavHost(
         goToRoute?.let { navController.navigate(it) }
     }
 }
+
+private fun calculateAnimData(
+    progress: Float,
+    railBarSize: Float,
+    collapsedColor: Color,
+    expandedColor: Color,
+    onCollapsedColor: Color,
+    onExpandedColor: Color,
+
+    ): CollapseExapandData {
+    val bottomBarOffsetY = lerp(0f, railBarSize, progress)
+    val railBarOffsetX = lerp(0f, -railBarSize, progress)
+    val scaleContent = lerp(1f, 0f, progress)
+    val containerColor = collapsedColor.lerp(expandedColor, progress)
+    val onContainerColor = onCollapsedColor.lerp(onExpandedColor, progress)
+    val shapeCornerRadius = androidx.compose.ui.unit.lerp(12.dp, 0.dp, progress)
+
+
+    return CollapseExapandData(
+        bottomBarOffsetY = bottomBarOffsetY,
+        railBarOffsetX = railBarOffsetX,
+        scaleContent = scaleContent,
+        containerColor = containerColor,
+        onContainerColor = onContainerColor,
+        shapeCornerRadius = shapeCornerRadius
+    )
+}
+
+private data class CollapseExapandData(
+    val bottomBarOffsetY: Float,
+    val railBarOffsetX: Float,
+    val scaleContent: Float,
+    val containerColor: Color,
+    val onContainerColor: Color,
+    val shapeCornerRadius: Dp
+)

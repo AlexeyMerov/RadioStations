@@ -7,22 +7,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
@@ -37,6 +45,7 @@ import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.core.ui.view.StationListItem
 import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewState
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -62,8 +71,36 @@ fun BaseFavoriteScreen(
             viewModel.clear()
         }
     }
+
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
+    val viewEffect by viewModel.viewEffect.collectAsStateWithLifecycle(initialValue = null)
+
+    val snackbar = LocalSnackbar.current
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    DisposableEffect(viewEffect) {
+        onDispose {
+            when (val effect = viewEffect) {
+                is FavoritesViewModel.ViewEffect.ShowUnfavoriteToast -> {
+                    coroutineScope.launch {
+                        snackbar.currentSnackbarData?.dismiss()
+                        val result = snackbar.showSnackbar(
+                            message = "${context.getString(R.string.removed)}: ${effect.itemCount}",
+                            actionLabel = context.getString(R.string.undo),
+                            duration = SnackbarDuration.Short
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            viewModel.setAction(ViewAction.UndoRecentUnfavorite)
+                        }
+                    }
+                }
+
+                null -> {}
+            }
+        }
+    }
 
     FavoriteScreen(
         viewState = viewState,
@@ -80,7 +117,7 @@ fun BaseFavoriteScreen(
             onNavigate.invoke(route)
         },
         inSelection = selectedItemsCount > 0,
-        onFavClick = { viewModel.setAction(ViewAction.ToggleFavorite(it)) },
+        onFavClick = { viewModel.setAction(ViewAction.Unfavorite(it)) },
         onLongClick = { viewModel.setAction(ViewAction.SelectItem(it)) }
     )
 }
@@ -169,7 +206,7 @@ fun FavoriteScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     viewType: ViewType,
@@ -192,7 +229,9 @@ private fun MainContent(
     }
 
     LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection),
         columns = GridCells.Fixed(columnCount),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -203,6 +242,9 @@ private fun MainContent(
             contentType = CategoryItemDto::type
         ) { itemDto ->
             var isSelected by rememberSaveable { mutableStateOf(false) }
+            LaunchedEffect(inSelection) {
+                if (!inSelection) isSelected = false
+            }
 
             val onLongClick: (CategoryItemDto) -> Unit = {
                 isSelected = !isSelected

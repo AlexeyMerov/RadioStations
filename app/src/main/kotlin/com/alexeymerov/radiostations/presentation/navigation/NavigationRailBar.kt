@@ -1,8 +1,7 @@
 package com.alexeymerov.radiostations.presentation.navigation
 
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateBottomBar(
     modifier: Modifier,
@@ -32,7 +32,12 @@ fun CreateBottomBar(
 
         tabs.forEach { tab ->
             val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-            BottomBarItem(navController, tab, isSelected)
+            NavigationBarItem(
+                icon = { PrepareItemIcon(isSelected, tab) },
+                label = { PrepaItemLabel(tab) },
+                selected = isSelected,
+                onClick = { onTabClick(navController, tab) }
+            )
         }
     }
 }
@@ -51,40 +56,17 @@ fun CreateNavigationRail(
 
         tabs.forEach { tab ->
             val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-            NavigationRailItem(navController, tab, isSelected)
+            NavigationRailItem(
+                icon = { PrepareItemIcon(isSelected, tab) },
+                label = { PrepaItemLabel(tab) },
+                selected = isSelected,
+                onClick = { onTabClick(navController, tab) }
+            )
         }
 
         Spacer(Modifier.weight(1f))
     }
 
-}
-
-@Composable
-private fun RowScope.BottomBarItem(
-    navController: NavHostController,
-    tab: Tabs,
-    isSelected: Boolean
-) {
-    NavigationBarItem(
-        icon = { PrepareItemIcon(isSelected, tab) },
-        label = { PrepaItemLabel(tab) },
-        selected = isSelected,
-        onClick = { onTabClick(navController, tab) }
-    )
-}
-
-@Composable
-private fun ColumnScope.NavigationRailItem(
-    navController: NavHostController,
-    tab: Tabs,
-    isSelected: Boolean
-) {
-    NavigationRailItem(
-        icon = { PrepareItemIcon(isSelected, tab) },
-        label = { PrepaItemLabel(tab) },
-        selected = isSelected,
-        onClick = { onTabClick(navController, tab) }
-    )
 }
 
 @Composable

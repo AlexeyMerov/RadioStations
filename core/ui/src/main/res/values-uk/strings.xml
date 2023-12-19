@@ -33,4 +33,6 @@
     <string name="grant">Дозволити</string>
     <string name="dismiss">Відхилити</string>
     <string name="currently_playing">Зараз грає</string>
+    <string name="undo">Скасувати</string>
+    <string name="removed">Видалено</string>
 </resources>

@@ -33,4 +33,6 @@
     <string name="grant">Разрешить</string>
     <string name="dismiss">Отклонить</string>
     <string name="currently_playing">Сейчас играет</string>
+    <string name="undo">Отменить</string>
+    <string name="removed">Удалено</string>
 </resources>
