@@ -35,4 +35,6 @@
     <string name="currently_playing">Зараз грає</string>
     <string name="undo">Скасувати</string>
     <string name="removed">Видалено</string>
+    <string name="user">Користувач</string>
+    <string name="dev">Розробник</string>
 </resources>
