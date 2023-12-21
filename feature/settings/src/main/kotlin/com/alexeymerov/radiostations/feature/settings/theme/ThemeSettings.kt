@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -41,14 +40,14 @@ import com.alexeymerov.radiostations.feature.settings.SettingsViewModel
 
 @Composable
 internal fun ThemeSettings(
+    modifier: Modifier,
     themeState: ThemeSettingsUseCase.ThemeState,
     onAction: (SettingsViewModel.ViewAction) -> Unit
 ) {
     var needShowThemeDialog by rememberSaveable { mutableStateOf(false) }
 
     Button(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(
@@ -64,8 +63,9 @@ internal fun ThemeSettings(
             containerColor = Color.Transparent,
             contentColor = Color.White
         ),
-        onClick = { needShowThemeDialog = !needShowThemeDialog }) {
-        Text(text = stringResource(R.string.theme_settings))
+        onClick = { needShowThemeDialog = !needShowThemeDialog }
+    ) {
+        BasicText(text = stringResource(R.string.theme_settings))
     }
 
     if (needShowThemeDialog) {

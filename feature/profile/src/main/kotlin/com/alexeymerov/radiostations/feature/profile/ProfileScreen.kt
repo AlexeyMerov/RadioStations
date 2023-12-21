@@ -15,9 +15,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -64,6 +64,8 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
+import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -156,10 +158,14 @@ private fun MainContent(
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     var needShowBigPicture by rememberSaveable { mutableStateOf(false) }
 
-    Row(modifier = Modifier.fillMaxSize()) {
+    val config = LocalConfiguration.current
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .run { if (config.isLandscape() && config.isTablet()) padding(end = 78.dp) else this }
                 .sizeIn(maxWidth = 150.dp)
         ) {
 
@@ -177,9 +183,8 @@ private fun MainContent(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
         IconButton(
+            modifier = Modifier.align(Alignment.TopEnd),
             onClick = { onNavigate.invoke(Screens.Settings.route) }) {
             Icon(
                 painter = rememberAsyncImagePainter(R.drawable.icon_settings),

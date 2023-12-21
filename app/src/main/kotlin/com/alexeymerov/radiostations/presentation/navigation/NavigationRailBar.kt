@@ -48,7 +48,7 @@ fun CreateNavigationRail(
     navController: NavHostController,
 ) {
     val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
-    NavigationRail(modifier) {
+    NavigationRail(modifier = modifier) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 

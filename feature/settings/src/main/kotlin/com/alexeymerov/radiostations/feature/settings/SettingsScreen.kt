@@ -3,16 +3,27 @@ package com.alexeymerov.radiostations.feature.settings
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -23,6 +34,7 @@ import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewState
@@ -56,9 +68,13 @@ private fun SettingsScreen(
     viewState: ViewState,
     onAction: (ViewAction) -> Unit
 ) {
+    val config = LocalConfiguration.current
     when (viewState) {
         ViewState.Loading -> LoaderView()
-        is ViewState.Loaded -> MainContent(viewState.themeState, viewState.connectionStatus, onAction)
+        is ViewState.Loaded -> {
+            if (config.isTablet()) MainContentTablet(viewState.themeState, viewState.connectionStatus, onAction)
+            else MainContent(viewState.themeState, viewState.connectionStatus, onAction)
+        }
     }
 }
 
@@ -79,10 +95,12 @@ private fun MainContent(
         modifier.padding(16.dp)
     }
 
-    // not sure about tablet/wide layout therefore left default paddings
-    Column(modifier) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         var currentTab by rememberSaveable { mutableStateOf(SettingTab.USER) }
-        TabRow(
+        SettingsTabRow(
             currentTab = currentTab,
             onTabClick = { currentTab = it }
         )
@@ -99,10 +117,96 @@ private fun MainContent(
                     .togetherWith(slideOutOfContainer(direction))
             }
         ) { tab ->
-            when (tab) {
-                SettingTab.USER -> ThemeSettings(themeState, onAction)
-                SettingTab.DEV -> ConnectivitySettings(connectionStatus, onAction)
+            Column(modifier) {
+                when (tab) {
+                    SettingTab.USER -> {
+                        ThemeSettings(
+                            modifier = Modifier.fillMaxWidth(),
+                            themeState = themeState,
+                            onAction = onAction
+                        )
+                    }
+
+                    SettingTab.DEV -> {
+                        ConnectivitySettings(
+                            modifier = Modifier.fillMaxWidth(),
+                            connectionStatus = connectionStatus,
+                            onAction = onAction
+                        )
+                    }
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun MainContentTablet(
+    themeState: ThemeState,
+    connectionStatus: ConnectionStatus,
+    onAction: (ViewAction) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        val columnModifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)
+
+        val contentModifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+
+        Column(
+            modifier = columnModifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BasicText(
+                modifier = Modifier.padding(8.dp),
+                text = stringResource(R.string.user)
+            )
+            Box(
+                Modifier
+                    .padding(horizontal = 64.dp) // static but consider calculate width of text
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                    .background(color = MaterialTheme.colorScheme.primary)
+            )
+
+            Divider(thickness = 0.5.dp)
+
+            ThemeSettings(
+                modifier = contentModifier,
+                themeState = themeState,
+                onAction = onAction
+            )
+        }
+
+        Column(
+            modifier = columnModifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BasicText(
+                modifier = Modifier.padding(8.dp),
+                text = stringResource(R.string.dev)
+            )
+
+            Box(
+                Modifier
+                    .padding(horizontal = 64.dp) // static but consider calculate width of text
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                    .background(color = MaterialTheme.colorScheme.primary)
+            )
+
+            Divider(thickness = 0.5.dp)
+
+            ConnectivitySettings(
+                modifier = contentModifier,
+                connectionStatus = connectionStatus,
+                onAction = onAction
+            )
         }
     }
 }
