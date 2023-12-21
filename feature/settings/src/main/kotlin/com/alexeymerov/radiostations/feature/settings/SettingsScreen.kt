@@ -164,7 +164,7 @@ private fun MainContentTablet(
         ) {
             BasicText(
                 modifier = Modifier.padding(8.dp),
-                text = stringResource(R.string.user)
+                text = stringResource(SettingTab.USER.stringId)
             )
             Box(
                 Modifier
@@ -189,7 +189,7 @@ private fun MainContentTablet(
         ) {
             BasicText(
                 modifier = Modifier.padding(8.dp),
-                text = stringResource(R.string.dev)
+                text = stringResource(SettingTab.DEV.stringId)
             )
 
             Box(

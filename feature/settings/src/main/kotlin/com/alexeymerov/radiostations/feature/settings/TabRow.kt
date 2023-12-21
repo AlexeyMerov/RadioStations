@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.feature.settings
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -55,28 +56,19 @@ internal fun SettingsTabRow(currentTab: SettingTab, onTabClick: (SettingTab) -> 
             )
         }
     ) {
-        CustomTab(
-            tab = SettingTab.USER,
-            currentTab = currentTab,
-            text = stringResource(R.string.user),
-            onTabClick = onTabClick::invoke,
-            onWidthMeasured = {
-                if (it > defaultIndicatorWidth) {
-                    tabWidths[SettingTab.USER.index] = it
+        SettingTab.entries.forEach { tab ->
+            CustomTab(
+                tab = tab,
+                currentTab = currentTab,
+                text = stringResource(tab.stringId),
+                onTabClick = onTabClick::invoke,
+                onWidthMeasured = { textWidth ->
+                    if (textWidth > defaultIndicatorWidth) {
+                        tabWidths[tab.index] = textWidth
+                    }
                 }
-            }
-        )
-        CustomTab(
-            tab = SettingTab.DEV,
-            currentTab = currentTab,
-            text = stringResource(R.string.dev),
-            onTabClick = onTabClick::invoke,
-            onWidthMeasured = {
-                if (it > defaultIndicatorWidth) {
-                    tabWidths[SettingTab.DEV.index] = it
-                }
-            }
-        )
+            )
+        }
     }
 }
 
@@ -127,6 +119,10 @@ internal fun CustomTab(
     }
 }
 
-internal enum class SettingTab(val index: Int) {
-    USER(0), DEV(1)
+internal enum class SettingTab(
+    val index: Int,
+    @StringRes val stringId: Int
+) {
+    USER(0, R.string.user),
+    DEV(1, R.string.dev)
 }
