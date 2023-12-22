@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,12 +55,10 @@ import com.alexeymerov.radiostations.core.ui.view.DropDownRow
 @OptIn(ExperimentalMaterial3Api::class)
 fun TopBar(
     navController: NavHostController,
-    barState: TopBarState
+    barState: TopBarState,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
-    val config = LocalConfiguration.current
-    val modifier = if (config.isLandscape()) Modifier.padding(start = 16.dp) else Modifier
     CenterAlignedTopAppBar(
-        modifier = modifier,
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
         title = { TopBarTitle(barState.title, barState.subTitle) },
         navigationIcon = {
@@ -67,6 +66,7 @@ fun TopBar(
                 NavigationIcon(barState.displayBackButton, onClick = { navController.popBackStack() })
             }
         },
+        scrollBehavior = scrollBehavior,
         actions = { TopBarActions(barState.rightIcon) }
     )
 }
@@ -130,7 +130,11 @@ private fun NavigationIcon(displayBackButton: Boolean, onClick: () -> Unit) {
         enter = fadeIn() + scaleIn(),
         exit = fadeOut() + scaleOut()
     ) {
-        IconButton(onClick = { onClick.invoke() }) {
+        val config = LocalConfiguration.current
+        val modifier = if (config.isLandscape()) Modifier.padding(start = 16.dp) else Modifier
+        IconButton(
+            modifier = modifier,
+            onClick = { onClick.invoke() }) {
             Icon(
                 imageVector = Icons.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.back)

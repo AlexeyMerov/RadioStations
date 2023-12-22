@@ -22,7 +22,12 @@ android {
         versionName = libs.versions.versionName.get()
 
         vectorDrawables.useSupportLibrary = true
-        resourceConfigurations.addAll(listOf("en", "uk", "ru"))
+    }
+
+    androidResources {
+        // https://developer.android.com/guide/topics/resources/app-languages
+        @Suppress("UnstableApiUsage")
+        generateLocaleConfig = true
     }
 
     signingConfigs {

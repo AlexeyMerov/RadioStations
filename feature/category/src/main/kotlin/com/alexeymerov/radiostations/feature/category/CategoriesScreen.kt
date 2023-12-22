@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
@@ -94,7 +96,12 @@ fun BaseCategoryScreen(
         onRefresh = { viewModel.setAction(ViewAction.UpdateCategories) }
     )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+
+    ) {
         CategoryScreen(
             viewState = viewState,
             categoryItems = categoryItems,
@@ -178,7 +185,9 @@ private fun MainContent(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection),
         state = listState,
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp)
     ) {
@@ -270,7 +279,7 @@ private fun LazyListScope.mainGridItems(
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
-    val columnHeight = defListItemHeight.times(items.size / columnCount)
+    val columnHeight = defListItemHeight * (items.size / columnCount).coerceAtLeast(1)
     item(
         key = header?.id + "_content",
         contentType = "CategoryContent"

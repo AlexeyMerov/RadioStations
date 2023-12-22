@@ -33,4 +33,9 @@
     <string name="grant">Grant</string>
     <string name="dismiss">Dismiss</string>
     <string name="currently_playing">Currently playing</string>
+    <string name="undo">Undo</string>
+    <string name="removed">Removed</string>
+    <string name="user">User</string>
+    <string name="dev">Dev</string>
+    <string name="language">Language</string>
 </resources>

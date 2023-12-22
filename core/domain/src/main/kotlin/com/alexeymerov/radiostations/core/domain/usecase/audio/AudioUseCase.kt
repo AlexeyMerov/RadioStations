@@ -17,6 +17,8 @@ interface AudioUseCase {
 
     fun getFavorites(): Flow<CategoryDto>
 
+    suspend fun setFavorite(item: CategoryItemDto)
+
     suspend fun toggleFavorite(item: CategoryItemDto)
 
     suspend fun toggleFavorite(id: String)

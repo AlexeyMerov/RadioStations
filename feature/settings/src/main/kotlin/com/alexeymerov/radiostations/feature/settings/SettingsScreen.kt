@@ -1,26 +1,21 @@
 package com.alexeymerov.radiostations.feature.settings
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,28 +24,25 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
-import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
-import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewState
+import com.alexeymerov.radiostations.feature.settings.connectivity.ConnectivitySettings
+import com.alexeymerov.radiostations.feature.settings.language.LanguageSettings
+import com.alexeymerov.radiostations.feature.settings.theme.ThemeSettings
+
 
 @Composable
 fun BaseSettingsScreen(
@@ -79,9 +71,13 @@ private fun SettingsScreen(
     viewState: ViewState,
     onAction: (ViewAction) -> Unit
 ) {
+    val config = LocalConfiguration.current
     when (viewState) {
         ViewState.Loading -> LoaderView()
-        is ViewState.Loaded -> MainContent(viewState.themeState, viewState.connectionStatus, onAction)
+        is ViewState.Loaded -> {
+            if (config.isTablet()) MainContentTablet(viewState.themeState, viewState.connectionStatus, onAction)
+            else MainContent(viewState.themeState, viewState.connectionStatus, onAction)
+        }
     }
 }
 
@@ -91,8 +87,6 @@ private fun MainContent(
     connectionStatus: ConnectionStatus,
     onAction: (ViewAction) -> Unit
 ) {
-    // more settings later
-
     val config = LocalConfiguration.current
     var modifier = Modifier.fillMaxSize()
     modifier = if (config.isTablet()) {
@@ -104,240 +98,142 @@ private fun MainContent(
         modifier.padding(16.dp)
     }
 
-    Column(modifier) {
-        ThemeSettings(themeState, onAction)
-        ConnectivitySettings(connectionStatus, onAction)
-    }
-}
-
-@Composable
-private fun ConnectivitySettings(
-    connectionStatus: ConnectionStatus,
-    onAction: (ViewAction) -> Unit
-) {
-    val isOnline = connectionStatus == ConnectionStatus.ONLINE
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BasicText(text = "Request new items")
-
-        Switch(
-            checked = isOnline,
-            onCheckedChange = {
-                onAction.invoke(
-                    ViewAction.ChangeConnection(
-                        if (isOnline) ConnectionStatus.OFFLINE else ConnectionStatus.ONLINE
-                    )
-                )
-            })
-    }
-}
-
-@Composable
-private fun ThemeSettings(
-    themeState: ThemeState,
-    onAction: (ViewAction) -> Unit
-) {
-    var needShowThemeDialog by rememberSaveable { mutableStateOf(false) }
-
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF00639C),
-                        Color(0xFF1D6C30),
-                        Color(0xFF954A05),
-                    )
-                ),
-                shape = ButtonDefaults.shape
-            )
-            .height(ButtonDefaults.MinHeight),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color.White
-        ),
-        onClick = { needShowThemeDialog = !needShowThemeDialog }) {
-        Text(text = stringResource(R.string.theme_settings))
-    }
-
-    if (needShowThemeDialog) {
-        ThemeDialog(
-            themeState = themeState,
-            onDismiss = { needShowThemeDialog = !needShowThemeDialog },
-            onViewAction = onAction
+        var currentTab by rememberSaveable { mutableStateOf(SettingTab.USER) }
+        SettingsTabRow(
+            currentTab = currentTab,
+            onTabClick = { currentTab = it }
         )
-    }
-}
 
-@Composable
-private fun ThemeDialog(
-    themeState: ThemeState,
-    onDismiss: () -> Unit,
-    onViewAction: (ViewAction) -> Unit
-) {
-    val config = LocalConfiguration.current
+        AnimatedContent(
+            targetState = currentTab,
+            label = "",
+            transitionSpec = {
+                val start = AnimatedContentTransitionScope.SlideDirection.Start
+                val end = AnimatedContentTransitionScope.SlideDirection.End
+                val direction = if (targetState.index > initialState.index) start else end
 
-    AlertDialog(
-        modifier = Modifier
-            .sizeIn(
-                maxWidth = config.maxDialogWidth(),
-                maxHeight = config.maxDialogHeight()
-            ),
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Text(
-                modifier = Modifier.clickable(onClick = onDismiss),
-                text = stringResource(R.string.done)
-            )
-        },
-        title = { Text(text = stringResource(R.string.theme_settings)) },
-        text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                BasicText(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = stringResource(R.string.dark_mode), textStyle = MaterialTheme.typography.titleMedium
-                )
-
-                DarkThemeOptions(themeState.darkLightMode, onAction = onViewAction)
-
-                //val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S check is show
-                BasicText(
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
-                    text = stringResource(R.string.dynamic_color),
-                    textStyle = MaterialTheme.typography.titleMedium
-                )
-
-                DynamicColorOptions(themeState.useDynamicColor, onAction = onViewAction)
-
-//              AnimatedVisibility - feels like frame drop, smth with AlertDialog, maybe add later
-                if (!themeState.useDynamicColor) {
-                    ColorOptions(themeState.colorTheme, onAction = onViewAction)
+                slideIntoContainer(direction)
+                    .togetherWith(slideOutOfContainer(direction))
+            }
+        ) { tab ->
+            Column(modifier) {
+                when (tab) {
+                    SettingTab.USER -> UserSettings(themeState, onAction)
+                    SettingTab.DEV -> DevSettings(connectionStatus, onAction)
                 }
             }
         }
-    )
-}
-
-@Composable
-private fun DarkThemeOptions(
-    darkLightMode: DarkLightMode,
-    onAction: (ViewAction) -> Unit
-) {
-    BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.SYSTEM,
-        text = stringResource(R.string.system),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.SYSTEM)) }
-    )
-
-    BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.LIGHT,
-        text = stringResource(R.string.light),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.LIGHT)) }
-    )
-
-    BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.DARK,
-        text = stringResource(R.string.dark),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.DARK)) }
-    )
-
-    BasicRadioButton(
-        isSelected = darkLightMode == DarkLightMode.NIGHT,
-        text = stringResource(R.string.night),
-        action = { onAction.invoke(ViewAction.ChangeDarkMode(DarkLightMode.NIGHT)) }
-    )
-}
-
-@Composable
-private fun DynamicColorOptions(
-    useDynamicColor: Boolean,
-    onAction: (ViewAction) -> Unit
-) {
-    BasicRadioButton(
-        isSelected = useDynamicColor,
-        text = stringResource(R.string.yes),
-        action = { onAction.invoke(ViewAction.ChangeDynamicColor(true)) }
-    )
-
-    BasicRadioButton(
-        isSelected = !useDynamicColor,
-        text = stringResource(R.string.no),
-        action = { onAction.invoke(ViewAction.ChangeDynamicColor(false)) }
-    )
-}
-
-@Composable
-private fun ColorOptions(
-    colorTheme: ColorTheme,
-    onAction: (ViewAction) -> Unit
-) {
-    Text(
-        modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
-        text = stringResource(R.string.color),
-        style = MaterialTheme.typography.titleMedium
-    )
-
-    BasicRadioButton(
-        isSelected = colorTheme == ColorTheme.DEFAULT_BLUE,
-        text = stringResource(R.string.default_blue),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.DEFAULT_BLUE)) }
-    )
-
-    BasicRadioButton(
-        isSelected = colorTheme == ColorTheme.GREEN,
-        text = stringResource(R.string.green),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.GREEN)) }
-    )
-
-    BasicRadioButton(
-        isSelected = colorTheme == ColorTheme.ORANGE,
-        text = stringResource(R.string.orange),
-        action = { onAction.invoke(ViewAction.ChangeColorScheme(ColorTheme.ORANGE)) }
-    )
-}
-
-@Composable
-private fun BasicRadioButton(
-    isSelected: Boolean,
-    text: String,
-    action: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .selectable(
-                selected = isSelected,
-                role = Role.RadioButton,
-                onClick = action,
-            )
-            .padding(start = 24.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RadioButton(
-            modifier = Modifier.padding(top = 2.dp), //by default not aligned with text center
-            selected = isSelected,
-            onClick = null
-        )
-
-        Text(
-            modifier = Modifier.padding(start = 8.dp),
-            text = text
-        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-private fun PreviewRadioButton() {
-    BasicRadioButton(true, "Some text", {})
+private fun UserSettings(
+    themeState: ThemeState,
+    onAction: (ViewAction) -> Unit
+) {
+    ThemeSettings(
+        modifier = Modifier.fillMaxWidth(),
+        themeState = themeState,
+        onAction = onAction
+    )
+
+    LanguageSettings(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    )
 }
 
+@Composable
+private fun DevSettings(
+    connectionStatus: ConnectionStatus,
+    onAction: (ViewAction) -> Unit
+) {
+    ConnectivitySettings(
+        modifier = Modifier.fillMaxWidth(),
+        connectionStatus = connectionStatus,
+        onAction = onAction
+    )
+}
 
+@Composable
+private fun MainContentTablet(
+    themeState: ThemeState,
+    connectionStatus: ConnectionStatus,
+    onAction: (ViewAction) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        val columnModifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)
+
+        val contentModifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+
+        Column(
+            modifier = columnModifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BasicText(
+                modifier = Modifier.padding(8.dp),
+                text = stringResource(SettingTab.USER.stringId)
+            )
+            Box(
+                Modifier
+                    .padding(horizontal = 64.dp) // static but consider calculate width of text
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                    .background(color = MaterialTheme.colorScheme.primary)
+            )
+
+            Divider(thickness = 0.5.dp)
+
+            ThemeSettings(
+                modifier = contentModifier,
+                themeState = themeState,
+                onAction = onAction
+            )
+
+            LanguageSettings(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 0.dp, start = 16.dp, end = 16.dp)
+            )
+        }
+
+        Column(
+            modifier = columnModifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BasicText(
+                modifier = Modifier.padding(8.dp),
+                text = stringResource(SettingTab.DEV.stringId)
+            )
+
+            Box(
+                Modifier
+                    .padding(horizontal = 64.dp) // static but consider calculate width of text
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                    .background(color = MaterialTheme.colorScheme.primary)
+            )
+
+            Divider(thickness = 0.5.dp)
+
+            ConnectivitySettings(
+                modifier = contentModifier,
+                connectionStatus = connectionStatus,
+                onAction = onAction
+            )
+        }
+    }
+}

@@ -43,6 +43,10 @@ class AudioUseCaseImpl @Inject constructor(
             }
     }
 
+    override suspend fun setFavorite(item: CategoryItemDto) {
+        changeIsMediaFavorite(item.id, item.text, true)
+    }
+
     override suspend fun toggleFavorite(item: CategoryItemDto) {
         changeIsMediaFavorite(item.id, item.text, !item.isFavorite)
     }

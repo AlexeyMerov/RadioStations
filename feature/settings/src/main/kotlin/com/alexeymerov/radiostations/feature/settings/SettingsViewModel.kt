@@ -105,7 +105,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     sealed interface ViewEffect : BaseViewEffect {
-        class ShowToast(val text: String) : ViewEffect //errors or anything
+        class ShowToast(val text: String) : ViewEffect
     }
 
 }

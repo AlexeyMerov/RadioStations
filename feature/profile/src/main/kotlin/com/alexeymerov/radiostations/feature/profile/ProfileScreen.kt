@@ -6,6 +6,7 @@ import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -14,9 +15,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -63,6 +63,8 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
+import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -107,27 +109,28 @@ fun BaseProfileScreen(
         onDelete = { viewModel.setAction(ViewAction.DeleteImage) }
     )
 
-    BottomSheet(
-        showBottomSheet = showBottomSheet,
-        onDismiss = { showBottomSheet = false },
-        onGallery = {
-            showBottomSheet = false
-            singlePhotoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        },
-        onCamera = {
-            showBottomSheet = false
+    if (showBottomSheet) {
+        AvatarBottomSheet(
+            onDismiss = { showBottomSheet = false },
+            onGallery = {
+                showBottomSheet = false
+                singlePhotoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            onCamera = {
+                showBottomSheet = false
 
-            val status = cameraPermissionState.status
-            Timber.d("status $status")
-            when {
-                status.shouldShowRationale -> showRationaleDialog = true
-                status is PermissionStatus.Denied -> cameraPermissionState.launchPermissionRequest()
-                status is PermissionStatus.Granted -> cameraLauncher.launch(viewModel.tempUri)
+                val status = cameraPermissionState.status
+                Timber.d("status $status")
+                when {
+                    status.shouldShowRationale -> showRationaleDialog = true
+                    status is PermissionStatus.Denied -> cameraPermissionState.launchPermissionRequest()
+                    status is PermissionStatus.Granted -> cameraLauncher.launch(viewModel.tempUri)
+                }
             }
-        }
-    )
+        )
+    }
 
     if (showRationaleDialog) {
         CameraPermissionRationale(
@@ -155,73 +158,33 @@ private fun MainContent(
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     var needShowBigPicture by rememberSaveable { mutableStateOf(false) }
 
-    Row(modifier = Modifier.fillMaxSize()) {
+    val config = LocalConfiguration.current
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .run { if (config.isLandscape() && config.isTablet()) padding(end = 78.dp) else this }
                 .sizeIn(maxWidth = 150.dp)
         ) {
-            val colorScheme = MaterialTheme.colorScheme
-            val colorFilter: ColorFilter? by remember(isLoaded) {
-                derivedStateOf {
-                    if (isLoaded) null else ColorFilter.tint(colorScheme.onPrimary)
-                }
-            }
 
-            AsyncImage(
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .background(colorScheme.primary)
-                    .border(
-                        width = 1.dp,
-                        color = colorScheme.primaryContainer,
-                        shape = CircleShape
-                    )
-                    .clickable { if (isLoaded) needShowBigPicture = true },
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(avatarFile)
-                    .crossfade(500)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                error = rememberAsyncImagePainter(R.drawable.icon_person),
-                colorFilter = colorFilter,
-                onSuccess = { isLoaded = true },
-                onError = { isLoaded = false }
+            AvatarImage(
+                isLoaded = isLoaded,
+                avatarFile = avatarFile,
+                onLoadResult = { isLoaded = it },
+                onClick = { needShowBigPicture = true }
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                AnimatedVisibility(
-                    visible = isLoaded,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    IconButton(onClick = { onDelete.invoke() }) {
-                        Icon(
-                            tint = MaterialTheme.colorScheme.error,
-                            imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = null
-                        )
-                    }
-                }
-
-                IconButton(onClick = { onEdit.invoke() }) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.primary,
-                        imageVector = Icons.Outlined.Edit,
-                        contentDescription = null
-                    )
-                }
-            }
+            EditRemoveIcons(
+                isLoaded = isLoaded,
+                onDelete = onDelete,
+                onEdit = onEdit
+            )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
         IconButton(
+            modifier = Modifier.align(Alignment.TopEnd),
             onClick = { onNavigate.invoke(Screens.Settings.route) }) {
             Icon(
                 painter = rememberAsyncImagePainter(R.drawable.icon_settings),
@@ -230,26 +193,103 @@ private fun MainContent(
         }
     }
 
-    if (needShowBigPicture) {
-        Dialog(
-            onDismissRequest = { needShowBigPicture = !needShowBigPicture },
-            content = {
-                val config = LocalConfiguration.current
-                AsyncImage(
-                    modifier = Modifier
-                        .sizeIn(
-                            maxWidth = config.maxDialogWidth(),
-                            maxHeight = config.maxDialogHeight()
-                        )
-                        .clip(RoundedCornerShape(16.dp)),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(avatarFile)
-                        .build(),
+    if (needShowBigPicture && avatarFile != null) {
+        BigPicture(
+            avatarFile = avatarFile,
+            onDismiss = { needShowBigPicture = !needShowBigPicture }
+        )
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun AvatarImage(
+    isLoaded: Boolean,
+    avatarFile: File?,
+    onLoadResult: (Boolean) -> Unit,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val colorFilter: ColorFilter? by remember(isLoaded) {
+        derivedStateOf {
+            if (isLoaded) null else ColorFilter.tint(colorScheme.onPrimary)
+        }
+    }
+
+    AsyncImage(
+        modifier = Modifier
+            .size(150.dp)
+            .clip(CircleShape)
+            .background(colorScheme.primary)
+            .border(
+                width = 1.dp,
+                color = colorScheme.primaryContainer,
+                shape = CircleShape
+            )
+            .clickable { if (isLoaded) onClick.invoke() },
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(avatarFile)
+            .crossfade(500)
+            .build(),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        error = rememberAsyncImagePainter(R.drawable.icon_person),
+        colorFilter = colorFilter,
+        onSuccess = { onLoadResult.invoke(true) },
+        onError = { onLoadResult.invoke(false) }
+    )
+}
+
+@Composable
+private fun EditRemoveIcons(isLoaded: Boolean, onDelete: () -> Unit, onEdit: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        AnimatedVisibility(
+            visible = isLoaded,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut()
+        ) {
+            IconButton(onClick = { onDelete.invoke() }) {
+                Icon(
+                    tint = MaterialTheme.colorScheme.error,
+                    imageVector = Icons.Outlined.DeleteForever,
                     contentDescription = null
                 )
             }
-        )
+        }
+
+        IconButton(onClick = { onEdit.invoke() }) {
+            Icon(
+                tint = MaterialTheme.colorScheme.primary,
+                imageVector = Icons.Outlined.Edit,
+                contentDescription = null
+            )
+        }
     }
+}
+
+@Composable
+private fun BigPicture(avatarFile: File, onDismiss: () -> Unit) {
+    Dialog(
+        onDismissRequest = { onDismiss.invoke() },
+        content = {
+            val config = LocalConfiguration.current
+            AsyncImage(
+                modifier = Modifier
+                    .sizeIn(
+                        maxWidth = config.maxDialogWidth(),
+                        maxHeight = config.maxDialogHeight()
+                    )
+                    .clip(RoundedCornerShape(16.dp)),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(avatarFile)
+                    .build(),
+                contentDescription = null
+            )
+        }
+    )
 }
 
 @Composable
@@ -278,35 +318,28 @@ fun CameraPermissionRationale(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun BottomSheet(
-    showBottomSheet: Boolean,
+private fun AvatarBottomSheet(
     onDismiss: () -> Unit,
     onGallery: () -> Unit,
     onCamera: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { onDismiss.invoke() },
-            sheetState = sheetState
-        ) {
-            Row {
-                val itemModifier = Modifier.weight(1f)
+    ModalBottomSheet(onDismissRequest = { onDismiss.invoke() }) {
+        Row {
+            val itemModifier = Modifier.weight(1f)
 
-                BottomSheetItem(
-                    modifier = itemModifier,
-                    icon = Icons.Outlined.PhotoLibrary,
-                    text = stringResource(R.string.gallery),
-                    onAction = { onGallery.invoke() }
-                )
+            BottomSheetItem(
+                modifier = itemModifier,
+                icon = Icons.Outlined.PhotoLibrary,
+                text = stringResource(R.string.gallery),
+                onAction = { onGallery.invoke() }
+            )
 
-                BottomSheetItem(
-                    modifier = itemModifier,
-                    icon = Icons.Outlined.CameraAlt,
-                    text = stringResource(R.string.camera),
-                    onAction = { onCamera.invoke() }
-                )
-            }
+            BottomSheetItem(
+                modifier = itemModifier,
+                icon = Icons.Outlined.CameraAlt,
+                text = stringResource(R.string.camera),
+                onAction = { onCamera.invoke() }
+            )
         }
     }
 }
