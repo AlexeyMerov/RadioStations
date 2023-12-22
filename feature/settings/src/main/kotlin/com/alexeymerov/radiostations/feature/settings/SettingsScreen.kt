@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +40,9 @@ import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewState
 import com.alexeymerov.radiostations.feature.settings.connectivity.ConnectivitySettings
+import com.alexeymerov.radiostations.feature.settings.language.LanguageSettings
 import com.alexeymerov.radiostations.feature.settings.theme.ThemeSettings
+
 
 @Composable
 fun BaseSettingsScreen(
@@ -119,25 +122,43 @@ private fun MainContent(
         ) { tab ->
             Column(modifier) {
                 when (tab) {
-                    SettingTab.USER -> {
-                        ThemeSettings(
-                            modifier = Modifier.fillMaxWidth(),
-                            themeState = themeState,
-                            onAction = onAction
-                        )
-                    }
-
-                    SettingTab.DEV -> {
-                        ConnectivitySettings(
-                            modifier = Modifier.fillMaxWidth(),
-                            connectionStatus = connectionStatus,
-                            onAction = onAction
-                        )
-                    }
+                    SettingTab.USER -> UserSettings(themeState, onAction)
+                    SettingTab.DEV -> DevSettings(connectionStatus, onAction)
                 }
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun UserSettings(
+    themeState: ThemeState,
+    onAction: (ViewAction) -> Unit
+) {
+    ThemeSettings(
+        modifier = Modifier.fillMaxWidth(),
+        themeState = themeState,
+        onAction = onAction
+    )
+
+    LanguageSettings(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    )
+}
+
+@Composable
+private fun DevSettings(
+    connectionStatus: ConnectionStatus,
+    onAction: (ViewAction) -> Unit
+) {
+    ConnectivitySettings(
+        modifier = Modifier.fillMaxWidth(),
+        connectionStatus = connectionStatus,
+        onAction = onAction
+    )
 }
 
 @Composable
@@ -180,6 +201,12 @@ private fun MainContentTablet(
                 modifier = contentModifier,
                 themeState = themeState,
                 onAction = onAction
+            )
+
+            LanguageSettings(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 0.dp, start = 16.dp, end = 16.dp)
             )
         }
 

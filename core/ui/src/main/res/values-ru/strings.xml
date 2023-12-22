@@ -37,4 +37,5 @@
     <string name="removed">Удалено</string>
     <string name="user">Пользователь</string>
     <string name="dev">Разработчик</string>
+    <string name="language">Язык</string>
 </resources>

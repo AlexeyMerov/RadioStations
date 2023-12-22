@@ -37,4 +37,5 @@
     <string name="removed">Видалено</string>
     <string name="user">Користувач</string>
     <string name="dev">Розробник</string>
+    <string name="language">Мова</string>
 </resources>

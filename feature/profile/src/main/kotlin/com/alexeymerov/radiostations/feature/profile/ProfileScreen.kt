@@ -38,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -110,27 +109,28 @@ fun BaseProfileScreen(
         onDelete = { viewModel.setAction(ViewAction.DeleteImage) }
     )
 
-    BottomSheet(
-        showBottomSheet = showBottomSheet,
-        onDismiss = { showBottomSheet = false },
-        onGallery = {
-            showBottomSheet = false
-            singlePhotoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        },
-        onCamera = {
-            showBottomSheet = false
+    if (showBottomSheet) {
+        AvatarBottomSheet(
+            onDismiss = { showBottomSheet = false },
+            onGallery = {
+                showBottomSheet = false
+                singlePhotoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            onCamera = {
+                showBottomSheet = false
 
-            val status = cameraPermissionState.status
-            Timber.d("status $status")
-            when {
-                status.shouldShowRationale -> showRationaleDialog = true
-                status is PermissionStatus.Denied -> cameraPermissionState.launchPermissionRequest()
-                status is PermissionStatus.Granted -> cameraLauncher.launch(viewModel.tempUri)
+                val status = cameraPermissionState.status
+                Timber.d("status $status")
+                when {
+                    status.shouldShowRationale -> showRationaleDialog = true
+                    status is PermissionStatus.Denied -> cameraPermissionState.launchPermissionRequest()
+                    status is PermissionStatus.Granted -> cameraLauncher.launch(viewModel.tempUri)
+                }
             }
-        }
-    )
+        )
+    }
 
     if (showRationaleDialog) {
         CameraPermissionRationale(
@@ -318,35 +318,28 @@ fun CameraPermissionRationale(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun BottomSheet(
-    showBottomSheet: Boolean,
+private fun AvatarBottomSheet(
     onDismiss: () -> Unit,
     onGallery: () -> Unit,
     onCamera: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { onDismiss.invoke() },
-            sheetState = sheetState
-        ) {
-            Row {
-                val itemModifier = Modifier.weight(1f)
+    ModalBottomSheet(onDismissRequest = { onDismiss.invoke() }) {
+        Row {
+            val itemModifier = Modifier.weight(1f)
 
-                BottomSheetItem(
-                    modifier = itemModifier,
-                    icon = Icons.Outlined.PhotoLibrary,
-                    text = stringResource(R.string.gallery),
-                    onAction = { onGallery.invoke() }
-                )
+            BottomSheetItem(
+                modifier = itemModifier,
+                icon = Icons.Outlined.PhotoLibrary,
+                text = stringResource(R.string.gallery),
+                onAction = { onGallery.invoke() }
+            )
 
-                BottomSheetItem(
-                    modifier = itemModifier,
-                    icon = Icons.Outlined.CameraAlt,
-                    text = stringResource(R.string.camera),
-                    onAction = { onCamera.invoke() }
-                )
-            }
+            BottomSheetItem(
+                modifier = itemModifier,
+                icon = Icons.Outlined.CameraAlt,
+                text = stringResource(R.string.camera),
+                onAction = { onCamera.invoke() }
+            )
         }
     }
 }

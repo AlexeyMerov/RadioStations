@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">Zurück</string>
+    <string name="browse">Durchsuchen</string>
+    <string name="favorites">Favoriten</string>
+    <string name="you_need_to_add_some_stations">Du musst einige Stationen hinzufügen</string>
+    <string name="you">Du</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Einstellungen</string>
+    <string name="dark_mode">Dunkelmodus</string>
+    <string name="system">System</string>
+    <string name="dark">Dunkel</string>
+    <string name="light">Hell</string>
+    <string name="dynamic_color">Dynamische Farbe</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="color">Farbe</string>
+    <string name="default_blue">Standard-Blau</string>
+    <string name="green">Grün</string>
+    <string name="orange">Orange</string>
+    <string name="rows">Reihen</string>
+    <string name="grid_2">Raster</string>
+    <string name="grid_3">Raster +1</string>
+    <string name="done">Fertig</string>
+    <string name="theme_settings">Theme-Einstellungen</string>
+    <string name="night">Nacht</string>
+    <string name="avatar">AVATAR</string>
+    <string name="gallery">Galerie</string>
+    <string name="camera">Kamera</string>
+    <string name="camera_permission_needed_title">Erforderliche Berechtigung</string>
+    <string name="camera_permission_needed_description">Diese App benötigt Zugriff auf deine Kamera, um Fotos zu machen.</string>
+    <string name="grant">Zulassen</string>
+    <string name="dismiss">Verwerfen</string>
+    <string name="currently_playing">Aktuell abgespielt</string>
+    <string name="undo">Rückgängig machen</string>
+    <string name="removed">Entfernt</string>
+    <string name="user">Benutzer</string>
+    <string name="dev">Entwickler</string>
+    <string name="language">Sprache</string>
+</resources>

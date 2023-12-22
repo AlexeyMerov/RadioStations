@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sorry_nothing_found">Lo siento\nNada encontrado</string>
+    <string name="back">Atrás</string>
+    <string name="browse">Explorar</string>
+    <string name="favorites">Favoritos</string>
+    <string name="you_need_to_add_some_stations">Debes agregar algunas estaciones</string>
+    <string name="you">Tú</string>
+    <string name="profile">Perfil</string>
+    <string name="settings">Ajustes</string>
+    <string name="dark_mode">Modo oscuro</string>
+    <string name="system">Sistema</string>
+    <string name="dark">Oscuro</string>
+    <string name="light">Claro</string>
+    <string name="dynamic_color">Color dinámico</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="color">Color</string>
+    <string name="default_blue">Azul predeterminado</string>
+    <string name="green">Verde</string>
+    <string name="orange">Naranja</string>
+    <string name="rows">Filas</string>
+    <string name="grid_2">Cuadrícula</string>
+    <string name="grid_3">Cuadrícula +1</string>
+    <string name="done">Listo</string>
+    <string name="theme_settings">Configuración del tema</string>
+    <string name="night">Noche</string>
+    <string name="avatar">AVATAR</string>
+    <string name="gallery">Galería</string>
+    <string name="camera">Cámara</string>
+    <string name="camera_permission_needed_title">Permiso necesario</string>
+    <string name="camera_permission_needed_description">Esta aplicación necesita acceso a tu cámara para tomar fotos.</string>
+    <string name="grant">Conceder</string>
+    <string name="dismiss">Descartar</string>
+    <string name="currently_playing">Reproduciendo actualmente</string>
+    <string name="undo">Deshacer</string>
+    <string name="removed">Eliminado</string>
+    <string name="user">Usuario</string>
+    <string name="dev">Desarrollador</string>
+    <string name="language">Idioma</string>
+</resources>

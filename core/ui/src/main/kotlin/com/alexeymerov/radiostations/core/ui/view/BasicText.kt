@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 
@@ -16,6 +17,7 @@ fun BasicText(
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     color: Color = Color.Unspecified,
+    textAlign: TextAlign? = null,
     onTextSize: ((DpSize) -> Unit)? = null
 ) {
     val density = LocalDensity.current
@@ -25,6 +27,7 @@ fun BasicText(
         style = textStyle,
         maxLines = 1,
         color = color,
+        textAlign = textAlign,
         overflow = TextOverflow.Ellipsis,
         onTextLayout = {
             onTextSize?.invoke(
