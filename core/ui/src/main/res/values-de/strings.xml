@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sorry_nothing_found">Entschuldigung\nNichts gefunden</string>
     <string name="back">Zurück</string>
     <string name="browse">Durchsuchen</string>
     <string name="favorites">Favoriten</string>
