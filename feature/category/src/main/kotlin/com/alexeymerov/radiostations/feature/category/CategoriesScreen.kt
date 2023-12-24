@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
+import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
@@ -95,12 +96,12 @@ fun BaseCategoryScreen(
         refreshing = refreshing,
         onRefresh = { viewModel.setAction(ViewAction.UpdateCategories) }
     )
+    val isNetworkAvailable = LocalConnectionStatus.current
 
     Box(
         Modifier
             .fillMaxSize()
-            .pullRefresh(pullRefreshState)
-
+            .run { if (isNetworkAvailable) pullRefresh(pullRefreshState) else this }
     ) {
         CategoryScreen(
             viewState = viewState,
@@ -134,6 +135,7 @@ private fun CategoryScreen(
     onNavigate: (String) -> Unit,
     onAction: (ViewAction) -> Unit
 ) {
+    val isNetworkAvailable = LocalConnectionStatus.current
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
         is ViewState.Loading -> ShimmerLoading(defListItemModifier)
@@ -146,15 +148,17 @@ private fun CategoryScreen(
                     onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
                 },
                 onAudioClick = {
-                    val route = Screens.Player(parentRoute).createRoute(
-                        stationName = it.text,
-                        locationName = it.subText.orEmpty(),
-                        stationImgUrl = it.image.orEmpty(),
-                        rawUrl = it.url,
-                        id = it.id,
-                        isFav = it.isFavorite
-                    )
-                    onNavigate.invoke(route)
+                    if (isNetworkAvailable) {
+                        val route = Screens.Player(parentRoute).createRoute(
+                            stationName = it.text,
+                            locationName = it.subText.orEmpty(),
+                            stationImgUrl = it.image.orEmpty(),
+                            rawUrl = it.url,
+                            id = it.id,
+                            isFav = it.isFavorite
+                        )
+                        onNavigate.invoke(route)
+                    }
                 },
                 onFavClick = { onAction.invoke(ViewAction.ToggleFavorite(it)) }
             )

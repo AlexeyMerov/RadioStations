@@ -36,7 +36,7 @@ class CategoriesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val categoryUseCase: CategoryUseCase,
     private val audioUseCase: AudioUseCase,
-    private val analytics: FirebaseAnalytics
+    analytics: FirebaseAnalytics
 ) : BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {
 
     private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()

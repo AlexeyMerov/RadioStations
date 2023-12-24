@@ -73,12 +73,14 @@ class MainActivity : AppCompatActivity() {
             StationsAppTheme(themeState) {
                 val playerState by viewModel.playerState.collectAsStateWithLifecycle()
                 val currentMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
+                val isNetworkAvailable by viewModel.isNetworkAvailable.collectAsStateWithLifecycle()
 
                 MainNavGraph(
                     starDest = starDest,
                     goToRoute = goToRoute,
                     playerState = playerState,
                     currentMedia = currentMedia,
+                    isNetworkAvailable = isNetworkAvailable,
                     onPlayerAction = { viewModel.setAction(it) }
                 )
             }

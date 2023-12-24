@@ -61,7 +61,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun changeConnectionStatus(status: ConnectionStatus) {
-        connectivitySettings.setConnectionStatus(status)
+        connectivitySettings.forceConnectionStatus(status)
     }
 
     private suspend fun changeChangeDarkMode(value: DarkLightMode) {

@@ -9,9 +9,9 @@ interface ConnectivitySettingsUseCase {
 
     suspend fun getConnectionStatus(): ConnectionStatus
 
-    suspend fun isOnline(): Boolean
+    suspend fun allowConnections(): Boolean
 
-    suspend fun setConnectionStatus(status: ConnectionStatus)
+    suspend fun forceConnectionStatus(status: ConnectionStatus)
 
     enum class ConnectionStatus(val value: Int) {
         ONLINE(0), OFFLINE(1)

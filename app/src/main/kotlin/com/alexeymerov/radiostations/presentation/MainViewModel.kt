@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.presentation
 
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.core.connectivity.ConnectionMonitor
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
@@ -26,7 +27,10 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     themeSettings: ThemeSettingsUseCase,
     private val audioUseCase: AudioUseCase,
+    connectionMonitor: ConnectionMonitor
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
+
+    val isNetworkAvailable: StateFlow<Boolean> = connectionMonitor.conntectionStatusFlow
 
     override val viewState: StateFlow<ViewState> = themeSettings.getThemeState()
         .map { ViewState.Loaded(it) }

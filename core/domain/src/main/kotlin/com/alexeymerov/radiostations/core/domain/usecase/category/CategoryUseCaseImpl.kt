@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.core.domain.usecase.category
 
+import com.alexeymerov.radiostations.core.connectivity.ConnectionMonitor
 import com.alexeymerov.radiostations.core.data.repository.category.CategoryRepository
 import com.alexeymerov.radiostations.core.domain.mapper.DtoCategoriesMapper
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
@@ -12,7 +13,8 @@ import javax.inject.Inject
 class CategoryUseCaseImpl @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val dtoCategoriesMapper: DtoCategoriesMapper,
-    private val connectivitySettings: ConnectivitySettingsUseCase
+    private val connectivitySettings: ConnectivitySettingsUseCase,
+    private val connectionMonitor: ConnectionMonitor
 ) : CategoryUseCase {
 
     /**
@@ -34,7 +36,7 @@ class CategoryUseCaseImpl @Inject constructor(
     }
 
     override suspend fun loadCategoriesByUrl(url: String) {
-        if (connectivitySettings.isOnline()) {
+        if (connectivitySettings.allowConnections() && connectionMonitor.conntectionStatusFlow.value) {
             categoryRepository.loadCategoriesByUrl(url)
         }
     }
