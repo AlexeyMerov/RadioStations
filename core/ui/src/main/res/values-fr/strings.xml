@@ -38,4 +38,10 @@
     <string name="user">Utilisateur</string>
     <string name="dev">Développeur</string>
     <string name="language">Langue</string>
+    <string name="cannot_be_empty">Ne peut pas être vide</string>
+    <string name="too_short">Trop court</string>
+    <string name="incorrect">Incorrect</string>
+    <string name="name">Nom</string>
+    <string name="email">E-mail</string>
+    <string name="phone">Téléphone</string>
 </resources>

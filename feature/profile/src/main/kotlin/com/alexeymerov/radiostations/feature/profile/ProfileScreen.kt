@@ -5,42 +5,25 @@ import android.net.Uri
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CameraAlt
-import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.PhotoLibrary
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,36 +31,33 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import coil.compose.AsyncImage
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
-import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
-import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.remembers.rememberGalleyPicker
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTakePicture
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
+import com.alexeymerov.radiostations.feature.profile.elements.AvatarBottomSheet
+import com.alexeymerov.radiostations.feature.profile.elements.AvatarImage
+import com.alexeymerov.radiostations.feature.profile.elements.BigPicture
+import com.alexeymerov.radiostations.feature.profile.elements.CameraPermissionRationale
+import com.alexeymerov.radiostations.feature.profile.elements.CountriesBottomSheet
+import com.alexeymerov.radiostations.feature.profile.elements.EditRemoveIcons
+import com.alexeymerov.radiostations.feature.profile.elements.UserTextFields
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import timber.log.Timber
-import java.io.File
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -92,39 +72,40 @@ fun BaseProfileScreen(
 
     val context = LocalContext.current
 
-    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-    var showRationaleDialog by remember { mutableStateOf(false) }
-
+    var showCameraRationaleDialog by remember { mutableStateOf(false) }
     val singlePhotoPickerLauncher = rememberGalleyPicker { viewModel.setAction(ViewAction.SaveGalleryImage(it)) }
     val cameraLauncher = rememberTakePicture { viewModel.setAction(ViewAction.SaveCameraImage) }
 
-    val avatarFile by viewModel.avatar
+    var showCountriesBottomSheet by rememberSaveable { mutableStateOf(false) }
+    if (showCountriesBottomSheet) {
+        CountriesBottomSheet(
+            countries = viewModel.countryCodes,
+            onSelect = {
+                viewModel.setAction(ViewAction.NewCountry(it))
+                showCountriesBottomSheet = false
+            },
+            onDismiss = { showCountriesBottomSheet = false }
+        )
+    }
 
-    MainContent(
-        avatarFile = avatarFile,
-        onNavigate = onNavigate,
-        onEdit = { showBottomSheet = true },
-        onDelete = { viewModel.setAction(ViewAction.DeleteImage) }
-    )
-
-    if (showBottomSheet) {
+    var showChangeAvatarBottomSheet by rememberSaveable { mutableStateOf(false) }
+    if (showChangeAvatarBottomSheet) {
         AvatarBottomSheet(
-            onDismiss = { showBottomSheet = false },
+            onDismiss = { showChangeAvatarBottomSheet = false },
             onGallery = {
-                showBottomSheet = false
+                showChangeAvatarBottomSheet = false
                 singlePhotoPickerLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },
             onCamera = {
-                showBottomSheet = false
+                showChangeAvatarBottomSheet = false
 
                 val status = cameraPermissionState.status
                 Timber.d("status $status")
                 when {
-                    status.shouldShowRationale -> showRationaleDialog = true
+                    status.shouldShowRationale -> showCameraRationaleDialog = true
                     status is PermissionStatus.Denied -> cameraPermissionState.launchPermissionRequest()
                     status is PermissionStatus.Granted -> cameraLauncher.launch(viewModel.tempUri)
                 }
@@ -132,28 +113,43 @@ fun BaseProfileScreen(
         )
     }
 
-    if (showRationaleDialog) {
+    if (showCameraRationaleDialog) {
         CameraPermissionRationale(
             onPermissionRequested = {
                 Timber.d("onPermissionRequested")
-                showRationaleDialog = false
+                showCameraRationaleDialog = false
                 val intent = Intent(
                     ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.fromParts("package", context.packageName, null)
                 )
                 context.startActivity(intent)
             },
-            onDismiss = { showRationaleDialog = false }
+            onDismiss = { showCameraRationaleDialog = false }
+        )
+    }
+
+    val state by viewModel.viewState.collectAsStateWithLifecycle()
+    val data by viewModel.userData.collectAsStateWithLifecycle()
+    data?.let { userDto ->
+        MainContent(
+            inEdit = state is ProfileViewModel.ViewState.InEdit,
+            userData = userDto,
+            onNavigate = onNavigate,
+            onAvatarEdit = { showChangeAvatarBottomSheet = true },
+            onAction = { viewModel.setAction(it) },
+            onCountryCode = { showCountriesBottomSheet = true }
         )
     }
 }
 
 @Composable
 private fun MainContent(
-    avatarFile: File?,
+    inEdit: Boolean,
+    userData: UserDto,
     onNavigate: (String) -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
+    onAvatarEdit: () -> Unit,
+    onAction: (ViewAction) -> Unit,
+    onCountryCode: () -> Unit,
 ) {
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     var needShowBigPicture by rememberSaveable { mutableStateOf(false) }
@@ -163,214 +159,88 @@ private fun MainContent(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter,
     ) {
+        AnimatedContent(
+            modifier = Modifier.align(Alignment.TopStart),
+            targetState = inEdit,
+            transitionSpec = {
+                (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+            },
+            label = ""
+        ) {
+            AnimatedVisibility(visible = userData.isEverythingValid) {
+                IconButton(
+                    onClick = {
+                        val action = if (it) ViewAction.SaveEditsAndExitMode else ViewAction.EnterEditMode
+                        onAction.invoke(action)
+                    }
+                ) {
+                    Icon(
+                        imageVector = if (it) Icons.Rounded.Done else Icons.Outlined.Edit,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
+
         Column(
             modifier = Modifier
-                .run { if (config.isLandscape() && config.isTablet()) padding(end = 78.dp) else this }
-                .sizeIn(maxWidth = 150.dp)
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Column(
+                modifier = Modifier
+                    .run { if (config.isLandscape() && config.isTablet()) padding(end = 78.dp) else this }
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AvatarImage(
+                    isLoaded = isLoaded,
+                    avatarFile = userData.avatarFile,
+                    onLoadResult = { isLoaded = it },
+                    onClick = { needShowBigPicture = true }
+                )
 
-            AvatarImage(
-                isLoaded = isLoaded,
-                avatarFile = avatarFile,
-                onLoadResult = { isLoaded = it },
-                onClick = { needShowBigPicture = true }
-            )
-
-            EditRemoveIcons(
-                isLoaded = isLoaded,
-                onDelete = onDelete,
-                onEdit = onEdit
-            )
+                AnimatedVisibility(visible = inEdit) {
+                    EditRemoveIcons(
+                        isLoaded = isLoaded,
+                        onDelete = { onAction.invoke(ViewAction.DeleteImage) },
+                        onEdit = onAvatarEdit
+                    )
+                }
+            }
+            Box(Modifier.padding(top = 16.dp)) {
+                UserTextFields(
+                    inEdit = inEdit,
+                    userData = userData,
+                    onAction = { onAction.invoke(it) },
+                    onCountryAction = { onCountryCode.invoke() }
+                )
+            }
         }
 
-        IconButton(
-            modifier = Modifier.align(Alignment.TopEnd),
-            onClick = { onNavigate.invoke(Screens.Settings.route) }) {
-            Icon(
-                painter = rememberAsyncImagePainter(R.drawable.icon_settings),
-                contentDescription = null
-            )
-        }
-    }
-
-    if (needShowBigPicture && avatarFile != null) {
-        BigPicture(
-            avatarFile = avatarFile,
-            onDismiss = { needShowBigPicture = !needShowBigPicture }
-        )
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun AvatarImage(
-    isLoaded: Boolean,
-    avatarFile: File?,
-    onLoadResult: (Boolean) -> Unit,
-    onClick: () -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    val colorFilter: ColorFilter? by remember(isLoaded) {
-        derivedStateOf {
-            if (isLoaded) null else ColorFilter.tint(colorScheme.onPrimary)
-        }
-    }
-
-    AsyncImage(
-        modifier = Modifier
-            .size(150.dp)
-            .clip(CircleShape)
-            .background(colorScheme.primary)
-            .border(
-                width = 1.dp,
-                color = colorScheme.primaryContainer,
-                shape = CircleShape
-            )
-            .clickable { if (isLoaded) onClick.invoke() },
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(avatarFile)
-            .crossfade(500)
-            .build(),
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        error = rememberAsyncImagePainter(R.drawable.icon_person),
-        colorFilter = colorFilter,
-        onSuccess = { onLoadResult.invoke(true) },
-        onError = { onLoadResult.invoke(false) }
-    )
-}
-
-@Composable
-private fun EditRemoveIcons(isLoaded: Boolean, onDelete: () -> Unit, onEdit: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
         AnimatedVisibility(
-            visible = isLoaded,
+            modifier = Modifier.align(Alignment.TopEnd),
             enter = fadeIn() + scaleIn(),
-            exit = fadeOut() + scaleOut()
+            exit = fadeOut() + scaleOut(),
+            visible = !inEdit
         ) {
-            IconButton(onClick = { onDelete.invoke() }) {
+            IconButton(onClick = { onNavigate.invoke(Screens.Settings.route) }) {
                 Icon(
-                    tint = MaterialTheme.colorScheme.error,
-                    imageVector = Icons.Outlined.DeleteForever,
+                    painter = rememberAsyncImagePainter(R.drawable.icon_settings),
                     contentDescription = null
                 )
             }
         }
 
-        IconButton(onClick = { onEdit.invoke() }) {
-            Icon(
-                tint = MaterialTheme.colorScheme.primary,
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = null
-            )
-        }
     }
-}
-
-@Composable
-private fun BigPicture(avatarFile: File, onDismiss: () -> Unit) {
-    Dialog(
-        onDismissRequest = { onDismiss.invoke() },
-        content = {
-            val config = LocalConfiguration.current
-            AsyncImage(
-                modifier = Modifier
-                    .sizeIn(
-                        maxWidth = config.maxDialogWidth(),
-                        maxHeight = config.maxDialogHeight()
-                    )
-                    .clip(RoundedCornerShape(16.dp)),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(avatarFile)
-                    .build(),
-                contentDescription = null
+    if (needShowBigPicture) {
+        userData.avatarFile?.let { file ->
+            BigPicture(
+                avatarFile = file,
+                onDismiss = { needShowBigPicture = !needShowBigPicture }
             )
         }
-    )
-}
-
-@Composable
-fun CameraPermissionRationale(
-    onPermissionRequested: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = { onDismiss.invoke() },
-        title = { Text(stringResource(R.string.camera_permission_needed_title)) },
-        text = { Text(stringResource(R.string.camera_permission_needed_description)) },
-        confirmButton = {
-            TextButton(
-                onClick = { onPermissionRequested.invoke() },
-                content = { Text(stringResource(R.string.grant)) }
-            )
-        },
-        dismissButton = {
-            TextButton(
-                onClick = { onDismiss.invoke() },
-                content = { Text(stringResource(R.string.dismiss)) }
-            )
-        }
-    )
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun AvatarBottomSheet(
-    onDismiss: () -> Unit,
-    onGallery: () -> Unit,
-    onCamera: () -> Unit
-) {
-    ModalBottomSheet(onDismissRequest = { onDismiss.invoke() }) {
-        Row {
-            val itemModifier = Modifier.weight(1f)
-
-            BottomSheetItem(
-                modifier = itemModifier,
-                icon = Icons.Outlined.PhotoLibrary,
-                text = stringResource(R.string.gallery),
-                onAction = { onGallery.invoke() }
-            )
-
-            BottomSheetItem(
-                modifier = itemModifier,
-                icon = Icons.Outlined.CameraAlt,
-                text = stringResource(R.string.camera),
-                onAction = { onCamera.invoke() }
-            )
-        }
-    }
-}
-
-
-@Composable
-fun BottomSheetItem(
-    modifier: Modifier = Modifier,
-    icon: ImageVector,
-    text: String,
-    onAction: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .clickable { onAction.invoke() }
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Icon(
-            imageVector = icon,
-            modifier = Modifier
-                .alpha(0.85f)
-                .size(30.dp),
-            contentDescription = String.EMPTY
-        )
-
-        Text(
-            modifier = Modifier.padding(8.dp),
-            text = text
-        )
     }
 }
 
