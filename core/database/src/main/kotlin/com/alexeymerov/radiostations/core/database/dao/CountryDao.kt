@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 abstract class CountryDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertAll(entity: List<CountryEntity>)
+    abstract suspend fun insertAll(entities: List<CountryEntity>)
 
     @Query("SELECT * FROM ${CountryEntity.TABLE_NAME}")
-    abstract fun getAll(): Flow<CountryEntity>
+    abstract fun getAll(): Flow<List<CountryEntity>>
 
     @Query("SELECT COUNT(${CountryEntity.FIELD_TAG}) FROM ${CountryEntity.TABLE_NAME}")
     abstract fun size(): Int
