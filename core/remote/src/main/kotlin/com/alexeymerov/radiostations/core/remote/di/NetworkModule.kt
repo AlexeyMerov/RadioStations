@@ -2,7 +2,6 @@ package com.alexeymerov.radiostations.core.remote.di
 
 
 import com.alexeymerov.radiostations.core.common.BuildConfig
-
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
 import com.squareup.moshi.JsonAdapter
@@ -15,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -45,13 +45,25 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(jsonResponseInterceptor: JsonResponseInterceptor, loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+    @Backend(Server.Radio)
+    fun provideRadioOkHttpClient(jsonResponseInterceptor: JsonResponseInterceptor, loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return NetworkDefaults.getOkHttpClient(interceptors = arrayOf(jsonResponseInterceptor, loggingInterceptor))
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, converterFactory: Converter.Factory): Retrofit {
+    @Backend(Server.Countries)
+    fun provideCountriesOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+        return NetworkDefaults.getOkHttpClient(interceptors = arrayOf(loggingInterceptor))
+    }
+
+    @Provides
+    @Singleton
+    @Backend(Server.Radio)
+    fun provideRadioRetrofit(
+        @Backend(Server.Radio) okHttpClient: OkHttpClient,
+        converterFactory: Converter.Factory
+    ): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(BuildConfig.BASE_URL)
@@ -59,4 +71,27 @@ class NetworkModule {
             .build()
     }
 
+    @Provides
+    @Singleton
+    @Backend(Server.Countries)
+    fun provideCountriesRetrofit(
+        @Backend(Server.Countries) okHttpClient: OkHttpClient,
+        converterFactory: Converter.Factory
+    ): Retrofit {
+        return Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl(NetworkDefaults.COUNTRIES_URL)
+            .addConverterFactory(converterFactory)
+            .build()
+    }
+
+}
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+internal annotation class Backend(val server: Server)
+
+internal enum class Server {
+    Radio,
+    Countries,
 }

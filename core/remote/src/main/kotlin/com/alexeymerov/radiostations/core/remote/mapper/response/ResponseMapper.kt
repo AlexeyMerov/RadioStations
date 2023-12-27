@@ -6,6 +6,8 @@ import retrofit2.Response
 
 interface ResponseMapper {
 
-    fun <T : ServerBodyType> mapResponseBody(body: Response<MainBody<T>>): List<T>
+    fun <T : ServerBodyType> mapRadioResponseBody(body: Response<MainBody<T>>): List<T>
+
+    fun <T : ServerBodyType> mapCountriesResponseBody(body: Response<List<T>>): List<T>
 
 }
