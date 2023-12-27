@@ -3,6 +3,7 @@ package com.alexeymerov.radiostations.core.database.di
 import android.content.Context
 import com.alexeymerov.radiostations.core.database.RadioDatabase
 import com.alexeymerov.radiostations.core.database.dao.CategoryDao
+import com.alexeymerov.radiostations.core.database.dao.CountryDao
 import com.alexeymerov.radiostations.core.database.dao.MediaDao
 import dagger.Module
 import dagger.Provides
@@ -26,4 +27,8 @@ class DatabaseModule {
     @Singleton
     @Provides
     fun provideMediaDao(db: RadioDatabase): MediaDao = db.mediaDao()
+
+    @Singleton
+    @Provides
+    fun provideCountryDao(db: RadioDatabase): CountryDao = db.countryDao()
 }
