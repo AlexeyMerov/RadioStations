@@ -47,7 +47,7 @@
 - Retrofit + Moshi
 - Jetpack Compose + Navigation
 - Hilt
-- Room
+- Room + Paging (locally)
 - Coil
 - Lottie
 - ExoPlayer

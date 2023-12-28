@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -51,6 +50,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
@@ -192,7 +193,7 @@ private fun UserTextField(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 internal fun CountriesBottomSheet(
-    countries: List<CountryDto>,
+    countries: LazyPagingItems<CountryDto>,
     onSelect: (CountryDto) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -218,84 +219,89 @@ internal fun CountriesBottomSheet(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
+            // https://developer.android.com/reference/kotlin/androidx/paging/compose/package-summary
             items(
-                items = countries,
-                key = { it.tag }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp)
-                        .clickable { onSelect.invoke(it) },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
+                count = countries.itemCount,
+                key = countries.itemKey { it.tag }
+            ) { index ->
+                val country = countries[index]
+                if (country != null) {
+                    Row(
                         modifier = Modifier
-                            .height(48.dp)
-                            .padding(end = 8.dp)
-                            .weight(1f),
-                        contentAlignment = Alignment.CenterStart
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .clickable { onSelect.invoke(country) },
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        AsyncImage(
+                        Box(
                             modifier = Modifier
-                                .width(64.dp)
-                                .alpha(0.5f)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
-                                .drawWithContent {
-                                    drawContent()
-                                    drawRect(
-                                        brush = Brush.horizontalGradient(
-                                            endX = 56.dp.toPx(),
-                                            colors = flagGradientColors
-                                        )
-                                    )
-                                },
-                            model = ImageRequest.Builder(context)
-                                .data(it.flagUrl)
-                                .decoderFactory(svgFactory)
-                                .crossfade(200)
-                                .build(),
-                            contentScale = ContentScale.FillHeight,
-                            alignment = Alignment.CenterStart,
-                            contentDescription = null,
-                            error = rememberTextPainter(
-                                text = "Flag",
-                                containerColor = MaterialTheme.colorScheme.surface
-                            )
-                        )
-
-                        Column(
-                            modifier = Modifier.padding(start = 16.dp),
-                            verticalArrangement = Arrangement.Center
+                                .height(48.dp)
+                                .padding(end = 8.dp)
+                                .weight(1f),
+                            contentAlignment = Alignment.CenterStart
                         ) {
-                            BasicText(
-                                modifier = Modifier.basicMarquee(),
-                                text = it.englishName,
-                                textStyle = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.W500
+                            AsyncImage(
+                                modifier = Modifier
+                                    .width(64.dp)
+                                    .alpha(0.5f)
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                                    .drawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            brush = Brush.horizontalGradient(
+                                                endX = 56.dp.toPx(),
+                                                colors = flagGradientColors
+                                            )
+                                        )
+                                    },
+                                model = ImageRequest.Builder(context)
+                                    .data(country.flagUrl)
+                                    .decoderFactory(svgFactory)
+                                    .crossfade(200)
+                                    .build(),
+                                contentScale = ContentScale.FillHeight,
+                                alignment = Alignment.CenterStart,
+                                contentDescription = null,
+                                error = rememberTextPainter(
+                                    text = "Flag",
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
                             )
 
-                            if (it.nativeName != null) {
+                            Column(
+                                modifier = Modifier.padding(start = 16.dp),
+                                verticalArrangement = Arrangement.Center
+                            ) {
                                 BasicText(
-                                    text = "${it.nativeName}",
-                                    textAlign = TextAlign.Center,
-                                    textStyle = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.basicMarquee(),
+                                    text = country.englishName,
+                                    textStyle = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.W500
                                 )
+
+                                if (country.nativeName != null) {
+                                    BasicText(
+                                        text = "${country.nativeName}",
+                                        textAlign = TextAlign.Center,
+                                        textStyle = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    BasicText(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
-                            .padding(horizontal = 6.dp),
-                        text = "+${it.phoneCode}",
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        textStyle = MaterialTheme.typography.bodyLarge
-                    )
+                        BasicText(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(MaterialTheme.colorScheme.secondaryContainer)
+                                .padding(horizontal = 6.dp),
+                            text = "+${country.phoneCode}",
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textStyle = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
+
             }
         }
     }

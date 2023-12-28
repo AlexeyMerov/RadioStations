@@ -25,6 +25,9 @@ android {
 dependencies {
     implementation(projects.core.common)
 
+    api(libs.paging.runtime)
+    implementation(libs.room.paging)
+
     androidTestImplementation(projects.core.test)
     androidTestUtil(libs.test.orchestrator)
 }

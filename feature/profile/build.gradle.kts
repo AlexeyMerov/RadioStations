@@ -15,4 +15,5 @@ dependencies {
 
     implementation(libs.accompanist.permissions)
     implementation(libs.coil.svg)
+    implementation(libs.paging.compose)
 }

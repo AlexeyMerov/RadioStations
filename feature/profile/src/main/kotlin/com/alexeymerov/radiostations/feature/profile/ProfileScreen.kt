@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
@@ -79,15 +80,14 @@ fun BaseProfileScreen(
 
     var showCountriesBottomSheet by rememberSaveable { mutableStateOf(false) }
     if (showCountriesBottomSheet) {
-        val countries by viewModel.countryCodes.collectAsStateWithLifecycle()
+        val countries = viewModel.countryCodes.collectAsLazyPagingItems()
         CountriesBottomSheet(
             countries = countries,
             onSelect = {
                 viewModel.setAction(ViewAction.NewCountry(it))
                 showCountriesBottomSheet = false
-            },
-            onDismiss = { showCountriesBottomSheet = false }
-        )
+            }
+        ) { showCountriesBottomSheet = false }
     }
 
     var showChangeAvatarBottomSheet by rememberSaveable { mutableStateOf(false) }

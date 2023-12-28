@@ -5,6 +5,7 @@ import com.alexeymerov.radiostations.core.dto.CountryDto
 
 interface DtoCountryMapper {
 
-    fun mapEntitytoDto(list: List<CountryEntity>): List<CountryDto>
+    fun mapEntityToDto(list: List<CountryEntity>): List<CountryDto>
 
+    fun mapEntityToDto(entity: CountryEntity): CountryDto
 }

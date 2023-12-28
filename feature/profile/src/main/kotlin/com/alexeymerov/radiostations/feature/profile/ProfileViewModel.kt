@@ -3,6 +3,8 @@ package com.alexeymerov.radiostations.feature.profile
 import android.net.Uri
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.alexeymerov.radiostations.core.domain.usecase.country.CountryUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.profile.ProfileUsaCase
 import com.alexeymerov.radiostations.core.dto.CountryDto
@@ -17,6 +19,7 @@ import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewEffect
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -33,12 +36,7 @@ class ProfileViewModel @Inject constructor(
 
     val tempUri = profileUsaCase.getAvatarTempUri()
 
-    val countryCodes = countryUseCase.getAllCountries()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = emptyList()
-        )
+    val countryCodes: Flow<PagingData<CountryDto>> = countryUseCase.getAllCountries().cachedIn(viewModelScope)
 
     private val tempUserData = MutableStateFlow<UserDto?>(null)
 

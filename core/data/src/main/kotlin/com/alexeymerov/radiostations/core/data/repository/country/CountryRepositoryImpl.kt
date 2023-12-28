@@ -1,10 +1,10 @@
 package com.alexeymerov.radiostations.core.data.repository.country
 
+import androidx.paging.PagingSource
 import com.alexeymerov.radiostations.core.data.mapper.country.CountryMapper
 import com.alexeymerov.radiostations.core.database.dao.CountryDao
 import com.alexeymerov.radiostations.core.database.entity.CountryEntity
 import com.alexeymerov.radiostations.core.remote.client.country.CountryClient
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class CountryRepositoryImpl @Inject constructor(
@@ -13,7 +13,7 @@ class CountryRepositoryImpl @Inject constructor(
     private val countryMapper: CountryMapper,
 ) : CountryRepository {
 
-    override fun getCountries(): Flow<List<CountryEntity>> = countryDao.getAll()
+    override fun getCountries(): PagingSource<Int, CountryEntity> = countryDao.getAll()
 
     // it's a static set of data, thus load only if DB empty
     override suspend fun loadCountries() {

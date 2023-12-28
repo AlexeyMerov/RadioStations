@@ -6,9 +6,9 @@ import javax.inject.Inject
 
 class DtoCountryMapperImpl @Inject constructor() : DtoCountryMapper {
 
-    override fun mapEntitytoDto(list: List<CountryEntity>): List<CountryDto> = list.map(::mapToDto)
+    override fun mapEntityToDto(list: List<CountryEntity>): List<CountryDto> = list.map(this::mapEntityToDto)
 
-    private fun mapToDto(entity: CountryEntity): CountryDto {
+    override fun mapEntityToDto(entity: CountryEntity): CountryDto {
         val tag = entity.tag.lowercase()
         val nativeName = if (entity.nameNative == entity.nameEnglish) null else entity.nameNative
         val phoneCode = entity.phoneCode.replace("+", "").toInt()

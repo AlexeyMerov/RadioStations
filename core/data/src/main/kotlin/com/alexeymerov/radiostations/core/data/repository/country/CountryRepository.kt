@@ -1,11 +1,11 @@
 package com.alexeymerov.radiostations.core.data.repository.country
 
+import androidx.paging.PagingSource
 import com.alexeymerov.radiostations.core.database.entity.CountryEntity
-import kotlinx.coroutines.flow.Flow
 
 interface CountryRepository {
 
-    fun getCountries(): Flow<List<CountryEntity>>
+    fun getCountries(): PagingSource<Int, CountryEntity>
 
     suspend fun loadCountries()
 
