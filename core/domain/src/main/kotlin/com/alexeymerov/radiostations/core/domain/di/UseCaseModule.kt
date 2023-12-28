@@ -1,12 +1,16 @@
 package com.alexeymerov.radiostations.core.domain.di
 
 
-import com.alexeymerov.radiostations.core.domain.mapper.DtoCategoriesMapper
-import com.alexeymerov.radiostations.core.domain.mapper.DtoCategoriesMapperImpl
+import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapper
+import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapperImpl
+import com.alexeymerov.radiostations.core.domain.mapper.country.DtoCountryMapper
+import com.alexeymerov.radiostations.core.domain.mapper.country.DtoCountryMapperImpl
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCaseImpl
 import com.alexeymerov.radiostations.core.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.category.CategoryUseCaseImpl
+import com.alexeymerov.radiostations.core.domain.usecase.country.CountryUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.country.CountryUseCaseImpl
 import com.alexeymerov.radiostations.core.domain.usecase.profile.ProfileUsaCase
 import com.alexeymerov.radiostations.core.domain.usecase.profile.ProfileUsaCaseImpl
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
@@ -49,6 +53,10 @@ abstract class UseCaseModule {
     @Singleton
     abstract fun bindProfileUsaCase(useCase: ProfileUsaCaseImpl): ProfileUsaCase
 
+    @Binds
+    @Singleton
+    abstract fun bindCountryUseCase(useCase: CountryUseCaseImpl): CountryUseCase
+
     @Module
     @InstallIn(SingletonComponent::class)
     abstract class Mapper {
@@ -56,6 +64,10 @@ abstract class UseCaseModule {
         @Binds
         @Singleton
         abstract fun bindDtoCategoriesMapper(mapper: DtoCategoriesMapperImpl): DtoCategoriesMapper
+
+        @Binds
+        @Singleton
+        abstract fun bindDtoCountryMapper(mapper: DtoCountryMapperImpl): DtoCountryMapper
 
     }
 

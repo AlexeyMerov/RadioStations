@@ -16,5 +16,6 @@ data class CountryEntity(
         const val TABLE_NAME = "country"
 
         const val FIELD_TAG = "tag"
+        const val FIELD_NAME = "nameEnglish"
     }
 }

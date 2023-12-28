@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.core.net.toUri
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.datastore.SettingsStore
-import com.alexeymerov.radiostations.core.dto.Country
 import com.alexeymerov.radiostations.core.dto.TextFieldData
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.filestore.AppFileStore
@@ -22,7 +21,7 @@ class ProfileUsaCaseImpl @Inject constructor(
     override suspend fun saveUserData(userDto: UserDto) {
         settingsStore.setStringPrefs(USER_NAME_KEY, userDto.name.text)
         settingsStore.setStringPrefs(USER_EMAIL_KEY, userDto.email.text)
-        settingsStore.setIntPrefs(USER_COUNTRY_KEY, userDto.country.phoneCode)
+        settingsStore.setIntPrefs(USER_COUNTRY_KEY, userDto.countryCode)
         settingsStore.setStringPrefs(USER_PHONE_KEY, userDto.phoneNumber.text)
     }
 
@@ -38,7 +37,7 @@ class ProfileUsaCaseImpl @Inject constructor(
                 avatarFile = fileStore.getFileByName(fileName),
                 name = TextFieldData(name),
                 email = TextFieldData(email),
-                country = Country(countryCode),
+                countryCode = countryCode,
                 phoneNumber = TextFieldData(phone)
             )
         }

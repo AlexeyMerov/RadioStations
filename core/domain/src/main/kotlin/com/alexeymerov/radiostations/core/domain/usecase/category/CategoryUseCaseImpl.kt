@@ -2,7 +2,7 @@ package com.alexeymerov.radiostations.core.domain.usecase.category
 
 import com.alexeymerov.radiostations.core.connectivity.ConnectionMonitor
 import com.alexeymerov.radiostations.core.data.repository.category.CategoryRepository
-import com.alexeymerov.radiostations.core.domain.mapper.DtoCategoriesMapper
+import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapper
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.core.dto.CategoryDto
 import kotlinx.coroutines.flow.Flow

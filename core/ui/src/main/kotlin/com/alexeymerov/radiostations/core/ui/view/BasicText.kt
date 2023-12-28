@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
@@ -17,6 +18,7 @@ fun BasicText(
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     color: Color = Color.Unspecified,
+    fontWeight: FontWeight? = null,
     textAlign: TextAlign? = null,
     onTextSize: ((DpSize) -> Unit)? = null
 ) {
@@ -27,6 +29,7 @@ fun BasicText(
         style = textStyle,
         maxLines = 1,
         color = color,
+        fontWeight = fontWeight,
         textAlign = textAlign,
         overflow = TextOverflow.Ellipsis,
         onTextLayout = {

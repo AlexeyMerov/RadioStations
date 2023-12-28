@@ -15,7 +15,9 @@ class CountryRepositoryImpl @Inject constructor(
 
     override fun getCountries(): Flow<List<CountryEntity>> = countryDao.getAll()
 
+    // it's a static set of data, thus load only if DB empty
     override suspend fun loadCountries() {
+        if (countryDao.size() > 0) return
         val response = countryClient.requestAllCountries()
         val mappedCountries = countryMapper.mapCountries(response)
         countryDao.insertAll(mappedCountries)

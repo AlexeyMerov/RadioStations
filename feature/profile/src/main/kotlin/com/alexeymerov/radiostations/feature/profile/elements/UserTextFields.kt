@@ -1,17 +1,20 @@
 package com.alexeymerov.radiostations.feature.profile.elements
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.MailOutline
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,22 +31,35 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import com.alexeymerov.radiostations.core.common.EMPTY
-import com.alexeymerov.radiostations.core.dto.Country
+import com.alexeymerov.radiostations.core.dto.CountryDto
 import com.alexeymerov.radiostations.core.dto.TextFieldData
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel
 
@@ -105,7 +122,7 @@ internal fun UserTextFields(
                 ) {
                     Text(
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 10.dp),
-                        text = "+${userData.country.phoneCode}"
+                        text = "+${userData.countryCode}"
                     )
                 }
             }
@@ -173,53 +190,111 @@ private fun UserTextField(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 internal fun CountriesBottomSheet(
-    countries: List<Country>,
-    onSelect: (Country) -> Unit,
+    countries: List<CountryDto>,
+    onSelect: (CountryDto) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
+    val svgFactory = remember { SvgDecoder.Factory() }
+    val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(BottomSheetDefaults.Elevation)
+    val flagGradientColors = remember {
+        listOf(
+            Color.Transparent,
+            surfaceColorAtElevation.copy(alpha = 0.60f),
+            surfaceColorAtElevation.copy(alpha = 0.80f),
+            surfaceColorAtElevation.copy(alpha = 0.95f),
+            surfaceColorAtElevation,
+        )
+    }
+
     ModalBottomSheet(
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = rememberModalBottomSheetState(),
         onDismissRequest = { onDismiss.invoke() }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.errorContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
-                    text = "In development",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
-        }
-
         LazyColumn(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
         ) {
             items(
                 items = countries,
-                key = { it.phoneCode }
+                key = { it.tag }
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(64.dp)
                         .clickable { onSelect.invoke(it) },
-                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    BasicText(text = "+ ${it.phoneCode}")
+                    Box(
+                        modifier = Modifier
+                            .height(48.dp)
+                            .padding(end = 8.dp)
+                            .weight(1f),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        AsyncImage(
+                            modifier = Modifier
+                                .width(64.dp)
+                                .alpha(0.5f)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                                .drawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        brush = Brush.horizontalGradient(
+                                            endX = 56.dp.toPx(),
+                                            colors = flagGradientColors
+                                        )
+                                    )
+                                },
+                            model = ImageRequest.Builder(context)
+                                .data(it.flagUrl)
+                                .decoderFactory(svgFactory)
+                                .crossfade(200)
+                                .build(),
+                            contentScale = ContentScale.FillHeight,
+                            alignment = Alignment.CenterStart,
+                            contentDescription = null,
+                            error = rememberTextPainter(
+                                text = "Flag",
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        )
+
+                        Column(
+                            modifier = Modifier.padding(start = 16.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            BasicText(
+                                modifier = Modifier.basicMarquee(),
+                                text = it.englishName,
+                                textStyle = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.W500
+                            )
+
+                            if (it.nativeName != null) {
+                                BasicText(
+                                    text = "${it.nativeName}",
+                                    textAlign = TextAlign.Center,
+                                    textStyle = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        }
+                    }
+
+                    BasicText(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .padding(horizontal = 6.dp),
+                        text = "+${it.phoneCode}",
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        textStyle = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.core.domain.mapper
+package com.alexeymerov.radiostations.core.domain.mapper.category
 
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto

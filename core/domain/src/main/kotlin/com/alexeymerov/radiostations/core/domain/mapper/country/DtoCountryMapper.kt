@@ -1,0 +1,10 @@
+package com.alexeymerov.radiostations.core.domain.mapper.country
+
+import com.alexeymerov.radiostations.core.database.entity.CountryEntity
+import com.alexeymerov.radiostations.core.dto.CountryDto
+
+interface DtoCountryMapper {
+
+    fun mapEntitytoDto(list: List<CountryEntity>): List<CountryDto>
+
+}

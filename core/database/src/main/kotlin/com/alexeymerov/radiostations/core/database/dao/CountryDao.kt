@@ -14,10 +14,13 @@ abstract class CountryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertAll(entities: List<CountryEntity>)
 
-    @Query("SELECT * FROM ${CountryEntity.TABLE_NAME}")
+    @Query("SELECT * FROM ${CountryEntity.TABLE_NAME} ORDER BY ${CountryEntity.FIELD_NAME} ASC")
     abstract fun getAll(): Flow<List<CountryEntity>>
 
     @Query("SELECT COUNT(${CountryEntity.FIELD_TAG}) FROM ${CountryEntity.TABLE_NAME}")
     abstract fun size(): Int
+
+    @Query("DELETE FROM ${CountryEntity.TABLE_NAME}")
+    abstract suspend fun removeAll()
 
 }

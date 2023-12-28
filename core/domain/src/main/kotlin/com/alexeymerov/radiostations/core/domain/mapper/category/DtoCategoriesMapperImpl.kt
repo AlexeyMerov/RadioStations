@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.core.domain.mapper
+package com.alexeymerov.radiostations.core.domain.mapper.category
 
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.SPACE

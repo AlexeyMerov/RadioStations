@@ -6,13 +6,9 @@ data class UserDto(
     val avatarFile: File?,
     val name: TextFieldData,
     val email: TextFieldData,
-    val country: Country,
+    val countryCode: Int,
     val phoneNumber: TextFieldData,
     val isEverythingValid: Boolean = true
-)
-
-data class Country(
-    val phoneCode: Int
 )
 
 data class TextFieldData(

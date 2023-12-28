@@ -39,7 +39,8 @@ fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto, onClick: () -> 
             BasicText(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 text = itemDto.subItemsCount.toString(),
-                textStyle = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onPrimary)
+                textStyle = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
 

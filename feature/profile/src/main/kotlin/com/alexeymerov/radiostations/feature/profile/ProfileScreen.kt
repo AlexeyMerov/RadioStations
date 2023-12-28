@@ -79,8 +79,9 @@ fun BaseProfileScreen(
 
     var showCountriesBottomSheet by rememberSaveable { mutableStateOf(false) }
     if (showCountriesBottomSheet) {
+        val countries by viewModel.countryCodes.collectAsStateWithLifecycle()
         CountriesBottomSheet(
-            countries = viewModel.countryCodes,
+            countries = countries,
             onSelect = {
                 viewModel.setAction(ViewAction.NewCountry(it))
                 showCountriesBottomSheet = false

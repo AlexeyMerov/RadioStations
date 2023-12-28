@@ -30,6 +30,7 @@ appcompat = "1.6.1"
 material = "1.10.0"
 accompanist = "0.32.0"
 glance = "1.0.0"
+coil = "2.5.0"
 
 fierbaseCrashlyticsPlugin = "2.9.9"
 fierbasePerfPlugin = "1.4.2"
@@ -120,7 +121,9 @@ glance-material3 = { module = "androidx.glance:glance-material3", version.ref = 
 accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
-coil-compose = { module = "io.coil-kt:coil-compose", version = "2.5.0" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil" }
+
 lottie = { module = "com.airbnb.android:lottie-compose", version = "6.1.0" }
 splashScreen = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
 revealSwipe = { module = "de.charlex.compose:revealswipe", version = "1.2.0" }

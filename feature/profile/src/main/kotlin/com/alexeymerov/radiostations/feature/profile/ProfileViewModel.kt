@@ -3,8 +3,9 @@ package com.alexeymerov.radiostations.feature.profile
 import android.net.Uri
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.core.domain.usecase.country.CountryUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.profile.ProfileUsaCase
-import com.alexeymerov.radiostations.core.dto.Country
+import com.alexeymerov.radiostations.core.dto.CountryDto
 import com.alexeymerov.radiostations.core.dto.TextFieldData
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
@@ -26,13 +27,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val profileUsaCase: ProfileUsaCase
+    private val profileUsaCase: ProfileUsaCase,
+    private val countryUseCase: CountryUseCase
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     val tempUri = profileUsaCase.getAvatarTempUri()
 
-    var countryCodes = emptyList<Country>()
-        private set
+    val countryCodes = countryUseCase.getAllCountries()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
 
     private val tempUserData = MutableStateFlow<UserDto?>(null)
 
@@ -43,7 +49,7 @@ class ProfileViewModel @Inject constructor(
                     avatarFile = original.avatarFile,
                     name = temp.name,
                     email = temp.email,
-                    country = temp.country,
+                    countryCode = temp.countryCode,
                     phoneNumber = temp.phoneNumber
                 )
             }
@@ -71,7 +77,7 @@ class ProfileViewModel @Inject constructor(
 
                 is ViewAction.NewName -> handleNewName(action.name)
                 is ViewAction.NewEmail -> handleNewEmail(action.email)
-                is ViewAction.NewCountry -> handleNewCountry(action)
+                is ViewAction.NewCountry -> handleNewCountry(action.country)
                 is ViewAction.NewPhone -> handleNewPhoneValue(action.phone)
             }
         }
@@ -90,12 +96,11 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun onEnterEditMode() {
-        val result = mutableListOf<Country>()
-        repeat(9) { result.add(Country(it + 1)) }
-        countryCodes = result
-
-        tempUserData.value = userData.value
-        setState(ViewState.InEdit)
+        viewModelScope.launch(ioContext) {
+            countryUseCase.loadCountries()
+            tempUserData.value = userData.value
+            setState(ViewState.InEdit)
+        }
     }
 
     private fun handleNewName(name: String) {
@@ -131,8 +136,8 @@ class ProfileViewModel @Inject constructor(
         )
     }
 
-    private fun handleNewCountry(action: ViewAction.NewCountry) {
-        tempUserData.value = tempUserData.value?.copy(country = action.country)
+    private fun handleNewCountry(country: CountryDto) {
+        tempUserData.value = tempUserData.value?.copy(countryCode = country.phoneCode)
     }
 
     private fun handleNewPhoneValue(phone: String) {
@@ -174,7 +179,7 @@ class ProfileViewModel @Inject constructor(
 
         data class NewName(val name: String) : ViewAction
         data class NewEmail(val email: String) : ViewAction
-        data class NewCountry(val country: Country) : ViewAction
+        data class NewCountry(val country: CountryDto) : ViewAction
         data class NewPhone(val phone: String) : ViewAction
     }
 
