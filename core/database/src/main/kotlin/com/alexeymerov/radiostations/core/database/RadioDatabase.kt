@@ -31,15 +31,19 @@ abstract class RadioDatabase : RoomDatabase() {
     companion object {
         private const val DB_NAME = "radio_stations"
 
+        val ALL_MIGRATIONS: Array<Migration>
+            get() = arrayOf(
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6
+            )
+
         fun buildDatabase(context: Context): RadioDatabase {
             return Room.databaseBuilder(context, RadioDatabase::class.java, DB_NAME)
-                .addMigrations(
-                    MIGRATION_1_2,
-                    MIGRATION_2_3,
-                    MIGRATION_3_4,
-                    MIGRATION_4_5,
-                    MIGRATION_5_6
-                ).build()
+                .addMigrations(*ALL_MIGRATIONS)
+                .build()
         }
     }
 }

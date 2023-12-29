@@ -31,7 +31,7 @@ class DatabaseMigrationTest {
                 RadioDatabase::class.java,
                 TEST_DB
             )
-            .addMigrations(*ALL_MIGRATIONS)
+            .addMigrations(*RadioDatabase.ALL_MIGRATIONS)
             .build()
 
         databaseLast.openHelper.writableDatabase.close()
@@ -39,6 +39,6 @@ class DatabaseMigrationTest {
 
     companion object {
         private const val TEST_DB = "migration_test"
-        private val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+
     }
 }
