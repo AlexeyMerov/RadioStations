@@ -215,7 +215,8 @@ private fun LazyListScope.filtersHeader(
 ) {
     item(key = "TopHeader", contentType = "Filters") {
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         ) {
             headerItems.forEach { item ->
                 FilterChip(

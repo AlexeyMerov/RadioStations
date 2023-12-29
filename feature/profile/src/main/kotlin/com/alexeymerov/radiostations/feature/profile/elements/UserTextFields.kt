@@ -95,7 +95,7 @@ internal fun UserTextFields(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.25f))
-            .padding(8.dp),
+            .padding(vertical = 8.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -151,7 +151,7 @@ internal fun UserTextFields(
 
         Text(
             modifier = Modifier
-                .padding(top = 16.dp)
+                .padding(top = 8.dp)
                 .alpha(0.5f),
             text = "Local only"
         )

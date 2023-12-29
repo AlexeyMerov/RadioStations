@@ -14,12 +14,17 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -31,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -40,6 +46,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -154,10 +161,9 @@ private fun MainContent(
     onAction: (ViewAction) -> Unit,
     onCountryCode: () -> Unit,
 ) {
-    var isLoaded by rememberSaveable { mutableStateOf(false) }
+    val config = LocalConfiguration.current
     var needShowBigPicture by rememberSaveable { mutableStateOf(false) }
 
-    val config = LocalConfiguration.current
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter,
@@ -185,41 +191,24 @@ private fun MainContent(
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Column(
-                modifier = Modifier
-                    .run { if (config.isLandscape() && config.isTablet()) padding(end = 78.dp) else this }
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                AvatarImage(
-                    isLoaded = isLoaded,
-                    avatarFile = userData.avatarFile,
-                    onLoadResult = { isLoaded = it },
-                    onClick = { needShowBigPicture = true }
-                )
-
-                AnimatedVisibility(visible = inEdit) {
-                    EditRemoveIcons(
-                        isLoaded = isLoaded,
-                        onDelete = { onAction.invoke(ViewAction.DeleteImage) },
-                        onEdit = onAvatarEdit
-                    )
-                }
-            }
-            Box(Modifier.padding(top = 16.dp)) {
-                UserTextFields(
-                    inEdit = inEdit,
-                    userData = userData,
-                    onAction = { onAction.invoke(it) },
-                    onCountryAction = { onCountryCode.invoke() }
-                )
-            }
+        if (config.isLandscape() && config.isTablet()) {
+            ContentForTabletScreen(
+                userData = userData,
+                inEdit = inEdit,
+                onAction = onAction,
+                onAvatarClick = { needShowBigPicture = true },
+                onAvatarEdit = onAvatarEdit,
+                onCountryCode = onCountryCode
+            )
+        } else {
+            ContentForPhoneScreen(
+                userData = userData,
+                inEdit = inEdit,
+                onAction = onAction,
+                onAvatarClick = { needShowBigPicture = true },
+                onAvatarEdit = onAvatarEdit,
+                onCountryCode = onCountryCode
+            )
         }
 
         AnimatedVisibility(
@@ -242,6 +231,110 @@ private fun MainContent(
             BigPicture(
                 avatarFile = file,
                 onDismiss = { needShowBigPicture = !needShowBigPicture }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ContentForPhoneScreen(
+    userData: UserDto,
+    inEdit: Boolean,
+    onAction: (ViewAction) -> Unit,
+    onAvatarClick: () -> Unit,
+    onAvatarEdit: () -> Unit,
+    onCountryCode: () -> Unit
+) {
+    val config = LocalConfiguration.current
+    var isLoaded by rememberSaveable { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .padding(horizontal = if (config.isLandscape()) 80.dp else 16.dp)
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AvatarImage(
+                isLoaded = isLoaded,
+                avatarFile = userData.avatarFile,
+                onLoadResult = { isLoaded = it },
+                onClick = { onAvatarClick.invoke() }
+            )
+
+            AnimatedVisibility(visible = inEdit) {
+                EditRemoveIcons(
+                    isLoaded = isLoaded,
+                    onDelete = { onAction.invoke(ViewAction.DeleteImage) },
+                    onEdit = onAvatarEdit
+                )
+            }
+        }
+
+        Box(Modifier.padding(vertical = 16.dp)) {
+            UserTextFields(
+                inEdit = inEdit,
+                userData = userData,
+                onAction = { onAction.invoke(it) },
+                onCountryAction = { onCountryCode.invoke() }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ContentForTabletScreen(
+    userData: UserDto,
+    inEdit: Boolean,
+    onAction: (ViewAction) -> Unit,
+    onAvatarClick: () -> Unit,
+    onAvatarEdit: () -> Unit,
+    onCountryCode: () -> Unit
+) {
+    val config = LocalConfiguration.current
+    var isLoaded by rememberSaveable { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .padding(horizontal = if (config.isLandscape()) 80.dp else 16.dp)
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection),
+    ) {
+        Column(
+            modifier = Modifier.wrapContentHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AvatarImage(
+                isLoaded = isLoaded,
+                avatarFile = userData.avatarFile,
+                onLoadResult = { isLoaded = it },
+                onClick = { onAvatarClick.invoke() }
+            )
+
+            AnimatedVisibility(visible = inEdit) {
+                EditRemoveIcons(
+                    isLoaded = isLoaded,
+                    onDelete = { onAction.invoke(ViewAction.DeleteImage) },
+                    onEdit = onAvatarEdit
+                )
+            }
+        }
+
+        Box(Modifier.padding(start = 32.dp)) {
+            UserTextFields(
+                inEdit = inEdit,
+                userData = userData,
+                onAction = { onAction.invoke(it) },
+                onCountryAction = { onCountryCode.invoke() }
             )
         }
     }

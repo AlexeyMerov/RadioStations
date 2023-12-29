@@ -78,7 +78,11 @@ fun TopBar(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarTitle(title: String, subTitle: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    val config = LocalConfiguration.current
+    Column(
+        modifier = Modifier.run { if (config.isLandscape()) padding(start = 80.dp) else this },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         AnimatedContent(
             targetState = title,
             transitionSpec = {
