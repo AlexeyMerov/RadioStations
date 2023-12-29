@@ -83,11 +83,13 @@ fun BaseProfileScreen(
         val countries = viewModel.countryCodes.collectAsLazyPagingItems()
         CountriesBottomSheet(
             countries = countries,
+            onSearch = { viewModel.setAction(ViewAction.SearchCountry(it)) },
             onSelect = {
                 viewModel.setAction(ViewAction.NewCountry(it))
                 showCountriesBottomSheet = false
-            }
-        ) { showCountriesBottomSheet = false }
+            },
+            onDismiss = { showCountriesBottomSheet = false }
+        )
     }
 
     var showChangeAvatarBottomSheet by rememberSaveable { mutableStateOf(false) }

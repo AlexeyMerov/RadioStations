@@ -17,6 +17,13 @@ abstract class CountryDao {
     @Query("SELECT * FROM ${CountryEntity.TABLE_NAME} ORDER BY ${CountryEntity.FIELD_NAME} ASC")
     abstract fun getAll(): PagingSource<Int, CountryEntity>
 
+    @Query(
+        "SELECT * FROM ${CountryEntity.TABLE_NAME} " +
+            "WHERE ${CountryEntity.FIELD_NAME} LIKE '%' || :text || '%' " +
+            "ORDER BY ${CountryEntity.FIELD_NAME} ASC"
+    )
+    abstract fun searchByText(text: String): PagingSource<Int, CountryEntity>
+
     @Query("SELECT COUNT(${CountryEntity.FIELD_TAG}) FROM ${CountryEntity.TABLE_NAME}")
     abstract fun size(): Int
 

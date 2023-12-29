@@ -7,6 +7,8 @@ interface CountryRepository {
 
     fun getCountries(): PagingSource<Int, CountryEntity>
 
+    fun getCountriesByText(searchText: String): PagingSource<Int, CountryEntity>
+
     suspend fun loadCountries()
 
 }

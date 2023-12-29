@@ -22,6 +22,26 @@ class DtoCountryMapperImpl @Inject constructor() : DtoCountryMapper {
         )
     }
 
+    override fun mapToDtoWithSearchHighlights(dto: CountryDto, searchText: String): CountryDto {
+        return dto.copy(
+            englishNameHighliths = findIntRanges(dto.englishName, searchText),
+            nativeNameHighliths = dto.nativeName?.let { findIntRanges(it, searchText) }
+        )
+    }
+
+    private fun findIntRanges(originalText: String, searchText: String): Set<IntRange> {
+        return searchText.lowercase()
+            .toRegex()
+            .findAll(originalText.lowercase())
+            .map {
+                IntRange(
+                    start = it.range.first,
+                    endInclusive = it.range.last + 1
+                )
+            }
+            .toSet()
+    }
+
     private companion object {
         const val FLAG_BASE_URL = "https://flagcdn.com/"
         const val FLAG_EXT = ".svg"

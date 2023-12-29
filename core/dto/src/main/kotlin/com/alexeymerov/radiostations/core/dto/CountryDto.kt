@@ -6,4 +6,7 @@ data class CountryDto(
     val nativeName: String?, // null if english and native are the same
     val phoneCode: Int,
     val flagUrl: String,
-)
+    val englishNameHighliths: Set<IntRange>? = null,
+    val nativeNameHighliths: Set<IntRange>? = null,
+
+    )

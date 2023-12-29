@@ -9,6 +9,7 @@ import com.alexeymerov.radiostations.core.domain.mapper.country.DtoCountryMapper
 import com.alexeymerov.radiostations.core.dto.CountryDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 class CountryUseCaseImpl @Inject constructor(
@@ -16,18 +17,37 @@ class CountryUseCaseImpl @Inject constructor(
     private val dtoCountryMapper: DtoCountryMapper
 ) : CountryUseCase {
 
-    override fun getAllCountries(): Flow<PagingData<CountryDto>> {
-        return Pager(
-            config = PagingConfig(pageSize = 25),
-            pagingSourceFactory = { countryRepository.getCountries() }
-        ).flow.map { pagingData ->
+    override fun getAllCountries(searchText: String): Flow<PagingData<CountryDto>> {
+        val pager = Pager(
+            config = PagingConfig(pageSize = ITEMS_PER_PAGE),
+            pagingSourceFactory = {
+                if (searchText.isEmpty()) {
+                    countryRepository.getCountries()
+                } else {
+                    countryRepository.getCountriesByText(searchText)
+                }
+            }
+        )
+
+        return pager.flow.map { pagingData ->
             pagingData.map { entity ->
-                dtoCountryMapper.mapEntityToDto(entity)
+                var result = dtoCountryMapper.mapEntityToDto(entity)
+
+                if (searchText.isNotEmpty()) {
+                    Timber.d("getAllCountries map Highlights")
+                    result = dtoCountryMapper.mapToDtoWithSearchHighlights(result, searchText)
+                }
+
+                result
             }
         }
     }
 
     override suspend fun loadCountries() {
         countryRepository.loadCountries()
+    }
+
+    private companion object {
+        const val ITEMS_PER_PAGE = 25
     }
 }

@@ -15,6 +15,10 @@ class CountryRepositoryImpl @Inject constructor(
 
     override fun getCountries(): PagingSource<Int, CountryEntity> = countryDao.getAll()
 
+    override fun getCountriesByText(searchText: String): PagingSource<Int, CountryEntity> {
+        return countryDao.searchByText(searchText)
+    }
+
     // it's a static set of data, thus load only if DB empty
     override suspend fun loadCountries() {
         if (countryDao.size() > 0) return

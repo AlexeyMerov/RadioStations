@@ -1,5 +1,10 @@
 package com.alexeymerov.radiostations.feature.profile.elements
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -9,30 +14,42 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.rounded.CheckCircleOutline
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.MailOutline
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -43,12 +60,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
@@ -63,6 +82,7 @@ import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun UserTextFields(
@@ -195,6 +215,7 @@ private fun UserTextField(
 internal fun CountriesBottomSheet(
     countries: LazyPagingItems<CountryDto>,
     onSelect: (CountryDto) -> Unit,
+    onSearch: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -210,14 +231,75 @@ internal fun CountriesBottomSheet(
         )
     }
 
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
-        sheetState = rememberModalBottomSheetState(),
+        sheetState = sheetState,
         onDismissRequest = { onDismiss.invoke() }
     ) {
-        LazyColumn(
+
+        val focusManager = LocalFocusManager.current
+        var searchText by remember { mutableStateOf(String.EMPTY) }
+        val isSearchActive by remember(searchText) { derivedStateOf { searchText.isNotEmpty() } }
+        if (sheetState.hasPartiallyExpandedState && isSearchActive) {
+            LaunchedEffect(searchText, sheetState) {
+                coroutineScope.launch {
+                    sheetState.expand()
+                }
+            }
+        }
+        SearchBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            query = searchText,
+            onQueryChange = {
+                searchText = it
+                onSearch.invoke(it)
+            },
+            placeholder = {
+                AnimatedVisibility(
+                    visible = !isSearchActive,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut(),
+                ) {
+                    Text(text = "Search")
+                }
+            },
+            leadingIcon = {
+                AnimatedVisibility(
+                    visible = !isSearchActive,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut(),
+                ) {
+                    Icon(Icons.Rounded.Search, contentDescription = null)
+                }
+            },
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = isSearchActive && searchText.isNotEmpty(),
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut(),
+                ) {
+                    IconButton(onClick = {
+                        searchText = String.EMPTY
+                        onSearch.invoke(String.EMPTY)
+                    }) {
+                        Icon(Icons.Rounded.Clear, contentDescription = null)
+                    }
+                }
+            },
+            shape = CircleShape,
+            onSearch = { focusManager.clearFocus(true) },
+            active = false, // should be false
+            onActiveChange = {},
+            content = {}
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
         ) {
             // https://developer.android.com/reference/kotlin/androidx/paging/compose/package-summary
             items(
@@ -273,18 +355,38 @@ internal fun CountriesBottomSheet(
                                 modifier = Modifier.padding(start = 16.dp),
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                BasicText(
+                                Text(
                                     modifier = Modifier.basicMarquee(),
-                                    text = country.englishName,
-                                    textStyle = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.W500
+                                    text = buildAnnotatedString {
+                                        append(country.englishName)
+                                        country.englishNameHighliths?.forEach { range ->
+                                            addStyle(
+                                                SpanStyle(color = MaterialTheme.colorScheme.error),
+                                                start = range.first,
+                                                end = range.last
+                                            )
+                                        }
+                                    },
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.W500,
+                                    maxLines = 1
                                 )
 
                                 if (country.nativeName != null) {
-                                    BasicText(
-                                        text = "${country.nativeName}",
-                                        textAlign = TextAlign.Center,
-                                        textStyle = MaterialTheme.typography.bodyMedium,
+                                    Text(
+                                        modifier = Modifier.basicMarquee(),
+                                        text = buildAnnotatedString {
+                                            append(country.nativeName)
+                                            country.nativeNameHighliths?.forEach { range ->
+                                                addStyle(
+                                                    SpanStyle(color = MaterialTheme.colorScheme.error),
+                                                    start = range.first,
+                                                    end = range.last
+                                                )
+                                            }
+                                        },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 1
                                     )
                                 }
                             }

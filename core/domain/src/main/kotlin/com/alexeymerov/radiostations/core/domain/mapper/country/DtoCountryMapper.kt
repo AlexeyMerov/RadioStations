@@ -8,4 +8,6 @@ interface DtoCountryMapper {
     fun mapEntityToDto(list: List<CountryEntity>): List<CountryDto>
 
     fun mapEntityToDto(entity: CountryEntity): CountryDto
+
+    fun mapToDtoWithSearchHighlights(dto: CountryDto, searchText: String): CountryDto
 }

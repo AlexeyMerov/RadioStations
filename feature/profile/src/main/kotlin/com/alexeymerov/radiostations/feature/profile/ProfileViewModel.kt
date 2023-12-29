@@ -5,6 +5,7 @@ import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.country.CountryUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.profile.ProfileUsaCase
 import com.alexeymerov.radiostations.core.dto.CountryDto
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -36,7 +38,10 @@ class ProfileViewModel @Inject constructor(
 
     val tempUri = profileUsaCase.getAvatarTempUri()
 
-    val countryCodes: Flow<PagingData<CountryDto>> = countryUseCase.getAllCountries().cachedIn(viewModelScope)
+    private val searchQuery = MutableStateFlow(String.EMPTY)
+    var countryCodes: Flow<PagingData<CountryDto>> = searchQuery
+        .flatMapLatest { countryUseCase.getAllCountries(it) }
+        .cachedIn(viewModelScope)
 
     private val tempUserData = MutableStateFlow<UserDto?>(null)
 
@@ -77,6 +82,9 @@ class ProfileViewModel @Inject constructor(
                 is ViewAction.NewEmail -> handleNewEmail(action.email)
                 is ViewAction.NewCountry -> handleNewCountry(action.country)
                 is ViewAction.NewPhone -> handleNewPhoneValue(action.phone)
+                is ViewAction.SearchCountry -> {
+                    searchQuery.value = action.searchText
+                }
             }
         }
     }
@@ -93,12 +101,10 @@ class ProfileViewModel @Inject constructor(
         profileUsaCase.deleteAvatar()
     }
 
-    private fun onEnterEditMode() {
-        viewModelScope.launch(ioContext) {
-            countryUseCase.loadCountries()
-            tempUserData.value = userData.value
-            setState(ViewState.InEdit)
-        }
+    private suspend fun onEnterEditMode() {
+        countryUseCase.loadCountries()
+        tempUserData.value = userData.value
+        setState(ViewState.InEdit)
     }
 
     private fun handleNewName(name: String) {
@@ -179,6 +185,8 @@ class ProfileViewModel @Inject constructor(
         data class NewEmail(val email: String) : ViewAction
         data class NewCountry(val country: CountryDto) : ViewAction
         data class NewPhone(val phone: String) : ViewAction
+
+        data class SearchCountry(val searchText: String) : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
