@@ -28,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -90,11 +91,11 @@ fun LanguageSettings(modifier: Modifier) {
                                 color = textColor
                             )
                             BasicText(
+                                modifier = Modifier.alpha(0.5f),
                                 // capitilize is deprecated :|
                                 text = item.getDisplayName(item).replaceFirstChar { it.titlecase(item) },
                                 textAlign = TextAlign.Center,
-                                textStyle = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.typography.labelLarge.color.copy(alpha = 0.5f),
+                                textStyle = MaterialTheme.typography.labelLarge
                             )
                         }
                     }

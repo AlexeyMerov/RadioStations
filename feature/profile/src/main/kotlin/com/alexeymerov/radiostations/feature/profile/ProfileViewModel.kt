@@ -102,7 +102,9 @@ class ProfileViewModel @Inject constructor(
     }
 
     private suspend fun onEnterEditMode() {
-        countryUseCase.loadCountries()
+        viewModelScope.launch(ioContext) {
+            countryUseCase.loadCountries()
+        }
         tempUserData.value = userData.value
         setState(ViewState.InEdit)
     }

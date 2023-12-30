@@ -1,7 +1,7 @@
 [versions]
 
-versionCode = "126"
-versionName = "1.8.8"
+versionCode = "127"
+versionName = "1.8.9"
 
 compileSdk = "34"
 minSdk = "26"
@@ -27,7 +27,7 @@ test = "1.5.0"
 mockk = "1.13.8"
 espresso-core = "3.5.1"
 appcompat = "1.6.1"
-material = "1.10.0"
+material = "1.11.0"
 accompanist = "0.32.0"
 glance = "1.0.0"
 coil = "2.5.0"
@@ -114,8 +114,8 @@ compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" 
 
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeLifecycle" }
 compose-lifecycleRuntime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeLifecycle" }
-compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.1" }
-compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.5" }
+compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.2" }
+compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.6" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
 compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }
 

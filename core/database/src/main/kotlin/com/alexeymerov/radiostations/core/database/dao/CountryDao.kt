@@ -20,6 +20,8 @@ abstract class CountryDao {
     @Query(
         "SELECT * FROM ${CountryEntity.TABLE_NAME} " +
             "WHERE ${CountryEntity.FIELD_NAME} LIKE '%' || :text || '%' " +
+            "OR ${CountryEntity.FIELD_NAME_NATIVE} LIKE '%' || :text || '%' " +
+            "OR ${CountryEntity.FIELD_PHONE_CODE} LIKE '%' || :text || '%' " +
             "ORDER BY ${CountryEntity.FIELD_NAME} ASC"
     )
     abstract fun searchByText(text: String): PagingSource<Int, CountryEntity>

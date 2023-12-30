@@ -17,5 +17,7 @@ data class CountryEntity(
 
         const val FIELD_TAG = "tag"
         const val FIELD_NAME = "nameEnglish"
+        const val FIELD_NAME_NATIVE = "nameNative"
+        const val FIELD_PHONE_CODE = "phoneCode"
     }
 }

@@ -168,29 +168,6 @@ private fun MainContent(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter,
     ) {
-        AnimatedContent(
-            modifier = Modifier.align(Alignment.TopStart),
-            targetState = inEdit,
-            transitionSpec = {
-                (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
-            },
-            label = ""
-        ) {
-            AnimatedVisibility(visible = userData.isEverythingValid) {
-                IconButton(
-                    onClick = {
-                        val action = if (it) ViewAction.SaveEditsAndExitMode else ViewAction.EnterEditMode
-                        onAction.invoke(action)
-                    }
-                ) {
-                    Icon(
-                        imageVector = if (it) Icons.Rounded.Done else Icons.Outlined.Edit,
-                        contentDescription = null
-                    )
-                }
-            }
-        }
-
         if (config.isLandscape() && config.isTablet()) {
             ContentForTabletScreen(
                 userData = userData,
@@ -209,6 +186,29 @@ private fun MainContent(
                 onAvatarEdit = onAvatarEdit,
                 onCountryCode = onCountryCode
             )
+        }
+
+        AnimatedContent(
+            modifier = Modifier.align(Alignment.TopStart),
+            targetState = inEdit,
+            transitionSpec = {
+                (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
+            },
+            label = ""
+        ) { isEditMode ->
+            AnimatedVisibility(visible = userData.isEverythingValid) {
+                IconButton(
+                    onClick = {
+                        val action = if (isEditMode) ViewAction.SaveEditsAndExitMode else ViewAction.EnterEditMode
+                        onAction.invoke(action)
+                    }
+                ) {
+                    Icon(
+                        imageVector = if (isEditMode) Icons.Rounded.Done else Icons.Outlined.Edit,
+                        contentDescription = null
+                    )
+                }
+            }
         }
 
         AnimatedVisibility(

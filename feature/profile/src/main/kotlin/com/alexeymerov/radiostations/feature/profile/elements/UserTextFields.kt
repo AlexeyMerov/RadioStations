@@ -43,8 +43,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -178,7 +176,7 @@ private fun UserTextField(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp),
+                .padding(start = 16.dp, top = 4.dp),
             value = TextFieldValue(
                 text = data.text,
                 selection = TextRange(data.text.length)
@@ -218,7 +216,10 @@ internal fun CountriesBottomSheet(
     onSearch: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+
     val svgFactory = remember { SvgDecoder.Factory() }
     val surfaceColorAtElevation = MaterialTheme.colorScheme.surfaceColorAtElevation(BottomSheetDefaults.Elevation)
     val flagGradientColors = remember {
@@ -231,23 +232,14 @@ internal fun CountriesBottomSheet(
         )
     }
 
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = { onDismiss.invoke() }
     ) {
-
-        val focusManager = LocalFocusManager.current
         var searchText by remember { mutableStateOf(String.EMPTY) }
-        val isSearchActive by remember(searchText) { derivedStateOf { searchText.isNotEmpty() } }
-        if (sheetState.hasPartiallyExpandedState && isSearchActive) {
-            LaunchedEffect(searchText, sheetState) {
-                coroutineScope.launch {
-                    sheetState.expand()
-                }
-            }
-        }
+        var isSearchActive by remember { mutableStateOf(false) }
+
         SearchBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -292,14 +284,21 @@ internal fun CountriesBottomSheet(
             shape = CircleShape,
             onSearch = { focusManager.clearFocus(true) },
             active = false, // should be false
-            onActiveChange = {},
+            onActiveChange = {
+                isSearchActive = it
+                if (it) {
+                    coroutineScope.launch {
+                        sheetState.expand()
+                    }
+                }
+            },
             content = {}
         )
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                .padding(top = 8.dp),
         ) {
             // https://developer.android.com/reference/kotlin/androidx/paging/compose/package-summary
             items(
@@ -312,7 +311,8 @@ internal fun CountriesBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(64.dp)
-                            .clickable { onSelect.invoke(country) },
+                            .clickable { onSelect.invoke(country) }
+                            .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
@@ -325,7 +325,7 @@ internal fun CountriesBottomSheet(
                             AsyncImage(
                                 modifier = Modifier
                                     .width(64.dp)
-                                    .alpha(0.5f)
+                                    .alpha(0.75f)
                                     .fillMaxHeight()
                                     .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
                                     .drawWithContent {
