@@ -12,6 +12,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,8 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -152,6 +155,7 @@ fun BaseProfileScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     inEdit: Boolean,
@@ -162,10 +166,19 @@ private fun MainContent(
     onCountryCode: () -> Unit,
 ) {
     val config = LocalConfiguration.current
+    val focusManager = LocalFocusManager.current
     var needShowBigPicture by rememberSaveable { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection)
+            .verticalScroll(rememberScrollState())
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { focusManager.clearFocus() }
+                )
+            },
         contentAlignment = Alignment.TopCenter,
     ) {
         if (config.isLandscape() && config.isTablet()) {
@@ -236,7 +249,6 @@ private fun MainContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ContentForPhoneScreen(
     userData: UserDto,
@@ -252,9 +264,7 @@ private fun ContentForPhoneScreen(
     Column(
         modifier = Modifier
             .padding(horizontal = if (config.isLandscape()) 80.dp else 16.dp)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -289,7 +299,6 @@ private fun ContentForPhoneScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ContentForTabletScreen(
     userData: UserDto,
@@ -305,9 +314,7 @@ private fun ContentForTabletScreen(
     Row(
         modifier = Modifier
             .padding(horizontal = if (config.isLandscape()) 80.dp else 16.dp)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection),
+            .fillMaxSize(),
     ) {
         Column(
             modifier = Modifier.wrapContentHeight(),

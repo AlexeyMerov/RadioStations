@@ -114,6 +114,21 @@ fun MainNavGraph(
             )
             val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
 
+            /**
+             * Ok. This one is wierd. Can't find is it me or some bug.
+             * I hope it's a temp workaround.
+             * Problem: On low sdk. 26 at least. It will automatically change state yo PartiallyExpanded after Hidden
+             * Even though "initialValue = SheetValue.Hidden".
+             * confirmValueChange also not triggering for some reason.
+             * */
+            LaunchedEffect(sheetState.targetValue) {
+                if (sheetState.targetValue == SheetValue.PartiallyExpanded
+                    && (currentMedia == null || playerState == PlayerState.EMPTY)
+                ) {
+                    sheetState.hide()
+                }
+            }
+
             val railBarSize = if (config.isLandscape()) {
                 80.dp.toPx()
             } else {

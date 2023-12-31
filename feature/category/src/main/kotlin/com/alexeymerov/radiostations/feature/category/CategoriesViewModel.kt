@@ -165,7 +165,7 @@ class CategoriesViewModel @Inject constructor(
                     if (viewState.value != ViewState.Loading) {
                         setState(ViewState.NothingAvailable)
                     } else {
-                        setState(ViewState.NothingAvailable, delay = 3000)
+                        setState(ViewState.NothingAvailable, delay = 7000)
                     }
                 }
 
