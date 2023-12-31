@@ -1,7 +1,7 @@
 [versions]
 
-versionCode = "126"
-versionName = "1.8.8"
+versionCode = "127"
+versionName = "1.8.9"
 
 compileSdk = "34"
 minSdk = "26"
@@ -27,9 +27,11 @@ test = "1.5.0"
 mockk = "1.13.8"
 espresso-core = "3.5.1"
 appcompat = "1.6.1"
-material = "1.10.0"
+material = "1.11.0"
 accompanist = "0.32.0"
 glance = "1.0.0"
+coil = "2.5.0"
+paging = "3.2.1"
 
 fierbaseCrashlyticsPlugin = "2.9.9"
 fierbasePerfPlugin = "1.4.2"
@@ -70,6 +72,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.6.1
 work-runtime = { module = "androidx.work:work-runtime-ktx", version = "2.9.0" }
 dataStore-base = { module = "androidx.datastore:datastore-preferences", version = "1.0.0" }
 kotlin-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version = "1.7.3" }
+paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
+paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
@@ -79,6 +83,7 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
 
 retrofit-base = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
@@ -109,8 +114,8 @@ compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" 
 
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeLifecycle" }
 compose-lifecycleRuntime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeLifecycle" }
-compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.1" }
-compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.5" }
+compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.2" }
+compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.6" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
 compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }
 
@@ -120,7 +125,9 @@ glance-material3 = { module = "androidx.glance:glance-material3", version.ref = 
 accompanist-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
-coil-compose = { module = "io.coil-kt:coil-compose", version = "2.5.0" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil" }
+
 lottie = { module = "com.airbnb.android:lottie-compose", version = "6.1.0" }
 splashScreen = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
 revealSwipe = { module = "de.charlex.compose:revealswipe", version = "1.2.0" }

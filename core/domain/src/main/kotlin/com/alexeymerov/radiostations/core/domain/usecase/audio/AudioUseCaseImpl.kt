@@ -4,7 +4,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepository
 import com.alexeymerov.radiostations.core.database.entity.MediaEntity
 import com.alexeymerov.radiostations.core.datastore.SettingsStore
-import com.alexeymerov.radiostations.core.domain.mapper.DtoCategoriesMapper
+import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapper
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.dto.CategoryDto

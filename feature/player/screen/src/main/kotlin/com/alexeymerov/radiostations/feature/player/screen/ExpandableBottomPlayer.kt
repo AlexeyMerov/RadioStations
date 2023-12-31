@@ -57,6 +57,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 
 @Composable
@@ -239,6 +240,7 @@ private fun PlayButton(modifier: Modifier, onColor: Color, isPlaying: Boolean, o
         )
     )
 
+    val isNetworkAvailable = LocalConnectionStatus.current
     LottieAnimation(
         modifier = modifier
             .fillMaxSize()
@@ -249,7 +251,11 @@ private fun PlayButton(modifier: Modifier, onColor: Color, isPlaying: Boolean, o
                     bounded = false,
                     radius = 20.dp
                 ),
-                onClick = { onTogglePlay.invoke() }
+                onClick = {
+                    if (isNetworkAvailable) {
+                        onTogglePlay.invoke()
+                    }
+                }
             ),
         composition = composition,
         dynamicProperties = dynamicProperties,

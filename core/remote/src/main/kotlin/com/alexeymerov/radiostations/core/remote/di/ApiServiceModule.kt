@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.core.remote.di
 
 
+import com.alexeymerov.radiostations.core.remote.api.CountryApi
 import com.alexeymerov.radiostations.core.remote.api.RadioApi
 import dagger.Module
 import dagger.Provides
@@ -15,7 +16,10 @@ class ApiServiceModule {
 
     @Provides
     @Singleton
-    fun provideRadioApi(retrofit: Retrofit): RadioApi = retrofit.create(RadioApi::class.java)
+    fun provideRadioApi(@Backend(Server.Radio) retrofit: Retrofit): RadioApi = retrofit.create(RadioApi::class.java)
 
+    @Provides
+    @Singleton
+    fun provideCountryApi(@Backend(Server.Countries) retrofit: Retrofit): CountryApi = retrofit.create(CountryApi::class.java)
 
 }

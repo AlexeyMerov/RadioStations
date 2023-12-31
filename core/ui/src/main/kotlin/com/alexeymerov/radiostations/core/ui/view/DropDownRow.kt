@@ -35,7 +35,8 @@ fun DropDownRow(@DrawableRes iconId: Int, @StringRes stringId: Int, action: () -
         Text(
             modifier = Modifier.padding(start = 8.dp),
             text = stringResource(stringId),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal)
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Normal
         )
     }
 }

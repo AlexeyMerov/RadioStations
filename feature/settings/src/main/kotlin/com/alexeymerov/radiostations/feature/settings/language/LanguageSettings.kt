@@ -19,6 +19,7 @@ import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -53,7 +55,10 @@ fun LanguageSettings(modifier: Modifier) {
     }
 
     if (showBottomSheet) {
-        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+        ModalBottomSheet(
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            onDismissRequest = { showBottomSheet = false }
+        ) {
             LazyColumn {
                 itemsIndexed(
                     items = localeOptions,
@@ -86,11 +91,11 @@ fun LanguageSettings(modifier: Modifier) {
                                 color = textColor
                             )
                             BasicText(
+                                modifier = Modifier.alpha(0.5f),
                                 // capitilize is deprecated :|
                                 text = item.getDisplayName(item).replaceFirstChar { it.titlecase(item) },
                                 textAlign = TextAlign.Center,
-                                textStyle = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.typography.labelLarge.color.copy(alpha = 0.5f),
+                                textStyle = MaterialTheme.typography.labelLarge
                             )
                         }
                     }

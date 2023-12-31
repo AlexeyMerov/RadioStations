@@ -9,3 +9,5 @@ val LocalSnackbar = compositionLocalOf<SnackbarHostState> { error("SnackbarHostS
 
 @OptIn(ExperimentalMaterial3Api::class)
 val LocalTopBarScroll = compositionLocalOf<TopAppBarScrollBehavior> { error("NestedScrollConnection not found") }
+
+val LocalConnectionStatus = compositionLocalOf<Boolean> { error("ConnectionStatus not found") }

@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
@@ -102,19 +103,22 @@ fun BaseFavoriteScreen(
         }
     }
 
+    val isNetworkAvailable = LocalConnectionStatus.current
     FavoriteScreen(
         viewState = viewState,
         categoryItems = categoryItems,
         onAudioClick = {
-            val route = Screens.Player(parentRoute).createRoute(
-                stationName = it.text,
-                locationName = it.subText.orEmpty(),
-                stationImgUrl = it.image.orEmpty(),
-                rawUrl = it.url,
-                id = it.id,
-                isFav = it.isFavorite
-            )
-            onNavigate.invoke(route)
+            if (isNetworkAvailable) {
+                val route = Screens.Player(parentRoute).createRoute(
+                    stationName = it.text,
+                    locationName = it.subText.orEmpty(),
+                    stationImgUrl = it.image.orEmpty(),
+                    rawUrl = it.url,
+                    id = it.id,
+                    isFav = it.isFavorite
+                )
+                onNavigate.invoke(route)
+            }
         },
         inSelection = selectedItemsCount > 0,
         onFavClick = { viewModel.setAction(ViewAction.Unfavorite(it)) },

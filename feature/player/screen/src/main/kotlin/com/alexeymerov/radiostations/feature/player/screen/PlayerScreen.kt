@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -267,7 +268,7 @@ internal fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
     }
 
     AsyncImage(
-        modifier = modifier.background(MaterialTheme.colorScheme.background),
+        modifier = modifier.background(Color.White),
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageUrl)
             .crossfade(500)

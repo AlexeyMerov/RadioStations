@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,12 +72,13 @@ fun StationListItem(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val imageModifier = Modifier
+                .fillMaxHeight()
+                .aspectRatio(1f)
             FlipBox(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(1f),
+                modifier = imageModifier,
                 isFlipped = isSelected,
-                frontSide = { StationImage(itemDto) },
+                frontSide = { StationImage(imageModifier, itemDto) },
                 backSide = { SelectedIcon() }
             )
 
@@ -100,7 +102,7 @@ fun StationListItem(
 }
 
 @Composable
-private fun StationImage(itemDto: CategoryItemDto) {
+private fun StationImage(modifier: Modifier, itemDto: CategoryItemDto) {
     val placeholder = rememberTextPainter(
         containerColor = MaterialTheme.colorScheme.background,
         textStyle = MaterialTheme.typography.titleMedium.copy(
@@ -109,15 +111,12 @@ private fun StationImage(itemDto: CategoryItemDto) {
         text = itemDto.initials
     )
     AsyncImage(
-        modifier = Modifier
-            .aspectRatio(1f)
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        modifier = modifier.background(Color.White),
         model = ImageRequest.Builder(LocalContext.current)
             .data(itemDto.image)
             .crossfade(500)
             .build(),
-        contentScale = ContentScale.FillBounds,
+        contentScale = ContentScale.Crop,
         contentDescription = null,
         error = placeholder,
         placeholder = placeholder

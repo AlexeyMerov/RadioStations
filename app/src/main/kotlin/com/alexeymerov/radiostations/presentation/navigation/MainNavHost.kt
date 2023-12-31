@@ -55,6 +55,7 @@ import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
+import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
@@ -78,6 +79,7 @@ fun MainNavGraph(
     goToRoute: String? = null,
     playerState: PlayerState,
     currentMedia: AudioItemDto?,
+    isNetworkAvailable: Boolean,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
     val navController = rememberNavController()
@@ -94,10 +96,13 @@ fun MainNavGraph(
         scrollBehavior.state.heightOffset = 0f
     }
 
+    Timber.d("isNetworkAvailable ${isNetworkAvailable}")
+
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
-        LocalTopBarScroll provides scrollBehavior
+        LocalTopBarScroll provides scrollBehavior,
+        LocalConnectionStatus provides isNetworkAvailable
     ) {
         Surface {
             val peekHightDp = 46.dp
@@ -108,6 +113,21 @@ fun MainNavGraph(
                 initialValue = SheetValue.Hidden
             )
             val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
+
+            /**
+             * Ok. This one is wierd. Can't find is it me or some bug.
+             * I hope it's a temp workaround.
+             * Problem: On low sdk. 26 at least. It will automatically change state yo PartiallyExpanded after Hidden
+             * Even though "initialValue = SheetValue.Hidden".
+             * confirmValueChange also not triggering for some reason.
+             * */
+            LaunchedEffect(sheetState.targetValue) {
+                if (sheetState.targetValue == SheetValue.PartiallyExpanded
+                    && (currentMedia == null || playerState == PlayerState.EMPTY)
+                ) {
+                    sheetState.hide()
+                }
+            }
 
             val railBarSize = if (config.isLandscape()) {
                 80.dp.toPx()

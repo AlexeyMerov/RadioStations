@@ -11,9 +11,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 
 
-abstract class BaseClient<T>(val apiService: T)
-
 object NetworkDefaults {
+    const val COUNTRIES_URL = "https://restcountries.com/v3.1/"
 
     const val QUERY_RENDER_NAME = "render"
     const val QUERY_RENDER_JSON_PARAMETER = "json"

@@ -21,11 +21,11 @@ class ConnectivitySettingsUseCaseImpl @Inject constructor(
         return getConnectionStatusFlow().first()
     }
 
-    override suspend fun isOnline(): Boolean {
+    override suspend fun allowConnections(): Boolean {
         return getConnectionStatus() == ConnectionStatus.ONLINE
     }
 
-    override suspend fun setConnectionStatus(status: ConnectionStatus) {
+    override suspend fun forceConnectionStatus(status: ConnectionStatus) {
         settingsStore.setIntPrefs(CONNECTION_KEY, status.value)
     }
 

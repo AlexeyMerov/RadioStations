@@ -38,4 +38,10 @@
     <string name="user">Користувач</string>
     <string name="dev">Розробник</string>
     <string name="language">Мова</string>
+    <string name="cannot_be_empty">Не може бути порожнім</string>
+    <string name="too_short">Занадто короткий</string>
+    <string name="incorrect">Невірно</string>
+    <string name="name">Ім\'я</string>
+    <string name="email">Електронна пошта</string>
+    <string name="phone">Телефон</string>
 </resources>

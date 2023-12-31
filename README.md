@@ -47,16 +47,21 @@
 - Retrofit + Moshi
 - Jetpack Compose + Navigation
 - Hilt
-- Room
+- Room + Paging (locally)
 - Coil
 - Lottie
 - ExoPlayer
 - JUnit4 + MockK
 
+### Providers:
+
+- Stations: https://opml.radiotime.com/
+- Countries: https://restcountries.com/
+- Flag images: https://flagpedia.net/ or https://flagcdn.com/
+
 ### Bottlenecks:
 
-- Server.
-- Response type, the whole 'logic' and everything... not the best.
-- The problem is that it requires some core workarounds, which impact the whole app.
-- I left only one Entity type and made it all-on-one/dumb.
-- The whole 'position' thing for saving in DB is wierd. There is a predefined sort from server but no response param for that.
+- Server not the best. Requires some core workarounds, which impact the whole app.
+- As an example:
+    - single, all-on-one _CategoryEntity_ for categoies and everything. Ideally should be separate.
+    - _position_ field for saving in DB. There is a predefined sort from server but no query/response param for that.

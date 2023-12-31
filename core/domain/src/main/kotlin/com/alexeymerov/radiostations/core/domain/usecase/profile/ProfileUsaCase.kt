@@ -1,9 +1,15 @@
 package com.alexeymerov.radiostations.core.domain.usecase.profile
 
 import android.net.Uri
+import com.alexeymerov.radiostations.core.dto.UserDto
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 interface ProfileUsaCase {
+
+    suspend fun saveUserData(userDto: UserDto)
+
+    fun getUserData(): Flow<UserDto>
 
     suspend fun getAvatar(): File?
 
@@ -11,5 +17,5 @@ interface ProfileUsaCase {
 
     suspend fun deleteAvatar()
 
-    fun getTempUri(): Uri
+    fun getAvatarTempUri(): Uri
 }

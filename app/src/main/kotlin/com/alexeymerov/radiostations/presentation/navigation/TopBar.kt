@@ -8,6 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -35,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -46,6 +49,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
@@ -56,7 +60,7 @@ import com.alexeymerov.radiostations.core.ui.view.DropDownRow
 fun TopBar(
     navController: NavHostController,
     barState: TopBarState,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
@@ -74,7 +78,11 @@ fun TopBar(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarTitle(title: String, subTitle: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    val config = LocalConfiguration.current
+    Column(
+        modifier = Modifier.run { if (config.isLandscape()) padding(start = 80.dp) else this },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         AnimatedContent(
             targetState = title,
             transitionSpec = {
@@ -93,7 +101,30 @@ private fun TopBarTitle(title: String, subTitle: String) {
                 overflow = TextOverflow.Ellipsis
             )
         }
-        if (subTitle.isNotEmpty()) {
+        val isNetworkAvailable = LocalConnectionStatus.current
+
+        AnimatedVisibility(
+            visible = !isNetworkAvailable,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut(),
+            label = String.EMPTY
+        ) {
+            Row(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.error),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
+                    text = "Offline",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onError
+                )
+            }
+        }
+
+        if (subTitle.isNotEmpty() && isNetworkAvailable) {
             AnimatedContent(
                 targetState = subTitle,
                 transitionSpec = {
@@ -102,6 +133,7 @@ private fun TopBarTitle(title: String, subTitle: String) {
                 label = String.EMPTY
             ) { targetText ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
+
                     Icon(
                         modifier = Modifier
                             .alpha(0.7f)

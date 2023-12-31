@@ -18,5 +18,4 @@ interface RadioApi {
     @GET
     suspend fun getAudioByUrl(@Url fullUrl: String): Response<MainBody<MediaBody>>
 
-
 }
