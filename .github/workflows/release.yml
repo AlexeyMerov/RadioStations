@@ -43,13 +43,13 @@ jobs:
 
       - name: Extract versionName
         id: extract_version
-        run: echo ::set-output name=version::$(awk -F' = ' '/versionName/ {gsub(/"/, "", $2); print $2}' libs.versions.toml)
+        run: echo "VERSION_NAME=$(awk -F' = ' '/versionName/ {gsub(/"/, "", $2); print $2}' libs.versions.toml)" >> $GITHUB_STATE
 
       - name: Create release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           files: app/release/app-release.apk
-          title: ${{ steps.extract_version.outputs.version }}
-          tag_name: v${{ steps.extract_version.outputs.version }}
+          name: ${{ env.VERSION_NAME }}
+          tag_name: v${{ env.VERSION_NAME }}
           body: "For demonstration"
