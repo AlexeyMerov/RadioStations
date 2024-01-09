@@ -1,8 +1,6 @@
 package com.alexeymerov.radiostations.feature.settings
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,14 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,6 +42,7 @@ import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewStat
 import com.alexeymerov.radiostations.feature.settings.connectivity.ConnectivitySettings
 import com.alexeymerov.radiostations.feature.settings.language.LanguageSettings
 import com.alexeymerov.radiostations.feature.settings.theme.ThemeSettings
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -55,7 +56,10 @@ fun BaseSettingsScreen(
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val onViewAction: (ViewAction) -> Unit = { viewModel.setAction(it) }
 
-    SettingsScreen(viewState, onViewAction)
+    SettingsScreen(
+        viewState = viewState,
+        onAction = onViewAction
+    )
 }
 
 @Composable
@@ -75,12 +79,24 @@ private fun SettingsScreen(
     when (viewState) {
         ViewState.Loading -> LoaderView()
         is ViewState.Loaded -> {
-            if (config.isTablet()) MainContentTablet(viewState.themeState, viewState.connectionStatus, onAction)
-            else MainContent(viewState.themeState, viewState.connectionStatus, onAction)
+            if (config.isTablet()) {
+                MainContentTablet(
+                    themeState = viewState.themeState,
+                    connectionStatus = viewState.connectionStatus,
+                    onAction = onAction
+                )
+            } else {
+                MainContent(
+                    themeState = viewState.themeState,
+                    connectionStatus = viewState.connectionStatus,
+                    onAction = onAction
+                )
+            }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     themeState: ThemeState,
@@ -88,77 +104,49 @@ private fun MainContent(
     onAction: (ViewAction) -> Unit
 ) {
     val config = LocalConfiguration.current
-    var modifier = Modifier.fillMaxSize()
-    modifier = if (config.isTablet()) {
-        modifier.padding(
-            vertical = 16.dp,
-            horizontal = if (config.isPortrait()) 160.dp else 320.dp
-        )
-    } else {
-        modifier.padding(16.dp)
+    val coroutineScope = rememberCoroutineScope()
+
+    var currentTab by rememberSaveable { mutableStateOf(SettingTab.USER) }
+    val pagerState = rememberPagerState { SettingTab.entries.size }
+
+    LaunchedEffect(pagerState.currentPage) {
+        currentTab = SettingTab.entries[pagerState.currentPage]
     }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var currentTab by rememberSaveable { mutableStateOf(SettingTab.USER) }
+
         SettingsTabRow(
             currentTab = currentTab,
-            onTabClick = { currentTab = it }
+            onTabClick = {
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(it.index)
+                }
+            }
         )
 
-        AnimatedContent(
-            targetState = currentTab,
-            label = "",
-            transitionSpec = {
-                val start = AnimatedContentTransitionScope.SlideDirection.Start
-                val end = AnimatedContentTransitionScope.SlideDirection.End
-                val direction = if (targetState.index > initialState.index) start else end
-
-                slideIntoContainer(direction)
-                    .togetherWith(slideOutOfContainer(direction))
-            }
-        ) { tab ->
-            Column(modifier) {
-                when (tab) {
-                    SettingTab.USER -> UserSettings(themeState, onAction)
-                    SettingTab.DEV -> DevSettings(connectionStatus, onAction)
+        HorizontalPager(state = pagerState) { pageIndex ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        vertical = 16.dp,
+                        horizontal = when {
+                            config.isTablet() && config.isPortrait() -> 160.dp
+                            config.isTablet() -> 320.dp
+                            else -> 16.dp
+                        }
+                    )
+            ) {
+                when (pageIndex) {
+                    SettingTab.USER.index -> UserSettings(themeState, onAction)
+                    SettingTab.DEV.index -> DevSettings(connectionStatus, onAction)
                 }
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun UserSettings(
-    themeState: ThemeState,
-    onAction: (ViewAction) -> Unit
-) {
-    ThemeSettings(
-        modifier = Modifier.fillMaxWidth(),
-        themeState = themeState,
-        onAction = onAction
-    )
-
-    LanguageSettings(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp)
-    )
-}
-
-@Composable
-private fun DevSettings(
-    connectionStatus: ConnectionStatus,
-    onAction: (ViewAction) -> Unit
-) {
-    ConnectivitySettings(
-        modifier = Modifier.fillMaxWidth(),
-        connectionStatus = connectionStatus,
-        onAction = onAction
-    )
 }
 
 @Composable
@@ -236,4 +224,34 @@ private fun MainContentTablet(
             )
         }
     }
+}
+
+@Composable
+private fun UserSettings(
+    themeState: ThemeState,
+    onAction: (ViewAction) -> Unit
+) {
+    ThemeSettings(
+        modifier = Modifier.fillMaxWidth(),
+        themeState = themeState,
+        onAction = onAction
+    )
+
+    LanguageSettings(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    )
+}
+
+@Composable
+private fun DevSettings(
+    connectionStatus: ConnectionStatus,
+    onAction: (ViewAction) -> Unit
+) {
+    ConnectivitySettings(
+        modifier = Modifier.fillMaxWidth(),
+        connectionStatus = connectionStatus,
+        onAction = onAction
+    )
 }

@@ -231,28 +231,19 @@ fun MainNavGraph(
                                     .fillMaxSize()
                                     .background(MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation))
                             ) {
-                                if (config.isLandscape()) {
-                                    Row(Modifier.fillMaxSize()) {
+                                Row(Modifier.fillMaxSize()) {
+                                    if (config.isLandscape()) {
                                         CreateNavigationRail(
                                             modifier = Modifier.graphicsLayer { translationX = animData.railBarOffsetX },
                                             navController = navController
                                         )
-                                        CreateNavHost(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .graphicsScale(animData.scaleContent),
-                                            goToRoute = goToRoute,
-                                            starDest = starDest,
-                                            topBarBlock = topBarBlock,
-                                        )
                                     }
-                                } else {
                                     CreateNavHost(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .graphicsScale(animData.scaleContent),
-                                        starDest = starDest,
                                         goToRoute = goToRoute,
+                                        starDest = starDest,
                                         topBarBlock = topBarBlock,
                                     )
                                 }

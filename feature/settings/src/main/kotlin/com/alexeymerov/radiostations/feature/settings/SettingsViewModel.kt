@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,6 +51,7 @@ class SettingsViewModel @Inject constructor(
     override fun createInitialState(): ViewState = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
+        Timber.d("SettingsViewModel handleAction ${action.javaClass.simpleName}")
         viewModelScope.launch(ioContext) {
             when (action) {
                 is ViewAction.ChangeDarkMode -> changeChangeDarkMode(action.value)
