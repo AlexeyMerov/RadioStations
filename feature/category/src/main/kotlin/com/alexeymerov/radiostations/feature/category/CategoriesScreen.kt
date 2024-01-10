@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -130,7 +131,7 @@ private fun TopBarSetup(
 @Composable
 private fun CategoryScreen(
     viewState: ViewState,
-    categoryItems: Map<CategoryItemDto?, List<CategoryItemDto>>,
+    categoryItems: List<HeaderWithItems>,
     parentRoute: String,
     onNavigate: (String) -> Unit,
     onAction: (ViewAction) -> Unit
@@ -142,7 +143,7 @@ private fun CategoryScreen(
         is ViewState.CategoriesLoaded -> {
             MainContent(
                 categoryItems = categoryItems,
-                headerItems = viewState.headerItems,
+                filterHeaderItems = viewState.filterHeaderItems,
                 onHeaderFilterClick = { onAction.invoke(ViewAction.FilterByHeader(it)) },
                 onCategoryClick = {
                     onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
@@ -166,11 +167,11 @@ private fun CategoryScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    categoryItems: Map<CategoryItemDto?, List<CategoryItemDto>>,
-    headerItems: List<CategoryItemDto>,
+    categoryItems: List<HeaderWithItems>,
+    filterHeaderItems: List<CategoryItemDto>,
     onHeaderFilterClick: (CategoryItemDto) -> Unit,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit,
@@ -195,10 +196,21 @@ private fun MainContent(
         state = listState,
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp)
     ) {
-        if (headerItems.isNotEmpty()) filtersHeader(headerItems, onHeaderFilterClick)
+        if (filterHeaderItems.isNotEmpty()) filtersHeader(filterHeaderItems, onHeaderFilterClick)
 
-        categoryItems.forEach { (header, items) ->
-            if (header != null) stickyHeader(header, coroutineScope, listState)
+        categoryItems.forEachIndexed { index, (header, items) ->
+            if (header != null) {
+                stickyHeader(header, coroutineScope, listState)
+            } else if (index > 0) {
+                // needs to unstick previous header
+                stickyHeader(
+                    key = index,
+                    contentType = "emptyHeader"
+                ) {
+                    Spacer(Modifier)
+                }
+            }
+
             if (columnCount > 1) {
                 mainGridItems(header, columnCount, items, onCategoryClick, onAudioClick, onFavClick)
             } else {
@@ -237,7 +249,7 @@ private fun LazyListScope.stickyHeader(
 ) {
     stickyHeader(
         key = header.id,
-        contentType = header.id + "_header"
+        contentType = "header"
     ) {
         HeaderListItem(
             modifier = Modifier
@@ -386,5 +398,5 @@ private fun MainContentPreview() {
         CategoryItemDto("url#4", "", text = "Tiny", type = DtoItemType.HEADER, initials = "G"),
         CategoryItemDto("url#5", "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, initials = "G"),
     )
-    MainContent(mapOf(null to categoryItems), headers, {}, {}, {}, {})
+    MainContent(listOf(HeaderWithItems(items = categoryItems)), headers, {}, {}, {}, {})
 }
