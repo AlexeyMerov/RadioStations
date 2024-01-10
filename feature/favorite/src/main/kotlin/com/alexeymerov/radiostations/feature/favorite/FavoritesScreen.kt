@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
@@ -20,7 +21,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,7 +31,6 @@ import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
-import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
@@ -231,11 +230,11 @@ private fun MainContent(
         if (config.isLandscape()) count += 1
         return@remember count
     }
-
+    val gridState = rememberLazyGridState()
     LazyVerticalGrid(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection),
+        modifier = Modifier.fillMaxSize(),
+        state = gridState,
+        userScrollEnabled = gridState.canScrollBackward || gridState.canScrollForward,
         columns = GridCells.Fixed(columnCount),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)

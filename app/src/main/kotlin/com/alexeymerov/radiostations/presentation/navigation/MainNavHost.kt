@@ -25,7 +25,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -42,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -57,7 +57,6 @@ import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.Play
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
-import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
@@ -90,7 +89,7 @@ fun MainNavGraph(
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     navController.addOnDestinationChangedListener { _, _, _ ->
         scrollBehavior.state.heightOffset = 0f
@@ -101,7 +100,6 @@ fun MainNavGraph(
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
-        LocalTopBarScroll provides scrollBehavior,
         LocalConnectionStatus provides isNetworkAvailable
     ) {
         Surface {
@@ -171,6 +169,7 @@ fun MainNavGraph(
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
                     .run { if (config.isLandscape()) displayCutoutPadding() else this },
                 bottomBar = {
                     if (config.isPortrait()) {
