@@ -6,3 +6,5 @@ import androidx.compose.runtime.compositionLocalOf
 val LocalSnackbar = compositionLocalOf<SnackbarHostState> { error("SnackbarHostState not found") }
 
 val LocalConnectionStatus = compositionLocalOf<Boolean> { error("ConnectionStatus not found") }
+
+val LocalPlayerVisibility = compositionLocalOf<Boolean> { error("PlayerVisibility not found") }

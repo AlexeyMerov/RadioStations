@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -48,6 +49,7 @@ class CategoriesViewModel @Inject constructor(
 
     internal val categoriesFlow = categoryUseCase
         .getAllByUrl(categoryUrl)
+        .debounce(1000)
         .catch { handleError(it) }
         .onEach(::prepareHeaders)
         .combine(headerFlow, ::filterCategories)
@@ -68,7 +70,7 @@ class CategoriesViewModel @Inject constructor(
         super.setAction(action)
     }
 
-    override fun createInitialState() = ViewState.Loading
+    override fun createInitialState() = ViewState.CategoriesLoaded(emptyList())
 
     override fun handleAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
@@ -129,6 +131,9 @@ class CategoriesViewModel @Inject constructor(
 
     private fun loadCategories(categoryUrl: String) {
         viewModelScope.launch(ioContext) {
+            if (categoriesFlow.value.isEmpty()) {
+                setState(ViewState.Loading)
+            }
             categoryUseCase.loadCategoriesByUrl(categoryUrl)
         }
     }

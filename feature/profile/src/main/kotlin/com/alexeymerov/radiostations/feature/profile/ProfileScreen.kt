@@ -176,7 +176,7 @@ private fun MainContent(
             },
         contentAlignment = Alignment.TopCenter,
     ) {
-        if (config.isLandscape() && config.isTablet()) {
+        if (config.isTablet()) {
             ContentForTabletScreen(
                 userData = userData,
                 inEdit = inEdit,

@@ -2,6 +2,7 @@ package com.alexeymerov.radiostations.feature.category
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -52,9 +53,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
+import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
@@ -199,8 +202,6 @@ private fun MainContent(
         return@remember count
     }
 
-//    var enableScroll by remember { mutableStateOf(false) }
-
     Box {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -238,10 +239,14 @@ private fun MainContent(
             }
         }
 
+        val bottomPadding by animateDpAsState(targetValue = if (LocalPlayerVisibility.current) 64.dp else 16.dp, label = String.EMPTY)
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 64.dp, end = 16.dp),
+                .padding(
+                    bottom = bottomPadding,
+                    end = 16.dp
+                ),
             visible = listState.canScrollBackward,
             enter = fadeIn() + scaleIn(),
             exit = fadeOut() + scaleOut(),

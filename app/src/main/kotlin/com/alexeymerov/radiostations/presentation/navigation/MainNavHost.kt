@@ -56,6 +56,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
+import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
@@ -97,23 +98,24 @@ fun MainNavGraph(
 
     Timber.d("isNetworkAvailable ${isNetworkAvailable}")
 
+    val sheetState = rememberStandardBottomSheetState(
+        skipHiddenState = false,
+        initialValue = SheetValue.Hidden
+    )
+    val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
+
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
-        LocalConnectionStatus provides isNetworkAvailable
+        LocalConnectionStatus provides isNetworkAvailable,
+        LocalPlayerVisibility provides sheetState.isVisible
     ) {
         Surface {
             val peekHightDp = 46.dp
             val peekHightPx = peekHightDp.toPx()
 
-            val sheetState = rememberStandardBottomSheetState(
-                skipHiddenState = false,
-                initialValue = SheetValue.Hidden
-            )
-            val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
-
             /**
-             * Ok. This one is wierd. Can't find is it me or some bug.
+             * This one is wierd. Can't find is it me or some bug.
              * I hope it's a temp workaround.
              * Problem: On low sdk. 26 at least. It will automatically change state yo PartiallyExpanded after Hidden
              * Even though "initialValue = SheetValue.Hidden".
