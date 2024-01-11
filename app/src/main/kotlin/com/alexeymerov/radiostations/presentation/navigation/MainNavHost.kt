@@ -25,7 +25,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -42,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -56,8 +56,8 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
+import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
-import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
@@ -90,7 +90,7 @@ fun MainNavGraph(
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     navController.addOnDestinationChangedListener { _, _, _ ->
         scrollBehavior.state.heightOffset = 0f
@@ -98,24 +98,24 @@ fun MainNavGraph(
 
     Timber.d("isNetworkAvailable ${isNetworkAvailable}")
 
+    val sheetState = rememberStandardBottomSheetState(
+        skipHiddenState = false,
+        initialValue = SheetValue.Hidden
+    )
+    val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
+
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
-        LocalTopBarScroll provides scrollBehavior,
-        LocalConnectionStatus provides isNetworkAvailable
+        LocalConnectionStatus provides isNetworkAvailable,
+        LocalPlayerVisibility provides sheetState.isVisible
     ) {
         Surface {
-            val peekHightDp = 46.dp
-            val peekHightPx = peekHightDp.toPx()
-
-            val sheetState = rememberStandardBottomSheetState(
-                skipHiddenState = false,
-                initialValue = SheetValue.Hidden
-            )
-            val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
+            val peekHeightDp = 46.dp
+            val peekHeightPx = peekHeightDp.toPx()
 
             /**
-             * Ok. This one is wierd. Can't find is it me or some bug.
+             * This one is wierd. Can't find is it me or some bug.
              * I hope it's a temp workaround.
              * Problem: On low sdk. 26 at least. It will automatically change state yo PartiallyExpanded after Hidden
              * Even though "initialValue = SheetValue.Hidden".
@@ -145,7 +145,7 @@ fun MainNavGraph(
 
             val progress by remember(sheetOffset, sheetFullHeightPx) {
                 derivedStateOf {
-                    val maxOffset = sheetFullHeightPx - railBarSize - peekHightPx
+                    val maxOffset = sheetFullHeightPx - railBarSize - peekHeightPx
                     ((maxOffset - sheetOffset) / maxOffset).coerceIn(0f, 1f)
                 }
             }
@@ -171,6 +171,7 @@ fun MainNavGraph(
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
                     .run { if (config.isLandscape()) displayCutoutPadding() else this },
                 bottomBar = {
                     if (config.isPortrait()) {
@@ -195,14 +196,14 @@ fun MainNavGraph(
                         topBar = { TopBar(navController, topBarState, scrollBehavior) },
                         snackbarHost = { SnackbarHost(snackbarHostState) },
                         sheetDragHandle = null,
-                        sheetPeekHeight = peekHightDp + scaffoldPaddingValues.calculateBottomPadding(),
+                        sheetPeekHeight = peekHeightDp + scaffoldPaddingValues.calculateBottomPadding(),
                         sheetShape = RoundedCornerShape(topStart = animData.shapeCornerRadius, topEnd = animData.shapeCornerRadius),
                         sheetContent = {
                             ExpandableBottomPlayer(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .onGloballyPositioned { sheetFullHeightPx = it.size.height.toFloat() },
-                                peekHightDp = peekHightDp,
+                                peekHeightDp = peekHeightDp,
                                 progress = progress,
                                 containerColor = animData.containerColor,
                                 onContainerColor = animData.onContainerColor,
@@ -231,28 +232,19 @@ fun MainNavGraph(
                                     .fillMaxSize()
                                     .background(MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation))
                             ) {
-                                if (config.isLandscape()) {
-                                    Row(Modifier.fillMaxSize()) {
+                                Row(Modifier.fillMaxSize()) {
+                                    if (config.isLandscape()) {
                                         CreateNavigationRail(
                                             modifier = Modifier.graphicsLayer { translationX = animData.railBarOffsetX },
                                             navController = navController
                                         )
-                                        CreateNavHost(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .graphicsScale(animData.scaleContent),
-                                            goToRoute = goToRoute,
-                                            starDest = starDest,
-                                            topBarBlock = topBarBlock,
-                                        )
                                     }
-                                } else {
                                     CreateNavHost(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .graphicsScale(animData.scaleContent),
-                                        starDest = starDest,
                                         goToRoute = goToRoute,
+                                        starDest = starDest,
                                         topBarBlock = topBarBlock,
                                     )
                                 }

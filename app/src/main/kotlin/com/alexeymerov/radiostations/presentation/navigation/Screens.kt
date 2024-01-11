@@ -85,7 +85,6 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState)
             val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_IMG_URL)) }
             val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_URL)) }
             val id by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_ID)) }
-            val isFav by rememberSaveable { mutableStateOf(backStackEntry.getArgBool(Screens.Player.Const.ARG_IS_FAV)) }
 
             PreloadedPlayerScreen(
                 viewModel = hiltViewModel(),
@@ -95,8 +94,7 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState)
                 locationName = locationName,
                 stationImgUrl = stationImgUrl.decodeUrl(),
                 rawUrl = rawUrl.decodeUrl(),
-                id = id.decodeUrl(),
-                isFav = isFav
+                id = id.decodeUrl()
             )
         }
     }

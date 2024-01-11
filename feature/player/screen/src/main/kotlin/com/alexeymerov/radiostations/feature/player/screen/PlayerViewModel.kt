@@ -1,5 +1,9 @@
 package com.alexeymerov.radiostations.feature.player.screen
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
@@ -8,6 +12,7 @@ import com.alexeymerov.radiostations.core.ui.common.BaseViewAction
 import com.alexeymerov.radiostations.core.ui.common.BaseViewEffect
 import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
 import com.alexeymerov.radiostations.core.ui.common.BaseViewState
+import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,8 +25,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val audioUseCase: AudioUseCase
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
+
+    var isFavorite by mutableStateOf(savedStateHandle.get<Boolean>(Screens.Player.Const.ARG_IS_FAV) ?: false)
 
     val currentAudioItem: StateFlow<AudioItemDto?> = audioUseCase.getLastPlayingMediaItem()
         .stateIn(
@@ -47,6 +55,7 @@ class PlayerViewModel @Inject constructor(
 
     private suspend fun loadStationInfo(action: ViewAction.LoadStationInfo) {
         val station = audioUseCase.getByUrl(action.parentUrl)
+        isFavorite = station.isFavorite
         setState(ViewState.Loaded(station))
     }
 
@@ -75,6 +84,7 @@ class PlayerViewModel @Inject constructor(
 
     private fun toggleFavorite(id: String) {
         viewModelScope.launch(ioContext) {
+            isFavorite = !isFavorite
             audioUseCase.toggleFavorite(id)
         }
     }

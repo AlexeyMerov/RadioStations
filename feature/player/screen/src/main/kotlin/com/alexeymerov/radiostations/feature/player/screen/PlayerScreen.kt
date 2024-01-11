@@ -65,8 +65,7 @@ fun PreloadedPlayerScreen(
     locationName: String,
     stationImgUrl: String,
     rawUrl: String,
-    id: String,
-    isFav: Boolean
+    id: String
 ) {
     ComposedTimberD("[ PreloadedPlayerScreen ] ")
 
@@ -81,7 +80,7 @@ fun PreloadedPlayerScreen(
         initStationName = stationName,
         initLocationName = locationName,
         initId = id,
-        initIsFav = isFav,
+        isFavorite = viewModel.isFavorite,
         initStationImgUrl = stationImgUrl,
         initRawUrl = rawUrl,
         onAction = { viewModel.setAction(it) }
@@ -105,6 +104,7 @@ fun LoadPlayerScreen(
         isVisibleToUser = isVisibleToUser,
         topBarBlock = topBarBlock,
         playerMediaDirectUrl = bottomPlayerMedia?.directUrl,
+        isFavorite = viewModel.isFavorite,
         onAction = { viewModel.setAction(it) }
     )
 
@@ -120,7 +120,7 @@ private fun BasePlayerScreen(
     initStationName: String = String.EMPTY,
     initLocationName: String = String.EMPTY,
     initId: String = String.EMPTY,
-    initIsFav: Boolean = false,
+    isFavorite: Boolean,
     initStationImgUrl: String = String.EMPTY,
     initRawUrl: String = String.EMPTY,
     onAction: (ViewAction) -> Unit
@@ -130,7 +130,6 @@ private fun BasePlayerScreen(
     var stationName by rememberSaveable { mutableStateOf(initStationName) }
     var locationName by rememberSaveable { mutableStateOf(initLocationName) }
     var id by rememberSaveable { mutableStateOf(initId) }
-    var isFav by rememberSaveable { mutableStateOf(initIsFav) }
     var stationImgUrl by rememberSaveable { mutableStateOf(initStationImgUrl) }
     var rawUrl by rememberSaveable { mutableStateOf(initRawUrl) }
 
@@ -140,7 +139,7 @@ private fun BasePlayerScreen(
             stationName = stationName,
             locationName = locationName,
             id = id,
-            isFav = isFav,
+            isFavorite = isFavorite,
             onAction = { onAction.invoke(it) }
         )
     }
@@ -154,7 +153,6 @@ private fun BasePlayerScreen(
             stationName = viewState.item.text
             locationName = viewState.item.subText.orEmpty()
             id = viewState.item.id
-            isFav = viewState.item.isFavorite
             stationImgUrl = viewState.item.image.orEmpty()
             rawUrl = viewState.item.url
         }
@@ -186,10 +184,9 @@ private fun TopBarSetup(
     stationName: String,
     locationName: String,
     id: String,
-    isFav: Boolean,
+    isFavorite: Boolean,
     onAction: (ViewAction) -> Unit
 ) {
-    var isFavorite by rememberSaveable { mutableStateOf(isFav) } // not the best way, consider VM param
     LaunchedEffect(Unit, stationName, isFavorite) {
         topBarBlock.invoke(
             TopBarState(
@@ -197,10 +194,7 @@ private fun TopBarSetup(
                 subTitle = locationName,
                 displayBackButton = true,
                 rightIcon = RightIconItem(if (isFavorite) TopBarIcon.STAR else TopBarIcon.STAR_OUTLINE).apply {
-                    action = {
-                        isFavorite = !isFavorite
-                        onAction.invoke(ViewAction.ToggleFavorite(id))
-                    }
+                    action = { onAction.invoke(ViewAction.ToggleFavorite(id)) }
                 }
             )
         )

@@ -11,11 +11,19 @@
 
 <br>
 <p>
-  <img src="./preview/categories.png" width="19%" /> 
-  <img src="./preview/stations.png" width="19%" />
-  <img src="./preview/favorites.png" width="19%" /> 
-  <img src="./preview/player.png" width="19%" /> 
-  <img src="./preview/theme.png" width="19%" /> 
+  <img src="./preview/1.png" width="19%" /> 
+  <img src="./preview/2.png" width="19%" />
+  <img src="./preview/3.png" width="19%" /> 
+  <img src="./preview/10.gif" width="19%" /> 
+  <img src="./preview/4.png" width="19%" /> 
+</p>
+
+<p>
+  <img src="./preview/5.png" width="19%" /> 
+  <img src="./preview/6.png" width="19%" />
+  <img src="./preview/7.png" width="19%" /> 
+  <img src="./preview/8.png" width="19%" /> 
+  <img src="./preview/9.png" width="19%" /> 
 </p>
 
 </div>

@@ -25,7 +25,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.rounded.Done
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -37,7 +36,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -49,7 +47,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
-import com.alexeymerov.radiostations.core.ui.common.LocalTopBarScroll
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -155,7 +152,6 @@ fun BaseProfileScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     inEdit: Boolean,
@@ -172,7 +168,6 @@ private fun MainContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .nestedScroll(LocalTopBarScroll.current.nestedScrollConnection)
             .verticalScroll(rememberScrollState())
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -181,7 +176,7 @@ private fun MainContent(
             },
         contentAlignment = Alignment.TopCenter,
     ) {
-        if (config.isLandscape() && config.isTablet()) {
+        if (config.isTablet()) {
             ContentForTabletScreen(
                 userData = userData,
                 inEdit = inEdit,

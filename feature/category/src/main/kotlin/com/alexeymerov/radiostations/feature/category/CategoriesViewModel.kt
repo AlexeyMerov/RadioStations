@@ -46,16 +46,16 @@ class CategoriesViewModel @Inject constructor(
 
     var isRefreshing = mutableStateOf(false)
 
-    val categoriesFlow = categoryUseCase
+    internal val categoriesFlow = categoryUseCase
         .getAllByUrl(categoryUrl)
         .catch { handleError(it) }
         .onEach(::prepareHeaders)
         .combine(headerFlow, ::filterCategories)
         .onEach(::validateNewData)
         .map { it.items }
-        .map(::createHeaderAndItemsMap)
+        .map(::createHeaderWithItems)
         .flowOn(ioContext)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyMap())
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
         analytics.logEvent("load_category") {
@@ -68,7 +68,7 @@ class CategoriesViewModel @Inject constructor(
         super.setAction(action)
     }
 
-    override fun createInitialState() = ViewState.Loading
+    override fun createInitialState() = ViewState.CategoriesLoaded(emptyList())
 
     override fun handleAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
@@ -129,6 +129,9 @@ class CategoriesViewModel @Inject constructor(
 
     private fun loadCategories(categoryUrl: String) {
         viewModelScope.launch(ioContext) {
+            if (categoriesFlow.value.isEmpty()) {
+                setState(ViewState.Loading)
+            }
             categoryUseCase.loadCategoriesByUrl(categoryUrl)
         }
     }
@@ -147,7 +150,7 @@ class CategoriesViewModel @Inject constructor(
         Timber.e(throwable, "[ ${object {}.javaClass.enclosingMethod?.name} ] handleError")
         isRefreshing.value = false
         if (viewState.value == ViewState.Loading) {
-            setState(ViewState.NothingAvailable)
+            setState(ViewState.NothingAvailable, delay = 1000)
         }
     }
 
@@ -158,12 +161,12 @@ class CategoriesViewModel @Inject constructor(
             when {
                 categoryDto.isError -> {
                     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categoryDto.isError")
-                    setState(ViewState.NothingAvailable)
+                    setState(ViewState.NothingAvailable, delay = 1000)
                 }
 
                 categoryDto.items.isEmpty() -> {
                     if (viewState.value != ViewState.Loading) {
-                        setState(ViewState.NothingAvailable)
+                        setState(ViewState.NothingAvailable, delay = 1000)
                     } else {
                         setState(ViewState.NothingAvailable, delay = 7000)
                     }
@@ -171,42 +174,71 @@ class CategoriesViewModel @Inject constructor(
 
                 else -> {
                     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${categoryDto.items.size}")
-                    setState(ViewState.CategoriesLoaded(headerFlow.value))
+                    val headerValue = if (headerFlow.value.size > 1) headerFlow.value else emptyList()
+                    setState(ViewState.CategoriesLoaded(headerValue))
                 }
             }
         }
     }
 
-    private fun createHeaderAndItemsMap(items: List<CategoryItemDto>): MutableMap<CategoryItemDto?, List<CategoryItemDto>> {
-        val resultMap = mutableMapOf<CategoryItemDto?, List<CategoryItemDto>>()
+    /**
+     * We need to save same order for elements but separate header for sticky view
+     * */
+    private fun createHeaderWithItems(items: List<CategoryItemDto>): List<HeaderWithItems> {
+        val resultList = mutableListOf<HeaderWithItems>()
 
+        // if need to process header filtering at all
         if (items.any { it.type == DtoItemType.HEADER }) {
+
             var index = 0
+            var itemsWithoutHeaders: MutableList<CategoryItemDto>? = null
+
             while (index < items.size) {
                 val item = items[index]
                 item.absoluteIndex = index
+
                 if (item.type == DtoItemType.HEADER) {
+                    // if we have some items without header then save it and clear variable
+                    if (itemsWithoutHeaders != null) {
+                        resultList.add(HeaderWithItems(items = itemsWithoutHeaders))
+                        itemsWithoutHeaders = null
+                    }
+
+                    // save items for the current header based on item count from the source
                     val fromIndex = index + 1
                     val toIndex = index + item.subItemsCount + 1
 
-                    resultMap[item] = items.subList(fromIndex, toIndex)
+                    resultList.add(
+                        HeaderWithItems(
+                            header = item,
+                            items = items.subList(fromIndex, toIndex)
+                        )
+                    )
+
                     index = toIndex
-                } else {
-                    resultMap[item] = emptyList()
+                } else /* non header item */ {
+                    if (itemsWithoutHeaders == null) itemsWithoutHeaders = mutableListOf()
+                    itemsWithoutHeaders.add(item)
                     index++
                 }
             }
-        } else {
-            resultMap[null] = items
+
+            // if source list is ended but we still have some items without header
+            if (itemsWithoutHeaders != null) {
+                resultList.add(HeaderWithItems(items = itemsWithoutHeaders))
+            }
+
+        } else /* no headers at all */ {
+            resultList.add(HeaderWithItems(items = items))
         }
 
-        return resultMap
+        return resultList
     }
 
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object NothingAvailable : ViewState
-        data class CategoriesLoaded(val headerItems: List<CategoryItemDto>) : ViewState
+        data class CategoriesLoaded(val filterHeaderItems: List<CategoryItemDto>) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {
@@ -221,4 +253,9 @@ class CategoriesViewModel @Inject constructor(
     }
 
 }
+
+internal data class HeaderWithItems(
+    val header: CategoryItemDto? = null,
+    val items: List<CategoryItemDto>
+)
 

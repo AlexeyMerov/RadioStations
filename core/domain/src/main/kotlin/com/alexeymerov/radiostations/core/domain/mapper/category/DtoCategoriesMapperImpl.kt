@@ -37,26 +37,29 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
 
         var mainText = entity.text
         var locationText: String? = null
+        var initials = String.EMPTY
 
         if (type == DtoItemType.AUDIO) {
             val (name, location) = extractLocationIfExist(mainText)
-            mainText = name
+            mainText = name.trim()
             locationText = location
-        }
 
-        val initials = mainText
-            .split(String.SPACE, limit = 2)
-            .map { it.first() }
-            .joinToString(separator = String.EMPTY)
+            initials = mainText
+                .split(String.SPACE, limit = 2)
+                .map { it.first() }
+                .joinToString(separator = String.EMPTY)
+        }
 
         return CategoryItemDto(
             id = entity.id,
+            type = type,
             url = entity.url.ifEmpty { entity.text },
+
             text = mainText,
             subText = locationText,
-            image = entity.image,
-            type = type,
             subItemsCount = entity.childCount ?: 0,
+
+            image = entity.image,
             isFavorite = entity.isFavorite,
             initials = initials
         )
@@ -72,7 +75,7 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
 
         locationText?.let {
             val uniqueWords = it.split(String.SPACE).toSet()
-            locationText = uniqueWords.joinToString(String.SPACE)
+            locationText = uniqueWords.joinToString(String.SPACE).trim()
         }
         return Pair(mainText, locationText)
     }
