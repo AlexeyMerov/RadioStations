@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -49,7 +48,6 @@ class CategoriesViewModel @Inject constructor(
 
     internal val categoriesFlow = categoryUseCase
         .getAllByUrl(categoryUrl)
-        .debounce(1000)
         .catch { handleError(it) }
         .onEach(::prepareHeaders)
         .combine(headerFlow, ::filterCategories)
@@ -152,7 +150,7 @@ class CategoriesViewModel @Inject constructor(
         Timber.e(throwable, "[ ${object {}.javaClass.enclosingMethod?.name} ] handleError")
         isRefreshing.value = false
         if (viewState.value == ViewState.Loading) {
-            setState(ViewState.NothingAvailable)
+            setState(ViewState.NothingAvailable, delay = 1000)
         }
     }
 
@@ -163,12 +161,12 @@ class CategoriesViewModel @Inject constructor(
             when {
                 categoryDto.isError -> {
                     Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categoryDto.isError")
-                    setState(ViewState.NothingAvailable)
+                    setState(ViewState.NothingAvailable, delay = 1000)
                 }
 
                 categoryDto.items.isEmpty() -> {
                     if (viewState.value != ViewState.Loading) {
-                        setState(ViewState.NothingAvailable)
+                        setState(ViewState.NothingAvailable, delay = 1000)
                     } else {
                         setState(ViewState.NothingAvailable, delay = 7000)
                     }
