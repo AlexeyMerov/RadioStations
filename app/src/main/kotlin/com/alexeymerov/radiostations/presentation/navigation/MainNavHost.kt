@@ -111,8 +111,8 @@ fun MainNavGraph(
         LocalPlayerVisibility provides sheetState.isVisible
     ) {
         Surface {
-            val peekHightDp = 46.dp
-            val peekHightPx = peekHightDp.toPx()
+            val peekHeightDp = 46.dp
+            val peekHeightPx = peekHeightDp.toPx()
 
             /**
              * This one is wierd. Can't find is it me or some bug.
@@ -145,7 +145,7 @@ fun MainNavGraph(
 
             val progress by remember(sheetOffset, sheetFullHeightPx) {
                 derivedStateOf {
-                    val maxOffset = sheetFullHeightPx - railBarSize - peekHightPx
+                    val maxOffset = sheetFullHeightPx - railBarSize - peekHeightPx
                     ((maxOffset - sheetOffset) / maxOffset).coerceIn(0f, 1f)
                 }
             }
@@ -196,14 +196,14 @@ fun MainNavGraph(
                         topBar = { TopBar(navController, topBarState, scrollBehavior) },
                         snackbarHost = { SnackbarHost(snackbarHostState) },
                         sheetDragHandle = null,
-                        sheetPeekHeight = peekHightDp + scaffoldPaddingValues.calculateBottomPadding(),
+                        sheetPeekHeight = peekHeightDp + scaffoldPaddingValues.calculateBottomPadding(),
                         sheetShape = RoundedCornerShape(topStart = animData.shapeCornerRadius, topEnd = animData.shapeCornerRadius),
                         sheetContent = {
                             ExpandableBottomPlayer(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .onGloballyPositioned { sheetFullHeightPx = it.size.height.toFloat() },
-                                peekHightDp = peekHightDp,
+                                peekHeightDp = peekHeightDp,
                                 progress = progress,
                                 containerColor = animData.containerColor,
                                 onContainerColor = animData.onContainerColor,

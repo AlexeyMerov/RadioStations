@@ -11,7 +11,7 @@ javaVersion = "17"
 kotlinLanguage = "1.9"
 composeCompiler = "1.5.5"
 
-gradle = "8.2.1"
+gradle = "8.2.0"
 kotlin = "1.9.20"
 versionsChecker = "0.47.0"
 

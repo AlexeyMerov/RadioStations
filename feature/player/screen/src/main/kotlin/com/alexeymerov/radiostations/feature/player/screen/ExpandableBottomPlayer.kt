@@ -63,7 +63,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 @Composable
 fun ExpandableBottomPlayer(
     modifier: Modifier,
-    peekHightDp: Dp,
+    peekHeightDp: Dp,
     progress: Float,
     containerColor: Color,
     onContainerColor: Color,
@@ -93,7 +93,7 @@ fun ExpandableBottomPlayer(
                 parentHeightDp = config.screenHeightDp.dp,
                 parentWidthDp = config.screenWidthDp.dp,
                 progress = progress,
-                peekHightDp = peekHightDp,
+                peekHeightDp = peekHeightDp,
                 textWidth = textWidth,
                 textHeight = textHeight,
                 iconPlayLoadingSizeDp = iconPlayLoadingSize
@@ -272,7 +272,7 @@ private fun PlayButton(modifier: Modifier, onColor: Color, isPlaying: Boolean, o
  * @param parentHeightDp - bottomSheet height by default or LocalConfiguration.current.screenHeightDp.dp
  * @param parentWidthDp - bottomSheet width by default or LocalConfiguration.current.screenWidthDp.dp
  * @param progress - current expand/collapse progress
- * @param peekHightDp - peek height of bottom sheet
+ * @param peekHeightDp - peek height of bottom sheet
  * @param textWidth - width of text in px
  * @param textHeight - height of text in px
  * @param iconPlayLoadingSizeDp - size of play/loading icon
@@ -284,20 +284,20 @@ private fun calculateAnimationData(
     parentHeightDp: Dp,
     parentWidthDp: Dp,
     progress: Float,
-    peekHightDp: Dp,
+    peekHeightDp: Dp,
     textWidth: Float,
     textHeight: Float,
     iconPlayLoadingSizeDp: Dp
 ): CollapseExpandData {
     return with(density) {
-        val peekHight = peekHightDp.toPx()
+        val peekHeight = peekHeightDp.toPx()
 
         val maxWidthDp = 640.dp // default for bottomSheet
         val parentWidth = (if (parentWidthDp > maxWidthDp) maxWidthDp else parentWidthDp).toPx()
         val parentHeight = parentHeightDp.toPx()
 
         val parentHalfWidth = parentWidth.div(2f)
-        val parentHalfHight = parentHeight.div(2f)
+        val parentHalfHeight = parentHeight.div(2f)
 
         val padding16AsPx = 16.dp.toPx()
         val iconSizeDp = 48.dp
@@ -331,10 +331,10 @@ private fun calculateAnimationData(
         }
         val imgOffsetX = lerp(0f, imgExapandedOffsetX, progress)
 
-        val imgCollapsedOffsetY = (peekHight - imgCollapsedSize).div(2f)
+        val imgCollapsedOffsetY = (peekHeight - imgCollapsedSize).div(2f)
         val imgExpandedOffsetY = when {
-            isLandscape -> parentHalfHight - imgExpandedSize.div(2f) - padding16AsPx
-            else -> parentHalfHight - imgExpandedSize - padding16AsPx
+            isLandscape -> parentHalfHeight - imgExpandedSize.div(2f) - padding16AsPx
+            else -> parentHalfHeight - imgExpandedSize - padding16AsPx
         }
         val imgOffsetY = lerp(imgCollapsedOffsetY, imgExpandedOffsetY, progress)
 
@@ -346,7 +346,7 @@ private fun calculateAnimationData(
         val textOffsetX = lerp(textCollapsedOffsetX, textExpandedOffsetX, progress)
 
         // Calculate text Y offset
-        val textCollapsedOffsetY = (peekHight - textHeight).div(2f)
+        val textCollapsedOffsetY = (peekHeight - textHeight).div(2f)
         val textExpandedOffsetY = imgExpandedSize + imgExpandedOffsetY + padding16AsPx.times(2f)
         val textOffsetY = lerp(textCollapsedOffsetY, textExpandedOffsetY, progress)
 
@@ -373,7 +373,7 @@ private fun calculateAnimationData(
         val iconPlayLoadingOffsetX = lerp(iconPlayLoadingCollapsedOffsetX, iconPlayLoadingExpandedOffsetX, progress)
 
         // Calculate play/loading Y offset
-        val iconPlayLoadingCollapsedOffsetY = (peekHight - iconPlayLoadingSize).div(2f)
+        val iconPlayLoadingCollapsedOffsetY = (peekHeight - iconPlayLoadingSize).div(2f)
         val iconPlayLoadingExpandedOffsetY = when {
             isLandscape -> imgExpandedOffsetY + imgExpandedSize.div(2f) - padding16AsPx
             else -> textExpandedOffsetY + textHeight + padding16AsPx.times(4f)
