@@ -18,7 +18,6 @@
   <img src="./preview/4.png" width="19%" /> 
 </p>
 
-<br>
 <p>
   <img src="./preview/5.png" width="19%" /> 
   <img src="./preview/6.png" width="19%" />
