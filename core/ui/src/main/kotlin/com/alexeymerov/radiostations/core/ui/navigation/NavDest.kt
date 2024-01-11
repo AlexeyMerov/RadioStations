@@ -105,5 +105,8 @@ private fun createBaseRoute(route: String, vararg args: Any) = route + args.join
 private fun createNewRoute(route: String, vararg args: Any?) = route + args.joinToString(prefix = "/", separator = "/") { "$it" }
 
 // ugly workaround. compose navigation can't use links in args
-private fun String.encodeUrl() = replace("/", "!").replace("?", "*")
-fun String.decodeUrl() = replace("!", "/").replace("*", "?")
+// URLEncoder/Decoder brake it somehow
+private const val ENCODE_SLASH = ";&!"
+private const val ENCODE_QUESTION = ";&*"
+private fun String.encodeUrl() = replace("/", ENCODE_SLASH).replace("?", ENCODE_QUESTION)
+fun String.decodeUrl() = replace(ENCODE_SLASH, "/").replace(ENCODE_QUESTION, "?")
