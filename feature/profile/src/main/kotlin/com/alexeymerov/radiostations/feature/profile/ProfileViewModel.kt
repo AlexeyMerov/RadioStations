@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.feature.profile
 
-import android.net.Uri
+import android.graphics.Bitmap
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -74,27 +74,20 @@ class ProfileViewModel @Inject constructor(
                 is ViewAction.EnterEditMode -> onEnterEditMode()
                 is ViewAction.SaveEditsAndExitMode -> handleSaveEdits()
 
-                is ViewAction.SaveCameraImage -> saveImageFromCamera()
-                is ViewAction.SaveGalleryImage -> saveImageFromGallery(action.uri)
+                is ViewAction.SaveCroppedImage -> saveImageFromCamera(action.bitmap)
                 is ViewAction.DeleteImage -> deleteAvatar()
 
                 is ViewAction.NewName -> handleNewName(action.name)
                 is ViewAction.NewEmail -> handleNewEmail(action.email)
                 is ViewAction.NewCountry -> handleNewCountry(action.country)
                 is ViewAction.NewPhone -> handleNewPhoneValue(action.phone)
-                is ViewAction.SearchCountry -> {
-                    searchQuery.value = action.searchText
-                }
+                is ViewAction.SearchCountry -> searchQuery.value = action.searchText
             }
         }
     }
 
-    private suspend fun saveImageFromCamera() {
-        profileUsaCase.saveAvatar(tempUri, true)
-    }
-
-    private suspend fun saveImageFromGallery(uri: Uri) {
-        profileUsaCase.saveAvatar(uri, false)
+    private suspend fun saveImageFromCamera(bitmap: Bitmap) {
+        profileUsaCase.saveAvatar(bitmap)
     }
 
     private suspend fun deleteAvatar() {
@@ -176,8 +169,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     sealed interface ViewAction : BaseViewAction {
-        data class SaveGalleryImage(val uri: Uri) : ViewAction
-        data object SaveCameraImage : ViewAction
+        data class SaveCroppedImage(val bitmap: Bitmap) : ViewAction
         data object DeleteImage : ViewAction
 
         data object EnterEditMode : ViewAction

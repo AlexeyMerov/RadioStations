@@ -44,4 +44,8 @@
     <string name="name">Имя</string>
     <string name="email">Электронная почта</string>
     <string name="phone">Телефон</string>
+    <string name="cancel">Отмена</string>
+    <string name="crop">Обрезать</string>
+    <string name="select_area">Выберите область</string>
+
 </resources>

@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.core.filestore
 
+import android.graphics.Bitmap
 import android.net.Uri
 import java.io.File
 
@@ -7,7 +8,7 @@ interface AppFileStore {
 
     suspend fun getFileByName(name: String): File?
 
-    suspend fun copyFromUriToFile(uri: Uri, fileName: String)
+    suspend fun copyFromBitmapToFile(bitmap: Bitmap, fileName: String)
 
     suspend fun removeFileByUri(uri: Uri)
 

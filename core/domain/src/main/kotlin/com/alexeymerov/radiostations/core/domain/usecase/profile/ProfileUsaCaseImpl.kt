@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.core.domain.usecase.profile
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.net.toUri
 import com.alexeymerov.radiostations.core.common.EMPTY
@@ -17,6 +18,8 @@ class ProfileUsaCaseImpl @Inject constructor(
     private val settingsStore: SettingsStore,
     private val fileStore: AppFileStore
 ) : ProfileUsaCase {
+
+    private var lastTempUri: Uri? = null
 
     override suspend fun saveUserData(userDto: UserDto) {
         settingsStore.setStringPrefs(USER_NAME_KEY, userDto.name.text)
@@ -48,11 +51,17 @@ class ProfileUsaCaseImpl @Inject constructor(
         return fileStore.getFileByName(avatarFileName)
     }
 
-    override suspend fun saveAvatar(uri: Uri, isFromCamera: Boolean) {
+    override suspend fun saveAvatar(bitmap: Bitmap) {
         val avatarFileName = AVATAR_PREFIX + System.currentTimeMillis() + AVATAR_EXT
-        fileStore.copyFromUriToFile(uri, avatarFileName)
+        fileStore.copyFromBitmapToFile(bitmap, avatarFileName)
         settingsStore.setStringPrefs(AVATAR_PREFIX, avatarFileName)
-        if (isFromCamera) fileStore.removeFileByUri(uri)
+
+        resetTempFile()
+    }
+
+    private suspend fun resetTempFile() {
+        lastTempUri?.let { fileStore.removeFileByUri(it) }
+        lastTempUri = null
     }
 
     override suspend fun deleteAvatar() {
@@ -62,7 +71,9 @@ class ProfileUsaCaseImpl @Inject constructor(
     }
 
     override fun getAvatarTempUri(): Uri {
-        return fileStore.getTempUri(AVATAR_PREFIX, AVATAR_EXT)
+        val tempUri = fileStore.getTempUri(AVATAR_PREFIX, AVATAR_EXT)
+        lastTempUri = tempUri
+        return tempUri
     }
 
     companion object {

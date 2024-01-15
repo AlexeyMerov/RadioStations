@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.feature.profile.elements
+package com.alexeymerov.radiostations.feature.profile.elements.avatar
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
