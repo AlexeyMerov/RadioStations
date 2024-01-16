@@ -43,6 +43,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
@@ -202,8 +203,8 @@ private fun MainContent(
             },
         contentAlignment = Alignment.TopCenter,
     ) {
-        if (config.isTablet()) {
-            ContentForTabletScreen(
+        if (config.isLandscape() && config.isTablet()) {
+            ContentForLandscapeTabletScreen(
                 userData = userData,
                 inEdit = inEdit,
                 onAction = onAction,
@@ -212,7 +213,7 @@ private fun MainContent(
                 onCountryCode = onCountryCode
             )
         } else {
-            ContentForPhoneScreen(
+            ContentForRegularScreen(
                 userData = userData,
                 inEdit = inEdit,
                 onAction = onAction,

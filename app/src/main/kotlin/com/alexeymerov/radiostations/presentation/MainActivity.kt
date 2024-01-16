@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        var starDest: Tabs = Tabs.You
+        var starDest: Tabs = Tabs.Browse
         intent.getStringExtra(FAV_SHORTCUT_INTENT_NAME)?.let {
             if (it == FAV_SHORTCUT_ID) starDest = Tabs.Favorites
         }

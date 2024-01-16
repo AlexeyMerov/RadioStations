@@ -22,7 +22,7 @@ import com.alexeymerov.radiostations.feature.profile.elements.avatar.AvatarImage
 import com.alexeymerov.radiostations.feature.profile.elements.avatar.EditRemoveIcons
 
 @Composable
-internal fun ContentForPhoneScreen(
+internal fun ContentForRegularScreen(
     userData: UserDto,
     inEdit: Boolean,
     onAction: (ProfileViewModel.ViewAction) -> Unit,
