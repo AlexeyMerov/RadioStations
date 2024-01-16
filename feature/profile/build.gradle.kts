@@ -17,4 +17,5 @@ dependencies {
     implementation(libs.coil.svg)
     implementation(libs.paging.compose)
     implementation(libs.imageCropper)
+    implementation(libs.palette)
 }

@@ -132,6 +132,7 @@ lottie = { module = "com.airbnb.android:lottie-compose", version = "6.1.0" }
 splashScreen = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
 revealSwipe = { module = "de.charlex.compose:revealswipe", version = "1.2.0" }
 imageCropper = { module = "com.github.SmartToolFactory:Compose-Cropper", version = "0.4.0" }
+palette = { module = "androidx.palette:palette", version = "1.0.0" }
 
 junit = { module = "junit:junit", version = "4.13.2" }
 junitExt = { module = "androidx.test.ext:junit", version = "1.1.5" }
