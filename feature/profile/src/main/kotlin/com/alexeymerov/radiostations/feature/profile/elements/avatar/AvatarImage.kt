@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.feature.profile.elements
+package com.alexeymerov.radiostations.feature.profile.elements.avatar
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -10,9 +10,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -50,6 +51,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
 import java.io.File
@@ -76,6 +78,7 @@ internal fun AvatarImage(
             .clickable { if (isLoaded) onClick.invoke() },
         model = ImageRequest.Builder(LocalContext.current)
             .data(avatarFile)
+            .allowHardware(false)
             .crossfade(500)
             .build(),
         contentDescription = null,
@@ -119,16 +122,20 @@ internal fun EditRemoveIcons(isLoaded: Boolean, onDelete: () -> Unit, onEdit: ()
 
 @Composable
 internal fun BigPicture(avatarFile: File, onDismiss: () -> Unit) {
+    val config = LocalConfiguration.current
     Dialog(
         onDismissRequest = { onDismiss.invoke() },
         content = {
-            val config = LocalConfiguration.current
             AsyncImage(
                 modifier = Modifier
-                    .sizeIn(
-                        maxWidth = config.maxDialogWidth(),
-                        maxHeight = config.maxDialogHeight()
-                    )
+                    .run {
+                        if (config.isLandscape()) {
+                            height(config.maxDialogHeight())
+                        } else {
+                            width(config.maxDialogWidth())
+                        }
+                    }
+                    .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp)),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(avatarFile)

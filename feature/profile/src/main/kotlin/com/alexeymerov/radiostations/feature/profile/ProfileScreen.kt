@@ -14,12 +14,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,16 +27,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
@@ -54,17 +50,17 @@ import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.remembers.rememberGalleyPicker
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTakePicture
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
-import com.alexeymerov.radiostations.feature.profile.elements.AvatarBottomSheet
-import com.alexeymerov.radiostations.feature.profile.elements.AvatarImage
-import com.alexeymerov.radiostations.feature.profile.elements.BigPicture
-import com.alexeymerov.radiostations.feature.profile.elements.CameraPermissionRationale
 import com.alexeymerov.radiostations.feature.profile.elements.CountriesBottomSheet
-import com.alexeymerov.radiostations.feature.profile.elements.EditRemoveIcons
-import com.alexeymerov.radiostations.feature.profile.elements.UserTextFields
+import com.alexeymerov.radiostations.feature.profile.elements.avatar.AvatarBottomSheet
+import com.alexeymerov.radiostations.feature.profile.elements.avatar.BigPicture
+import com.alexeymerov.radiostations.feature.profile.elements.avatar.CameraPermissionRationale
+import com.alexeymerov.radiostations.feature.profile.elements.avatar.Cropper
+import com.alexeymerov.radiostations.feature.profile.helpers.loadBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -77,28 +73,39 @@ fun BaseProfileScreen(
     onNavigate: (String) -> Unit
 ) {
     if (isVisibleToUser) TopBarSetup(topBarBlock)
-
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-    var showCameraRationaleDialog by remember { mutableStateOf(false) }
-    val singlePhotoPickerLauncher = rememberGalleyPicker { viewModel.setAction(ViewAction.SaveGalleryImage(it)) }
-    val cameraLauncher = rememberTakePicture { viewModel.setAction(ViewAction.SaveCameraImage) }
-
-    var showCountriesBottomSheet by rememberSaveable { mutableStateOf(false) }
-    if (showCountriesBottomSheet) {
-        val countries = viewModel.countryCodes.collectAsLazyPagingItems()
-        CountriesBottomSheet(
-            countries = countries,
-            onSearch = { viewModel.setAction(ViewAction.SearchCountry(it)) },
-            onSelect = {
-                viewModel.setAction(ViewAction.NewCountry(it))
-                showCountriesBottomSheet = false
-            },
-            onDismiss = { showCountriesBottomSheet = false }
+    /*
+    * Crop any selected image block
+    * */
+    var imageToCrop by remember { mutableStateOf<ImageBitmap?>(null) }
+    imageToCrop?.let { imageBitmap ->
+        Cropper(
+            imageToCrop = imageBitmap,
+            onUpdateImage = { imageToCrop = it },
+            onClose = {
+                if (it != null) viewModel.setAction(ViewAction.SaveCroppedImage(it))
+                imageToCrop = null
+            }
         )
     }
 
+    /*
+    * Take images from gallery or camera bottom sheet
+    * */
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    var showCameraRationaleDialog by remember { mutableStateOf(false) }
+    val singlePhotoPickerLauncher = rememberGalleyPicker {
+        coroutineScope.launch {
+            imageToCrop = context.contentResolver.loadBitmap(it)
+        }
+    }
+    val cameraLauncher = rememberTakePicture {
+        coroutineScope.launch {
+            imageToCrop = context.contentResolver.loadBitmap(viewModel.tempUri)
+        }
+    }
     var showChangeAvatarBottomSheet by rememberSaveable { mutableStateOf(false) }
     if (showChangeAvatarBottomSheet) {
         AvatarBottomSheet(
@@ -138,9 +145,29 @@ fun BaseProfileScreen(
         )
     }
 
+    /*
+    * Countries bottom sheet block
+    * */
+    var showCountriesBottomSheet by rememberSaveable { mutableStateOf(false) }
+    if (showCountriesBottomSheet) {
+        val countries = viewModel.countryCodes.collectAsLazyPagingItems()
+        CountriesBottomSheet(
+            countries = countries,
+            onSearch = { viewModel.setAction(ViewAction.SearchCountry(it)) },
+            onSelect = {
+                viewModel.setAction(ViewAction.NewCountry(it))
+                showCountriesBottomSheet = false
+            },
+            onDismiss = { showCountriesBottomSheet = false }
+        )
+    }
+
+    /*
+    * Main content block
+    * */
     val state by viewModel.viewState.collectAsStateWithLifecycle()
-    val data by viewModel.userData.collectAsStateWithLifecycle()
-    data?.let { userDto ->
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
+    userData?.let { userDto ->
         MainContent(
             inEdit = state is ProfileViewModel.ViewState.InEdit,
             userData = userDto,
@@ -176,8 +203,8 @@ private fun MainContent(
             },
         contentAlignment = Alignment.TopCenter,
     ) {
-        if (config.isTablet()) {
-            ContentForTabletScreen(
+        if (config.isLandscape() && config.isTablet()) {
+            ContentForLandscapeTabletScreen(
                 userData = userData,
                 inEdit = inEdit,
                 onAction = onAction,
@@ -186,7 +213,7 @@ private fun MainContent(
                 onCountryCode = onCountryCode
             )
         } else {
-            ContentForPhoneScreen(
+            ContentForRegularScreen(
                 userData = userData,
                 inEdit = inEdit,
                 onAction = onAction,
@@ -239,104 +266,6 @@ private fun MainContent(
             BigPicture(
                 avatarFile = file,
                 onDismiss = { needShowBigPicture = !needShowBigPicture }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ContentForPhoneScreen(
-    userData: UserDto,
-    inEdit: Boolean,
-    onAction: (ViewAction) -> Unit,
-    onAvatarClick: () -> Unit,
-    onAvatarEdit: () -> Unit,
-    onCountryCode: () -> Unit
-) {
-    val config = LocalConfiguration.current
-    var isLoaded by rememberSaveable { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .padding(horizontal = if (config.isLandscape()) 80.dp else 16.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AvatarImage(
-                isLoaded = isLoaded,
-                avatarFile = userData.avatarFile,
-                onLoadResult = { isLoaded = it },
-                onClick = { onAvatarClick.invoke() }
-            )
-
-            AnimatedVisibility(visible = inEdit) {
-                EditRemoveIcons(
-                    isLoaded = isLoaded,
-                    onDelete = { onAction.invoke(ViewAction.DeleteImage) },
-                    onEdit = onAvatarEdit
-                )
-            }
-        }
-
-        Box(Modifier.padding(vertical = 16.dp)) {
-            UserTextFields(
-                inEdit = inEdit,
-                userData = userData,
-                onAction = { onAction.invoke(it) },
-                onCountryAction = { onCountryCode.invoke() }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ContentForTabletScreen(
-    userData: UserDto,
-    inEdit: Boolean,
-    onAction: (ViewAction) -> Unit,
-    onAvatarClick: () -> Unit,
-    onAvatarEdit: () -> Unit,
-    onCountryCode: () -> Unit
-) {
-    val config = LocalConfiguration.current
-    var isLoaded by rememberSaveable { mutableStateOf(false) }
-
-    Row(
-        modifier = Modifier
-            .padding(horizontal = if (config.isLandscape()) 80.dp else 16.dp)
-            .fillMaxSize(),
-    ) {
-        Column(
-            modifier = Modifier.wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AvatarImage(
-                isLoaded = isLoaded,
-                avatarFile = userData.avatarFile,
-                onLoadResult = { isLoaded = it },
-                onClick = { onAvatarClick.invoke() }
-            )
-
-            AnimatedVisibility(visible = inEdit) {
-                EditRemoveIcons(
-                    isLoaded = isLoaded,
-                    onDelete = { onAction.invoke(ViewAction.DeleteImage) },
-                    onEdit = onAvatarEdit
-                )
-            }
-        }
-
-        Box(Modifier.padding(start = 32.dp)) {
-            UserTextFields(
-                inEdit = inEdit,
-                userData = userData,
-                onAction = { onAction.invoke(it) },
-                onCountryAction = { onCountryCode.invoke() }
             )
         }
     }

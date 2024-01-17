@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
@@ -32,7 +33,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -204,33 +207,56 @@ private fun TopBarSetup(
 @Composable
 private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
     val configuration = LocalConfiguration.current
+    val themeBackgroundColor = MaterialTheme.colorScheme.background
+    var backgroundColors by remember {
+        mutableStateOf(listOf(themeBackgroundColor, themeBackgroundColor)) // required 2 by Brush
+    }
+    val onPaletteResult: (Palette) -> Unit = { palette ->
+        // difficult to consider all possible pictures and their colors to look universally good for dark and light themes
+        (palette.mutedSwatch ?: palette.dominantSwatch)?.let {
+            backgroundColors = listOf(
+                themeBackgroundColor,
+                Color(it.rgb)
+            )
+        }
+    }
 
     when {
         configuration.isPortrait() -> {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Brush.verticalGradient(backgroundColors)),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio)
+                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio, onPaletteResult)
             }
         }
+
         else -> {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Brush.verticalGradient(backgroundColors))
                     .padding(bottom = 46.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio)
+                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio, onPaletteResult)
             }
         }
     }
 }
 
 @Composable
-private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
+private fun MainContent(
+    isPlaying: Boolean,
+    isLoading: Boolean,
+    imageUrl: String,
+    onToggleAudio: () -> Unit,
+    onPaletteResult: (Palette) -> Unit
+) {
     PlayerArtwork(
         modifier = Modifier
             .size(250.dp)
@@ -239,7 +265,8 @@ private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String
                 clip = true
                 shape = RoundedCornerShape(16.dp)
             },
-        imageUrl = imageUrl
+        imageUrl = imageUrl,
+        onPaletteResult = onPaletteResult
     )
 
     Box(Modifier.size(60.dp)) {
@@ -252,7 +279,11 @@ private fun MainContent(isPlaying: Boolean, isLoading: Boolean, imageUrl: String
 }
 
 @Composable
-internal fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
+internal fun PlayerArtwork(
+    modifier: Modifier,
+    imageUrl: String,
+    onPaletteResult: ((Palette) -> Unit)? = null
+) {
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
     val colorFilter: ColorFilter? by remember(isLoaded) {
@@ -265,12 +296,21 @@ internal fun PlayerArtwork(modifier: Modifier, imageUrl: String) {
         modifier = modifier.background(Color.White),
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageUrl)
+            .allowHardware(false)
             .crossfade(500)
             .build(),
         contentDescription = null,
         error = rememberAsyncImagePainter(R.drawable.icon_radio),
         colorFilter = colorFilter,
-        onSuccess = { isLoaded = true },
+        onSuccess = {
+            val bitmap = it.result.drawable.toBitmap()
+            Palette.from(bitmap).generate { paletteOrNull ->
+                paletteOrNull?.let { palette ->
+                    onPaletteResult?.invoke(palette)
+                }
+            }
+            isLoaded = true
+        },
         onError = { isLoaded = false }
     )
 }

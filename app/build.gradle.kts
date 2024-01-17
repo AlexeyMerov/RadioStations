@@ -43,6 +43,7 @@ android {
         debug {
             isDebuggable = true
             isMinifyEnabled = false
+            applicationIdSuffix = ".dev"
         }
 
         release {

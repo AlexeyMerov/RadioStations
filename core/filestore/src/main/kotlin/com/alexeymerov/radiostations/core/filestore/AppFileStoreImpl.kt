@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.core.filestore
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,7 +16,7 @@ class AppFileStoreImpl @Inject constructor(
     override suspend fun getFileByName(name: String) = File(context.filesDir, name)
 
     override fun getTempUri(prefix: String, suffix: String): Uri {
-        return FileProvider.getUriForFile(context, AUTHORITY, getTempFile(prefix, suffix))
+        return FileProvider.getUriForFile(context, "${context.packageName}.provider", getTempFile(prefix, suffix))
     }
 
     private fun getTempFile(prefix: String, suffix: String): File = File.createTempFile(prefix, suffix, context.filesDir)
@@ -25,21 +26,15 @@ class AppFileStoreImpl @Inject constructor(
         uri.path?.let { File(it).delete() }
     }
 
-    override suspend fun copyFromUriToFile(uri: Uri, fileName: String) {
-        Timber.d("copyFromUriToFile: $uri")
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE)
-        inputStream?.use { input ->
-            Timber.d("inputStream: $input")
-            outputStream.use { output ->
-                Timber.d("outputStream: $output")
-                val copied = input.copyTo(output)
-                Timber.d("copied: $copied")
-            }
-        }
-    }
+    override suspend fun copyFromBitmapToFile(bitmap: Bitmap, fileName: String) {
+        Timber.d("copyFromBitmapToFile: $fileName")
 
-    companion object {
-        private const val AUTHORITY = "com.alexeymerov.radiostations.provider"
+        val outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE)
+        outputStream.use { output ->
+            Timber.d("outputStream: $output")
+            val saved = bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+            output.flush()
+            Timber.d("saved: $saved")
+        }
     }
 }

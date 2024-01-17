@@ -44,4 +44,8 @@
     <string name="name">Nombre</string>
     <string name="email">Correo electrónico</string>
     <string name="phone">Teléfono</string>
+    <string name="cancel">Cancelar</string>
+    <string name="crop">Recortar</string>
+    <string name="select_area">Selecciona el área</string>
+
 </resources>
