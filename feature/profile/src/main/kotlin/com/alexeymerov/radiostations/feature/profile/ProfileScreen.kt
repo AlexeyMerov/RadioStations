@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,8 +32,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -44,7 +40,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.palette.graphics.Palette
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
@@ -197,15 +192,9 @@ private fun MainContent(
     val focusManager = LocalFocusManager.current
     var needShowBigPicture by rememberSaveable { mutableStateOf(false) }
 
-    val themeBackgroundColor = MaterialTheme.colorScheme.background
-    var backgroundColors by remember {
-        mutableStateOf(listOf(themeBackgroundColor, themeBackgroundColor)) // required 2 by Brush
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(backgroundColors))
             .verticalScroll(rememberScrollState())
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -214,15 +203,6 @@ private fun MainContent(
             },
         contentAlignment = Alignment.TopCenter,
     ) {
-        val onPaletteResult: (Palette) -> Unit = { palette ->
-            // difficult to consider all possible pictures and their colors to look universally good for dark and light themes
-            (palette.mutedSwatch ?: palette.dominantSwatch)?.let {
-                backgroundColors = listOf(
-                    themeBackgroundColor,
-                    Color(it.rgb)
-                )
-            }
-        }
         if (config.isLandscape() && config.isTablet()) {
             ContentForLandscapeTabletScreen(
                 userData = userData,
@@ -230,8 +210,7 @@ private fun MainContent(
                 onAction = onAction,
                 onAvatarClick = { needShowBigPicture = true },
                 onAvatarEdit = onAvatarEdit,
-                onCountryCode = onCountryCode,
-                onPaletteResult = onPaletteResult
+                onCountryCode = onCountryCode
             )
         } else {
             ContentForRegularScreen(
@@ -240,8 +219,7 @@ private fun MainContent(
                 onAction = onAction,
                 onAvatarClick = { needShowBigPicture = true },
                 onAvatarEdit = onAvatarEdit,
-                onCountryCode = onCountryCode,
-                onPaletteResult = onPaletteResult
+                onCountryCode = onCountryCode
             )
         }
 

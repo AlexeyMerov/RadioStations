@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.palette.graphics.Palette
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.feature.profile.elements.UserTextFields
@@ -30,8 +29,7 @@ internal fun ContentForLandscapeTabletScreen(
     onAction: (ProfileViewModel.ViewAction) -> Unit,
     onAvatarClick: () -> Unit,
     onAvatarEdit: () -> Unit,
-    onCountryCode: () -> Unit,
-    onPaletteResult: (Palette) -> Unit
+    onCountryCode: () -> Unit
 ) {
     val config = LocalConfiguration.current
     var isLoaded by rememberSaveable { mutableStateOf(false) }
@@ -49,8 +47,7 @@ internal fun ContentForLandscapeTabletScreen(
                 isLoaded = isLoaded,
                 avatarFile = userData.avatarFile,
                 onLoadResult = { isLoaded = it },
-                onClick = { onAvatarClick.invoke() },
-                onPaletteResult = onPaletteResult
+                onClick = { onAvatarClick.invoke() }
             )
 
             AnimatedVisibility(visible = inEdit) {

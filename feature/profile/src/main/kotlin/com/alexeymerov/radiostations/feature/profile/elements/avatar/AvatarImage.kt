@@ -46,8 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.graphics.drawable.toBitmap
-import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -63,7 +61,6 @@ internal fun AvatarImage(
     isLoaded: Boolean,
     avatarFile: File?,
     onLoadResult: (Boolean) -> Unit,
-    onPaletteResult: (Palette) -> Unit,
     onClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -88,15 +85,7 @@ internal fun AvatarImage(
         contentScale = ContentScale.Crop,
         error = rememberAsyncImagePainter(R.drawable.icon_person),
         colorFilter = colorFilter,
-        onSuccess = {
-            val bitmap = it.result.drawable.toBitmap()
-            Palette.from(bitmap).generate { paletteOrNull ->
-                paletteOrNull?.let { palette ->
-                    onPaletteResult.invoke(palette)
-                }
-            }
-            onLoadResult.invoke(true)
-        },
+        onSuccess = { onLoadResult.invoke(true) },
         onError = { onLoadResult.invoke(false) }
     )
 }
