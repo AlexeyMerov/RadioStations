@@ -96,6 +96,11 @@
                 />
         </provider>
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}"
+            />
+
         <!--        todo need proper realization with play control, images etc.-->
         <!--        <receiver-->
         <!--            android:name=".feature.player.widget.PlayerWidgetReciever"-->

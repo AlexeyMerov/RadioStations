@@ -48,6 +48,7 @@ versionsChecker = { id = "com.github.ben-manes.versions", version.ref = "version
 googleServices = { id = "com.google.gms.google-services", version = "4.4.0" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "fierbaseCrashlyticsPlugin" }
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "fierbasePerfPlugin" }
+gradleSecrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 
 radiostations-android-application = { id = "radiostations.android.application", version = "unspecified" }
 radiostations-android-library = { id = "radiostations.android.library", version = "unspecified" }
@@ -61,10 +62,10 @@ radiostations-android-firebase = { id = "radiostations.android.firebase", versio
 
 [libraries]
 
-android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
-kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kspGradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-firebaseCrashlyticsGradlePlugin = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "fierbaseCrashlyticsPlugin" }
+gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradlePlugin-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+gradlePlugin-firebaseCrashlytics = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "fierbaseCrashlyticsPlugin" }
 
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" }
@@ -72,6 +73,10 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.6.1
 work-runtime = { module = "androidx.work:work-runtime-ktx", version = "2.9.0" }
 dataStore-base = { module = "androidx.datastore:datastore-preferences", version = "1.0.0" }
 kotlin-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version = "1.7.3" }
+
+maps-core = { module = "com.google.android.gms:play-services-maps", version = "18.2.0" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version = "4.3.1" }
+
 paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
 paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 
