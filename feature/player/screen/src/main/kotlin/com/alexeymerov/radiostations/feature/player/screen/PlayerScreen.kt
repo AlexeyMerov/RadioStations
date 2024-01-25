@@ -331,11 +331,12 @@ internal fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) 
         )
     )
 
+    val interactionSource = remember { MutableInteractionSource() }
     LottieAnimation(
         modifier = Modifier
             .fillMaxSize()
             .clickable(
-                interactionSource = MutableInteractionSource(),
+                interactionSource = interactionSource,
                 indication = rememberRipple(
                     color = MaterialTheme.colorScheme.onBackground,
                     bounded = false,

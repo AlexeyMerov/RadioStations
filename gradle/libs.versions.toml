@@ -122,7 +122,7 @@ compose-lifecycleRuntime = { module = "androidx.lifecycle:lifecycle-runtime-comp
 compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.2" }
 compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.6" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
-compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.5.4" }
+compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.6.0" }
 
 glance-widget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }

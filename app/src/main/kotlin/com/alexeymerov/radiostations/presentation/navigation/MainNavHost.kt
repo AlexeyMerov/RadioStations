@@ -96,7 +96,7 @@ fun MainNavGraph(
         scrollBehavior.state.heightOffset = 0f
     }
 
-    Timber.d("isNetworkAvailable ${isNetworkAvailable}")
+    Timber.d("isNetworkAvailable $isNetworkAvailable")
 
     val sheetState = rememberStandardBottomSheetState(
         skipHiddenState = false,

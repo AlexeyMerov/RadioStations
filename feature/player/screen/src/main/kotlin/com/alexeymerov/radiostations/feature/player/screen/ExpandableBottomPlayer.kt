@@ -241,11 +241,12 @@ private fun PlayButton(modifier: Modifier, onColor: Color, isPlaying: Boolean, o
     )
 
     val isNetworkAvailable = LocalConnectionStatus.current
+    val interactionSource = remember { MutableInteractionSource() }
     LottieAnimation(
         modifier = modifier
             .fillMaxSize()
             .clickable(
-                interactionSource = MutableInteractionSource(),
+                interactionSource = interactionSource,
                 indication = rememberRipple(
                     color = onColor,
                     bounded = false,

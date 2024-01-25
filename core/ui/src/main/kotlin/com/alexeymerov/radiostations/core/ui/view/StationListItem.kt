@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -62,10 +63,11 @@ fun StationListItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
+        val interactionSource = remember { MutableInteractionSource() }
         Row(
             modifier = Modifier
                 .combinedClickable(
-                    interactionSource = MutableInteractionSource(),
+                    interactionSource = interactionSource,
                     indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                     onClick = { onAudioClick.invoke(itemDto) },
                     onLongClick = { onLongClick.invoke(itemDto) }
