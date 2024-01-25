@@ -14,6 +14,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +24,8 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.core.ui.common.LocalDarkMode
+import com.alexeymerov.radiostations.core.ui.common.LocalNightMode
 import com.alexeymerov.radiostations.presentation.theme.blue.getBlueColorScheme
 import com.alexeymerov.radiostations.presentation.theme.green.getGreenColorScheme
 import com.alexeymerov.radiostations.presentation.theme.orange.getOrangeColorScheme
@@ -54,7 +57,10 @@ fun StationsAppTheme(
         }
     }
 
-    if (themeState.darkLightMode == DarkLightMode.NIGHT) {
+    val isDarkMode = themeState.darkLightMode == DarkLightMode.DARK
+    val isNightMode = themeState.darkLightMode == DarkLightMode.NIGHT
+
+    if (isNightMode) {
         colors = colors.copy(
             surface = Color.Black,
             background = Color.Black,
@@ -79,7 +85,12 @@ fun StationsAppTheme(
             color = MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation)
         )
 
-        content.invoke()
+        CompositionLocalProvider(
+            LocalDarkMode provides isDarkMode,
+            LocalNightMode provides isNightMode,
+        ) {
+            content.invoke()
+        }
     }
 }
 

@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowUpward
@@ -48,6 +49,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,6 +59,8 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
+import com.alexeymerov.radiostations.core.ui.common.LocalDarkMode
+import com.alexeymerov.radiostations.core.ui.common.LocalNightMode
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
@@ -74,6 +78,12 @@ import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewSt
 import com.alexeymerov.radiostations.feature.category.item.CategoryListItem
 import com.alexeymerov.radiostations.feature.category.item.HeaderListItem
 import com.alexeymerov.radiostations.feature.category.item.SubCategoryListItem
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -180,7 +190,39 @@ private fun CategoryScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+// It works but...
+// Idea was to fetch locations by name and show with custom pins with station images.
+// Geocoder works not as fast as i hoped and BitmapDecoder from Coil also looks not right.
+// Later will try to find some REST apis to preload needed data in advance and not in place.
+@Composable
+private fun ShowMap() {
+    val isDarkMode = LocalDarkMode.current
+    val isNightMode = LocalNightMode.current
+    val context = LocalContext.current
+
+    val mapStyle = when {
+        isDarkMode -> MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
+        isNightMode -> MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_night)
+        else -> null
+    }
+
+    val location = LatLng(0.0, 0.0)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(location, 5f)
+
+    }
+
+    GoogleMap(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(16.dp)),
+        cameraPositionState = cameraPositionState,
+        properties = MapProperties(mapStyleOptions = mapStyle)
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     categoryItems: List<HeaderWithItems>,

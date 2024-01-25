@@ -50,10 +50,10 @@ class CategoriesViewModel @Inject constructor(
         .getAllByUrl(categoryUrl)
         .catch { handleError(it) }
         .onEach(::prepareHeaders)
-        .combine(headerFlow, ::filterCategories)
-        .onEach(::validateNewData)
+        .combine(headerFlow, ::filterCategoriesByHeader)
+        .onEach(::validateDataAndUpdateState)
         .map { it.items }
-        .map(::createHeaderWithItems)
+        .map(::mapListToHeadersWithItems)
         .flowOn(ioContext)
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -105,7 +105,7 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    private fun filterCategories(categoryDto: CategoryDto, headers: List<CategoryItemDto>): CategoryDto {
+    private fun filterCategoriesByHeader(categoryDto: CategoryDto, headers: List<CategoryItemDto>): CategoryDto {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categories combine")
         val items = categoryDto.items.toMutableList()
 
@@ -154,7 +154,7 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    private fun validateNewData(categoryDto: CategoryDto) {
+    private fun validateDataAndUpdateState(categoryDto: CategoryDto) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] validateNewData")
         viewModelScope.launch(ioContext) {
             isRefreshing.value = false
@@ -184,7 +184,7 @@ class CategoriesViewModel @Inject constructor(
     /**
      * We need to save same order for elements but separate header for sticky view
      * */
-    private fun createHeaderWithItems(items: List<CategoryItemDto>): List<HeaderWithItems> {
+    private fun mapListToHeadersWithItems(items: List<CategoryItemDto>): List<HeaderWithItems> {
         val resultList = mutableListOf<HeaderWithItems>()
 
         // if need to process header filtering at all
