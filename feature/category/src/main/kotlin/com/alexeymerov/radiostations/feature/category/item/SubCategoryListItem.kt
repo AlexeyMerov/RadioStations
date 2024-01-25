@@ -8,12 +8,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +25,7 @@ import com.alexeymerov.radiostations.core.ui.view.BasicText
 
 @Composable
 fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier
             .clip(CardDefaults.shape) // for ripple bounds
@@ -33,7 +35,7 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
                 shape = CardDefaults.shape
             )
             .clickable(
-                interactionSource = MutableInteractionSource(),
+                interactionSource = interactionSource,
                 indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                 onClick = { onCategoryClick.invoke(itemDto) }
             ), // we need to duplicate paddings on each item for unbounded selection here
@@ -50,7 +52,7 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
             modifier = Modifier
                 .padding(end = 8.dp)
                 .size(24.dp),
-            imageVector = Icons.Rounded.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
             contentDescription = String.EMPTY
         )
     }

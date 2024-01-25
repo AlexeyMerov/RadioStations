@@ -9,20 +9,20 @@ targetSdk = "34"
 
 javaVersion = "17"
 kotlinLanguage = "1.9"
-composeCompiler = "1.5.5"
+composeCompiler = "1.5.8"
 
-gradle = "8.2.0"
-kotlin = "1.9.20"
+gradle = "8.2.2"
+kotlin = "1.9.22"
 versionsChecker = "0.47.0"
 
-ksp = "1.9.20-1.0.14"
+ksp = "1.9.22-1.0.17"
 hilt = "2.48.1"
 room = "2.6.1"
 retrofit = "2.9.0"
 moshi = "1.15.0"
 okhttp = "4.12.0"
-exoplayer = "1.2.0"
-composeLifecycle = "2.6.2"
+exoplayer = "1.2.1"
+composeLifecycle = "2.7.0"
 test = "1.5.0"
 mockk = "1.13.8"
 espresso-core = "3.5.1"
@@ -106,7 +106,7 @@ media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", vers
 media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exoplayer" }
 media3-session = { module = "androidx.media3:media3-session", version.ref = "exoplayer" }
 
-compose-bom = { module = "androidx.compose:compose-bom", version = "2023.10.01" }
+compose-bom = { module = "androidx.compose:compose-bom", version = "2024.01.00" }
 
 compose-animation = { module = "androidx.compose.animation:animation" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
@@ -155,7 +155,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
-firebase-bom = { module = "com.google.firebase:firebase-bom", version = "32.7.0" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version = "32.7.1" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }

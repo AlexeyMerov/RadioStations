@@ -2,9 +2,9 @@ package com.alexeymerov.radiostations.core.ui.navigation
 
 import android.os.Parcelable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.StarHalf
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.StarHalf
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -43,7 +43,7 @@ data class DropDownItem(val iconId: Int, val stringId: Int) : Parcelable {
 // doesn't look ok and mb whole TopBar state needs another approach
 enum class TopBarIcon(val iconVector: ImageVector, val iconResId: Int? = null) {
     SETTINGS(Icons.Rounded.Settings, R.drawable.icon_settings),
-    STAR_HALF(Icons.Rounded.StarHalf),
+    STAR_HALF(Icons.AutoMirrored.Rounded.StarHalf),
     STAR(Icons.Rounded.Star),
     STAR_OUTLINE(Icons.Rounded.StarOutline),
 }
