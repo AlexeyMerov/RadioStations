@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.core.data.mapper.category
 
 import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.extractTextFromRoundBrackets
 import com.alexeymerov.radiostations.core.common.httpsEverywhere
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.core.database.entity.EntityItemType
@@ -68,13 +69,22 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
     }
 
     private fun mapCategoryResponseToEntity(body: CategoryBody, parentUrl: String, position: Int, type: EntityItemType): CategoryEntity {
-        val text = body.text.replace(invalidChildCountStringRegex, String.EMPTY)
+        var mainText = body.text.replace(invalidChildCountStringRegex, String.EMPTY)
+        var locationText: String? = null
+
+        if (type == EntityItemType.AUDIO) {
+            val (name, location) = mainText.extractTextFromRoundBrackets()
+            mainText = name.trim()
+            locationText = location
+        }
+
         return CategoryEntity(
-            id = "$parentUrl##$text",
+            id = "$parentUrl##$mainText",
             position = position,
             url = body.url?.httpsEverywhere().orEmpty(),
             parentUrl = parentUrl,
-            text = text,
+            text = mainText,
+            locationText = locationText,
             image = body.image.httpsEverywhere(),
             currentTrack = body.currentTrack,
             type = type,

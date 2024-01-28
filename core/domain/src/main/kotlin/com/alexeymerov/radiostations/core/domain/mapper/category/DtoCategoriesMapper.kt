@@ -9,5 +9,4 @@ interface DtoCategoriesMapper {
 
     fun mapEntityToDto(entity: CategoryEntity): CategoryItemDto
 
-    fun extractLocationIfExist(originalText: String): Pair<String, String?>
 }

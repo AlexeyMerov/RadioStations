@@ -94,7 +94,7 @@ fun StationGridItem(
                 text = itemDto.text
             )
 
-            itemDto.subText?.let { subtext ->
+            itemDto.locationText?.let { subtext ->
                 Row(
                     modifier = Modifier.padding(bottom = 8.dp, start = 4.dp, end = 4.dp),
                     verticalAlignment = Alignment.CenterVertically

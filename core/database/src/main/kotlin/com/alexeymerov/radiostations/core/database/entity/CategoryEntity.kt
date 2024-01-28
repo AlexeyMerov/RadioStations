@@ -7,11 +7,14 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 @Entity(tableName = CategoryEntity.TABLE_NAME)
 data class CategoryEntity(
     @PrimaryKey
-    val id: String,
+    val id: String, // generating manually
     val position: Int, // For saving in DB but is wierd. There is a predefined sort for sure and no param for that as well.
     val url: String,
     val parentUrl: String,
     val text: String,
+    val locationText: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val image: String = String.EMPTY,
     val currentTrack: String = String.EMPTY,
     val type: EntityItemType,

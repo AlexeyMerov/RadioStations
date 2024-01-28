@@ -13,9 +13,6 @@ import javax.inject.Inject
  * */
 class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
 
-    private val cityRegex = "\\(.+\\)".toRegex()
-    private val parenthesisRegex = "\\(|\\)".toRegex()
-
     override fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto> {
         val resultList = mutableListOf<CategoryItemDto>()
 
@@ -35,16 +32,9 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             EntityItemType.AUDIO -> DtoItemType.AUDIO
         }
 
-        var mainText = entity.text
-        var locationText: String? = null
         var initials = String.EMPTY
-
         if (type == DtoItemType.AUDIO) {
-            val (name, location) = extractLocationIfExist(mainText)
-            mainText = name.trim()
-            locationText = location
-
-            initials = mainText
+            initials = entity.text
                 .split(String.SPACE, limit = 2)
                 .map { it.first() }
                 .joinToString(separator = String.EMPTY)
@@ -55,29 +45,17 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             type = type,
             url = entity.url.ifEmpty { entity.text },
 
-            text = mainText,
-            subText = locationText,
+            text = entity.text,
+            locationText = entity.locationText,
             subItemsCount = entity.childCount ?: 0,
 
             image = entity.image,
             isFavorite = entity.isFavorite,
-            initials = initials
+            initials = initials,
+
+            latitude = entity.latitude,
+            longitude = entity.longitude
         )
-    }
-
-    // if there is (Location), then save it separately and remove from main string.
-    override fun extractLocationIfExist(originalText: String): Pair<String, String?> {
-        var locationText: String? = null
-        val mainText = originalText.replace(cityRegex) { match ->
-            locationText = match.value.replace(parenthesisRegex, String.EMPTY).trim()
-            return@replace String.EMPTY
-        }.trim()
-
-        locationText?.let {
-            val uniqueWords = it.split(String.SPACE).toSet()
-            locationText = uniqueWords.joinToString(String.SPACE).trim()
-        }
-        return Pair(mainText, locationText)
     }
 
 }

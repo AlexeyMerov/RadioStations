@@ -16,6 +16,5 @@ dependencies {
 
     implementation(libs.revealSwipe)
 
-    implementation(libs.maps.core)
-    implementation(libs.maps.compose)
+    implementation(libs.bundles.maps)
 }

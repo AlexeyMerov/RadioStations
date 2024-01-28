@@ -146,7 +146,7 @@ private fun SelectedIcon() {
 private fun TextBlock(itemDto: CategoryItemDto) {
     BasicText(modifier = Modifier.basicMarquee(), text = itemDto.text)
 
-    itemDto.subText?.let { subtext ->
+    itemDto.locationText?.let { subtext ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 modifier = Modifier
@@ -197,7 +197,7 @@ fun StationListItemPreview() {
     val item = CategoryItemDto(
         id = String.EMPTY,
         url = String.EMPTY,
-        subText = "Hello",
+        locationText = "Hello",
         text = "Station NameStation NameStation NameStation Name",
         type = DtoItemType.AUDIO,
         isFavorite = true,

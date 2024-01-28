@@ -3,7 +3,6 @@ package com.alexeymerov.radiostations.presentation.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -227,11 +226,7 @@ fun MainNavGraph(
                         },
                         content = { sheetContentPadding ->
                             Timber.d("sheetContentPadding: $sheetContentPadding")
-                            Surface(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation))
-                            ) {
+                            Surface(Modifier.fillMaxSize()) {
                                 Row(Modifier.fillMaxSize()) {
                                     if (config.isLandscape()) {
                                         CreateNavigationRail(

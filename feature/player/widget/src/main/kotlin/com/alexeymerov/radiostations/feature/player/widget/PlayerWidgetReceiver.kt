@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalGlanceApi::class)
 @AndroidEntryPoint
-class PlayerWidgetReciever : GlanceAppWidgetReceiver() {
+class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
 
     @Inject
     lateinit var audioUseCase: AudioUseCase

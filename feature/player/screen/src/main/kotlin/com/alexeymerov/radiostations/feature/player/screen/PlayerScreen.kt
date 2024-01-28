@@ -154,7 +154,7 @@ private fun BasePlayerScreen(
             LoaderView()
 
             stationName = viewState.item.text
-            locationName = viewState.item.subText.orEmpty()
+            locationName = viewState.item.locationText.orEmpty()
             id = viewState.item.id
             stationImgUrl = viewState.item.image.orEmpty()
             rawUrl = viewState.item.url

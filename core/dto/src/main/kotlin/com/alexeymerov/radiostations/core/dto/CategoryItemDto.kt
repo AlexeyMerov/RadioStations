@@ -17,7 +17,7 @@ data class CategoryDto(
  * @param id - unique id of the item
  * @param url - url to load next screen of any item but Header
  * @param text - main text to display for any type
- * @param subText - currently - city/location of station
+ * @param locationText - currently - city/country of station
  * @param image - image url for stations
  * @param type - type of item @see [DtoItemType]
  * @param isFiltered - is item filtered by header by user
@@ -30,14 +30,16 @@ data class CategoryItemDto(
     val id: String,
     val url: String,
     val text: String,
-    var subText: String? = null,
+    var locationText: String? = null,
     val image: String? = null,
     val type: DtoItemType,
     var isFiltered: Boolean = false,
     var subItemsCount: Int = 0,
     var isFavorite: Boolean = false,
     var initials: String,
-    var absoluteIndex: Int = 0
+    var absoluteIndex: Int = 0,
+    var latitude: Double? = null,
+    var longitude: Double? = null
 )
 
 enum class DtoItemType(val value: Int) {
