@@ -25,6 +25,9 @@ dependencies {
     implementation(libs.okhttp.base)
     implementation(libs.okhttp.logging)
 
+    debugImplementation(libs.chucker.debug)
+    releaseImplementation(libs.chucker.release)
+
     testImplementation(libs.okhttp.test)
     testImplementation(libs.retrofit.test)
 
