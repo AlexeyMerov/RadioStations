@@ -63,7 +63,11 @@ fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent), //with color it has some delay for color animation
+        //with color it has some delay for color animation
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent
+        ),
         title = { TopBarTitle(barState.title, barState.subTitle) },
         navigationIcon = {
             if (barState.selectedItems == 0) {
