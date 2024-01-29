@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.RotateLeft
-import androidx.compose.material.icons.rounded.RotateRight
+import androidx.compose.material.icons.automirrored.rounded.RotateLeft
+import androidx.compose.material.icons.automirrored.rounded.RotateRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -124,7 +124,7 @@ fun Cropper(
 
                 Row(modifier = Modifier.align(Alignment.BottomCenter)) {
                     ImageModificationIconWithAction(
-                        icon = Icons.Rounded.RotateLeft,
+                        icon = Icons.AutoMirrored.Rounded.RotateLeft,
                         action = {
                             coroutineScope.launch {
                                 onUpdateImage.invoke(imageToCrop.rotate(-90f))
@@ -133,7 +133,7 @@ fun Cropper(
                     )
 
                     ImageModificationIconWithAction(
-                        icon = Icons.Rounded.RotateRight,
+                        icon = Icons.AutoMirrored.Rounded.RotateRight,
                         action = {
                             coroutineScope.launch {
                                 onUpdateImage.invoke(imageToCrop.rotate(90f))

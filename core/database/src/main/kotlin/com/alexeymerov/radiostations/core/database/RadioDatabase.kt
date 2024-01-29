@@ -15,7 +15,7 @@ import com.alexeymerov.radiostations.core.database.entity.MediaEntity
 
 
 @Database(
-    version = 6,
+    version = 7,
     entities = [
         CategoryEntity::class,
         MediaEntity::class,
@@ -37,7 +37,8 @@ abstract class RadioDatabase : RoomDatabase() {
                 MIGRATION_2_3,
                 MIGRATION_3_4,
                 MIGRATION_4_5,
-                MIGRATION_5_6
+                MIGRATION_5_6,
+                MIGRATION_6_7
             )
 
         fun buildDatabase(context: Context): RadioDatabase {
@@ -116,5 +117,13 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
                 "nameNative TEXT NOT NULL, " +
                 "phoneCode TEXT NOT NULL)"
         )
+    }
+}
+
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE category ADD COLUMN subTitle TEXT")
+        db.execSQL("ALTER TABLE category ADD COLUMN latitude REAL")
+        db.execSQL("ALTER TABLE category ADD COLUMN longitude REAL")
     }
 }

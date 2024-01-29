@@ -18,6 +18,7 @@ build/
 captures/
 release/
 
+secrets.properties
 local.properties
 keystore.properties
 key_radiostations.jks

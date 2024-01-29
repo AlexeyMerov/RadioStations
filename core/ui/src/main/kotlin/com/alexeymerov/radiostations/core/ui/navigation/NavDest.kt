@@ -55,8 +55,8 @@ sealed class Screens(val route: String) {
             const val ARG_IS_FAV: String = "isFav"
         }
 
-        fun createRoute(stationName: String, locationName: String, stationImgUrl: String, rawUrl: String, id: String, isFav: Boolean): String {
-            return createNewRoute(null, stationName, locationName, stationImgUrl.encodeUrl(), rawUrl.encodeUrl(), id.encodeUrl(), isFav)
+        fun createRoute(stationName: String, subTitle: String, stationImgUrl: String, rawUrl: String, id: String, isFav: Boolean): String {
+            return createNewRoute(null, stationName, subTitle, stationImgUrl.encodeUrl(), rawUrl.encodeUrl(), id.encodeUrl(), isFav)
         }
 
         fun createRoute(parentUrl: String): String = createNewRoute(parentUrl.encodeUrl())
@@ -64,7 +64,7 @@ sealed class Screens(val route: String) {
         private fun createNewRoute(
             parentUrl: String? = null,
             stationName: String? = null,
-            locationName: String? = null,
+            subTitle: String? = null,
             stationImgUrl: String? = null,
             rawUrl: String? = null,
             id: String? = null,
@@ -72,7 +72,7 @@ sealed class Screens(val route: String) {
         ): String {
             return createNewRoute(
                 route = "$parentRoute##${Const.ROUTE}",
-                args = arrayOf(parentUrl, stationName, locationName, stationImgUrl, rawUrl, id, isFav)
+                args = arrayOf(parentUrl, stationName, subTitle, stationImgUrl, rawUrl, id, isFav)
             )
         }
     }

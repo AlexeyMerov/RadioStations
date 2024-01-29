@@ -10,6 +10,7 @@ fun mapToMediaItem(item: AudioItemDto): MediaItem {
         .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION)
         .setTitle(item.title)
         .setArtist(item.subTitle)
+        .setIsBrowsable(false)
         .setArtworkUri(Uri.parse(item.image))
         .build()
 

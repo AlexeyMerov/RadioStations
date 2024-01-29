@@ -10,6 +10,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,14 +26,17 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarDuration
@@ -46,17 +50,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
+import com.alexeymerov.radiostations.core.ui.common.LocalDarkMode
+import com.alexeymerov.radiostations.core.ui.common.LocalNightMode
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
@@ -74,6 +85,18 @@ import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewSt
 import com.alexeymerov.radiostations.feature.category.item.CategoryListItem
 import com.alexeymerov.radiostations.feature.category.item.HeaderListItem
 import com.alexeymerov.radiostations.feature.category.item.SubCategoryListItem
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -116,6 +139,7 @@ fun BaseCategoryScreen(
         CategoryScreen(
             viewState = viewState,
             categoryItems = categoryItems,
+            itemsWithLocation = viewModel.itemsWithLocation,
             parentRoute = parentRoute,
             onNavigate = onNavigate,
             onAction = { viewModel.setAction(it) }
@@ -145,6 +169,7 @@ private fun TopBarSetup(
 private fun CategoryScreen(
     viewState: ViewState,
     categoryItems: List<HeaderWithItems>,
+    itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?,
     parentRoute: String,
     onNavigate: (String) -> Unit,
     onAction: (ViewAction) -> Unit
@@ -157,6 +182,7 @@ private fun CategoryScreen(
             MainContent(
                 categoryItems = categoryItems,
                 filterHeaderItems = viewState.filterHeaderItems,
+                itemsWithLocation = itemsWithLocation,
                 onHeaderFilterClick = { onAction.invoke(ViewAction.FilterByHeader(it)) },
                 onCategoryClick = {
                     onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
@@ -165,7 +191,7 @@ private fun CategoryScreen(
                     if (isNetworkAvailable) {
                         val route = Screens.Player(parentRoute).createRoute(
                             stationName = it.text,
-                            locationName = it.subText.orEmpty(),
+                            subTitle = it.subTitle.orEmpty(),
                             stationImgUrl = it.image.orEmpty(),
                             rawUrl = it.url,
                             id = it.id,
@@ -180,11 +206,12 @@ private fun CategoryScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     categoryItems: List<HeaderWithItems>,
     filterHeaderItems: List<CategoryItemDto>,
+    itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?,
     onHeaderFilterClick: (CategoryItemDto) -> Unit,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit,
@@ -194,6 +221,7 @@ private fun MainContent(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val config = LocalConfiguration.current
+    var needShowMap by rememberSaveable { mutableStateOf(false) }
 
     val columnCount = remember(config) {
         var count = 1
@@ -202,85 +230,198 @@ private fun MainContent(
         return@remember count
     }
 
-    Box {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = listState,
-            userScrollEnabled = listState.canScrollForward || listState.canScrollBackward,
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp)
-        ) {
-            if (filterHeaderItems.isNotEmpty()) filtersHeader(filterHeaderItems, onHeaderFilterClick)
+    LaunchedEffect(categoryItems) {
+        listState.scrollToItem(0)
+    }
 
-            categoryItems.forEachIndexed { index, (header, items) ->
-                if (header != null) {
-                    stickyHeader(
-                        header = header,
-                        onClick = {
-                            coroutineScope.launch {
-                                listState.animateScrollToItem(header.absoluteIndex)
+    Box {
+        Column {
+            if (filterHeaderItems.isNotEmpty()) {
+                FiltersHeader(filterHeaderItems, onHeaderFilterClick)
+            }
+
+            // needs animation or some transition
+            if (needShowMap && itemsWithLocation != null) {
+                ShowMap(itemsWithLocation, onAudioClick)
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState,
+                    userScrollEnabled = listState.canScrollForward || listState.canScrollBackward,
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp)
+                ) {
+                    categoryItems.forEachIndexed { index, (header, items) ->
+                        if (header != null) {
+                            stickyHeader(
+                                header = header,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        listState.animateScrollToItem(header.absoluteIndex)
+                                    }
+                                }
+                            )
+                        } else if (index > 0) {
+                            // needs to unstick previous header
+                            stickyHeader(
+                                key = index,
+                                contentType = "emptyHeader"
+                            ) {
+                                Spacer(Modifier)
                             }
                         }
-                    )
-                } else if (index > 0) {
-                    // needs to unstick previous header
-                    stickyHeader(
-                        key = index,
-                        contentType = "emptyHeader"
-                    ) {
-                        Spacer(Modifier)
-                    }
-                }
 
-                if (columnCount > 1) {
-                    mainGridItems(header, columnCount, items, onCategoryClick, onAudioClick, onFavClick)
-                } else {
-                    mainListItems(items, onCategoryClick, onAudioClick, onFavClick)
+                        if (columnCount > 1) {
+                            mainGridItems(header, columnCount, items, onCategoryClick, onAudioClick, onFavClick)
+                        } else {
+                            mainListItems(items, onCategoryClick, onAudioClick, onFavClick)
+                        }
+                    }
                 }
             }
         }
 
         val bottomPadding by animateDpAsState(targetValue = if (LocalPlayerVisibility.current) 64.dp else 16.dp, label = String.EMPTY)
-        AnimatedVisibility(
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(
                     bottom = bottomPadding,
                     end = 16.dp
                 ),
-            visible = listState.canScrollBackward,
-            enter = fadeIn() + scaleIn(),
-            exit = fadeOut() + scaleOut(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SmallFloatingActionButton(
-                onClick = {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(0)
+            AnimatedVisibility(
+                modifier = Modifier.padding(bottom = 8.dp),
+                visible = listState.canScrollBackward,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut(),
+            ) {
+                SmallFloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0)
+                        }
+                    },
+                    content = { Icon(Icons.Rounded.ArrowUpward, null) }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = itemsWithLocation != null,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut(),
+            ) {
+                FloatingActionButton(
+                    onClick = { needShowMap = !needShowMap },
+                    backgroundColor = FloatingActionButtonDefaults.containerColor,
+                    content = { Icon(Icons.Outlined.Map, null) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShowMap(
+    itemsWithBounds: Pair<LatLngBounds, List<CategoryItemDto>>,
+    onAudioClick: (CategoryItemDto) -> Unit
+) {
+    val isDarkMode = LocalDarkMode.current
+    val isNightMode = LocalNightMode.current
+    val context = LocalContext.current
+
+    val mapStyle = when {
+        isDarkMode -> MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
+        isNightMode -> MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_night)
+        else -> null
+    }
+
+    val bottomPadding by animateDpAsState(targetValue = if (LocalPlayerVisibility.current) 64.dp else 8.dp, label = String.EMPTY)
+    val cameraPositionState = rememberCameraPositionState()
+    GoogleMap(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = bottomPadding)
+            .clip(RoundedCornerShape(16.dp)),
+        cameraPositionState = cameraPositionState,
+        uiSettings = MapUiSettings(zoomControlsEnabled = false),
+        properties = MapProperties(mapStyleOptions = mapStyle)
+    ) {
+        itemsWithBounds.second.forEach { item ->
+            val latitude = item.latitude
+            val longitude = item.longitude
+
+            if (latitude != null && longitude != null) {
+                val markerState = rememberMarkerState(
+                    key = item.text,
+                    position = LatLng(latitude, longitude)
+                )
+
+                var bitmapDescriptor by remember { mutableStateOf<BitmapDescriptor?>(null) }
+
+                Marker(
+                    state = markerState,
+                    title = item.text,
+                    icon = bitmapDescriptor,
+                    onClick = {
+                        onAudioClick.invoke(item)
+                        return@Marker true
                     }
-                },
-                content = { Icon(Icons.Rounded.ArrowUpward, null) }
-            )
+                )
+
+                LoadIcon(
+                    image = item.image,
+                    onLoaded = { bitmapDescriptor = it }
+                )
+            }
         }
     }
 
+    LaunchedEffect(itemsWithBounds) {
+        cameraPositionState.animate(
+            update = CameraUpdateFactory.newLatLngBounds(itemsWithBounds.first, 100)
+        )
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-private fun LazyListScope.filtersHeader(
+@Composable
+private fun LoadIcon(
+    image: String?,
+    onLoaded: (BitmapDescriptor) -> Unit
+) {
+    val context = LocalContext.current
+    val imageLoader = remember { ImageLoader.Builder(context).build() }
+    val imageRequest = remember { ImageRequest.Builder(context) }
+    val transformation = remember { CircleCropTransformation() }
+
+    val request = imageRequest
+        .data(image)
+        .transformations(transformation)
+        .target(
+            onSuccess = {
+                onLoaded.invoke(BitmapDescriptorFactory.fromBitmap(it.toBitmap()))
+            }
+        )
+        .build()
+    imageLoader.enqueue(request)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FiltersHeader(
     headerItems: List<CategoryItemDto>,
     onHeaderFilterClick: (CategoryItemDto) -> Unit
 ) {
-    item(key = "TopHeader", contentType = "Filters") {
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-        ) {
-            headerItems.forEach { item ->
-                FilterChip(
-                    onClick = { onHeaderFilterClick.invoke(item) },
-                    label = { Text(text = item.text) },
-                    selected = item.isFiltered
-                )
-            }
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+    ) {
+        headerItems.forEach { item ->
+            FilterChip(
+                onClick = { onHeaderFilterClick.invoke(item) },
+                label = { Text(text = item.text) },
+                selected = item.isFiltered
+            )
         }
     }
 }
@@ -407,35 +548,4 @@ fun DrawItems(
         DtoItemType.SUBCATEGORY -> SubCategoryListItem(modifier, itemDto, onCategoryClick)
         DtoItemType.HEADER -> {}
     }
-}
-
-@Preview
-@Composable
-private fun MainContentPreview() {
-    val categoryItems: List<CategoryItemDto> = listOf(
-        CategoryItemDto("url#1", "", text = "Header", type = DtoItemType.HEADER, subItemsCount = 1, initials = "G"),
-        CategoryItemDto("url#2", "", text = "Category", type = DtoItemType.CATEGORY, initials = "G"),
-        CategoryItemDto("url#3", "", text = "Very Long Category Name", type = DtoItemType.CATEGORY, initials = "G"),
-        CategoryItemDto("url#4", "", text = "Another Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
-        CategoryItemDto("url#5", "", text = "Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
-        CategoryItemDto("url#6", "", text = "Long Subcategory", type = DtoItemType.SUBCATEGORY, initials = "G"),
-        CategoryItemDto("url#7", "", text = "Station (City)", type = DtoItemType.AUDIO, initials = "G"),
-        CategoryItemDto("url#8", "", text = "Station", type = DtoItemType.AUDIO, initials = "G"),
-    )
-    val headers = listOf(
-        CategoryItemDto("url#1", "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, subItemsCount = 1, initials = "G"),
-        CategoryItemDto("url#1", "", text = "Long Header", type = DtoItemType.HEADER, subItemsCount = 22, initials = "G"),
-        CategoryItemDto(
-            id = "url#3",
-            url = "",
-            text = "Very Long Header",
-            type = DtoItemType.HEADER,
-            isFiltered = true,
-            subItemsCount = 999,
-            initials = "G"
-        ),
-        CategoryItemDto("url#4", "", text = "Tiny", type = DtoItemType.HEADER, initials = "G"),
-        CategoryItemDto("url#5", "", text = "Header", type = DtoItemType.HEADER, isFiltered = true, initials = "G"),
-    )
-    MainContent(listOf(HeaderWithItems(items = categoryItems)), headers, {}, {}, {}, {})
 }

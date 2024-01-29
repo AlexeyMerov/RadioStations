@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.radiostations.android.hilt)
     alias(libs.plugins.radiostations.android.application.compose)
     alias(libs.plugins.radiostations.android.firebase)
+    id(libs.plugins.gradleSecrets.get().pluginId)
 }
 
 android {
@@ -53,6 +54,11 @@ android {
 
             signingConfig = signingConfigs.getByName("release")
         }
+    }
+
+    secrets {
+        propertiesFileName = "secrets.properties"
+        defaultPropertiesFileName = "secrets.defaults.properties"
     }
 }
 

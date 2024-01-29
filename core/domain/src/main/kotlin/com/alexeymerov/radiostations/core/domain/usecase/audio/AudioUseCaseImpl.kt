@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.core.domain.usecase.audio
 
 import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.extractTextFromRoundBrackets
 import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepository
 import com.alexeymerov.radiostations.core.database.entity.MediaEntity
 import com.alexeymerov.radiostations.core.datastore.SettingsStore
@@ -72,7 +73,7 @@ class AudioUseCaseImpl @Inject constructor(
         val mediaEntity = mediaRepository.getMediaByUrl(url)
         return when {
             mediaEntity != null -> {
-                val (title, subtitle) = dtoCategoriesMapper.extractLocationIfExist(mediaEntity.title)
+                val (title, subtitle) = mediaEntity.title.extractTextFromRoundBrackets()
                 AudioItemDto(
                     parentUrl = mediaEntity.url,
                     directUrl = mediaEntity.directMediaUrl,

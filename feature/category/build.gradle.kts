@@ -15,4 +15,6 @@ dependencies {
     implementation(projects.core.analytics)
 
     implementation(libs.revealSwipe)
+
+    implementation(libs.bundles.maps)
 }

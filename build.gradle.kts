@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.firebase.perf) apply false
+    alias(libs.plugins.gradleSecrets) apply false
 }
 
 allprojects {

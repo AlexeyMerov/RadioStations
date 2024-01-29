@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -19,8 +20,14 @@ abstract class CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertAll(list: List<CategoryEntity>)
 
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun updateAll(list: List<CategoryEntity>)
+
     @Query("DELETE FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url")
     abstract suspend fun removeAllByParentUrl(url: String)
+
+    @Query("DELETE FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_ID} IN (:ids)")
+    abstract suspend fun removeAllByIds(ids: List<String>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(entity: CategoryEntity)
@@ -28,11 +35,11 @@ abstract class CategoryDao {
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
     abstract fun getAllByParentUrl(url: String): Flow<List<CategoryEntity>>
 
-    @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_FAVORITE} = 1 ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
-    abstract fun getFavoritesFlow(): Flow<List<CategoryEntity>>
+    @Query("SELECT ${CategoryEntity.FIELD_ID} FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url")
+    abstract fun getAllIdsByParentUrl(url: String): List<String>
 
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_FAVORITE} = 1 ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
-    abstract fun getFavorites(): List<CategoryEntity>
+    abstract fun getFavoritesFlow(): Flow<List<CategoryEntity>>
 
     @Query(
         "UPDATE ${CategoryEntity.TABLE_NAME} " +

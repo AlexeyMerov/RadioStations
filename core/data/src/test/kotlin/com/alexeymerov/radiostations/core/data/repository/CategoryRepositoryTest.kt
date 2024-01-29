@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.core.data.repository
 
 import com.alexeymerov.radiostations.core.data.mapper.category.CategoryMapper
+import com.alexeymerov.radiostations.core.data.mapper.geocoder.LocationGeocoder
 import com.alexeymerov.radiostations.core.data.repository.category.CategoryRepository
 import com.alexeymerov.radiostations.core.data.repository.category.CategoryRepositoryImpl
 import com.alexeymerov.radiostations.core.database.dao.CategoryDao
@@ -35,17 +36,25 @@ class CategoryRepositoryTest {
     @MockK
     lateinit var categoryMapper: CategoryMapper
 
+    @MockK
+    lateinit var locationGeocoder: LocationGeocoder
+
     private lateinit var repository: CategoryRepository
 
     @Before
     fun setup() {
-        repository = spyk(CategoryRepositoryImpl(client, categoryDao, categoryMapper))
+        repository = spyk(CategoryRepositoryImpl(client, categoryDao, categoryMapper, locationGeocoder))
+        every { categoryDao.getAllByParentUrl(any()) } returns flowOf(emptyList())
+        coEvery { client.requestCategoriesByUrl(any()) } returns emptyList()
+        coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
+        every { categoryDao.getAllIdsByParentUrl(any()) } returns emptyList()
+        coJustRun { categoryDao.removeAllByIds(any()) }
+        coJustRun { categoryDao.removeAllByParentUrl(any()) }
+        coJustRun { categoryDao.insertAll(any()) }
     }
 
     @Test
     fun `get categories by url`() = runTest {
-        every { categoryDao.getAllByParentUrl(any()) } returns flowOf(emptyList())
-
         repository.getCategoriesByUrl("")
 
         verifyOrder {
@@ -58,24 +67,16 @@ class CategoryRepositoryTest {
 
     @Test
     fun `load categories by url`() = runTest {
-        coEvery { client.requestCategoriesByUrl(any()) } returns emptyList()
-        coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
-        coEvery { categoryDao.getFavorites() } returns emptyList()
-        coJustRun { categoryDao.removeAllByParentUrl(any()) }
-        coJustRun { categoryDao.insertAll(any()) }
-
         repository.loadCategoriesByUrl("")
 
         coVerifyOrder {
-            repository.loadCategoriesByUrl(any())
             client.requestCategoriesByUrl(any())
-            categoryMapper.mapCategoryResponseToEntity(any(), any())
-            categoryDao.getFavorites()
-            categoryDao.removeAllByParentUrl(any())
+            categoryDao.getAllIdsByParentUrl(any())
+            categoryDao.removeAllByIds(any())
             categoryDao.insertAll(any())
         }
 
-        confirmVerified(repository, client, categoryMapper, categoryDao)
+        confirmVerified(client, categoryDao)
     }
 
 }

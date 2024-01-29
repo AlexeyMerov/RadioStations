@@ -8,3 +8,7 @@ val LocalSnackbar = compositionLocalOf<SnackbarHostState> { error("SnackbarHostS
 val LocalConnectionStatus = compositionLocalOf<Boolean> { error("ConnectionStatus not found") }
 
 val LocalPlayerVisibility = compositionLocalOf<Boolean> { error("PlayerVisibility not found") }
+
+val LocalDarkMode = compositionLocalOf<Boolean> { error("DarkMode not found") }
+
+val LocalNightMode = compositionLocalOf<Boolean> { error("NightMode not found") }

@@ -3,7 +3,6 @@ package com.alexeymerov.radiostations.presentation.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -96,7 +95,7 @@ fun MainNavGraph(
         scrollBehavior.state.heightOffset = 0f
     }
 
-    Timber.d("isNetworkAvailable ${isNetworkAvailable}")
+    Timber.d("isNetworkAvailable $isNetworkAvailable")
 
     val sheetState = rememberStandardBottomSheetState(
         skipHiddenState = false,
@@ -104,11 +103,16 @@ fun MainNavGraph(
     )
     val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
 
+    // sheetState works incorrect. After sheetState.hide() sheetState.isVisible can ba true on some devices
+    val isPlayerVisible by remember(playerState) {
+        derivedStateOf { playerState != PlayerState.EMPTY }
+    }
+
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
         LocalConnectionStatus provides isNetworkAvailable,
-        LocalPlayerVisibility provides sheetState.isVisible
+        LocalPlayerVisibility provides isPlayerVisible
     ) {
         Surface {
             val peekHeightDp = 46.dp
@@ -117,11 +121,12 @@ fun MainNavGraph(
             /**
              * This one is wierd. Can't find is it me or some bug.
              * I hope it's a temp workaround.
-             * Problem: On low sdk. 26 at least. It will automatically change state yo PartiallyExpanded after Hidden
+             * Problem: Only on some SDK. It will automatically change state yo PartiallyExpanded after Hidden
              * Even though "initialValue = SheetValue.Hidden".
              * confirmValueChange also not triggering for some reason.
              * */
             LaunchedEffect(sheetState.targetValue) {
+                Timber.d("playerSheetState targetValue ${sheetState.targetValue}")
                 if (sheetState.targetValue == SheetValue.PartiallyExpanded
                     && (currentMedia == null || playerState == PlayerState.EMPTY)
                 ) {
@@ -227,11 +232,7 @@ fun MainNavGraph(
                         },
                         content = { sheetContentPadding ->
                             Timber.d("sheetContentPadding: $sheetContentPadding")
-                            Surface(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation))
-                            ) {
+                            Surface(Modifier.fillMaxSize()) {
                                 Row(Modifier.fillMaxSize()) {
                                     if (config.isLandscape()) {
                                         CreateNavigationRail(

@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -62,11 +63,12 @@ fun StationGridItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
     ) {
+        val interactionSource = remember { MutableInteractionSource() }
         Column(
             modifier = modifier
                 .fillMaxWidth()
                 .combinedClickable(
-                    interactionSource = MutableInteractionSource(),
+                    interactionSource = interactionSource,
                     indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                     onClick = { onAudioClick.invoke(itemDto) },
                     onLongClick = { onLongClick.invoke(itemDto) }
@@ -92,23 +94,24 @@ fun StationGridItem(
                 text = itemDto.text
             )
 
-            itemDto.subText?.let { subtext ->
+            itemDto.subTitle?.let { subtext ->
                 Row(
                     modifier = Modifier.padding(bottom = 8.dp, start = 4.dp, end = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        modifier = Modifier
-                            .alpha(0.7f)
-                            .size(12.dp),
-                        imageVector = Icons.Outlined.LocationCity,
-                        contentDescription = String.EMPTY
-                    )
+                    if (itemDto.hasLocation()) {
+                        Icon(
+                            modifier = Modifier
+                                .alpha(0.7f)
+                                .size(12.dp)
+                                .padding(end = 4.dp),
+                            imageVector = Icons.Outlined.LocationCity,
+                            contentDescription = String.EMPTY
+                        )
+                    }
 
                     BasicText(
-                        modifier = Modifier
-                            .alpha(0.7f)
-                            .padding(start = 4.dp),
+                        modifier = Modifier.alpha(0.7f),
                         text = subtext,
                         textStyle = MaterialTheme.typography.labelMedium
                     )

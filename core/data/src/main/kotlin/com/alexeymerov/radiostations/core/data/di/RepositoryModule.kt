@@ -5,6 +5,8 @@ import com.alexeymerov.radiostations.core.data.mapper.category.CategoryMapper
 import com.alexeymerov.radiostations.core.data.mapper.category.CategoryMapperImpl
 import com.alexeymerov.radiostations.core.data.mapper.country.CountryMapper
 import com.alexeymerov.radiostations.core.data.mapper.country.CountryMapperImpl
+import com.alexeymerov.radiostations.core.data.mapper.geocoder.LocationGeocoder
+import com.alexeymerov.radiostations.core.data.mapper.geocoder.LocationGeocoderImp
 import com.alexeymerov.radiostations.core.data.mapper.media.MediaMapper
 import com.alexeymerov.radiostations.core.data.mapper.media.MediaMapperImp
 import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepository
@@ -56,6 +58,10 @@ abstract class RepositoryModule {
         @Binds
         @Singleton
         abstract fun bindCountryMapper(mapper: CountryMapperImpl): CountryMapper
+
+        @Binds
+        @Singleton
+        abstract fun bindLocationGeocoder(mapper: LocationGeocoderImp): LocationGeocoder
     }
 
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -110,7 +109,7 @@ fun BaseFavoriteScreen(
             if (isNetworkAvailable) {
                 val route = Screens.Player(parentRoute).createRoute(
                     stationName = it.text,
-                    locationName = it.subText.orEmpty(),
+                    subTitle = it.subTitle.orEmpty(),
                     stationImgUrl = it.image.orEmpty(),
                     rawUrl = it.url,
                     id = it.id,
@@ -209,7 +208,7 @@ fun FavoriteScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     viewType: ViewType,

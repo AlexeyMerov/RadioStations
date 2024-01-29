@@ -60,7 +60,11 @@ internal fun UserTextFields(
             icon = Icons.Outlined.Person,
             labelResId = R.string.name,
             data = userData.name,
-            onValueChange = { onAction.invoke(ProfileViewModel.ViewAction.NewName(it)) }
+            onValueChange = {
+                if (it != userData.name.text) {
+                    onAction.invoke(ProfileViewModel.ViewAction.NewName(it))
+                }
+            }
         )
 
         UserTextField(
@@ -72,7 +76,11 @@ internal fun UserTextFields(
             labelResId = R.string.email,
             data = userData.email,
             keyboardType = KeyboardType.Email,
-            onValueChange = { onAction.invoke(ProfileViewModel.ViewAction.NewEmail(it)) }
+            onValueChange = {
+                if (it != userData.email.text) {
+                    onAction.invoke(ProfileViewModel.ViewAction.NewEmail(it))
+                }
+            }
         )
 
         UserTextField(
@@ -84,7 +92,11 @@ internal fun UserTextFields(
             labelResId = R.string.phone,
             data = userData.phoneNumber,
             keyboardType = KeyboardType.Phone,
-            onValueChange = { onAction.invoke(ProfileViewModel.ViewAction.NewPhone(it)) },
+            onValueChange = {
+                if (it != userData.phoneNumber.text) {
+                    onAction.invoke(ProfileViewModel.ViewAction.NewPhone(it))
+                }
+            },
             prefix = {
                 Box(
                     modifier = Modifier

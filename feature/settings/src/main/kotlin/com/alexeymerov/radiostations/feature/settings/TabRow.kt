@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabPosition
@@ -42,7 +42,7 @@ internal fun SettingsTabRow(currentTab: SettingTab, onTabClick: (SettingTab) -> 
             .fillMaxWidth()
             .padding(bottom = 16.dp),
         selectedTabIndex = currentTab.index,
-        divider = { Divider(thickness = 0.5.dp) },
+        divider = { HorizontalDivider(thickness = 0.5.dp) },
         indicator = { tabPositions ->
             Box(
                 Modifier

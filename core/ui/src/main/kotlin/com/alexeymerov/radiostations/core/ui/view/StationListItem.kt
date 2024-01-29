@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -62,10 +63,11 @@ fun StationListItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
+        val interactionSource = remember { MutableInteractionSource() }
         Row(
             modifier = Modifier
                 .combinedClickable(
-                    interactionSource = MutableInteractionSource(),
+                    interactionSource = interactionSource,
                     indication = rememberRipple(color = MaterialTheme.colorScheme.onBackground),
                     onClick = { onAudioClick.invoke(itemDto) },
                     onLongClick = { onLongClick.invoke(itemDto) }
@@ -144,20 +146,21 @@ private fun SelectedIcon() {
 private fun TextBlock(itemDto: CategoryItemDto) {
     BasicText(modifier = Modifier.basicMarquee(), text = itemDto.text)
 
-    itemDto.subText?.let { subtext ->
+    itemDto.subTitle?.let { subtext ->
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                modifier = Modifier
-                    .alpha(0.7f)
-                    .size(12.dp),
-                imageVector = Icons.Outlined.LocationCity,
-                contentDescription = String.EMPTY
-            )
+            if (itemDto.hasLocation()) {
+                Icon(
+                    modifier = Modifier
+                        .alpha(0.7f)
+                        .size(12.dp)
+                        .padding(end = 4.dp),
+                    imageVector = Icons.Outlined.LocationCity,
+                    contentDescription = String.EMPTY
+                )
+            }
 
             BasicText(
-                modifier = Modifier
-                    .alpha(0.7f)
-                    .padding(start = 4.dp),
+                modifier = Modifier.alpha(0.7f),
                 text = subtext,
                 textStyle = MaterialTheme.typography.labelMedium
             )
@@ -195,7 +198,7 @@ fun StationListItemPreview() {
     val item = CategoryItemDto(
         id = String.EMPTY,
         url = String.EMPTY,
-        subText = "Hello",
+        subTitle = "Hello",
         text = "Station NameStation NameStation NameStation Name",
         type = DtoItemType.AUDIO,
         isFavorite = true,

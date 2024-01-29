@@ -1,6 +1,8 @@
 package com.alexeymerov.radiostations.feature.category
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
@@ -14,6 +16,8 @@ import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
 import com.alexeymerov.radiostations.core.ui.common.BaseViewState
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,18 +46,21 @@ class CategoriesViewModel @Inject constructor(
     private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()
     private val categoryTitle = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_TITLE)).decodeUrl()
 
+    var isRefreshing = mutableStateOf(false)
+
     private val headerFlow = MutableStateFlow(listOf<CategoryItemDto>())
 
-    var isRefreshing = mutableStateOf(false)
+    internal var itemsWithLocation by mutableStateOf<Pair<LatLngBounds, List<CategoryItemDto>>?>(null)
 
     internal val categoriesFlow = categoryUseCase
         .getAllByUrl(categoryUrl)
         .catch { handleError(it) }
         .onEach(::prepareHeaders)
-        .combine(headerFlow, ::filterCategories)
-        .onEach(::validateNewData)
+        .combine(headerFlow, ::filterCategoriesByHeader)
+        .onEach(::validateDataAndUpdateState)
         .map { it.items }
-        .map(::createHeaderWithItems)
+        .onEach(::prepareMapItems)
+        .map(::mapListToHeadersWithItems)
         .flowOn(ioContext)
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -97,6 +104,9 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Extracting headers for filter chips and saving them separately
+     * */
     private suspend fun prepareHeaders(categoryDto: CategoryDto) {
         val hasHeaders = categoryDto.items.any { it.type == DtoItemType.HEADER }
         if (headerFlow.value.isEmpty() && hasHeaders) {
@@ -105,7 +115,10 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    private fun filterCategories(categoryDto: CategoryDto, headers: List<CategoryItemDto>): CategoryDto {
+    /**
+     * If filter chips were selected, then show only items for selected headers
+     * */
+    private fun filterCategoriesByHeader(categoryDto: CategoryDto, headers: List<CategoryItemDto>): CategoryDto {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categories combine")
         val items = categoryDto.items.toMutableList()
 
@@ -125,6 +138,32 @@ class CategoriesViewModel @Inject constructor(
         }
 
         return categoryDto
+    }
+
+    /**
+     * Filter all items without Lat Lng and calculating bounds to position/zoom pins on the map
+     * For Top 40 category there are cases when Stations based in North America and Europe, so map would be shown in the middle of the ocean
+     * */
+    private fun prepareMapItems(list: List<CategoryItemDto>) {
+        val boundsBuilder = LatLngBounds.builder()
+        val filteredList = list.filter {
+            val latitude = it.latitude
+            val longitude = it.longitude
+
+            if (latitude != null && longitude != null) {
+                boundsBuilder.include(LatLng(latitude, longitude))
+                return@filter true
+            }
+
+            return@filter false
+        }
+
+        if (filteredList.isNotEmpty()) {
+            val bounds = boundsBuilder.build()
+            itemsWithLocation = bounds to filteredList
+        } else {
+            itemsWithLocation = null
+        }
     }
 
     private fun loadCategories(categoryUrl: String) {
@@ -154,7 +193,12 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    private fun validateNewData(categoryDto: CategoryDto) {
+    /**
+     * Stop refreshing state
+     * Check if there is no error from lower layers and items are exist
+     * If headers are present, then use them in state
+     * */
+    private fun validateDataAndUpdateState(categoryDto: CategoryDto) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] validateNewData")
         viewModelScope.launch(ioContext) {
             isRefreshing.value = false
@@ -184,7 +228,7 @@ class CategoriesViewModel @Inject constructor(
     /**
      * We need to save same order for elements but separate header for sticky view
      * */
-    private fun createHeaderWithItems(items: List<CategoryItemDto>): List<HeaderWithItems> {
+    private fun mapListToHeadersWithItems(items: List<CategoryItemDto>): List<HeaderWithItems> {
         val resultList = mutableListOf<HeaderWithItems>()
 
         // if need to process header filtering at all
