@@ -167,6 +167,8 @@ firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
 
+leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version = "2.13" }
+
 [bundles]
 
 maps = ["maps-core", "maps-compose", "maps-utils"]

@@ -85,4 +85,6 @@ dependencies {
 
     implementation(libs.accompanist.systemUiController)
     implementation(libs.splashScreen)
+
+    debugImplementation(libs.leakcanary)
 }
