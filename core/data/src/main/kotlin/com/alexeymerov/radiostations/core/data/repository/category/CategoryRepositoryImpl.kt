@@ -29,7 +29,7 @@ class CategoryRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Get new items -> Remove excess from DB -> Saving only fresh new ones -> Updating location for new
+     * Get new items -> Remove excess from DB -> Saving only fresh new ones -> Updating location if needed
      * The server is not the best. So we use URL as only reliable parameter to operate with.
      * */
     override suspend fun loadCategoriesByUrl(url: String) {
@@ -50,7 +50,13 @@ class CategoryRepositoryImpl @Inject constructor(
         categoryDao.insertAll(newCategoryEntities)
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  saved ${newCategoryEntities.size} new entities")
 
-        updateWithLocation(newCategoryEntities)
+        // ugly hardcode to call location mapping only for Top 40 category
+        // mostly items from another categories doesn't contain Location names
+        // i made a map just "to make a map", just for a demo
+        // and it's not a valid solution to geocode 100+ items for each request
+        if (parentUrl.contains("id=c57943")) {
+            updateWithLocation(newCategoryEntities)
+        }
     }
 
     /**

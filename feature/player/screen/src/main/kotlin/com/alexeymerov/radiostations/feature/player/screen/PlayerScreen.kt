@@ -65,7 +65,7 @@ fun PreloadedPlayerScreen(
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
     stationName: String,
-    locationName: String,
+    subTitle: String,
     stationImgUrl: String,
     rawUrl: String,
     id: String
@@ -81,7 +81,7 @@ fun PreloadedPlayerScreen(
         isVisibleToUser = isVisibleToUser,
         topBarBlock = topBarBlock,
         initStationName = stationName,
-        initLocationName = locationName,
+        initSubTitle = subTitle,
         initId = id,
         isFavorite = viewModel.isFavorite,
         initStationImgUrl = stationImgUrl,
@@ -121,7 +121,7 @@ private fun BasePlayerScreen(
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
     initStationName: String = String.EMPTY,
-    initLocationName: String = String.EMPTY,
+    initSubTitle: String = String.EMPTY,
     initId: String = String.EMPTY,
     isFavorite: Boolean,
     initStationImgUrl: String = String.EMPTY,
@@ -131,7 +131,7 @@ private fun BasePlayerScreen(
     ComposedTimberD("[ BasePlayerScreen ] ")
 
     var stationName by rememberSaveable { mutableStateOf(initStationName) }
-    var locationName by rememberSaveable { mutableStateOf(initLocationName) }
+    var subTitle by rememberSaveable { mutableStateOf(initSubTitle) }
     var id by rememberSaveable { mutableStateOf(initId) }
     var stationImgUrl by rememberSaveable { mutableStateOf(initStationImgUrl) }
     var rawUrl by rememberSaveable { mutableStateOf(initRawUrl) }
@@ -140,7 +140,7 @@ private fun BasePlayerScreen(
         TopBarSetup(
             topBarBlock = topBarBlock,
             stationName = stationName,
-            locationName = locationName,
+            subTitle = subTitle,
             id = id,
             isFavorite = isFavorite,
             onAction = { onAction.invoke(it) }
@@ -154,7 +154,7 @@ private fun BasePlayerScreen(
             LoaderView()
 
             stationName = viewState.item.text
-            locationName = viewState.item.locationText.orEmpty()
+            subTitle = viewState.item.subTitle.orEmpty()
             id = viewState.item.id
             stationImgUrl = viewState.item.image.orEmpty()
             rawUrl = viewState.item.url
@@ -185,7 +185,7 @@ private fun BasePlayerScreen(
 private fun TopBarSetup(
     topBarBlock: (TopBarState) -> Unit,
     stationName: String,
-    locationName: String,
+    subTitle: String,
     id: String,
     isFavorite: Boolean,
     onAction: (ViewAction) -> Unit
@@ -194,7 +194,7 @@ private fun TopBarSetup(
         topBarBlock.invoke(
             TopBarState(
                 title = stationName,
-                subTitle = locationName,
+                subTitle = subTitle,
                 displayBackButton = true,
                 rightIcon = RightIconItem(if (isFavorite) TopBarIcon.STAR else TopBarIcon.STAR_OUTLINE).apply {
                     action = { onAction.invoke(ViewAction.ToggleFavorite(id)) }

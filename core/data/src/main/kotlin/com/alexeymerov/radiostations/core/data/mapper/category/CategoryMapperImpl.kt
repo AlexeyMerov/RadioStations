@@ -70,12 +70,12 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
 
     private fun mapCategoryResponseToEntity(body: CategoryBody, parentUrl: String, position: Int, type: EntityItemType): CategoryEntity {
         var mainText = body.text.replace(invalidChildCountStringRegex, String.EMPTY)
-        var locationText: String? = null
+        var subTitle: String? = null
 
         if (type == EntityItemType.AUDIO) {
-            val (name, location) = mainText.extractTextFromRoundBrackets()
+            val (name, extracted) = mainText.extractTextFromRoundBrackets()
             mainText = name.trim()
-            locationText = location
+            subTitle = extracted?.replace("$mainText,", "")
         }
 
         return CategoryEntity(
@@ -84,7 +84,7 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
             url = body.url?.httpsEverywhere().orEmpty(),
             parentUrl = parentUrl,
             text = mainText,
-            locationText = locationText,
+            subTitle = subTitle,
             image = body.image.httpsEverywhere(),
             currentTrack = body.currentTrack,
             type = type,

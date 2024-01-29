@@ -142,6 +142,7 @@ class CategoriesViewModel @Inject constructor(
 
     /**
      * Filter all items without Lat Lng and calculating bounds to position/zoom pins on the map
+     * For Top 40 category there are cases when Stations based in North America and Europe, so map would be shown in the middle of the ocean
      * */
     private fun prepareMapItems(list: List<CategoryItemDto>) {
         val boundsBuilder = LatLngBounds.builder()

@@ -12,7 +12,7 @@ data class CategoryEntity(
     val url: String,
     val parentUrl: String,
     val text: String,
-    val locationText: String? = null,
+    val subTitle: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
     val image: String = String.EMPTY,

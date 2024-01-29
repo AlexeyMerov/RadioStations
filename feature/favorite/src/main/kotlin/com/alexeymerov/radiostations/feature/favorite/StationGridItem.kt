@@ -94,23 +94,24 @@ fun StationGridItem(
                 text = itemDto.text
             )
 
-            itemDto.locationText?.let { subtext ->
+            itemDto.subTitle?.let { subtext ->
                 Row(
                     modifier = Modifier.padding(bottom = 8.dp, start = 4.dp, end = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        modifier = Modifier
-                            .alpha(0.7f)
-                            .size(12.dp),
-                        imageVector = Icons.Outlined.LocationCity,
-                        contentDescription = String.EMPTY
-                    )
+                    if (itemDto.hasLocation()) {
+                        Icon(
+                            modifier = Modifier
+                                .alpha(0.7f)
+                                .size(12.dp)
+                                .padding(end = 4.dp),
+                            imageVector = Icons.Outlined.LocationCity,
+                            contentDescription = String.EMPTY
+                        )
+                    }
 
                     BasicText(
-                        modifier = Modifier
-                            .alpha(0.7f)
-                            .padding(start = 4.dp),
+                        modifier = Modifier.alpha(0.7f),
                         text = subtext,
                         textStyle = MaterialTheme.typography.labelMedium
                     )

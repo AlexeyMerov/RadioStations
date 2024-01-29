@@ -109,7 +109,7 @@ fun BaseFavoriteScreen(
             if (isNetworkAvailable) {
                 val route = Screens.Player(parentRoute).createRoute(
                     stationName = it.text,
-                    locationName = it.locationText.orEmpty(),
+                    subTitle = it.subTitle.orEmpty(),
                     stationImgUrl = it.image.orEmpty(),
                     rawUrl = it.url,
                     id = it.id,

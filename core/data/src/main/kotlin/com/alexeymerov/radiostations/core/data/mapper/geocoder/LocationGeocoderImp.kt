@@ -19,7 +19,7 @@ class LocationGeocoderImp @Inject constructor(
 
     override suspend fun mapToListWithLocations(list: List<CategoryEntity>): List<CategoryEntity> {
         return list
-            .filter { it.locationText != null }
+            .filter { it.subTitle != null }
             .map(::mapToEntityWithLocation)
     }
 
@@ -27,7 +27,7 @@ class LocationGeocoderImp @Inject constructor(
         if (geocoder.get() == null) geocoder = WeakReference(Geocoder(context))
 
         var result = it
-        val location = it.locationText
+        val location = it.subTitle
         if (location != null) {
             try {
 
@@ -47,7 +47,7 @@ class LocationGeocoderImp @Inject constructor(
                     result = result.copy(
                         latitude = address.latitude,
                         longitude = address.longitude,
-                        locationText = newLocationText
+                        subTitle = newLocationText
                     )
                 }
             } catch (e: Exception) {

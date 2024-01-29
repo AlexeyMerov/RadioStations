@@ -46,7 +46,7 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             url = entity.url.ifEmpty { entity.text },
 
             text = entity.text,
-            locationText = entity.locationText,
+            subTitle = entity.subTitle,
             subItemsCount = entity.childCount ?: 0,
 
             image = entity.image,

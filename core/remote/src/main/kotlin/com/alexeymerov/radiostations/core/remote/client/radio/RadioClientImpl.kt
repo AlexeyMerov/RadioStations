@@ -15,14 +15,16 @@ class RadioClientImpl @Inject constructor(
 ) : RadioClient {
 
     override suspend fun requestCategoriesByUrl(url: String): List<CategoryBody> {
-        //since server operates with links, we have to remove BASE_URL part before requests.
+        // there is an inconsistency with IDs and params and the reliable way is to use links from responses
+        // but since server operates with links, we have to remove BASE_URL part before requests.
         val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
         val response = radioApi.getCategoriesByUrl(finalUrl)
         return responseMapper.mapRadioResponseBody(response)
     }
 
     override suspend fun requestAudioByUrl(url: String): MediaBody? {
-        //since server operates with links, we have to remove BASE_URL part before requests.
+        // there is an inconsistency with IDs and params and the reliable way is to use links from responses
+        // but since server operates with links, we have to remove BASE_URL part before requests.
         val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
         val response = radioApi.getAudioByUrl(finalUrl)
         return responseMapper.mapRadioResponseBody(response).getOrNull(0)

@@ -146,20 +146,21 @@ private fun SelectedIcon() {
 private fun TextBlock(itemDto: CategoryItemDto) {
     BasicText(modifier = Modifier.basicMarquee(), text = itemDto.text)
 
-    itemDto.locationText?.let { subtext ->
+    itemDto.subTitle?.let { subtext ->
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                modifier = Modifier
-                    .alpha(0.7f)
-                    .size(12.dp),
-                imageVector = Icons.Outlined.LocationCity,
-                contentDescription = String.EMPTY
-            )
+            if (itemDto.hasLocation()) {
+                Icon(
+                    modifier = Modifier
+                        .alpha(0.7f)
+                        .size(12.dp)
+                        .padding(end = 4.dp),
+                    imageVector = Icons.Outlined.LocationCity,
+                    contentDescription = String.EMPTY
+                )
+            }
 
             BasicText(
-                modifier = Modifier
-                    .alpha(0.7f)
-                    .padding(start = 4.dp),
+                modifier = Modifier.alpha(0.7f),
                 text = subtext,
                 textStyle = MaterialTheme.typography.labelMedium
             )
@@ -197,7 +198,7 @@ fun StationListItemPreview() {
     val item = CategoryItemDto(
         id = String.EMPTY,
         url = String.EMPTY,
-        locationText = "Hello",
+        subTitle = "Hello",
         text = "Station NameStation NameStation NameStation Name",
         type = DtoItemType.AUDIO,
         isFavorite = true,

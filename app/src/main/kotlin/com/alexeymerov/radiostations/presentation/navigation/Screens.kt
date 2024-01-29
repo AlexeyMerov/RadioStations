@@ -81,7 +81,7 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState)
             )
         } ?: run {
             val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
-            val locationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_SUBTITLE)) }
+            val subTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_SUBTITLE)) }
             val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_IMG_URL)) }
             val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_URL)) }
             val id by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_ID)) }
@@ -91,7 +91,7 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState)
                 isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
                 topBarBlock = topBarBlock,
                 stationName = stationName,
-                locationName = locationName,
+                subTitle = subTitle,
                 stationImgUrl = stationImgUrl.decodeUrl(),
                 rawUrl = rawUrl.decodeUrl(),
                 id = id.decodeUrl()
