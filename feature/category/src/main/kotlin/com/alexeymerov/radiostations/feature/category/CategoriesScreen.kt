@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -222,7 +221,7 @@ private fun MainContent(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val config = LocalConfiguration.current
-    var needShowMap by remember { mutableStateOf(false) }
+    var needShowMap by rememberSaveable { mutableStateOf(false) }
 
     val columnCount = remember(config) {
         var count = 1
@@ -338,12 +337,10 @@ private fun ShowMap(
     }
 
     val bottomPadding by animateDpAsState(targetValue = if (LocalPlayerVisibility.current) 64.dp else 8.dp, label = String.EMPTY)
-
     val cameraPositionState = rememberCameraPositionState()
     GoogleMap(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(600.dp)
+            .fillMaxSize()
             .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = bottomPadding)
             .clip(RoundedCornerShape(16.dp)),
         cameraPositionState = cameraPositionState,

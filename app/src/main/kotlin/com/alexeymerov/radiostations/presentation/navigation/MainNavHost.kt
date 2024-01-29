@@ -103,11 +103,16 @@ fun MainNavGraph(
     )
     val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
 
+    // sheetState works incorrect. After sheetState.hide() sheetState.isVisible can ba true on some devices
+    val isPlayerVisible by remember(playerState) {
+        derivedStateOf { playerState != PlayerState.EMPTY }
+    }
+
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
         LocalConnectionStatus provides isNetworkAvailable,
-        LocalPlayerVisibility provides sheetState.isVisible
+        LocalPlayerVisibility provides isPlayerVisible
     ) {
         Surface {
             val peekHeightDp = 46.dp
@@ -116,11 +121,12 @@ fun MainNavGraph(
             /**
              * This one is wierd. Can't find is it me or some bug.
              * I hope it's a temp workaround.
-             * Problem: On low sdk. 26 at least. It will automatically change state yo PartiallyExpanded after Hidden
+             * Problem: Only on some SDK. It will automatically change state yo PartiallyExpanded after Hidden
              * Even though "initialValue = SheetValue.Hidden".
              * confirmValueChange also not triggering for some reason.
              * */
             LaunchedEffect(sheetState.targetValue) {
+                Timber.d("playerSheetState targetValue ${sheetState.targetValue}")
                 if (sheetState.targetValue == SheetValue.PartiallyExpanded
                     && (currentMedia == null || playerState == PlayerState.EMPTY)
                 ) {
