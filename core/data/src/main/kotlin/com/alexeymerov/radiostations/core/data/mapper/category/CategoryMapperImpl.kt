@@ -12,7 +12,8 @@ import javax.inject.Inject
 
 class CategoryMapperImpl @Inject constructor() : CategoryMapper {
 
-    private val invalidChildCountStringRegex = " \\(\\d+\\)".toRegex()
+    // Title (23) -> remove (23) since it may be invalid
+    private val digitsWithParenthesis = " \\(\\d+\\)".toRegex()
 
     override suspend fun mapCategoryResponseToEntity(list: List<CategoryBody>, parentUrl: String): List<CategoryEntity> {
         return categoryEntities(list, parentUrl)
@@ -38,16 +39,20 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
                 else -> EntityItemType.CATEGORY
             }
 
-            val item = mapCategoryResponseToEntity(responseBody, parentUrl, index, type)
+            var item = mapCategoryResponseToEntity(responseBody, parentUrl, index, type)
             if (item.type == EntityItemType.HEADER) Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${item.text}")
+
+            var childrenEntityList = emptyList<CategoryEntity>()
+            if (responseChildrenList != null) {
+                childrenEntityList = categoryEntities(responseChildrenList, parentUrl, index, true)
+                item = item.copy(childCount = childrenEntityList.size)
+            }
+
             result.add(item)
             index++
 
-            if (responseChildrenList != null) {
-                val childrenEntityList = categoryEntities(responseChildrenList, parentUrl, index, true)
-                result.addAll(childrenEntityList)
-                index += childrenEntityList.size
-            }
+            result.addAll(childrenEntityList)
+            index += childrenEntityList.size
         }
 
         return result
@@ -69,7 +74,7 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
     }
 
     private fun mapCategoryResponseToEntity(body: CategoryBody, parentUrl: String, position: Int, type: EntityItemType): CategoryEntity {
-        var mainText = body.text.replace(invalidChildCountStringRegex, String.EMPTY)
+        var mainText = body.text.replace(digitsWithParenthesis, String.EMPTY)
         var subTitle: String? = null
 
         if (type == EntityItemType.AUDIO) {

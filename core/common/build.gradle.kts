@@ -10,4 +10,5 @@ android {
 }
 
 dependencies {
+    testImplementation(projects.core.test)
 }

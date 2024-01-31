@@ -4,6 +4,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface ConnectionMonitor {
 
-    val conntectionStatusFlow: StateFlow<Boolean>
+    val connectionStatusFlow: StateFlow<Boolean>
 
 }

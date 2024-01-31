@@ -15,21 +15,21 @@ class ConnectionMonitorImpl @Inject constructor(
 ) : ConnectionMonitor {
 
     @SuppressLint("MissingPermission")
-    private val _conntectionStatusFlow = MutableStateFlow(connectivityManager.activeNetwork != null)
-    override val conntectionStatusFlow = _conntectionStatusFlow.asStateFlow()
+    private val _connectionStatusFlow = MutableStateFlow(connectivityManager.activeNetwork != null)
+    override val connectionStatusFlow = _connectionStatusFlow.asStateFlow()
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
 
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             Timber.d("networkCallback onAvailable")
-            _conntectionStatusFlow.value = true
+            _connectionStatusFlow.value = true
         }
 
         override fun onLost(network: Network) {
             super.onLost(network)
             Timber.d("networkCallback onLost")
-            _conntectionStatusFlow.value = false
+            _connectionStatusFlow.value = false
         }
     }
 
