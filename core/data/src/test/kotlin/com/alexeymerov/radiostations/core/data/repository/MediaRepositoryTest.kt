@@ -9,6 +9,7 @@ import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.core.database.entity.MediaEntity
 import com.alexeymerov.radiostations.core.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified
@@ -48,13 +49,13 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `load audio by url failed`() = runTest {
-        val categoryEntity = mockk<CategoryEntity>()
-        coEvery { categoryDao.getByUrl(any()) } returns categoryEntity
+    fun `load audio by broken url return null`() = runTest {
+        coEvery { categoryDao.getByUrl(any()) } returns mockk<CategoryEntity>()
         coEvery { client.requestAudioByUrl(any()) } returns null
 
         val audioByUrl = repository.getMediaByUrl("")
-        assert(audioByUrl == null)
+
+        assertThat(audioByUrl).isNull()
 
         coVerifyOrder {
             repository.getMediaByUrl(any())
@@ -65,16 +66,15 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `load audio by url success`() = runTest {
-        val categoryEntity = mockk<CategoryEntity>()
-        val mediaBody = mockk<MediaBody>()
-        val mediaEntity = mockk<MediaEntity>()
-        coEvery { categoryDao.getByUrl(any()) } returns categoryEntity
-        coEvery { client.requestAudioByUrl(any()) } returns mediaBody
-        every { mediaMapper.mapToEntity(any(), any()) } returns mediaEntity
+    fun `load audio by valid url return MediaEntity`() = runTest {
+        coEvery { categoryDao.getByUrl(any()) } returns mockk<CategoryEntity>()
+        coEvery { client.requestAudioByUrl(any()) } returns mockk<MediaBody>()
+        every { mediaMapper.mapToEntity(any(), any()) } returns mockk<MediaEntity>()
 
-        val audioByUrl = repository.getMediaByUrl("")
-        assert(audioByUrl != null)
+        val mediaEntity = repository.getMediaByUrl("")
+
+        assertThat(mediaEntity).isNotNull()
+        assertThat(mediaEntity).isInstanceOf(MediaEntity::class.java)
 
         coVerifyOrder {
             repository.getMediaByUrl(any())

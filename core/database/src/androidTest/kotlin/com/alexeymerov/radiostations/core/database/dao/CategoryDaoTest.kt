@@ -1,9 +1,11 @@
 package com.alexeymerov.radiostations.core.database.dao
 
 import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.toInt
 import com.alexeymerov.radiostations.core.database.RadioDatabase
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.core.database.entity.EntityItemType
+import com.google.common.truth.Truth.*
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.first
@@ -42,7 +44,318 @@ class CategoryDaoTest {
     }
 
     @Test
-    fun insert_category_in_db() = runTest {
+    fun get_by_valid_id_return_entity_with_the_id() = runTest {
+        val id = "someid"
+
+        val item = CategoryEntity(
+            id = id,
+            position = 0,
+            url = String.EMPTY,
+            parentUrl = "parentUrl",
+            text = String.EMPTY,
+            type = EntityItemType.CATEGORY
+        )
+        categoryDao.insertAll(listOf(item))
+        val entity = categoryDao.getById(id)
+        assertThat(entity.id).isEqualTo(id)
+    }
+
+    @Test
+    fun get_by_wrong_id_throw_null_pointer() = runTest {
+        val item = CategoryEntity(
+            id = "someid",
+            position = 0,
+            url = String.EMPTY,
+            parentUrl = "parentUrl",
+            text = String.EMPTY,
+            type = EntityItemType.CATEGORY
+        )
+        categoryDao.insertAll(listOf(item))
+
+        try {
+            categoryDao.getById("")
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf(NullPointerException::class.java)
+        }
+    }
+
+    @Test
+    fun get_by_valid_url_return_entity_with_the_url() = runTest {
+        val url = "someurl"
+
+        val item = CategoryEntity(
+            id = "id",
+            position = 0,
+            url = url,
+            parentUrl = "parentUrl",
+            text = String.EMPTY,
+            type = EntityItemType.CATEGORY
+        )
+        categoryDao.insertAll(listOf(item))
+        val entity = categoryDao.getByUrl(url)
+        assertThat(entity.url).isEqualTo(url)
+    }
+
+    @Test
+    fun get_by_wrong_url_throw_null_pointer() = runTest {
+        val item = CategoryEntity(
+            id = "someid",
+            position = 0,
+            url = "someurl",
+            parentUrl = "parentUrl",
+            text = String.EMPTY,
+            type = EntityItemType.CATEGORY
+        )
+        categoryDao.insertAll(listOf(item))
+
+        try {
+            categoryDao.getByUrl("")
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf(NullPointerException::class.java)
+        }
+    }
+
+    @Test
+    fun get_all_by_valid_parentUrl_return_flow_with_entities_with_the_parent_url() = runTest {
+        val parentUrl = "someparenturl"
+
+        val list = listOf(
+            CategoryEntity(
+                id = "id1",
+                position = 2,
+                url = "someurl",
+                parentUrl = parentUrl,
+                text = String.EMPTY,
+                type = EntityItemType.CATEGORY
+            ),
+            CategoryEntity(
+                id = "id2",
+                position = 0,
+                url = "someurl",
+                parentUrl = parentUrl,
+                text = String.EMPTY,
+                type = EntityItemType.CATEGORY
+            ),
+            CategoryEntity(
+                id = "id3",
+                position = 1,
+                url = "someurl",
+                parentUrl = "anotherurl",
+                text = String.EMPTY,
+                type = EntityItemType.CATEGORY
+            )
+        )
+        categoryDao.insertAll(list)
+
+        val categoryEntities = categoryDao.getAllByParentUrl(parentUrl).first()
+        val allItemsWithSameParentUrl = categoryEntities.all { it.parentUrl == parentUrl }
+
+        assertThat(categoryEntities).hasSize(2)
+        assertThat(allItemsWithSameParentUrl).isTrue()
+
+        val sortedList = list.filter { it.parentUrl == parentUrl }.sortedBy { it.position }
+        categoryEntities.forEachIndexed { index, item ->
+            assertThat(sortedList[index].position).isEqualTo(item.position)
+        }
+    }
+
+    @Test
+    fun get_all_by_wrong_parentUrl_return_flow_with_empty_list() = runTest {
+        val parentUrl = "someparenturl"
+
+        categoryDao.insertAll(
+            listOf(
+                CategoryEntity(
+                    id = "id",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = parentUrl,
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                ),
+                CategoryEntity(
+                    id = "id",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = parentUrl,
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                ),
+                CategoryEntity(
+                    id = "id",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "anotherurl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                )
+            )
+        )
+        val entityFlow = categoryDao.getAllByParentUrl("")
+
+        assertThat(entityFlow.first()).isEmpty()
+    }
+
+    @Test
+    fun get_all_ids_by_valid_parentUrl_return_list_with_id_strings() = runTest {
+        val parentUrl = "someparenturl"
+        val id1 = "id1"
+        val id2 = "id2"
+
+        categoryDao.insertAll(
+            listOf(
+                CategoryEntity(
+                    id = id1,
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = parentUrl,
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                ),
+                CategoryEntity(
+                    id = id2,
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = parentUrl,
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                ),
+                CategoryEntity(
+                    id = "id3",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "someurl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                )
+            )
+        )
+        val idsList = categoryDao.getAllIdsByParentUrl(parentUrl)
+
+        assertThat(idsList).hasSize(2)
+        assertThat(idsList).containsExactly(id1, id2)
+    }
+
+    @Test
+    fun get_all_ids_by_wrong_parentUrl_return_empty_list() = runTest {
+        categoryDao.insertAll(
+            listOf(
+                CategoryEntity(
+                    id = "id1",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "someparenturl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                ),
+                CategoryEntity(
+                    id = "id1",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "someparenturl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                ),
+                CategoryEntity(
+                    id = "id3",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "someurl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY
+                )
+            )
+        )
+        val idsList = categoryDao.getAllIdsByParentUrl("")
+
+        assertThat(idsList).hasSize(0)
+    }
+
+    @Test
+    fun get_all_favs_return_flow_list_with_favorite_param_equal_true() = runTest {
+        val list = listOf(
+            CategoryEntity(
+                id = "id1",
+                position = 0,
+                url = "someurl",
+                parentUrl = "someparenturl",
+                text = String.EMPTY,
+                type = EntityItemType.CATEGORY,
+                isFavorite = true
+            ),
+            CategoryEntity(
+                id = "id2",
+                position = 0,
+                url = "someurl",
+                parentUrl = "someparenturl",
+                text = String.EMPTY,
+                type = EntityItemType.CATEGORY,
+                isFavorite = true
+            ),
+            CategoryEntity(
+                id = "id3",
+                position = 0,
+                url = "someurl",
+                parentUrl = "someurl",
+                text = String.EMPTY,
+                type = EntityItemType.CATEGORY,
+                isFavorite = false
+            )
+        )
+        categoryDao.insertAll(list)
+
+        val entities = categoryDao.getFavoritesFlow().first()
+        val allFavorite = entities.all { it.isFavorite }
+
+        assertThat(entities).hasSize(2)
+        assertThat(allFavorite).isTrue()
+
+        val sortedList = list.sortedBy { it.position }
+        entities.forEachIndexed { index, item ->
+            assertThat(sortedList[index].position).isEqualTo(item.position)
+        }
+    }
+
+    @Test
+    fun get_all_favs_return_empty_flow_if_no_entities_with_favorite_true() = runTest {
+        categoryDao.insertAll(
+            listOf(
+                CategoryEntity(
+                    id = "id1",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "someparenturl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY,
+                    isFavorite = false
+                ),
+                CategoryEntity(
+                    id = "id1",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "someparenturl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY,
+                    isFavorite = false
+                ),
+                CategoryEntity(
+                    id = "id3",
+                    position = 0,
+                    url = "someurl",
+                    parentUrl = "someurl",
+                    text = String.EMPTY,
+                    type = EntityItemType.CATEGORY,
+                    isFavorite = false
+                )
+            )
+        )
+        val favoriteFlow = categoryDao.getFavoritesFlow()
+
+        assertThat(favoriteFlow.first()).hasSize(0)
+    }
+
+    @Test
+    fun insert_category_in_db_success() = runTest {
         val parentUrl = "someurl"
         val item = CategoryEntity(
             id = String.EMPTY,
@@ -55,93 +368,48 @@ class CategoryDaoTest {
             type = EntityItemType.CATEGORY,
             childCount = null
         )
-        categoryDao.insert(item)
+        categoryDao.insertAll(listOf(item))
         val entityList = categoryDao.getAllByParentUrl(parentUrl).first()
-        assert(entityList.contains(item))
+
+        assertThat(entityList).contains(item)
     }
 
     @Test
-    fun replace_item_in_db_if_same_URl_and_TEXT() = runTest {
-        val parentUrl = "uniqueUrl"
+    fun insert_item_with_same_id_replace_old_entity() = runTest {
+        val id = "id1"
+        val initText = "123"
         val item = CategoryEntity(
-            id = String.EMPTY,
+            id = id,
             position = 0,
             url = String.EMPTY,
-            parentUrl = parentUrl,
-            text = "123",
+            parentUrl = "parentUrl",
+            text = initText,
             image = String.EMPTY,
             currentTrack = String.EMPTY,
             type = EntityItemType.CATEGORY,
             childCount = null
         )
-        categoryDao.insert(item)
-        val newItem = item.copy(parentUrl = parentUrl, text = "123")
-        categoryDao.insert(newItem)
+        categoryDao.insertAll(listOf(item))
 
-        val entityList = categoryDao.getAllByParentUrl(parentUrl).first()
-        assert(entityList.size == 1)
+        var entity = categoryDao.getById(id)
+        assertThat(entity.text).isEqualTo(initText)
+
+        val newText = "456"
+        val newItem = item.copy(text = newText)
+        categoryDao.insertAll(listOf(newItem))
+
+        entity = categoryDao.getById(id)
+        assertThat(entity.text).isEqualTo(newText)
     }
 
     @Test
-    fun not_replace_item_in_db_if_same_URl_but_different_TEXT() = runTest {
-        val parentUrl = "sameurl"
-
-        val item = CategoryEntity(
-            id = UUID.randomUUID().toString(),
-            position = 0,
-            url = String.EMPTY,
-            parentUrl = parentUrl,
-            text = "111",
-            image = String.EMPTY,
-            currentTrack = String.EMPTY,
-            type = EntityItemType.CATEGORY,
-            childCount = null
-        )
-        val newItem = item.copy(id = UUID.randomUUID().toString(), text = "222")
-
-        categoryDao.insert(item)
-        categoryDao.insert(newItem)
-
-        val entityList = categoryDao.getAllByParentUrl(parentUrl).first()
-        assert(entityList.containsAll(listOf(item, newItem)))
-    }
-
-    @Test
-    fun not_replace_item_in_db_if_same_TEXT_but_different_URL() = runTest {
-        val text = "text"
-        val firstUrl = "one"
-        val secondUrl = "two"
-
-        val item = CategoryEntity(
-            id = UUID.randomUUID().toString(),
-            position = 0,
-            url = String.EMPTY,
-            parentUrl = firstUrl,
-            text = text,
-            image = String.EMPTY,
-            currentTrack = String.EMPTY,
-            type = EntityItemType.CATEGORY,
-            childCount = null
-        )
-        val newItem = item.copy(id = UUID.randomUUID().toString(), parentUrl = secondUrl)
-
-        categoryDao.insert(item)
-        categoryDao.insert(newItem)
-
-        val firstList = categoryDao.getAllByParentUrl(firstUrl).first()
-        val secondList = categoryDao.getAllByParentUrl(secondUrl).first()
-        val resultList = firstList + secondList
-        assert(resultList.containsAll(listOf(item, newItem)))
-    }
-
-    @Test
-    fun insert_unique_list_of_items() = runTest {
+    fun insert_unique_list_of_items_success() = runTest {
         val list = mutableListOf<CategoryEntity>()
         val parentUrl = "sameListUrl"
 
         repeat(10) {
             val item = CategoryEntity(
-                id = UUID.randomUUID().toString(),
+                id = "$it",
                 position = 0,
                 url = UUID.randomUUID().toString(),
                 parentUrl = parentUrl,
@@ -157,22 +425,23 @@ class CategoryDaoTest {
         categoryDao.insertAll(list)
 
         val dbList = categoryDao.getAllByParentUrl(parentUrl).first()
-        assert(dbList.size == list.size && dbList.containsAll(list))
+
+        assertThat(dbList).hasSize(list.size)
+        assertThat(dbList).containsExactlyElementsIn(list)
     }
 
     @Test
-    fun insert_not_unique_list_of_items() = runTest {
+    fun insert_not_unique_list_of_items_replace_duplicates() = runTest {
         val list = mutableListOf<CategoryEntity>()
         val parentUrl = "sameListUrl"
-        val sameText = "sameText"
 
         repeat(10) {
             val item = CategoryEntity(
-                id = String.EMPTY,
+                id = "sameId",
                 position = 0,
                 url = UUID.randomUUID().toString(),
                 parentUrl = parentUrl,
-                text = sameText,
+                text = "sameText",
                 image = String.EMPTY,
                 currentTrack = String.EMPTY,
                 type = EntityItemType.CATEGORY,
@@ -184,36 +453,120 @@ class CategoryDaoTest {
         categoryDao.insertAll(list)
 
         val dbList = categoryDao.getAllByParentUrl(parentUrl).first()
-        assert(dbList.size == 1)
+        assertThat(dbList).hasSize(1)
     }
 
     @Test
-    fun items_ordered_by_position_asc() = runTest {
+    fun update_list_of_items_updates_db_items() = runTest {
         val list = mutableListOf<CategoryEntity>()
         val parentUrl = "sameListUrl"
 
-        for (i in 10 downTo 0) {
+        repeat(10) {
             val item = CategoryEntity(
-                id = UUID.randomUUID().toString(),
-                position = i,
-                url = String.EMPTY,
+                id = "$it",
+                position = it,
+                url = UUID.randomUUID().toString(),
                 parentUrl = parentUrl,
                 text = UUID.randomUUID().toString(),
-                image = String.EMPTY,
-                currentTrack = String.EMPTY,
                 type = EntityItemType.CATEGORY,
-                childCount = null
             )
             list.add(item)
         }
 
         categoryDao.insertAll(list)
-
         val dbList = categoryDao.getAllByParentUrl(parentUrl).first()
-        assert(dbList.size == list.size && dbList != list)
+        val allLocationAreNull = dbList.all { it.latitude == null && it.longitude == null }
 
-        list.sortBy { it.position }
-        assert(dbList.size == list.size && dbList == list)
+        assertThat(allLocationAreNull).isTrue()
+
+        val updatedList = list.map {
+            it.copy(
+                latitude = 0.0,
+                longitude = 0.0
+            )
+        }
+        categoryDao.updateAll(updatedList)
+        val updatedDbList = categoryDao.getAllByParentUrl(parentUrl).first()
+        val updatedLocationNotNull = updatedDbList.all { it.latitude != null && it.longitude != null }
+
+        assertThat(updatedLocationNotNull).isTrue()
+    }
+
+    @Test
+    fun remove_all_by_id_remove_from_db() = runTest {
+        val list = mutableListOf<CategoryEntity>()
+        val parentUrl = "sameListUrl"
+
+        repeat(10) {
+            val item = CategoryEntity(
+                id = "$it",
+                position = it,
+                url = UUID.randomUUID().toString(),
+                parentUrl = parentUrl,
+                text = UUID.randomUUID().toString(),
+                type = EntityItemType.CATEGORY,
+            )
+            list.add(item)
+        }
+
+        categoryDao.insertAll(list)
+        val dbList = categoryDao.getAllByParentUrl(parentUrl).first()
+        assertThat(dbList).hasSize(list.size)
+
+        val idsToRemove = list.filterIndexed { index, _ -> index % 2 == 0 }.map { it.id }
+        categoryDao.removeAllByIds(idsToRemove)
+        val updatedDbList = categoryDao.getAllByParentUrl(parentUrl).first()
+
+        assertThat(updatedDbList).hasSize(5)
+
+        val filteredList = list.filter { it.id !in idsToRemove }
+        assertThat(updatedDbList).containsExactlyElementsIn(filteredList)
+    }
+
+    @Test
+    fun update_station_favorite_with_new_value_success() = runTest {
+        val id = "id"
+
+        val entity = CategoryEntity(
+            id = id,
+            position = 0,
+            url = UUID.randomUUID().toString(),
+            parentUrl = "parentUrl",
+            text = UUID.randomUUID().toString(),
+            type = EntityItemType.CATEGORY,
+            isFavorite = false
+        )
+
+        categoryDao.insertAll(listOf(entity))
+        val item = categoryDao.getById(id)
+        assertThat(item.isFavorite).isFalse()
+
+        categoryDao.setStationFavorite(id, true.toInt())
+        val updatedItem = categoryDao.getById(id)
+        assertThat(updatedItem.isFavorite).isTrue()
+    }
+
+    @Test
+    fun update_station_favorite_with_wrong_id_changes_nothing() = runTest {
+        val id = "id"
+
+        val entity = CategoryEntity(
+            id = id,
+            position = 0,
+            url = UUID.randomUUID().toString(),
+            parentUrl = "parentUrl",
+            text = UUID.randomUUID().toString(),
+            type = EntityItemType.CATEGORY,
+            isFavorite = false
+        )
+
+        categoryDao.insertAll(listOf(entity))
+        val item = categoryDao.getById(id)
+        assertThat(item.isFavorite).isFalse()
+
+        categoryDao.setStationFavorite("", true.toInt())
+        val updatedItem = categoryDao.getById(id)
+        assertThat(updatedItem.isFavorite).isFalse()
     }
 
 }

@@ -49,7 +49,6 @@ class CategoryRepositoryTest {
         coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
         every { categoryDao.getAllIdsByParentUrl(any()) } returns emptyList()
         coJustRun { categoryDao.removeAllByIds(any()) }
-        coJustRun { categoryDao.removeAllByParentUrl(any()) }
         coJustRun { categoryDao.insertAll(any()) }
     }
 
