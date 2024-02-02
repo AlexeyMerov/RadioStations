@@ -30,4 +30,6 @@ dependencies {
 
     androidTestImplementation(projects.core.test)
     androidTestUtil(libs.test.orchestrator)
+
+    androidTestImplementation(libs.paging.testing)
 }
