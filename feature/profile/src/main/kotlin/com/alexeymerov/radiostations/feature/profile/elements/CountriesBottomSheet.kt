@@ -226,7 +226,7 @@ internal fun CountriesBottomSheet(
                                     modifier = Modifier.basicMarquee(),
                                     text = buildAnnotatedString {
                                         append(country.englishName)
-                                        country.englishNameHighliths?.forEach { range ->
+                                        country.englishNameHighlights?.forEach { range ->
                                             addStyle(
                                                 SpanStyle(color = MaterialTheme.colorScheme.error),
                                                 start = range.first,
@@ -244,7 +244,7 @@ internal fun CountriesBottomSheet(
                                         modifier = Modifier.basicMarquee(),
                                         text = buildAnnotatedString {
                                             append(country.nativeName)
-                                            country.nativeNameHighliths?.forEach { range ->
+                                            country.nativeNameHighlights?.forEach { range ->
                                                 addStyle(
                                                     SpanStyle(color = MaterialTheme.colorScheme.error),
                                                     start = range.first,

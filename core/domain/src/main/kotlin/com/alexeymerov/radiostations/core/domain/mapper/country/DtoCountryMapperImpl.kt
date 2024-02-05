@@ -24,8 +24,8 @@ class DtoCountryMapperImpl @Inject constructor() : DtoCountryMapper {
 
     override fun mapToDtoWithSearchHighlights(dto: CountryDto, searchText: String): CountryDto {
         return dto.copy(
-            englishNameHighliths = findIntRanges(dto.englishName, searchText),
-            nativeNameHighliths = dto.nativeName?.let { findIntRanges(it, searchText) }
+            englishNameHighlights = findIntRanges(dto.englishName, searchText),
+            nativeNameHighlights = dto.nativeName?.let { findIntRanges(it, searchText) }
         )
     }
 
