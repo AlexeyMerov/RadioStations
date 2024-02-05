@@ -45,7 +45,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideForceJsonInterceptor(): JsonResponseInterceptor = JsonResponseInterceptor()
+    fun provideForceJsonInterceptor(): JsonResponseInterceptor = NetworkDefaults.getJsonInterceptor()
 
     @Provides
     @Singleton

@@ -11,13 +11,15 @@ class CountryClientImpl @Inject constructor(
 ) : CountryClient {
 
     override suspend fun requestAllCountries(): List<CountryBody> {
-        val response = countryApi.getAllCountries(fields = "$FIELD_NAME,$FIELD_IDD,$FIELD_CCA2")
+        val response = countryApi.getAllCountries(fields = ALL_FIELDS)
         return responseMapper.mapCountriesResponseBody(response)
     }
 
-    private companion object {
+    internal companion object {
         const val FIELD_NAME = "name"
         const val FIELD_IDD = "idd"
         const val FIELD_CCA2 = "cca2"
+
+        const val ALL_FIELDS = "$FIELD_NAME,$FIELD_IDD,$FIELD_CCA2"
     }
 }

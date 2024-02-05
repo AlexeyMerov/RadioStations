@@ -4,9 +4,11 @@ import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterce
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Converter
+import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -26,7 +28,7 @@ object NetworkDefaults {
 
     fun getConverterFactory(moshi: Moshi): Converter.Factory = MoshiConverterFactory.create(moshi).asLenient()
 
-    fun getForceJsonInterceptor() = JsonResponseInterceptor()
+    fun getJsonInterceptor() = JsonResponseInterceptor()
 
     fun getOkHttpClient(forTest: Boolean = false, vararg interceptors: Interceptor): OkHttpClient {
         val builder = OkHttpClient.Builder()
@@ -39,5 +41,19 @@ object NetworkDefaults {
         interceptors.forEach { builder.addInterceptor(it) }
 
         return builder.build()
+    }
+
+    fun getTestRetrofit(baseUrl: HttpUrl): Retrofit {
+        val jsonFactory = getJsonAdapterFactory()
+        val moshi = getMoshi(jsonFactory)
+        val moshiConverterFactory = getConverterFactory(moshi)
+        val jsonInterceptor = getJsonInterceptor()
+        val okHttpClient = getOkHttpClient(forTest = true, jsonInterceptor)
+
+        return Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl(baseUrl)
+            .addConverterFactory(moshiConverterFactory)
+            .build()
     }
 }
