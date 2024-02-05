@@ -2,23 +2,23 @@ package com.alexeymerov.radiostations.core.remote.response
 
 
 data class CountryBody(
-    val name: Name,
+    val name: CountryName,
     val cca2: String,
-    val idd: Idd
+    val idd: CountryIdd
 ) : ServerBodyType
 
-data class Idd(
+data class CountryIdd(
     val root: String,
     val suffixes: List<String>
 )
 
-data class Name(
+data class CountryName(
     val common: String,
     val official: String,
-    val nativeName: Map<String, NativeName>
+    val nativeName: Map<String, CountryNativeName>
 )
 
-data class NativeName(
+data class CountryNativeName(
     val official: String,
     val common: String
 )

@@ -20,8 +20,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-
+@RunWith(JUnit4::class)
 class CategoryRepositoryTest {
 
     @get:Rule
@@ -49,7 +51,6 @@ class CategoryRepositoryTest {
         coEvery { categoryMapper.mapCategoryResponseToEntity(any(), any()) } returns emptyList()
         every { categoryDao.getAllIdsByParentUrl(any()) } returns emptyList()
         coJustRun { categoryDao.removeAllByIds(any()) }
-        coJustRun { categoryDao.removeAllByParentUrl(any()) }
         coJustRun { categoryDao.insertAll(any()) }
     }
 

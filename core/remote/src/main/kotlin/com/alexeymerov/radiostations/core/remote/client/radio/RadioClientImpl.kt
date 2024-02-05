@@ -14,17 +14,44 @@ class RadioClientImpl @Inject constructor(
     private val responseMapper: ResponseMapper,
 ) : RadioClient {
 
+    /**
+     *  There is an inconsistency with IDs and params and the reliable way is to use links from responses
+     *  But since server operates with links, we have to remove BASE_URL part before requests.
+     *  Example of the issue: 3 different items from responses below
+     *  ?c=music (AND) "key": "music"
+     *  ?id=r0 (AND) "key": "location"
+     *  ?id=c57943 (AND) "guide_id": "c57943"
+     *
+     *     {
+     *       "element": "outline",
+     *       "type": "link",
+     *       "text": "Music",
+     *       "URL": "http://opml.radiotime.com/Browse.ashx?c=music",
+     *       "key": "music"
+     *     },
+     *     {
+     *       "element": "outline",
+     *       "type": "link",
+     *       "text": "By Location",
+     *       "URL": "http://opml.radiotime.com/Browse.ashx?id=r0",
+     *       "key": "location"
+     *     },
+     *     {
+     *       "element": "outline",
+     *       "type": "link",
+     *       "text": "Top 40 & Pop Music",
+     *       "URL": "http://opml.radiotime.com/Browse.ashx?id=c57943",
+     *       "guide_id": "c57943"
+     *     }
+     *
+     * */
     override suspend fun requestCategoriesByUrl(url: String): List<CategoryBody> {
-        // there is an inconsistency with IDs and params and the reliable way is to use links from responses
-        // but since server operates with links, we have to remove BASE_URL part before requests.
         val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
         val response = radioApi.getCategoriesByUrl(finalUrl)
         return responseMapper.mapRadioResponseBody(response)
     }
 
     override suspend fun requestAudioByUrl(url: String): MediaBody? {
-        // there is an inconsistency with IDs and params and the reliable way is to use links from responses
-        // but since server operates with links, we have to remove BASE_URL part before requests.
         val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
         val response = radioApi.getAudioByUrl(finalUrl)
         return responseMapper.mapRadioResponseBody(response).getOrNull(0)

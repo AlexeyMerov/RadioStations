@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class DtoCountryMapperImpl @Inject constructor() : DtoCountryMapper {
 
-    override fun mapEntityToDto(list: List<CountryEntity>): List<CountryDto> = list.map(this::mapEntityToDto)
+    override fun mapEntityToDto(list: List<CountryEntity>): List<CountryDto> = list.map(::mapEntityToDto)
 
     override fun mapEntityToDto(entity: CountryEntity): CountryDto {
         val tag = entity.tag.lowercase()
@@ -24,8 +24,8 @@ class DtoCountryMapperImpl @Inject constructor() : DtoCountryMapper {
 
     override fun mapToDtoWithSearchHighlights(dto: CountryDto, searchText: String): CountryDto {
         return dto.copy(
-            englishNameHighliths = findIntRanges(dto.englishName, searchText),
-            nativeNameHighliths = dto.nativeName?.let { findIntRanges(it, searchText) }
+            englishNameHighlights = findIntRanges(dto.englishName, searchText),
+            nativeNameHighlights = dto.nativeName?.let { findIntRanges(it, searchText) }
         )
     }
 

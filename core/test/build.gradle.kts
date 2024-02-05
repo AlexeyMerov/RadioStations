@@ -15,6 +15,8 @@ dependencies {
     api(libs.test.coreKtx)
     api(libs.test.runner)
 
+    api(libs.google.truth)
+
     api(libs.mockk.android)
     api(libs.mockk.agent)
 

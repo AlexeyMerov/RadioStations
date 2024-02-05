@@ -15,6 +15,9 @@ abstract class CountryDao {
     abstract suspend fun insertAll(entities: List<CountryEntity>)
 
     @Query("SELECT * FROM ${CountryEntity.TABLE_NAME} ORDER BY ${CountryEntity.FIELD_NAME} ASC")
+    abstract fun getAllForTest(): List<CountryEntity>
+
+    @Query("SELECT * FROM ${CountryEntity.TABLE_NAME} ORDER BY ${CountryEntity.FIELD_NAME} ASC")
     abstract fun getAll(): PagingSource<Int, CountryEntity>
 
     @Query(

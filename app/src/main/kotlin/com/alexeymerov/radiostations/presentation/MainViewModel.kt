@@ -30,7 +30,7 @@ class MainViewModel @Inject constructor(
     connectionMonitor: ConnectionMonitor
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
-    val isNetworkAvailable: StateFlow<Boolean> = connectionMonitor.conntectionStatusFlow
+    val isNetworkAvailable: StateFlow<Boolean> = connectionMonitor.connectionStatusFlow
 
     override val viewState: StateFlow<ViewState> = themeSettings.getThemeState()
         .map { ViewState.Loaded(it) }

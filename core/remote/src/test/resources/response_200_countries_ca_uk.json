@@ -1,0 +1,437 @@
+[
+  {
+    "altSpellings": [
+      "CA"
+    ],
+    "area": 9984670.0,
+    "borders": [
+      "USA"
+    ],
+    "capital": [
+      "Ottawa"
+    ],
+    "capitalInfo": {
+      "latlng": [
+        45.42,
+        -75.7
+      ]
+    },
+    "car": {
+      "side": "right",
+      "signs": [
+        "CDN"
+      ]
+    },
+    "cca2": "CA",
+    "cca3": "CAN",
+    "ccn3": "124",
+    "cioc": "CAN",
+    "coatOfArms": {
+      "png": "https://mainfacts.com/media/images/coats_of_arms/ca.png",
+      "svg": "https://mainfacts.com/media/images/coats_of_arms/ca.svg"
+    },
+    "continents": [
+      "North America"
+    ],
+    "currencies": {
+      "CAD": {
+        "name": "Canadian dollar",
+        "symbol": "$"
+      }
+    },
+    "demonyms": {
+      "eng": {
+        "f": "Canadian",
+        "m": "Canadian"
+      },
+      "fra": {
+        "f": "Canadienne",
+        "m": "Canadien"
+      }
+    },
+    "fifa": "CAN",
+    "flag": "\uD83C\uDDE8\uD83C\uDDE6",
+    "flags": {
+      "alt": "The flag of Canada is composed of a red vertical band on the hoist and fly sides and a central white square that is twice the width of the vertical bands. A large eleven-pointed red maple leaf is centered in the white square.",
+      "png": "https://flagcdn.com/w320/ca.png",
+      "svg": "https://flagcdn.com/ca.svg"
+    },
+    "gini": {
+      "2017": 33.3
+    },
+    "idd": {
+      "root": "+1",
+      "suffixes": [
+        ""
+      ]
+    },
+    "independent": true,
+    "landlocked": false,
+    "languages": {
+      "eng": "English",
+      "fra": "French"
+    },
+    "latlng": [
+      60.0,
+      -95.0
+    ],
+    "maps": {
+      "googleMaps": "https://goo.gl/maps/jmEVLugreeqiZXxbA",
+      "openStreetMaps": "https://www.openstreetmap.org/relation/1428125"
+    },
+    "name": {
+      "common": "Canada",
+      "nativeName": {
+        "eng": {
+          "common": "Canada",
+          "official": "Canada"
+        },
+        "fra": {
+          "common": "Canada",
+          "official": "Canada"
+        }
+      },
+      "official": "Canada"
+    },
+    "population": 38005238,
+    "postalCode": {
+      "format": "@#@ #@#",
+      "regex": "^([ABCEGHJKLMNPRSTVXY]\\d[ABCEGHJKLMNPRSTVWXYZ]) ?(\\d[ABCEGHJKLMNPRSTVWXYZ]\\d)$"
+    },
+    "region": "Americas",
+    "startOfWeek": "sunday",
+    "status": "officially-assigned",
+    "subregion": "North America",
+    "timezones": [
+      "UTC-08:00",
+      "UTC-07:00",
+      "UTC-06:00",
+      "UTC-05:00",
+      "UTC-04:00",
+      "UTC-03:30"
+    ],
+    "tld": [
+      ".ca"
+    ],
+    "translations": {
+      "ara": {
+        "common": "كندا",
+        "official": "كندا"
+      },
+      "bre": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "ces": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "cym": {
+        "common": "Canada",
+        "official": "Canada"
+      },
+      "deu": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "est": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "fin": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "fra": {
+        "common": "Canada",
+        "official": "Canada"
+      },
+      "hrv": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "hun": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "ita": {
+        "common": "Canada",
+        "official": "Canada"
+      },
+      "jpn": {
+        "common": "カナダ",
+        "official": "カナダ"
+      },
+      "kor": {
+        "common": "캐나다",
+        "official": "캐나다"
+      },
+      "nld": {
+        "common": "Canada",
+        "official": "Canada"
+      },
+      "per": {
+        "common": "کانادا",
+        "official": "کانادا"
+      },
+      "pol": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "por": {
+        "common": "Canadá",
+        "official": "Canadá"
+      },
+      "rus": {
+        "common": "Канада",
+        "official": "Канада"
+      },
+      "slk": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "spa": {
+        "common": "Canadá",
+        "official": "Canadá"
+      },
+      "srp": {
+        "common": "Канада",
+        "official": "Канада"
+      },
+      "swe": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "tur": {
+        "common": "Kanada",
+        "official": "Kanada"
+      },
+      "urd": {
+        "common": "کینیڈا",
+        "official": "کینیڈا"
+      },
+      "zho": {
+        "common": "加拿大",
+        "official": "加拿大"
+      }
+    },
+    "unMember": true
+  },
+  {
+    "altSpellings": [
+      "GB",
+      "UK",
+      "Great Britain"
+    ],
+    "area": 242900.0,
+    "borders": [
+      "IRL"
+    ],
+    "capital": [
+      "London"
+    ],
+    "capitalInfo": {
+      "latlng": [
+        51.5,
+        -0.08
+      ]
+    },
+    "car": {
+      "side": "left",
+      "signs": [
+        "GB"
+      ]
+    },
+    "cca2": "GB",
+    "cca3": "GBR",
+    "ccn3": "826",
+    "cioc": "GBR",
+    "coatOfArms": {
+      "png": "https://mainfacts.com/media/images/coats_of_arms/gb.png",
+      "svg": "https://mainfacts.com/media/images/coats_of_arms/gb.svg"
+    },
+    "continents": [
+      "Europe"
+    ],
+    "currencies": {
+      "GBP": {
+        "name": "British pound",
+        "symbol": "£"
+      }
+    },
+    "demonyms": {
+      "eng": {
+        "f": "British",
+        "m": "British"
+      },
+      "fra": {
+        "f": "Britannique",
+        "m": "Britannique"
+      }
+    },
+    "flag": "\uD83C\uDDEC\uD83C\uDDE7",
+    "flags": {
+      "alt": "The flag of the United Kingdom — the Union Jack — has a blue field. It features the white-edged red cross of Saint George superimposed on the diagonal red cross of Saint Patrick which is superimposed on the diagonal white cross of Saint Andrew.",
+      "png": "https://flagcdn.com/w320/gb.png",
+      "svg": "https://flagcdn.com/gb.svg"
+    },
+    "gini": {
+      "2017": 35.1
+    },
+    "idd": {
+      "root": "+4",
+      "suffixes": [
+        "4"
+      ]
+    },
+    "independent": true,
+    "landlocked": false,
+    "languages": {
+      "eng": "English"
+    },
+    "latlng": [
+      54.0,
+      -2.0
+    ],
+    "maps": {
+      "googleMaps": "https://goo.gl/maps/FoDtc3UKMkFsXAjHA",
+      "openStreetMaps": "https://www.openstreetmap.org/relation/62149"
+    },
+    "name": {
+      "common": "United Kingdom",
+      "nativeName": {
+        "eng": {
+          "common": "United Kingdom",
+          "official": "United Kingdom of Great Britain and Northern Ireland"
+        }
+      },
+      "official": "United Kingdom of Great Britain and Northern Ireland"
+    },
+    "population": 67215293,
+    "postalCode": {
+      "format": "@# #@@|@## #@@|@@# #@@|@@## #@@|@#@ #@@|@@#@ #@@|GIR0AA",
+      "regex": "^(([A-Z]\\d{2}[A-Z]{2})|([A-Z]\\d{3}[A-Z]{2})|([A-Z]{2}\\d{2}[A-Z]{2})|([A-Z]{2}\\d{3}[A-Z]{2})|([A-Z]\\d[A-Z]\\d[A-Z]{2})|([A-Z]{2}\\d[A-Z]\\d[A-Z]{2})|(GIR0AA))$"
+    },
+    "region": "Europe",
+    "startOfWeek": "monday",
+    "status": "officially-assigned",
+    "subregion": "Northern Europe",
+    "timezones": [
+      "UTC-08:00",
+      "UTC-05:00",
+      "UTC-04:00",
+      "UTC-03:00",
+      "UTC-02:00",
+      "UTC",
+      "UTC+01:00",
+      "UTC+02:00",
+      "UTC+06:00"
+    ],
+    "tld": [
+      ".uk"
+    ],
+    "translations": {
+      "ara": {
+        "common": "المملكة المتحدة",
+        "official": "المملكة المتحدة لبريطانيا العظمى وايرلندا الشمالية"
+      },
+      "bre": {
+        "common": "Rouantelezh-Unanet",
+        "official": "Rouantelezh-Unanet Breizh-Veur ha Norzhiwerzhon"
+      },
+      "ces": {
+        "common": "Spojené království",
+        "official": "Spojené království Velké Británie a Severního Irska"
+      },
+      "cym": {
+        "common": "United Kingdom",
+        "official": "United Kingdom of Great Britain and Northern Ireland"
+      },
+      "deu": {
+        "common": "Vereinigtes Königreich",
+        "official": "Vereinigtes Königreich Großbritannien und Nordirland"
+      },
+      "est": {
+        "common": "Suurbritannia",
+        "official": "Suurbritannia ja Põhja-Iiri Ühendkuningriik"
+      },
+      "fin": {
+        "common": "Yhdistynyt kuningaskunta",
+        "official": "Ison-Britannian ja Pohjois-Irlannin yhdistynyt kuningaskunta"
+      },
+      "fra": {
+        "common": "Royaume-Uni",
+        "official": "Royaume-Uni de Grande-Bretagne et d'Irlande du Nord"
+      },
+      "hrv": {
+        "common": "Ujedinjeno Kraljevstvo",
+        "official": "Ujedinjeno Kraljevstvo Velike Britanije i Sjeverne Irske"
+      },
+      "hun": {
+        "common": "Egyesült Királyság",
+        "official": "Nagy-Britannia és Észak-Írország Egyesült Királysága"
+      },
+      "ita": {
+        "common": "Regno Unito",
+        "official": "Regno Unito di Gran Bretagna e Irlanda del Nord"
+      },
+      "jpn": {
+        "common": "イギリス",
+        "official": "グレート·ブリテンおよび北アイルランド連合王国"
+      },
+      "kor": {
+        "common": "영국",
+        "official": "그레이트브리튼 북아일랜드 연합 왕국"
+      },
+      "nld": {
+        "common": "Verenigd Koninkrijk",
+        "official": "Verenigd Koninkrijk van Groot-Brittannië en Noord-Ierland"
+      },
+      "per": {
+        "common": "انگلیس",
+        "official": "پادشاهی متحد بریتانیای کبیر و ایرلند شمالی"
+      },
+      "pol": {
+        "common": "Zjednoczone Królestwo",
+        "official": "Zjednoczone Królestwo Wielkiej Brytanii i Irlandii Północnej"
+      },
+      "por": {
+        "common": "Reino Unido",
+        "official": "Reino Unido da Grã-Bretanha e Irlanda do Norte"
+      },
+      "rus": {
+        "common": "Великобритания",
+        "official": "Соединенное Королевство Великобритании и Северной Ирландии"
+      },
+      "slk": {
+        "common": "Veľká Británia (Spojené kráľovstvo)",
+        "official": "Spojené kráľovstvo Veľkej Británie a SevernéhoÌrska"
+      },
+      "spa": {
+        "common": "Reino Unido",
+        "official": "Reino Unido de Gran Bretaña e Irlanda del Norte"
+      },
+      "srp": {
+        "common": "Уједињено Краљевство",
+        "official": "Уједињено Краљевство Велике Британије и Северне Ирске"
+      },
+      "swe": {
+        "common": "Storbritannien",
+        "official": "Förenade konungariket Storbritannien och Nordirland"
+      },
+      "tur": {
+        "common": "Birleşik Krallık",
+        "official": "Büyük Britanya ve Kuzey İrlanda Birleşik Krallığı"
+      },
+      "urd": {
+        "common": "مملکتِ متحدہ",
+        "official": "مملکتِ متحدہ برطانیہ عظمی و شمالی آئرلینڈ"
+      },
+      "zho": {
+        "common": "英国",
+        "official": "大不列颠及北爱尔兰联合王国"
+      }
+    },
+    "unMember": true
+  }
+]

@@ -14,9 +14,12 @@ abstract class MediaDao {
     abstract suspend fun insert(entity: MediaEntity)
 
     @Query("SELECT * FROM ${MediaEntity.TABLE_NAME} WHERE ${MediaEntity.FIELD_ID} = 0")
-    abstract fun get(): Flow<MediaEntity?>
+    abstract fun getMedia(): Flow<MediaEntity?>
 
     @Query("DELETE FROM ${MediaEntity.TABLE_NAME}")
     abstract suspend fun clearTable()
+
+    @Query("SELECT * FROM ${MediaEntity.TABLE_NAME} ")
+    abstract fun getAllMediaForTest(): Flow<List<MediaEntity>>
 
 }

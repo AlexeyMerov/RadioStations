@@ -34,7 +34,7 @@ class MediaRepositoryImpl @Inject constructor(
 
     override suspend fun getItemByUrl(url: String): CategoryEntity = categoryDao.getByUrl(url)
 
-    override fun getLastPlayingMediaItem(): Flow<MediaEntity?> = mediaDao.get()
+    override fun getLastPlayingMediaItem(): Flow<MediaEntity?> = mediaDao.getMedia()
 
     override suspend fun setLastPlayingMediaItem(item: MediaEntity) = mediaDao.insert(item)
 }

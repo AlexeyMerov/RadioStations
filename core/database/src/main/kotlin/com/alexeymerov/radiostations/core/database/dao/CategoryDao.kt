@@ -1,10 +1,10 @@
 package com.alexeymerov.radiostations.core.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -17,21 +17,6 @@ abstract class CategoryDao {
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_URL} = :url")
     abstract suspend fun getByUrl(url: String): CategoryEntity
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertAll(list: List<CategoryEntity>)
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun updateAll(list: List<CategoryEntity>)
-
-    @Query("DELETE FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url")
-    abstract suspend fun removeAllByParentUrl(url: String)
-
-    @Query("DELETE FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_ID} IN (:ids)")
-    abstract suspend fun removeAllByIds(ids: List<String>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(entity: CategoryEntity)
-
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
     abstract fun getAllByParentUrl(url: String): Flow<List<CategoryEntity>>
 
@@ -40,6 +25,15 @@ abstract class CategoryDao {
 
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_FAVORITE} = 1 ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
     abstract fun getFavoritesFlow(): Flow<List<CategoryEntity>>
+
+    @Upsert
+    abstract suspend fun insertAll(list: List<CategoryEntity>)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun updateAll(list: List<CategoryEntity>)
+
+    @Query("DELETE FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_ID} IN (:ids)")
+    abstract suspend fun removeAllByIds(ids: List<String>)
 
     @Query(
         "UPDATE ${CategoryEntity.TABLE_NAME} " +

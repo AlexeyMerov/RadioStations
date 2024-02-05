@@ -1,14 +1,18 @@
 package com.alexeymerov.radiostations.core.remote.di
 
 
+import android.content.Context
 import com.alexeymerov.radiostations.core.common.BuildConfig
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -41,20 +45,47 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideForceJsonInterceptor(): JsonResponseInterceptor = NetworkDefaults.getForceJsonInterceptor()
+    fun provideForceJsonInterceptor(): JsonResponseInterceptor = NetworkDefaults.getJsonInterceptor()
+
+    @Provides
+    @Singleton
+    fun provideChuckerInterceptor(@ApplicationContext context: Context): ChuckerInterceptor {
+        val chuckerCollector = ChuckerCollector(
+            context = context,
+            showNotification = true
+        )
+
+        val chuckerInterceptor = ChuckerInterceptor.Builder(context)
+            .collector(chuckerCollector)
+            .createShortcut(true)
+            .build()
+
+        return chuckerInterceptor
+    }
 
     @Provides
     @Singleton
     @Backend(Server.Radio)
-    fun provideRadioOkHttpClient(jsonResponseInterceptor: JsonResponseInterceptor, loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
-        return NetworkDefaults.getOkHttpClient(interceptors = arrayOf(jsonResponseInterceptor, loggingInterceptor))
+    fun provideRadioOkHttpClient(
+        jsonResponseInterceptor: JsonResponseInterceptor,
+        loggingInterceptor: HttpLoggingInterceptor,
+        chuckerInterceptor: ChuckerInterceptor
+    ): OkHttpClient {
+        return NetworkDefaults.getOkHttpClient(
+            interceptors = arrayOf(jsonResponseInterceptor, loggingInterceptor, chuckerInterceptor)
+        )
     }
 
     @Provides
     @Singleton
     @Backend(Server.Countries)
-    fun provideCountriesOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
-        return NetworkDefaults.getOkHttpClient(interceptors = arrayOf(loggingInterceptor))
+    fun provideCountriesOkHttpClient(
+        loggingInterceptor: HttpLoggingInterceptor,
+        chuckerInterceptor: ChuckerInterceptor
+    ): OkHttpClient {
+        return NetworkDefaults.getOkHttpClient(
+            interceptors = arrayOf(loggingInterceptor, chuckerInterceptor)
+        )
     }
 
     @Provides

@@ -17,4 +17,6 @@ dependencies {
     implementation(projects.core.connectivity)
 
     api(projects.core.dto)
+
+    testImplementation(projects.core.test)
 }
