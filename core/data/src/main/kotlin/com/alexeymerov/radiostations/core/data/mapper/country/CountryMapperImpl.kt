@@ -13,15 +13,13 @@ class CountryMapperImpl @Inject constructor() : CountryMapper {
     private val correctIddSuffix = "^\\d+$".toRegex()
 
     override suspend fun mapCountries(list: List<CountryBody>): List<CountryEntity> {
-        val result = mutableListOf<CountryEntity>()
-        list.asSequence()
+        return list
             .filter {
                 it.idd.root.matches(correctIddRootRegex)
                     && it.cca2.matches(correctCca2Regex)
                     && it.name.official.isNotEmpty()
             }
-            .forEach { result.add(mapCountry(it)) }
-        return result
+            .map(::mapCountry)
     }
 
     private fun mapCountry(body: CountryBody): CountryEntity {

@@ -13,16 +13,7 @@ import javax.inject.Inject
  * */
 class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
 
-    override fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto> {
-        val resultList = mutableListOf<CategoryItemDto>()
-
-        categories
-            .asSequence()
-            .map(::mapEntityToDto)
-            .forEach(resultList::add)
-
-        return resultList
-    }
+    override fun mapEntitiesToDto(categories: List<CategoryEntity>): List<CategoryItemDto> = categories.map(::mapEntityToDto)
 
     override fun mapEntityToDto(entity: CategoryEntity): CategoryItemDto {
         val type = when (entity.type) {
@@ -43,6 +34,8 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
         return CategoryItemDto(
             id = entity.id,
             type = type,
+
+            // text as url is for header
             url = entity.url.ifEmpty { entity.text },
 
             text = entity.text,
