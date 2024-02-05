@@ -14,10 +14,13 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import retrofit2.Retrofit
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
+@RunWith(JUnit4::class)
 class NetworkClientTest {
 
     private lateinit var mockWebServer: MockWebServer
