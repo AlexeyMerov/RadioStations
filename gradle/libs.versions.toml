@@ -119,18 +119,17 @@ compose-bom = { module = "androidx.compose:compose-bom", version = "2024.01.00" 
 compose-animation = { module = "androidx.compose.animation:animation" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
 compose-runtime = { module = "androidx.compose.runtime:runtime" }
-compose-material = { module = "androidx.compose.material:material" }
 compose-material3 = { module = "androidx.compose.material3:material3", version = "1.2.0-rc01" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.6.0" }
 
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeLifecycle" }
 compose-lifecycleRuntime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeLifecycle" }
 compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.2" }
 compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.6" }
 compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
-compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.6.0" }
 
 glance-widget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
