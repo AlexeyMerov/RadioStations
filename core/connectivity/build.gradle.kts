@@ -8,4 +8,6 @@ android {
 }
 
 dependencies {
+    testImplementation(projects.core.test)
+    testImplementation(libs.robolectric)
 }

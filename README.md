@@ -39,7 +39,7 @@
 - Profile picture from gallery or camera.
 - Settings for the app.
 - Dark/Light theme.
-- ([Material3](https://m3.material.io/)) design system.
+- [Material3](https://m3.material.io/) design system.
 - Animations.
 - Static and dynamic shortcuts.
 - Tests.

@@ -26,7 +26,7 @@ private const val USER_PREFS = "user_prefs"
 
 @Module(includes = [DataStoreModule.Stores::class])
 @InstallIn(SingletonComponent::class)
-class DataStoreModule {
+object DataStoreModule {
 
     @Provides
     @Singleton
