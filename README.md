@@ -60,7 +60,7 @@
 - [Coil](https://coil-kt.github.io/coil/compose/)
 - [Lottie](https://github.com/airbnb/lottie-android)
 - [Media3 ExoPlayer](https://developer.android.com/media/media3/exoplayer)
-- JUnit4 + [MockK](https://mockk.io/) + [Truth](https://truth.dev/)
+- JUnit4 + [MockK](https://mockk.io/) + [Robolectric](https://robolectric.org/) + [Truth](https://truth.dev/)
 - [SmartToolFactory Picture Cropper](https://github.com/SmartToolFactory/Compose-Cropper)
 
 ### Providers:

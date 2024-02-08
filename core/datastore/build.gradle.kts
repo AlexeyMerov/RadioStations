@@ -9,4 +9,7 @@ android {
 
 dependencies {
     implementation(libs.dataStore.base)
+
+    testImplementation(projects.core.test)
+    testImplementation(libs.robolectric)
 }
