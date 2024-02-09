@@ -13,31 +13,31 @@ import javax.inject.Inject
 /**
  * DataStore works only with simple types so i tried to avoid generics.
  * */
-class SettingsStoreImpl @Inject constructor(private val userPrefs: DataStore<Preferences>) : SettingsStore {
+class SettingsStoreImpl @Inject constructor(private val dataStore: DataStore<Preferences>) : SettingsStore {
 
-    override fun getStringPrefsFlow(key: String, defValue: String): Flow<String> = userPrefs.data
+    override fun getStringPrefsFlow(key: String, defValue: String): Flow<String> = dataStore.data
         .map { it.getOrDefault(stringPreferencesKey(key), defValue) }
 
-    override fun getIntPrefsFlow(key: String, defValue: Int): Flow<Int> = userPrefs.data
+    override fun getIntPrefsFlow(key: String, defValue: Int): Flow<Int> = dataStore.data
         .map { it.getOrDefault(intPreferencesKey(key), defValue) }
 
-    override fun getBoolPrefsFlow(key: String, defValue: Boolean): Flow<Boolean> = userPrefs.data
+    override fun getBoolPrefsFlow(key: String, defValue: Boolean): Flow<Boolean> = dataStore.data
         .map { it.getOrDefault(booleanPreferencesKey(key), defValue) }
 
     override suspend fun setStringPrefs(key: String, value: String) {
-        userPrefs.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[stringPreferencesKey(key)] = value
         }
     }
 
     override suspend fun setIntPrefs(key: String, value: Int) {
-        userPrefs.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[intPreferencesKey(key)] = value
         }
     }
 
     override suspend fun setBoolPrefs(key: String, value: Boolean) {
-        userPrefs.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[booleanPreferencesKey(key)] = value
         }
     }

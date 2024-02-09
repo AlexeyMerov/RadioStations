@@ -5,19 +5,17 @@ import com.alexeymerov.radiostations.core.common.toInt
 import com.alexeymerov.radiostations.core.database.RadioDatabase
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.core.database.entity.EntityItemType
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.UUID
 import javax.inject.Inject
-import javax.inject.Named
 
 @HiltAndroidTest
 class CategoryDaoTest {
@@ -25,7 +23,6 @@ class CategoryDaoTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    @Named("AndroidTest")
     @Inject
     lateinit var database: RadioDatabase
 

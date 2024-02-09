@@ -23,6 +23,8 @@ internal fun Project.configureKotlinAndroid(
         dependencies {
             implementation(libs.getLibrary("timber"))
             implementation(libs.getLibrary("androidx-core-ktx"))
+            implementation(libs.getLibrary("coroutines-core"))
+            implementation(libs.getLibrary("coroutines-android"))
         }
 
         packaging.resources.excludes.add("META-INF/*")

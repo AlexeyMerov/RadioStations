@@ -2,7 +2,7 @@ package com.alexeymerov.radiostations.core.database.dao
 
 import com.alexeymerov.radiostations.core.database.RadioDatabase
 import com.alexeymerov.radiostations.core.database.entity.MediaEntity
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +13,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
-import javax.inject.Named
 
 @HiltAndroidTest
 class MediaDaoTest {
@@ -21,7 +20,6 @@ class MediaDaoTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    @Named("AndroidTest")
     @Inject
     lateinit var database: RadioDatabase
 
