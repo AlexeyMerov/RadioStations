@@ -5,8 +5,22 @@ plugins {
 
 android {
     namespace = "com.alexeymerov.radiostations.core.filestore"
+
+    defaultConfig {
+        testInstrumentationRunner = "com.alexeymerov.radiostations.core.test.HiltTestRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+    }
+
+    @Suppress("UnstableApiUsage")
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 dependencies {
     implementation(libs.dataStore.base)
+
+    androidTestImplementation(projects.core.test)
+    androidTestUtil(libs.test.orchestrator)
 }

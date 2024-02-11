@@ -52,7 +52,7 @@ class ProfileUsaCaseImpl @Inject constructor(
     }
 
     override suspend fun saveAvatar(bitmap: Bitmap) {
-        val avatarFileName = AVATAR_PREFIX + System.currentTimeMillis() + AVATAR_EXT
+        val avatarFileName = AVATAR_PREFIX + System.currentTimeMillis() + AppFileStore.FileSuffix.JPG
         fileStore.copyFromBitmapToFile(bitmap, avatarFileName)
         settingsStore.setStringPrefs(AVATAR_PREFIX, avatarFileName)
 
@@ -71,14 +71,13 @@ class ProfileUsaCaseImpl @Inject constructor(
     }
 
     override fun getAvatarTempUri(): Uri {
-        val tempUri = fileStore.getTempUri(AVATAR_PREFIX, AVATAR_EXT)
+        val tempUri = fileStore.getTempUri(AVATAR_PREFIX)
         lastTempUri = tempUri
         return tempUri
     }
 
     companion object {
         const val AVATAR_PREFIX = "avatar_"
-        const val AVATAR_EXT = ".jpg"
 
         const val USER_NAME_KEY = "user_name_key"
         const val USER_EMAIL_KEY = "user_email_key"
