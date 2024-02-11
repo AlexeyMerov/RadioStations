@@ -62,6 +62,7 @@ radiostations-android-application-compose = { id = "radiostations.android.applic
 radiostations-android-library-compose = { id = "radiostations.android.library.compose", version = "unspecified" }
 radiostations-android-room = { id = "radiostations.android.room", version = "unspecified" }
 radiostations-android-firebase = { id = "radiostations.android.firebase", version = "unspecified" }
+radiostations-android-androidTesting = { id = "radiostations.android.androidTesting", version = "unspecified" }
 
 
 [libraries]

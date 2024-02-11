@@ -59,6 +59,10 @@ gradlePlugin {
             id = "radiostations.android.firebase"
             implementationClass = "FirebasePlugin"
         }
+        register("androidTesting") {
+            id = "radiostations.android.androidTesting"
+            implementationClass = "AndroidTestPlugin"
+        }
 
     }
 }
