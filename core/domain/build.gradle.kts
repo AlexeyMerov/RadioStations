@@ -5,6 +5,11 @@ plugins {
 
 android {
     namespace = "com.alexeymerov.radiostations.core.domain"
+
+    @Suppress("UnstableApiUsage")
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
