@@ -19,4 +19,5 @@ dependencies {
     api(projects.core.dto)
 
     testImplementation(projects.core.test)
+    testImplementation(libs.robolectric)
 }

@@ -52,7 +52,7 @@ class ProfileUsaCaseImpl @Inject constructor(
     }
 
     override suspend fun saveAvatar(bitmap: Bitmap) {
-        val avatarFileName = AVATAR_PREFIX + System.currentTimeMillis() + AppFileStore.FileSuffix.JPG
+        val avatarFileName = AVATAR_PREFIX + System.currentTimeMillis() + AppFileStore.FileSuffix.JPG.value
         fileStore.copyFromBitmapToFile(bitmap, avatarFileName)
         settingsStore.setStringPrefs(AVATAR_PREFIX, avatarFileName)
 
