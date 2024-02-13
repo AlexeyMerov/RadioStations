@@ -13,4 +13,5 @@ dependencies {
     implementation(projects.core.database)
 
     testImplementation(projects.core.test)
+    testImplementation(libs.paging.testing)
 }

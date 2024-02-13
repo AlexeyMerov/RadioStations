@@ -1,8 +1,6 @@
-package com.alexeymerov.radiostations.core.data.repository
+package com.alexeymerov.radiostations.core.data.repository.audio
 
 import com.alexeymerov.radiostations.core.data.mapper.media.MediaMapper
-import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepository
-import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepositoryImpl
 import com.alexeymerov.radiostations.core.database.dao.CategoryDao
 import com.alexeymerov.radiostations.core.database.dao.MediaDao
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity

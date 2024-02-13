@@ -6,11 +6,13 @@ import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMa
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.google.common.truth.Truth.*
 import io.mockk.coEvery
-import io.mockk.mockk
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -18,10 +20,16 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class CategoryUseCaseTest {
 
+    @get:Rule
+    val mockkRule = MockKRule(this)
+
     private lateinit var useCase: CategoryUseCase
 
-    private val connectivitySettings = mockk<ConnectivitySettingsUseCase>()
-    private val connectionMonitor = mockk<ConnectionMonitor>()
+    @MockK
+    private lateinit var connectivitySettings: ConnectivitySettingsUseCase
+
+    @MockK
+    private lateinit var connectionMonitor: ConnectionMonitor
 
     @Before
     fun setup() {

@@ -12,11 +12,13 @@ import com.alexeymerov.radiostations.core.datastore.FakeSettingsStore
 import com.alexeymerov.radiostations.core.filestore.AppFileStore
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
-import io.mockk.mockk
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
@@ -27,11 +29,15 @@ import java.io.File
 @Config(manifest = Config.NONE)
 class ProfileUsaCaseTest {
 
-    private val tempFolder = TemporaryFolder.builder().assureDeletion().build()
+    @get:Rule
+    val mockkRule = MockKRule(this)
 
-    private val fileStore = mockk<AppFileStore>()
+    @MockK
+    private lateinit var fileStore: AppFileStore
 
     private lateinit var useCase: ProfileUsaCase
+
+    private val tempFolder = TemporaryFolder.builder().assureDeletion().build()
 
     @Before
     fun setup() {
