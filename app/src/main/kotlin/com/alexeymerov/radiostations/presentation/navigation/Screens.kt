@@ -53,7 +53,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
     }
 }
 
-// not sure if it's a good idea to have 2 composable() for one screen, not cheked if it'll work either
+// not sure if it's a good idea to have 2 composable() for one screen, not checked if it'll work either
 fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Player(parentRoute).route,

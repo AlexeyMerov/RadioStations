@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 // https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes
 fun Configuration.isTablet(): Boolean {
     return if (isLandscape()) {
-        screenWidthDp > 900 // my phone is 866, not in the range apparantly
+        screenWidthDp > 900 // my phone is 866, not in the range apparently
     } else {
         screenWidthDp > 600
     }

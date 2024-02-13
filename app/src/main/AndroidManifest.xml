@@ -103,7 +103,7 @@
 
         <!--        todo need proper realization with play control, images etc.-->
         <!--        <receiver-->
-        <!--            android:name=".feature.player.widget.PlayerWidgetReciever"-->
+        <!--            android:name=".feature.player.widget.PlayerWidgetReceiver"-->
         <!--            android:exported="true"-->
         <!--            >-->
         <!--            <intent-filter>-->

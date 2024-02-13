@@ -25,7 +25,6 @@
     <string name="done">Listo</string>
     <string name="theme_settings">Configuración del tema</string>
     <string name="night">Noche</string>
-    <string name="avatar">AVATAR</string>
     <string name="gallery">Galería</string>
     <string name="camera">Cámara</string>
     <string name="camera_permission_needed_title">Permiso necesario</string>
