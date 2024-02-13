@@ -6,11 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface MediaRepository {
 
-    suspend fun getItemById(id: String): CategoryEntity
+    suspend fun getItemById(id: String): CategoryEntity?
 
     fun getAllFavorites(): Flow<List<CategoryEntity>>
 
-    suspend fun getItemByUrl(url: String): CategoryEntity
+    suspend fun getItemByUrl(url: String): CategoryEntity?
 
     suspend fun getMediaByUrl(url: String): MediaEntity?
 

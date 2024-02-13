@@ -23,16 +23,21 @@ class MediaRepositoryImpl @Inject constructor(
     override suspend fun getMediaByUrl(url: String): MediaEntity? {
         val item = categoryDao.getByUrl(url)
         val mediaBody = radioClient.requestAudioByUrl(url)
-        return mediaBody?.let { mediaMapper.mapToEntity(item, it) }
+
+        if (item != null && mediaBody != null) {
+            return mediaMapper.mapToEntity(item, mediaBody)
+        }
+
+        return null
     }
 
     override suspend fun changeIsMediaFavorite(itemId: String, isFavorite: Boolean) {
         categoryDao.setStationFavorite(itemId, isFavorite.toInt())
     }
 
-    override suspend fun getItemById(id: String): CategoryEntity = categoryDao.getById(id)
+    override suspend fun getItemById(id: String): CategoryEntity? = categoryDao.getById(id)
 
-    override suspend fun getItemByUrl(url: String): CategoryEntity = categoryDao.getByUrl(url)
+    override suspend fun getItemByUrl(url: String): CategoryEntity? = categoryDao.getByUrl(url)
 
     override fun getLastPlayingMediaItem(): Flow<MediaEntity?> = mediaDao.getMedia()
 

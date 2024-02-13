@@ -55,6 +55,11 @@ class PlayerViewModel @Inject constructor(
 
     private suspend fun loadStationInfo(action: ViewAction.LoadStationInfo) {
         val station = audioUseCase.getByUrl(action.parentUrl)
+        if (station == null) {
+            Timber.e("loadStationInfo cant find an item")
+            setState(ViewState.Error)
+            return
+        }
         isFavorite = station.isFavorite
         setState(ViewState.Loaded(station))
     }

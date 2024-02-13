@@ -26,8 +26,8 @@ class AudioUseCaseImpl @Inject constructor(
     private val analytics: FirebaseAnalytics
 ) : AudioUseCase {
 
-    override suspend fun getByUrl(url: String): CategoryItemDto {
-        val entity = mediaRepository.getItemByUrl(url)
+    override suspend fun getByUrl(url: String): CategoryItemDto? {
+        val entity = mediaRepository.getItemByUrl(url) ?: return null
         return dtoCategoriesMapper.mapEntityToDto(entity)
     }
 
@@ -54,6 +54,10 @@ class AudioUseCaseImpl @Inject constructor(
 
     override suspend fun toggleFavorite(id: String) {
         val item = mediaRepository.getItemById(id)
+        if (item == null) {
+            Timber.w("toggleFavorite cant find an item")
+            return
+        }
         changeIsMediaFavorite(id, item.text, !item.isFavorite)
     }
 

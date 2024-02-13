@@ -25,5 +25,4 @@ dependencies {
 
     testImplementation(projects.core.test)
     testImplementation(libs.robolectric)
-    testImplementation(libs.paging.testing)
 }
