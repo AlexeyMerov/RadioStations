@@ -92,7 +92,7 @@ fun LanguageSettings(modifier: Modifier) {
                             )
                             BasicText(
                                 modifier = Modifier.alpha(0.5f),
-                                // capitilize is deprecated :|
+                                // capitalize is deprecated :|
                                 text = item.getDisplayName(item).replaceFirstChar { it.titlecase(item) },
                                 textAlign = TextAlign.Center,
                                 textStyle = MaterialTheme.typography.labelLarge

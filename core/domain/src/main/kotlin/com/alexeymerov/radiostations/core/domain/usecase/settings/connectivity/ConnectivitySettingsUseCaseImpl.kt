@@ -21,7 +21,7 @@ class ConnectivitySettingsUseCaseImpl @Inject constructor(
         return getConnectionStatusFlow().first()
     }
 
-    override suspend fun allowConnections(): Boolean {
+    override suspend fun connectionsAllowed(): Boolean {
         return getConnectionStatus() == ConnectionStatus.ONLINE
     }
 

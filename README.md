@@ -39,7 +39,7 @@
 - Profile picture from gallery or camera.
 - Settings for the app.
 - Dark/Light theme.
-- ([Material3](https://m3.material.io/)) design system.
+- [Material3](https://m3.material.io/) design system.
 - Animations.
 - Static and dynamic shortcuts.
 - Tests.
@@ -60,7 +60,7 @@
 - [Coil](https://coil-kt.github.io/coil/compose/)
 - [Lottie](https://github.com/airbnb/lottie-android)
 - [Media3 ExoPlayer](https://developer.android.com/media/media3/exoplayer)
-- JUnit4 + [MockK](https://mockk.io/) + [Truth](https://truth.dev/)
+- JUnit4 + [MockK](https://mockk.io/) + [Robolectric](https://robolectric.org/) + [Truth](https://truth.dev/)
 - [SmartToolFactory Picture Cropper](https://github.com/SmartToolFactory/Compose-Cropper)
 
 ### Providers:

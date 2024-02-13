@@ -25,7 +25,6 @@
     <string name="done">Готово</string>
     <string name="theme_settings">Настройки темы</string>
     <string name="night">Чёрный</string>
-    <string name="avatar">АВАТАР</string>
     <string name="gallery">Галерея</string>
     <string name="camera">Камера</string>
     <string name="camera_permission_needed_title">Необходимо разрешение</string>

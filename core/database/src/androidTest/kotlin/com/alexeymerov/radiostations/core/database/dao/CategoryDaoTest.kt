@@ -5,19 +5,17 @@ import com.alexeymerov.radiostations.core.common.toInt
 import com.alexeymerov.radiostations.core.database.RadioDatabase
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.core.database.entity.EntityItemType
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.UUID
 import javax.inject.Inject
-import javax.inject.Named
 
 @HiltAndroidTest
 class CategoryDaoTest {
@@ -25,7 +23,6 @@ class CategoryDaoTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    @Named("AndroidTest")
     @Inject
     lateinit var database: RadioDatabase
 
@@ -57,11 +54,14 @@ class CategoryDaoTest {
         )
         categoryDao.insertAll(listOf(item))
         val entity = categoryDao.getById(id)
+        assertThat(entity).isNotNull()
+        entity!!
+
         assertThat(entity.id).isEqualTo(id)
     }
 
     @Test
-    fun get_by_wrong_id_throw_null_pointer() = runTest {
+    fun getByWrongId_returnNull() = runTest {
         val item = CategoryEntity(
             id = "someid",
             position = 0,
@@ -72,11 +72,9 @@ class CategoryDaoTest {
         )
         categoryDao.insertAll(listOf(item))
 
-        try {
-            categoryDao.getById("")
-        } catch (e: Exception) {
-            assertThat(e).isInstanceOf(NullPointerException::class.java)
-        }
+        val entity = categoryDao.getById("")
+
+        assertThat(entity).isNull()
     }
 
     @Test
@@ -93,6 +91,10 @@ class CategoryDaoTest {
         )
         categoryDao.insertAll(listOf(item))
         val entity = categoryDao.getByUrl(url)
+
+        assertThat(entity).isNotNull()
+        entity!!
+
         assertThat(entity.url).isEqualTo(url)
     }
 
@@ -392,6 +394,10 @@ class CategoryDaoTest {
         categoryDao.insertAll(listOf(item))
 
         var entity = categoryDao.getById(id)
+
+        assertThat(entity).isNotNull()
+        entity!!
+
         assertThat(entity.text).isEqualTo(initText)
 
         val newText = "456"
@@ -399,6 +405,10 @@ class CategoryDaoTest {
         categoryDao.insertAll(listOf(newItem))
 
         entity = categoryDao.getById(id)
+
+        assertThat(entity).isNotNull()
+        entity!!
+
         assertThat(entity.text).isEqualTo(newText)
     }
 
@@ -539,10 +549,18 @@ class CategoryDaoTest {
 
         categoryDao.insertAll(listOf(entity))
         val item = categoryDao.getById(id)
+
+        assertThat(item).isNotNull()
+        item!!
+
         assertThat(item.isFavorite).isFalse()
 
         categoryDao.setStationFavorite(id, true.toInt())
         val updatedItem = categoryDao.getById(id)
+
+        assertThat(updatedItem).isNotNull()
+        updatedItem!!
+
         assertThat(updatedItem.isFavorite).isTrue()
     }
 
@@ -562,10 +580,18 @@ class CategoryDaoTest {
 
         categoryDao.insertAll(listOf(entity))
         val item = categoryDao.getById(id)
+
+        assertThat(item).isNotNull()
+        item!!
+
         assertThat(item.isFavorite).isFalse()
 
         categoryDao.setStationFavorite("", true.toInt())
         val updatedItem = categoryDao.getById(id)
+
+        assertThat(updatedItem).isNotNull()
+        updatedItem!!
+
         assertThat(updatedItem.isFavorite).isFalse()
     }
 

@@ -81,11 +81,11 @@ class FavoritesViewModel @Inject constructor(
             is ViewAction.SelectItem -> selectItem(action.item)
             is ViewAction.Unfavorite -> unfavorite(action.item)
             is ViewAction.UnfavoriteSelected -> unfavoriteSelected()
-            is ViewAction.UndoRecentUnfavorite -> undoRecetUnfavorite()
+            is ViewAction.UndoRecentUnfavorite -> undoRecentUnfavorite()
         }
     }
 
-    private fun undoRecetUnfavorite() {
+    private fun undoRecentUnfavorite() {
         viewModelScope.launch(ioContext) {
             recentlyUnfavorited.forEach {
                 audioUseCase.setFavorite(it)

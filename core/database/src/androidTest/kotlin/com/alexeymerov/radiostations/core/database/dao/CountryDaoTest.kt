@@ -5,7 +5,7 @@ import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
 import com.alexeymerov.radiostations.core.database.RadioDatabase
 import com.alexeymerov.radiostations.core.database.entity.CountryEntity
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
@@ -14,7 +14,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
-import javax.inject.Named
 
 @HiltAndroidTest
 class CountryDaoTest {
@@ -22,7 +21,6 @@ class CountryDaoTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    @Named("AndroidTest")
     @Inject
     lateinit var database: RadioDatabase
 

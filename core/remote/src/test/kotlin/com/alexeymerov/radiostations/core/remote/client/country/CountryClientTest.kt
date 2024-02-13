@@ -7,9 +7,12 @@ import com.alexeymerov.radiostations.core.remote.response.CountryIdd
 import com.alexeymerov.radiostations.core.remote.response.CountryName
 import com.google.common.truth.Truth.*
 import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -18,7 +21,12 @@ import retrofit2.Response
 @RunWith(JUnit4::class)
 class CountryClientTest {
 
-    private val countryApi = mockk<CountryApi>()
+    @get:Rule
+    val mockkRule = MockKRule(this)
+
+    @MockK
+    private lateinit var countryApi: CountryApi
+
     private lateinit var countryClient: CountryClient
 
     private val validCca2CountryList = listOf(

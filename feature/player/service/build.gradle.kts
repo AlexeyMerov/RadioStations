@@ -12,7 +12,7 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.feature.player.widget)
 
-    implementation(libs.kotlin.guava)
+    implementation(libs.coroutines.guava)
 
     implementation(libs.media3.exoplayer.base)
     implementation(libs.media3.exoplayer.dash)

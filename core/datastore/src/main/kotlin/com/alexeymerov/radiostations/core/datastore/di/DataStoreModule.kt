@@ -9,9 +9,6 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.alexeymerov.radiostations.core.datastore.SettingsStore
-import com.alexeymerov.radiostations.core.datastore.SettingsStoreImpl
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,9 +21,9 @@ import javax.inject.Singleton
 
 private const val USER_PREFS = "user_prefs"
 
-@Module(includes = [DataStoreModule.Stores::class])
+@Module
 @InstallIn(SingletonComponent::class)
-class DataStoreModule {
+object DataStoreModule {
 
     @Provides
     @Singleton
@@ -37,16 +34,6 @@ class DataStoreModule {
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = { context.preferencesDataStoreFile(USER_PREFS) }
         )
-    }
-
-    @Module
-    @InstallIn(SingletonComponent::class)
-    abstract class Stores {
-
-        @Binds
-        @Singleton
-        abstract fun bindSettingsStore(store: SettingsStoreImpl): SettingsStore
-
     }
 
 }

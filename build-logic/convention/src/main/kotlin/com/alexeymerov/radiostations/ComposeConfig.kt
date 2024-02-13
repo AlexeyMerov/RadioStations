@@ -23,7 +23,6 @@ internal fun Project.configureCompose(
 
             implementation(libs.getLibrary("compose-animation"))
             implementation(libs.getLibrary("compose-foundation"))
-            implementation(libs.getLibrary("compose-material"))
             implementation(libs.getLibrary("compose-material3"))
             implementation(libs.getLibrary("compose-materialIcons"))
             implementation(libs.getLibrary("compose-ui-util"))

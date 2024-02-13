@@ -55,7 +55,7 @@ class RadioApiTest {
 
         try {
             radioApi.getCategoriesByUrl(String.EMPTY)
-        } catch (e: JsonDataException) {
+        } catch (e: Exception) {
             assertThat(e).isInstanceOf(JsonDataException::class.java)
         }
     }
@@ -114,7 +114,7 @@ class RadioApiTest {
 
         try {
             radioApi.getAudioByUrl(String.EMPTY)
-        } catch (e: JsonDataException) {
+        } catch (e: Exception) {
             assertThat(e).isInstanceOf(JsonDataException::class.java)
         }
     }

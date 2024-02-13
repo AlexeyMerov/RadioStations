@@ -9,7 +9,7 @@ interface ConnectivitySettingsUseCase {
 
     suspend fun getConnectionStatus(): ConnectionStatus
 
-    suspend fun allowConnections(): Boolean
+    suspend fun connectionsAllowed(): Boolean
 
     suspend fun forceConnectionStatus(status: ConnectionStatus)
 

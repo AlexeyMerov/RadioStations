@@ -8,9 +8,12 @@ import com.alexeymerov.radiostations.core.remote.response.MainBody
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
 import com.google.common.truth.Truth.*
 import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -19,7 +22,12 @@ import retrofit2.Response
 @RunWith(JUnit4::class)
 class RadioClientTest {
 
-    private val radioApi = mockk<RadioApi>()
+    @get:Rule
+    val mockkRule = MockKRule(this)
+
+    @MockK
+    private lateinit var radioApi: RadioApi
+
     private lateinit var radioClient: RadioClient
 
     @Before

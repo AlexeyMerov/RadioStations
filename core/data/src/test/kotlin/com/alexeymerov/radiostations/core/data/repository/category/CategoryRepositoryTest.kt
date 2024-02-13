@@ -1,9 +1,7 @@
-package com.alexeymerov.radiostations.core.data.repository
+package com.alexeymerov.radiostations.core.data.repository.category
 
 import com.alexeymerov.radiostations.core.data.mapper.category.CategoryMapper
 import com.alexeymerov.radiostations.core.data.mapper.geocoder.LocationGeocoder
-import com.alexeymerov.radiostations.core.data.repository.category.CategoryRepository
-import com.alexeymerov.radiostations.core.data.repository.category.CategoryRepositoryImpl
 import com.alexeymerov.radiostations.core.database.dao.CategoryDao
 import com.alexeymerov.radiostations.core.remote.client.radio.RadioClient
 import io.mockk.coEvery

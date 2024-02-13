@@ -266,7 +266,7 @@ private fun PlayButton(modifier: Modifier, onColor: Color, isPlaying: Boolean, o
 
 /**
  * Calculate animation data for bottom player element position on the screen
- * Based on exand/collapse progress
+ * Based on expand/collapse progress
  *
  * @param density - LocalDensity.current
  * @param statusBarInsets - WindowInsets.statusBars
@@ -306,8 +306,8 @@ private fun calculateAnimationData(
 
         val imgCollapsedSizeDp = 26.dp
         val imgExpandedSizeDp = if (isLandscape) 208.dp else 260.dp
-        val imgCollapsedCorenres = 2.dp.toPx()
-        val imgExapandedCoreners = 8.dp.toPx()
+        val imgCollapsedCorners = 2.dp.toPx()
+        val imgExpandedCorners = 8.dp.toPx()
         val imgCollapsedSize = imgCollapsedSizeDp.toPx()
         val imgExpandedSize = imgExpandedSizeDp.toPx()
 
@@ -321,16 +321,16 @@ private fun calculateAnimationData(
 
         /* -- CALCULATE IMAGE -- */
 
-        // Calculate image size, cornes, elevation
+        // Calculate image size, corners, elevation
         val imgSize = lerp(imgCollapsedSizeDp, imgExpandedSizeDp, progress)
-        val imgCorners = lerp(imgCollapsedCorenres, imgExapandedCoreners, progress)
+        val imgCorners = lerp(imgCollapsedCorners, imgExpandedCorners, progress)
         val imgElevation = lerp(0f, 16f, progress)
 
-        val imgExapandedOffsetX = when {
+        val imgExpandedOffsetX = when {
             isLandscape -> parentHalfWidth.div(2f) - imgExpandedSize.div(2f) - padding16AsPx
             else -> parentHalfWidth - imgExpandedSize.div(2f) - padding16AsPx
         }
-        val imgOffsetX = lerp(0f, imgExapandedOffsetX, progress)
+        val imgOffsetX = lerp(0f, imgExpandedOffsetX, progress)
 
         val imgCollapsedOffsetY = (peekHeight - imgCollapsedSize).div(2f)
         val imgExpandedOffsetY = when {

@@ -22,8 +22,6 @@ class CategoryRepositoryImpl @Inject constructor(
     private val locationGeocoder: LocationGeocoder
 ) : CategoryRepository {
 
-    override suspend fun getItemById(id: String): CategoryEntity = categoryDao.getById(id)
-
     override fun getCategoriesByUrl(url: String): Flow<List<CategoryEntity>> {
         return categoryDao.getAllByParentUrl(url.prepareUrl())
     }

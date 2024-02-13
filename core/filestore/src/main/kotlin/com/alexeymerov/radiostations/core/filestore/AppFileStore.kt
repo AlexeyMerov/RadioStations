@@ -12,5 +12,9 @@ interface AppFileStore {
 
     suspend fun removeFileByUri(uri: Uri)
 
-    fun getTempUri(prefix: String, suffix: String): Uri
+    fun getTempUri(prefix: String, suffix: FileSuffix = FileSuffix.JPG): Uri
+
+    enum class FileSuffix(val value: String) {
+        JPG(".jpg"), PNG(".png")
+    }
 }

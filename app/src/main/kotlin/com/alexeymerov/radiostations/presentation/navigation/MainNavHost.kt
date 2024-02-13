@@ -297,7 +297,7 @@ private fun calculateAnimData(
     onCollapsedColor: Color,
     onExpandedColor: Color,
 
-    ): CollapseExapandData {
+    ): CollapseExpandData {
     val bottomBarOffsetY = lerp(0f, railBarSize, progress)
     val railBarOffsetX = lerp(0f, -railBarSize, progress)
     val scaleContent = lerp(1f, 0f, progress)
@@ -306,7 +306,7 @@ private fun calculateAnimData(
     val shapeCornerRadius = androidx.compose.ui.unit.lerp(12.dp, 0.dp, progress)
 
 
-    return CollapseExapandData(
+    return CollapseExpandData(
         bottomBarOffsetY = bottomBarOffsetY,
         railBarOffsetX = railBarOffsetX,
         scaleContent = scaleContent,
@@ -316,7 +316,7 @@ private fun calculateAnimData(
     )
 }
 
-private data class CollapseExapandData(
+private data class CollapseExpandData(
     val bottomBarOffsetY: Float,
     val railBarOffsetX: Float,
     val scaleContent: Float,

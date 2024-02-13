@@ -2,9 +2,6 @@ package com.alexeymerov.radiostations.core.database.di
 
 import android.content.Context
 import com.alexeymerov.radiostations.core.database.RadioDatabase
-import com.alexeymerov.radiostations.core.database.dao.CategoryDao
-import com.alexeymerov.radiostations.core.database.dao.CountryDao
-import com.alexeymerov.radiostations.core.database.dao.MediaDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,21 +11,10 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DatabaseModule {
+object DatabaseModule {
 
     @Singleton
     @Provides
     fun provideAppDB(@ApplicationContext context: Context): RadioDatabase = RadioDatabase.buildDatabase(context)
 
-    @Singleton
-    @Provides
-    fun provideCategoryDao(db: RadioDatabase): CategoryDao = db.categoryDao()
-
-    @Singleton
-    @Provides
-    fun provideMediaDao(db: RadioDatabase): MediaDao = db.mediaDao()
-
-    @Singleton
-    @Provides
-    fun provideCountryDao(db: RadioDatabase): CountryDao = db.countryDao()
 }

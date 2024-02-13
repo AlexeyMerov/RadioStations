@@ -8,12 +8,14 @@ import com.alexeymerov.radiostations.core.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.core.remote.client.radio.RadioClientImpl
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
 import com.google.common.truth.Truth.*
-import io.mockk.mockk
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -21,11 +23,15 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class InterceptorsTest {
 
+    @get:Rule
+    val mockkRule = MockKRule(this)
+
     private lateinit var mockWebServer: MockWebServer
     private lateinit var radioClient: RadioClient
     private lateinit var radioApi: RadioApi
 
-    private val responseMapper = mockk<ResponseMapper>()
+    @MockK
+    private lateinit var responseMapper: ResponseMapper
 
     @Before
     fun setup() {

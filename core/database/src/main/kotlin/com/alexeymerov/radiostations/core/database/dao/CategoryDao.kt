@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 abstract class CategoryDao {
 
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_ID} = :id")
-    abstract suspend fun getById(id: String): CategoryEntity
+    abstract suspend fun getById(id: String): CategoryEntity?
 
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_URL} = :url")
-    abstract suspend fun getByUrl(url: String): CategoryEntity
+    abstract suspend fun getByUrl(url: String): CategoryEntity?
 
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
     abstract fun getAllByParentUrl(url: String): Flow<List<CategoryEntity>>

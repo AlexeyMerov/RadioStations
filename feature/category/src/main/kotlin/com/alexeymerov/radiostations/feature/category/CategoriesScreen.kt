@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.rounded.ArrowUpward
@@ -36,6 +35,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
@@ -313,7 +313,7 @@ private fun MainContent(
             ) {
                 FloatingActionButton(
                     onClick = { needShowMap = !needShowMap },
-                    backgroundColor = FloatingActionButtonDefaults.containerColor,
+                    containerColor = FloatingActionButtonDefaults.containerColor,
                     content = { Icon(Icons.Outlined.Map, null) }
                 )
             }

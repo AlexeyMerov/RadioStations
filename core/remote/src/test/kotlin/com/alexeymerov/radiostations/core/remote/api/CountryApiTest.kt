@@ -58,7 +58,7 @@ class CountryApiTest {
 
         try {
             countryApi.getAllCountries(CountryClientImpl.ALL_FIELDS)
-        } catch (e: JsonDataException) {
+        } catch (e: Exception) {
             assertThat(e).isInstanceOf(JsonDataException::class.java)
         }
     }

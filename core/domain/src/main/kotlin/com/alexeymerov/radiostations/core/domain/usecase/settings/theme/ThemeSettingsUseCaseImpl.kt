@@ -35,7 +35,7 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
     }
 
 
-    companion object {
+    internal companion object {
         const val DARK_THEME_KEY = "dark_theme"
         const val DYNAMIC_COLOR_KEY = "dynamic_color"
         const val COLOR_KEY = "color"

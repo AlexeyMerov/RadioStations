@@ -13,7 +13,7 @@ interface AudioUseCase {
 
     suspend fun setLastPlayingMedia(item: AudioItemDto)
 
-    suspend fun getByUrl(url: String): CategoryItemDto
+    suspend fun getByUrl(url: String): CategoryItemDto?
 
     fun getFavorites(): Flow<CategoryDto>
 

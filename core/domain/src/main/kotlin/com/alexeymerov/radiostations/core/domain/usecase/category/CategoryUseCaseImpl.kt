@@ -36,7 +36,7 @@ class CategoryUseCaseImpl @Inject constructor(
     }
 
     override suspend fun loadCategoriesByUrl(url: String) {
-        if (connectivitySettings.allowConnections() && connectionMonitor.connectionStatusFlow.value) {
+        if (connectivitySettings.connectionsAllowed() && connectionMonitor.connectionStatusFlow.value) {
             categoryRepository.loadCategoriesByUrl(url)
         }
     }
