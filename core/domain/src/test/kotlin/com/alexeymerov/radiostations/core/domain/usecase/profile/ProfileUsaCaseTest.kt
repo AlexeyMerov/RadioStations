@@ -24,6 +24,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import java.io.File
+import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 @Config(manifest = Config.NONE)
@@ -45,7 +46,16 @@ class ProfileUsaCaseTest {
 
         coEvery { fileStore.getFileByName(any()) } answers {
             val fileName = firstArg<String>()
-            File(tempFolder.root, fileName)
+
+            if (fileName.isEmpty()) {
+                null
+            } else {
+                try {
+                    tempFolder.newFile(fileName)
+                } catch (e: IOException) {
+                    File(tempFolder.root, fileName)
+                }
+            }
         }
 
         coEvery { fileStore.getTempUri(any()) } answers {
@@ -79,13 +89,16 @@ class ProfileUsaCaseTest {
 
     @Test
     fun `save avatar saves it to file AND get avatar returns the same file`() = runTest {
-        var avatarFile = useCase.getAvatar()!!
-        assertThat(avatarFile.length()).isEqualTo(0)
+        var avatarFile = useCase.getAvatar()
+        assertThat(avatarFile).isNull()
 
         val bitmap = createBitmap()
         useCase.saveAvatar(bitmap)
 
-        avatarFile = useCase.getAvatar()!!
+        avatarFile = useCase.getAvatar()
+        assertThat(avatarFile).isNotNull()
+        avatarFile!!
+
         assertThat(avatarFile.length()).isGreaterThan(0L)
 
         val savedBitmap = BitmapFactory.decodeFile(avatarFile.path)
@@ -97,25 +110,28 @@ class ProfileUsaCaseTest {
     }
 
     @Test
-    fun `get avatar if not exist return empty file`() = runTest {
-        val file = useCase.getAvatar()!!
-        assertThat(file.length()).isEqualTo(0)
+    fun `get avatar if not exist return null`() = runTest {
+        val file = useCase.getAvatar()
+        assertThat(file).isNull()
     }
 
     @Test
     fun `delete avatar removes file`() = runTest {
-        var avatarFile = useCase.getAvatar()!!
-        assertThat(avatarFile.length()).isEqualTo(0)
+        var avatarFile = useCase.getAvatar()
+        assertThat(avatarFile).isNull()
 
         useCase.saveAvatar(createBitmap())
 
-        avatarFile = useCase.getAvatar()!!
+        avatarFile = useCase.getAvatar()
+        assertThat(avatarFile).isNotNull()
+        avatarFile!!
+
         assertThat(avatarFile.length()).isGreaterThan(0L)
 
         useCase.deleteAvatar()
 
-        avatarFile = useCase.getAvatar()!!
-        assertThat(avatarFile.length()).isEqualTo(0)
+        avatarFile = useCase.getAvatar()
+        assertThat(avatarFile).isNull()
     }
 
     @Test

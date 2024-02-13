@@ -14,7 +14,11 @@ class AppFileStoreImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : AppFileStore {
 
-    override suspend fun getFileByName(name: String) = File(context.filesDir, name)
+    override suspend fun getFileByName(name: String): File? {
+        val file = File(context.filesDir, name)
+        if (file.isDirectory) return null
+        return file
+    }
 
     override fun getTempUri(prefix: String, suffix: FileSuffix): Uri {
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", getTempFile(prefix, suffix.value))

@@ -51,7 +51,21 @@ jobs:
         run: ./gradlew ktlintCheck
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/build/test-results/testDebugUnitTest/**.xml'
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-reports
+          path: '**/build/reports/tests/'
 
       - name: Build debug
         run: ./gradlew build
