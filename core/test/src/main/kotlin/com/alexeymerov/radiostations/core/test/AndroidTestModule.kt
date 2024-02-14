@@ -6,6 +6,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import javax.inject.Qualifier
@@ -25,6 +26,11 @@ class AndroidTestModule {
     @Provides
     @AndroidTest
     fun provideTestScope(): TestScope = TestScope(UnconfinedTestDispatcher())
+
+    @Provides
+    @Singleton
+    @AndroidTest
+    fun provideCoroutineDispatchers(): CoroutineDispatcher = UnconfinedTestDispatcher()
 
 }
 

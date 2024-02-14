@@ -2,6 +2,7 @@ import com.alexeymerov.radiostations.androidTestImplementation
 import com.alexeymerov.radiostations.androidTestUtil
 import com.alexeymerov.radiostations.getLibrary
 import com.alexeymerov.radiostations.libs
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -25,6 +26,12 @@ class AndroidTestPlugin : Plugin<Project> {
                 testOptions {
                     execution = "ANDROIDX_TEST_ORCHESTRATOR"
                     unitTests.isIncludeAndroidResources = true
+                }
+            }
+
+            extensions.configure<LibraryAndroidComponentsExtension> {
+                beforeVariants {
+                    it.enableAndroidTest = it.enableAndroidTest && projectDir.resolve("src/androidTest").exists()
                 }
             }
 

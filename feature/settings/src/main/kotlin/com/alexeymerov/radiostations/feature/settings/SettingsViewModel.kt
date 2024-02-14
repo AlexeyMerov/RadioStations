@@ -19,6 +19,7 @@ import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewStat
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -29,7 +30,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val themeSettings: ThemeSettingsUseCase,
     private val connectivitySettings: ConnectivitySettingsUseCase,
-    private val analytics: FirebaseAnalytics
+    private val analytics: FirebaseAnalytics,
+    private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     private lateinit var currentThemeState: ThemeState
@@ -52,7 +54,7 @@ class SettingsViewModel @Inject constructor(
 
     override fun handleAction(action: ViewAction) {
         Timber.d("SettingsViewModel handleAction ${action.javaClass.simpleName}")
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             when (action) {
                 is ViewAction.ChangeDarkMode -> changeChangeDarkMode(action.value)
                 is ViewAction.ChangeDynamicColor -> changeChangeDynamicColor(action.useDynamic)
