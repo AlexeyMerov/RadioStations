@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 
@@ -53,7 +52,7 @@ fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategory
                 .padding(end = 8.dp)
                 .size(24.dp),
             imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-            contentDescription = String.EMPTY
+            contentDescription = null
         )
     }
 }

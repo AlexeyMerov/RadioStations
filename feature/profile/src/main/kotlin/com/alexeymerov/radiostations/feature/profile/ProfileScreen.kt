@@ -229,7 +229,7 @@ private fun MainContent(
             transitionSpec = {
                 (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
             },
-            label = ""
+            label = "inEdit"
         ) { isEditMode ->
             AnimatedVisibility(visible = userData.isEverythingValid) {
                 IconButton(

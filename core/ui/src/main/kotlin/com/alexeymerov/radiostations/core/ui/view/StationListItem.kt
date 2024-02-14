@@ -135,7 +135,7 @@ private fun SelectedIcon() {
     ) {
         Icon(
             imageVector = Icons.Rounded.Check,
-            contentDescription = String.EMPTY,
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSecondary
         )
     }
@@ -155,7 +155,7 @@ private fun TextBlock(itemDto: CategoryItemDto) {
                         .size(12.dp)
                         .padding(end = 4.dp),
                     imageVector = Icons.Outlined.LocationCity,
-                    contentDescription = String.EMPTY
+                    contentDescription = null
                 )
             }
 
@@ -176,7 +176,7 @@ private fun FavIcon(
 ) {
     AnimatedContent(
         targetState = itemDto.isFavorite,
-        label = "Star",
+        label = "Star FavIcon",
         transitionSpec = { scaleIn().togetherWith(scaleOut()) }
     ) {
         IconButton(
@@ -185,7 +185,7 @@ private fun FavIcon(
         ) {
             Icon(
                 imageVector = if (it) Icons.Rounded.Star else Icons.Rounded.StarOutline,
-                contentDescription = String.EMPTY,
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
         }

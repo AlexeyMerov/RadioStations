@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.TextFieldData
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
@@ -143,7 +142,7 @@ private fun UserTextField(
         Icon(
             modifier = Modifier.padding(bottom = if (inEdit) 4.dp else 0.dp),
             imageVector = icon,
-            contentDescription = String.EMPTY
+            contentDescription = null
         )
 
         var text by remember { mutableStateOf(data.text) }
@@ -175,7 +174,7 @@ private fun UserTextField(
             } else null,
             trailingIcon = {
                 if (inEdit && data.errorTextResId == null) {
-                    Icon(Icons.Rounded.CheckCircleOutline, contentDescription = String.EMPTY)
+                    Icon(Icons.Rounded.CheckCircleOutline, contentDescription = null)
                 }
             },
             label = { Text(text = stringResource(labelResId)) },

@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.core.ui.view.BasicText
@@ -106,7 +105,7 @@ fun StationGridItem(
                                 .size(12.dp)
                                 .padding(end = 4.dp),
                             imageVector = Icons.Outlined.LocationCity,
-                            contentDescription = String.EMPTY
+                            contentDescription = null
                         )
                     }
 
@@ -156,7 +155,7 @@ private fun ImageContent(
         ) {
             AnimatedContent(
                 targetState = itemDto.isFavorite,
-                label = "Star",
+                label = "Star FavIcon",
                 transitionSpec = { scaleIn().togetherWith(scaleOut()) }
             ) {
                 IconButton(onClick = { onFavClick.invoke(itemDto) }) {
@@ -166,7 +165,7 @@ private fun ImageContent(
                             shape = CircleShape
                         ),
                         imageVector = if (it) Icons.Rounded.Star else Icons.Rounded.StarOutline,
-                        contentDescription = String.EMPTY,
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -186,7 +185,7 @@ private fun SelectedIcon() {
     ) {
         Icon(
             imageVector = Icons.Rounded.Check,
-            contentDescription = String.EMPTY,
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSecondary
         )
     }

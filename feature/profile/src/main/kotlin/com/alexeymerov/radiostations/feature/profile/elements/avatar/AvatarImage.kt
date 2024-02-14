@@ -49,7 +49,6 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
@@ -195,7 +194,7 @@ internal fun BottomSheetItem(
             modifier = Modifier
                 .alpha(0.85f)
                 .size(30.dp),
-            contentDescription = String.EMPTY
+            contentDescription = null
         )
 
         Text(

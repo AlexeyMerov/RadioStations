@@ -53,7 +53,6 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
@@ -151,7 +150,7 @@ fun ExpandableBottomPlayer(
             Icon(
                 imageVector = Icons.Rounded.ExpandMore,
                 tint = onContainerColor,
-                contentDescription = String.EMPTY
+                contentDescription = null
             )
         }
 
@@ -164,7 +163,7 @@ fun ExpandableBottomPlayer(
             Icon(
                 imageVector = Icons.Rounded.Close,
                 tint = onContainerColor,
-                contentDescription = String.EMPTY
+                contentDescription = null
             )
         }
 

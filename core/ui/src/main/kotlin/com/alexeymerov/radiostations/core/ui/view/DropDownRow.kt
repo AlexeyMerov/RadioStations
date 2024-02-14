@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.alexeymerov.radiostations.core.common.EMPTY
 
 @Composable
 fun DropDownRow(@DrawableRes iconId: Int, @StringRes stringId: Int, action: () -> Unit) {
@@ -29,7 +28,7 @@ fun DropDownRow(@DrawableRes iconId: Int, @StringRes stringId: Int, action: () -
         Icon(
             imageVector = ImageVector.vectorResource(iconId),
             modifier = Modifier.alpha(0.85f),
-            contentDescription = String.EMPTY
+            contentDescription = null
         )
 
         Text(
