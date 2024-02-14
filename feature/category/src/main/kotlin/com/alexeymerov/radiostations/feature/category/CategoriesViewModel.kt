@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
+import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.core.dto.CategoryDto
@@ -65,8 +67,8 @@ class CategoriesViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
-        analytics.logEvent("load_category") {
-            param("title", categoryTitle)
+        analytics.logEvent(AnalyticsEvents.LOAD_CATEGORY) {
+            param(AnalyticsParams.TITLE, categoryTitle)
         }
     }
 

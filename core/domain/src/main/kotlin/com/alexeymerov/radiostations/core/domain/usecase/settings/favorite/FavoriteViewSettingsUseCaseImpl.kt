@@ -1,5 +1,7 @@
 package com.alexeymerov.radiostations.core.domain.usecase.settings.favorite
 
+import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
+import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
 import com.alexeymerov.radiostations.core.datastore.SettingsStore
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -19,8 +21,8 @@ class FavoriteViewSettingsUseCaseImpl @Inject constructor(
     }
 
     override suspend fun setViewType(type: ViewType) {
-        analytics.logEvent("favorite_view") {
-            param("view_type", type.name.lowercase())
+        analytics.logEvent(AnalyticsEvents.FAVORITE_VIEW) {
+            param(AnalyticsParams.VIEW_TYPE, type.name.lowercase())
         }
         settingsStore.setIntPrefs(VIEW_TYPE_KEY, type.columnCount)
     }
