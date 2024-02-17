@@ -17,6 +17,8 @@ plugins {
 android {
     namespace = "com.alexeymerov.radiostations"
 
+    buildFeatures.buildConfig = true
+
     defaultConfig {
         applicationId = "com.alexeymerov.radiostations"
         versionCode = libs.versions.versionCode.get().toInt()

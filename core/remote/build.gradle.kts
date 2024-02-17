@@ -1,16 +1,11 @@
 plugins {
     alias(libs.plugins.radiostations.android.library)
     alias(libs.plugins.radiostations.android.hilt)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.radiostations.android.testing)
 }
 
 android {
     namespace = "com.alexeymerov.radiostations.core.remote"
-
-    defaultConfig {
-        testInstrumentationRunner = "com.alexeymerov.radiostations.core.test.HiltTestRunner"
-        testInstrumentationRunnerArguments["clearPackageData"] = "true"
-    }
 }
 
 dependencies {
@@ -30,6 +25,4 @@ dependencies {
 
     testImplementation(libs.okhttp.test)
     testImplementation(libs.retrofit.test)
-
-    testImplementation(projects.core.test)
 }

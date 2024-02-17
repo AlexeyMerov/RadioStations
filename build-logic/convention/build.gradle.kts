@@ -60,8 +60,8 @@ gradlePlugin {
             implementationClass = "FirebasePlugin"
         }
         register("androidTesting") {
-            id = "radiostations.android.androidTesting"
-            implementationClass = "AndroidTestPlugin"
+            id = "radiostations.android.testing"
+            implementationClass = "TestPlugin"
         }
 
     }

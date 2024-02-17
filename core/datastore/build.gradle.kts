@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.radiostations.android.library)
     alias(libs.plugins.radiostations.android.hilt)
-    alias(libs.plugins.radiostations.android.androidTesting)
+    alias(libs.plugins.radiostations.android.testing)
 }
 
 android {

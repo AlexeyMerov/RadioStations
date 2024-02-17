@@ -27,11 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.view.BasicText
+import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.TAB_ITEM
+import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.TAB_ROW
 
 @Composable
 internal fun SettingsTabRow(currentTab: SettingTab, onTabClick: (SettingTab) -> Unit) {
@@ -40,7 +43,8 @@ internal fun SettingsTabRow(currentTab: SettingTab, onTabClick: (SettingTab) -> 
     TabRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
+            .padding(bottom = 16.dp)
+            .testTag(TAB_ROW),
         selectedTabIndex = currentTab.index,
         divider = { HorizontalDivider(thickness = 0.5.dp) },
         indicator = { tabPositions ->
@@ -104,7 +108,9 @@ internal fun CustomTab(
     onWidthMeasured: (Dp) -> Unit
 ) {
     Tab(
-        modifier = Modifier.clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
+        modifier = Modifier
+            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+            .testTag(TAB_ITEM + tab.index),
         selected = tab == currentTab,
         onClick = { onTabClick.invoke(tab) },
         unselectedContentColor = MaterialTheme.colorScheme.outline,
