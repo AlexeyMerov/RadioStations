@@ -20,6 +20,7 @@ import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewEffect
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,7 +34,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profileUsaCase: ProfileUsaCase,
-    private val countryUseCase: CountryUseCase
+    private val countryUseCase: CountryUseCase,
+    private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     val tempUri = profileUsaCase.getAvatarTempUri()
@@ -68,7 +70,7 @@ class ProfileViewModel @Inject constructor(
     override fun createInitialState(): ViewState = ViewState.Loaded
 
     override fun handleAction(action: ViewAction) {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             Timber.d("handleAction: $action")
             when (action) {
                 is ViewAction.EnterEditMode -> onEnterEditMode()
@@ -81,6 +83,7 @@ class ProfileViewModel @Inject constructor(
                 is ViewAction.NewEmail -> handleNewEmail(action.email)
                 is ViewAction.NewCountry -> handleNewCountry(action.country)
                 is ViewAction.NewPhone -> handleNewPhoneValue(action.phone)
+
                 is ViewAction.SearchCountry -> searchQuery.value = action.searchText
             }
         }
@@ -95,7 +98,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     private suspend fun onEnterEditMode() {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             countryUseCase.loadCountries()
         }
         tempUserData.value = userData.value
