@@ -49,6 +49,7 @@ import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.remembers.rememberGalleyPicker
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTakePicture
+import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.profile.elements.CountriesBottomSheet
 import com.alexeymerov.radiostations.feature.profile.elements.avatar.AvatarBottomSheet
@@ -64,7 +65,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun BaseProfileScreen(
     viewModel: ProfileViewModel,
@@ -73,6 +73,60 @@ fun BaseProfileScreen(
     onNavigate: (String) -> Unit
 ) {
     if (isVisibleToUser) TopBarSetup(topBarBlock)
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    ProfileScreen(
+        viewState = viewState,
+        onAction = { viewModel.setAction(it) },
+        onNavigate = onNavigate
+    )
+}
+
+@Composable
+internal fun ProfileScreen(
+    viewState: ProfileViewModel.ViewState,
+    onAction: (ViewAction) -> Unit,
+    onNavigate: (String) -> Unit
+) {
+    var showChangeAvatarBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var showCountriesBottomSheet by rememberSaveable { mutableStateOf(false) }
+
+    if (viewState is ProfileViewModel.ViewState.Loading) {
+        LoaderView()
+    } else {
+        if (viewState is ProfileViewModel.ViewState.InEdit) {
+            ProfileScreenEditMode(
+                editState = viewState,
+                onAction = onAction,
+                showChangeAvatarBottomSheet = showChangeAvatarBottomSheet,
+                showCountriesBottomSheet = showCountriesBottomSheet,
+                onDismissDialogs = {
+                    showChangeAvatarBottomSheet = false
+                    showCountriesBottomSheet = false
+                }
+            )
+        }
+
+        MainContent(
+            inEdit = viewState is ProfileViewModel.ViewState.InEdit,
+            userData = viewState.userData,
+            onNavigate = onNavigate,
+            onAction = { onAction.invoke(it) },
+            onAvatarEdit = { showChangeAvatarBottomSheet = true },
+            onCountryCode = { showCountriesBottomSheet = true }
+        )
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+internal fun ProfileScreenEditMode(
+    editState: ProfileViewModel.ViewState.InEdit,
+    onAction: (ViewAction) -> Unit,
+    showChangeAvatarBottomSheet: Boolean,
+    showCountriesBottomSheet: Boolean,
+    onDismissDialogs: () -> Unit
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -85,7 +139,7 @@ fun BaseProfileScreen(
             imageToCrop = imageBitmap,
             onUpdateImage = { imageToCrop = it },
             onClose = {
-                if (it != null) viewModel.setAction(ViewAction.SaveCroppedImage(it))
+                if (it != null) onAction.invoke(ViewAction.SaveCroppedImage(it))
                 imageToCrop = null
             }
         )
@@ -103,28 +157,28 @@ fun BaseProfileScreen(
     }
     val cameraLauncher = rememberTakePicture {
         coroutineScope.launch {
-            imageToCrop = context.contentResolver.loadBitmap(viewModel.tempUri)
+            imageToCrop = context.contentResolver.loadBitmap(editState.tempUri)
         }
     }
-    var showChangeAvatarBottomSheet by rememberSaveable { mutableStateOf(false) }
+
     if (showChangeAvatarBottomSheet) {
         AvatarBottomSheet(
-            onDismiss = { showChangeAvatarBottomSheet = false },
+            onDismiss = { onDismissDialogs.invoke() },
             onGallery = {
-                showChangeAvatarBottomSheet = false
+                onDismissDialogs.invoke()
                 singlePhotoPickerLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },
             onCamera = {
-                showChangeAvatarBottomSheet = false
+                onDismissDialogs.invoke()
 
                 val status = cameraPermissionState.status
                 Timber.d("status $status")
                 when {
                     status.shouldShowRationale -> showCameraRationaleDialog = true
                     status is PermissionStatus.Denied -> cameraPermissionState.launchPermissionRequest()
-                    status is PermissionStatus.Granted -> cameraLauncher.launch(viewModel.tempUri)
+                    status is PermissionStatus.Granted -> cameraLauncher.launch(editState.tempUri)
                 }
             }
         )
@@ -148,33 +202,16 @@ fun BaseProfileScreen(
     /*
     * Countries bottom sheet block
     * */
-    var showCountriesBottomSheet by rememberSaveable { mutableStateOf(false) }
     if (showCountriesBottomSheet) {
-        val countries = viewModel.countryCodes.collectAsLazyPagingItems()
+        val countries = editState.countryCodes.collectAsLazyPagingItems()
         CountriesBottomSheet(
             countries = countries,
-            onSearch = { viewModel.setAction(ViewAction.SearchCountry(it)) },
+            onSearch = { onAction.invoke(ViewAction.SearchCountry(it)) },
             onSelect = {
-                viewModel.setAction(ViewAction.NewCountry(it))
-                showCountriesBottomSheet = false
+                onAction.invoke(ViewAction.NewCountry(it))
+                onDismissDialogs.invoke()
             },
-            onDismiss = { showCountriesBottomSheet = false }
-        )
-    }
-
-    /*
-    * Main content block
-    * */
-    val state by viewModel.viewState.collectAsStateWithLifecycle()
-    val userData by viewModel.userData.collectAsStateWithLifecycle()
-    userData?.let { userDto ->
-        MainContent(
-            inEdit = state is ProfileViewModel.ViewState.InEdit,
-            userData = userDto,
-            onNavigate = onNavigate,
-            onAvatarEdit = { showChangeAvatarBottomSheet = true },
-            onAction = { viewModel.setAction(it) },
-            onCountryCode = { showCountriesBottomSheet = true }
+            onDismiss = { onDismissDialogs.invoke() }
         )
     }
 }
@@ -184,8 +221,8 @@ private fun MainContent(
     inEdit: Boolean,
     userData: UserDto,
     onNavigate: (String) -> Unit,
-    onAvatarEdit: () -> Unit,
     onAction: (ViewAction) -> Unit,
+    onAvatarEdit: () -> Unit,
     onCountryCode: () -> Unit,
 ) {
     val config = LocalConfiguration.current
