@@ -6,7 +6,6 @@ import com.alexeymerov.radiostations.core.dto.TextFieldData
 import com.alexeymerov.radiostations.core.dto.UserDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.io.File
 
 class FakeProfileUsaCase : ProfileUsaCase {
 
@@ -31,7 +30,7 @@ class FakeProfileUsaCase : ProfileUsaCase {
         return userDataFlow
     }
 
-    override suspend fun getAvatar(): File? = validUserDto.avatarFile
+    override suspend fun getAvatar(): String? = validUserDto.avatarFile
 
     override suspend fun saveAvatar(bitmap: Bitmap) {}
 

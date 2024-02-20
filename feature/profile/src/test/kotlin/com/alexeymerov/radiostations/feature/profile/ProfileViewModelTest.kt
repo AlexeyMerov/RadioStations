@@ -63,7 +63,7 @@ class ProfileViewModelTest {
                     output.flush()
                 }
 
-            profileUsaCase.validUserDto = profileUsaCase.validUserDto.copy(avatarFile = file)
+            profileUsaCase.validUserDto = profileUsaCase.validUserDto.copy(avatarFile = file.path)
             profileUsaCase.userDataFlow.emit(profileUsaCase.validUserDto)
         }
 
@@ -255,7 +255,7 @@ class ProfileViewModelTest {
             assertThat(avatar).isNotNull()
             avatar!!
 
-            val bitmap = BitmapFactory.decodeFile(avatar.path)
+            val bitmap = BitmapFactory.decodeFile(avatar)
             assertThat(bitmap[1, 1]).isEqualTo(testBitmap[1, 1])
         }
     }

@@ -30,12 +30,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.alexeymerov.radiostations.core.dto.TextFieldData
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.COUNTRY_CODE_BOX
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.COUNTRY_CODE_FIELD
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.INPUT_FIELD_ERROR
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.TEXT_FIELD
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.USER_EMAIL_FIELD
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.USER_NAME_FIELD
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.USER_PHONE_FIELD
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel
 
 @Composable
@@ -54,7 +62,9 @@ internal fun UserTextFields(
     ) {
 
         UserTextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(USER_NAME_FIELD),
             inEdit = inEdit,
             icon = Icons.Outlined.Person,
             labelResId = R.string.name,
@@ -69,7 +79,8 @@ internal fun UserTextFields(
         UserTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(top = 8.dp)
+                .testTag(USER_EMAIL_FIELD),
             inEdit = inEdit,
             icon = Icons.Rounded.MailOutline,
             labelResId = R.string.email,
@@ -85,7 +96,8 @@ internal fun UserTextFields(
         UserTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(top = 8.dp)
+                .testTag(USER_PHONE_FIELD),
             inEdit = inEdit,
             icon = Icons.Outlined.Phone,
             labelResId = R.string.phone,
@@ -106,9 +118,12 @@ internal fun UserTextFields(
                                     .clickable { onCountryAction.invoke() }
                             } else this
                         }
+                        .testTag(COUNTRY_CODE_BOX)
                 ) {
                     Text(
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 10.dp),
+                        modifier = Modifier
+                            .padding(vertical = 4.dp, horizontal = 10.dp)
+                            .testTag(COUNTRY_CODE_FIELD),
                         text = "+${userData.countryCode}"
                     )
                 }
@@ -152,7 +167,8 @@ private fun UserTextField(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp),
+                .padding(start = 16.dp)
+                .testTag(TEXT_FIELD),
             value = text,
             onValueChange = { text = it },
             singleLine = true,
@@ -168,7 +184,10 @@ private fun UserTextField(
             supportingText = if (inEdit) {
                 {
                     data.errorTextResId?.let {
-                        Text(text = stringResource(it))
+                        Text(
+                            modifier = Modifier.testTag(INPUT_FIELD_ERROR),
+                            text = stringResource(it)
+                        )
                     }
                 }
             } else null,

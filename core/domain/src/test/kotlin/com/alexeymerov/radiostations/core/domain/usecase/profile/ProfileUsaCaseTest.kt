@@ -64,7 +64,12 @@ class ProfileUsaCaseTest {
             tempFolder.newFile("$prefix$suffix").toUri()
         }
 
-        coEvery { fileStore.removeFileByUri(any()) } answers { firstArg<Uri>().toFile().delete() }
+        coEvery { fileStore.removeFileByUri(any()) } answers {
+            val firstArg = firstArg<Uri>()
+            firstArg.path?.let {
+                File(it).delete()
+            }
+        }
 
         coEvery { fileStore.copyFromBitmapToFile(any(), any()) } answers {
             val bitmap = firstArg<Bitmap>()
@@ -99,9 +104,9 @@ class ProfileUsaCaseTest {
         assertThat(avatarFile).isNotNull()
         avatarFile!!
 
-        assertThat(avatarFile.length()).isGreaterThan(0L)
+        assertThat(File(avatarFile).length()).isGreaterThan(0L)
 
-        val savedBitmap = BitmapFactory.decodeFile(avatarFile.path)
+        val savedBitmap = BitmapFactory.decodeFile(avatarFile)
         assertThat(savedBitmap).isInstanceOf(Bitmap::class.java)
 
         val colorAtPosition = savedBitmap[1, 1]
@@ -126,7 +131,7 @@ class ProfileUsaCaseTest {
         assertThat(avatarFile).isNotNull()
         avatarFile!!
 
-        assertThat(avatarFile.length()).isGreaterThan(0L)
+        assertThat(File(avatarFile).length()).isGreaterThan(0L)
 
         useCase.deleteAvatar()
 

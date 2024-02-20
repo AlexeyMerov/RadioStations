@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -53,12 +54,12 @@ import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
-import java.io.File
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags
 
 @Composable
 internal fun AvatarImage(
     isLoaded: Boolean,
-    avatarFile: File?,
+    avatarFile: String?,
     onLoadResult: (Boolean) -> Unit,
     onClick: () -> Unit
 ) {
@@ -74,7 +75,8 @@ internal fun AvatarImage(
             .size(200.dp)
             .clip(RoundedCornerShape(32.dp))
             .background(colorScheme.secondary)
-            .clickable { if (isLoaded) onClick.invoke() },
+            .clickable { if (isLoaded) onClick.invoke() }
+            .testTag(ProfileTestTags.IMAGE),
         model = ImageRequest.Builder(LocalContext.current)
             .data(avatarFile)
             .allowHardware(false)
@@ -100,7 +102,10 @@ internal fun EditRemoveIcons(isLoaded: Boolean, onDelete: () -> Unit, onEdit: ()
             enter = fadeIn() + scaleIn(),
             exit = fadeOut() + scaleOut()
         ) {
-            IconButton(onClick = { onDelete.invoke() }) {
+            IconButton(
+                modifier = Modifier.testTag(ProfileTestTags.IMAGE_REMOVE),
+                onClick = { onDelete.invoke() }
+            ) {
                 Icon(
                     tint = MaterialTheme.colorScheme.error,
                     imageVector = Icons.Outlined.DeleteForever,
@@ -109,7 +114,10 @@ internal fun EditRemoveIcons(isLoaded: Boolean, onDelete: () -> Unit, onEdit: ()
             }
         }
 
-        IconButton(onClick = { onEdit.invoke() }) {
+        IconButton(
+            modifier = Modifier.testTag(ProfileTestTags.IMAGE_EDIT),
+            onClick = { onEdit.invoke() }
+        ) {
             Icon(
                 tint = MaterialTheme.colorScheme.primary,
                 imageVector = Icons.Outlined.Edit,
@@ -120,7 +128,7 @@ internal fun EditRemoveIcons(isLoaded: Boolean, onDelete: () -> Unit, onEdit: ()
 }
 
 @Composable
-internal fun BigPicture(avatarFile: File, onDismiss: () -> Unit) {
+internal fun BigPicture(avatarFile: String, onDismiss: () -> Unit) {
     val config = LocalConfiguration.current
     Dialog(
         onDismissRequest = { onDismiss.invoke() },
@@ -135,7 +143,8 @@ internal fun BigPicture(avatarFile: File, onDismiss: () -> Unit) {
                         }
                     }
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(16.dp)),
+                    .clip(RoundedCornerShape(16.dp))
+                    .testTag(ProfileTestTags.IMAGE_BIG_PICTURE),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(avatarFile)
                     .build(),
@@ -153,6 +162,7 @@ internal fun AvatarBottomSheet(
     onCamera: () -> Unit
 ) {
     ModalBottomSheet(
+        modifier = Modifier.testTag(ProfileTestTags.IMAGE_CHOOSE_SHEET),
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         onDismissRequest = { onDismiss.invoke() }
     ) {

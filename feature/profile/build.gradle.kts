@@ -18,4 +18,7 @@ dependencies {
     implementation(libs.coil.svg)
     implementation(libs.paging.compose)
     implementation(libs.imageCropper)
+
+    androidTestImplementation(libs.test.compose.junit)
+    debugImplementation(libs.test.compose.manifest)
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -50,6 +51,8 @@ import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.remembers.rememberGalleyPicker
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTakePicture
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.EDIT_SAVE_ICON
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.MAIN_CONTENT
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.profile.elements.CountriesBottomSheet
 import com.alexeymerov.radiostations.feature.profile.elements.avatar.AvatarBottomSheet
@@ -237,7 +240,8 @@ private fun MainContent(
                 detectTapGestures(
                     onTap = { focusManager.clearFocus() }
                 )
-            },
+            }
+            .testTag(MAIN_CONTENT),
         contentAlignment = Alignment.TopCenter,
     ) {
         if (config.isLandscape() && config.isTablet()) {
@@ -270,6 +274,7 @@ private fun MainContent(
         ) { isEditMode ->
             AnimatedVisibility(visible = userData.isEverythingValid) {
                 IconButton(
+                    modifier = Modifier.testTag(EDIT_SAVE_ICON),
                     onClick = {
                         val action = if (isEditMode) ViewAction.SaveEditsAndExitMode else ViewAction.EnterEditMode
                         onAction.invoke(action)
