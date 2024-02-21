@@ -230,7 +230,7 @@ private fun MainContent(
         return@remember count
     }
 
-    LaunchedEffect(categoryItems) {
+    LaunchedEffect(categoryItems.size) {
         listState.scrollToItem(0)
     }
 

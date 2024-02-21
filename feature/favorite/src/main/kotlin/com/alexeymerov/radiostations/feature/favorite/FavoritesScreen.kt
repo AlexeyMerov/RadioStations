@@ -13,6 +13,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +56,8 @@ fun BaseFavoriteScreen(
     parentRoute: String,
     onNavigate: (String) -> Unit,
 ) {
-    val selectedItemsCount = viewModel.selectedItemsCount
+    val isNetworkAvailable = LocalConnectionStatus.current
+    val selectedItemsCount by viewModel.selectedItemsCount
 
     if (isVisibleToUser) {
         TopBarSetup(
@@ -65,46 +67,27 @@ fun BaseFavoriteScreen(
         )
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.clear()
+    val viewEffect by viewModel.viewEffect.collectAsStateWithLifecycle(initialValue = null)
+    HandleEffects(viewEffect) {
+        viewModel.setAction(it)
+    }
+
+    val inSelection by remember(selectedItemsCount) {
+        derivedStateOf {
+            selectedItemsCount > 0
+        }
+    }
+    val snackbar = LocalSnackbar.current
+    LaunchedEffect(inSelection) {
+        if (inSelection) {
+            snackbar.currentSnackbarData?.dismiss()
         }
     }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
-    val viewEffect by viewModel.viewEffect.collectAsStateWithLifecycle(initialValue = null)
-
-    val snackbar = LocalSnackbar.current
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    DisposableEffect(viewEffect) {
-        onDispose {
-            when (val effect = viewEffect) {
-                is FavoritesViewModel.ViewEffect.ShowUnfavoriteToast -> {
-                    coroutineScope.launch {
-                        snackbar.currentSnackbarData?.dismiss()
-                        val result = snackbar.showSnackbar(
-                            message = "${context.getString(R.string.removed)}: ${effect.itemCount}",
-                            actionLabel = context.getString(R.string.undo),
-                            duration = SnackbarDuration.Short
-                        )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            viewModel.setAction(ViewAction.UndoRecentUnfavorite)
-                        }
-                    }
-                }
-
-                null -> {}
-            }
-        }
-    }
-
-    val isNetworkAvailable = LocalConnectionStatus.current
     FavoriteScreen(
         viewState = viewState,
-        categoryItems = categoryItems,
+        inSelection = inSelection,
         onAudioClick = {
             if (isNetworkAvailable) {
                 val route = Screens.Player(parentRoute).createRoute(
@@ -118,10 +101,39 @@ fun BaseFavoriteScreen(
                 onNavigate.invoke(route)
             }
         },
-        inSelection = selectedItemsCount > 0,
         onFavClick = { viewModel.setAction(ViewAction.Unfavorite(it)) },
         onLongClick = { viewModel.setAction(ViewAction.SelectItem(it)) }
     )
+}
+
+@Composable
+private fun HandleEffects(
+    viewEffect: FavoritesViewModel.ViewEffect?,
+    onAction: (ViewAction) -> Unit
+) {
+    val snackbar = LocalSnackbar.current
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    DisposableEffect(viewEffect) {
+        if (viewEffect is FavoritesViewModel.ViewEffect.ShowUnfavoriteToast) {
+            coroutineScope.launch {
+                snackbar.currentSnackbarData?.dismiss()
+                val result = snackbar.showSnackbar(
+                    message = "${context.getString(R.string.removed)}: ${viewEffect.itemCount}",
+                    actionLabel = context.getString(R.string.undo),
+                    duration = SnackbarDuration.Short
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    onAction.invoke(ViewAction.UndoRecentUnfavorite)
+                }
+            }
+        }
+
+        onDispose {
+            snackbar.currentSnackbarData?.dismiss()
+        }
+    }
 }
 
 @Composable
@@ -178,9 +190,8 @@ private fun dropDownItems(onClick: (ViewType) -> Unit): List<DropDownItem> = lis
 )
 
 @Composable
-fun FavoriteScreen(
+internal fun FavoriteScreen(
     viewState: ViewState,
-    categoryItems: List<CategoryItemDto>,
     inSelection: Boolean,
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit,
@@ -198,7 +209,7 @@ fun FavoriteScreen(
         is ViewState.FavoritesLoaded -> {
             MainContent(
                 viewType = viewState.viewType,
-                categoryItems = categoryItems,
+                categoryItems = viewState.items,
                 inSelection = inSelection,
                 onAudioClick = onAudioClick,
                 onFavClick = onFavClick,

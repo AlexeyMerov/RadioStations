@@ -1,8 +1,6 @@
 package com.alexeymerov.radiostations.feature.favorite
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase
@@ -17,18 +15,12 @@ import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewAct
 import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewEffect
 import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -36,36 +28,28 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val audioUseCase: AudioUseCase,
-    private val settingsUseCase: FavoriteViewSettingsUseCase
+    private val settingsUseCase: FavoriteViewSettingsUseCase,
+    private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
-
-    private lateinit var currentViewType: ViewType
 
     private val recentlyUnfavorited = mutableSetOf<CategoryItemDto>()
     private val selectedItems = mutableSetOf<CategoryItemDto>()
-    var selectedItemsCount by mutableIntStateOf(0)
+    var selectedItemsCount = mutableIntStateOf(0)
 
     private var undoJobTimeout: Job? = null
 
     init {
-        viewModelScope.launch(ioContext) {
-            settingsUseCase
-                .getViewType()
-                .filter { ::currentViewType.isInitialized }
-                .filter { it != currentViewType }
+        viewModelScope.launch(dispatcher) {
+            settingsUseCase.getViewType()
+                .catch { handleError(it) }
+                .combine(audioUseCase.getFavorites()) { viewType, dto ->
+                    validateNewData(viewType, dto)
+                }
                 .collectLatest {
-                    currentViewType = it
-                    setState(ViewState.FavoritesLoaded(currentViewType))
+                    setState(it)
                 }
         }
     }
-
-    val categoriesFlow: StateFlow<List<CategoryItemDto>> = audioUseCase.getFavorites()
-        .catch { handleError(it) }
-        .onEach(::validateNewData)
-        .map { it.items }
-        .flowOn(ioContext)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     override fun setAction(action: ViewAction) {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")
@@ -75,7 +59,7 @@ class FavoritesViewModel @Inject constructor(
     override fun createInitialState() = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
+        Timber.d("[ ${object {}.javaClass.name} ] handleAction: ${action.javaClass.simpleName}")
         when (action) {
             is ViewAction.SetViewType -> setViewType(action.type)
             is ViewAction.SelectItem -> selectItem(action.item)
@@ -86,7 +70,7 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun undoRecentUnfavorite() {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             recentlyUnfavorited.forEach {
                 audioUseCase.setFavorite(it)
             }
@@ -95,25 +79,25 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun selectItem(item: CategoryItemDto) {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             if (selectedItems.contains(item)) {
                 selectedItems.remove(item)
-                selectedItemsCount--
+                selectedItemsCount.intValue--
             } else {
                 selectedItems.add(item)
-                selectedItemsCount++
+                selectedItemsCount.intValue++
             }
         }
     }
 
     private fun setViewType(type: ViewType) {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             settingsUseCase.setViewType(type)
         }
     }
 
     private fun unfavorite(item: CategoryItemDto) {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             audioUseCase.unfavorite(item)
             recentlyUnfavorited.clear()
             recentlyUnfavorited.add(item)
@@ -122,18 +106,20 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun unfavoriteSelected() {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
+            recentlyUnfavorited.clear()
             selectedItems.forEach {
                 audioUseCase.unfavorite(it)
                 recentlyUnfavorited.add(it)
             }
-            selectedItemsCount = 0
+            selectedItemsCount.intValue = 0
             selectedItems.clear()
             showUndoSnackbar()
         }
     }
 
     private suspend fun showUndoSnackbar() {
+        Timber.d("[ ${object {}.javaClass.name} ] showUndoSnackbar size: ${recentlyUnfavorited.size}")
         setEffect(ViewEffect.ShowUnfavoriteToast(recentlyUnfavorited.size))
 
         undoJobTimeout?.cancel()
@@ -150,44 +136,28 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    private fun validateNewData(categoryDto: CategoryDto) {
+    private fun validateNewData(viewType: ViewType, categoryDto: CategoryDto): ViewState {
         Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] validateNewData")
-        viewModelScope.launch(ioContext) {
-            when {
-                categoryDto.isError -> {
-                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
-                    setState(ViewState.NothingAvailable)
-                }
-
-                categoryDto.items.isEmpty() -> {
-                    setState(ViewState.NothingAvailable)
-                }
-
-                else -> {
-                    try {
-                        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set FavoritesLoaded ${categoryDto.items.size}")
-                        if (!::currentViewType.isInitialized) {
-                            currentViewType = settingsUseCase.getViewType().first()
-                        }
-                        setState(ViewState.FavoritesLoaded(currentViewType))
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                    }
-                }
+        return when {
+            categoryDto.isError || categoryDto.items.isEmpty() -> {
+                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
+                ViewState.NothingAvailable
             }
+
+            else -> ViewState.FavoritesLoaded(categoryDto.items, viewType)
         }
     }
 
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object NothingAvailable : ViewState
-        data class FavoritesLoaded(val viewType: ViewType) : ViewState
+        data class FavoritesLoaded(val items: List<CategoryItemDto>, val viewType: ViewType) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {
-        data class Unfavorite(val item: CategoryItemDto) : ViewAction
         data class SetViewType(val type: ViewType) : ViewAction
         data class SelectItem(val item: CategoryItemDto) : ViewAction
+        data class Unfavorite(val item: CategoryItemDto) : ViewAction
         data object UnfavoriteSelected : ViewAction
         data object UndoRecentUnfavorite : ViewAction
     }

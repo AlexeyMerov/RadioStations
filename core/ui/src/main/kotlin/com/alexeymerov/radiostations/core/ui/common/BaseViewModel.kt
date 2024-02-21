@@ -32,7 +32,7 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
     private val _viewAction = MutableSharedFlow<A>()
     private val viewAction = _viewAction.asSharedFlow()
 
-    private val _viewEffect = Channel<E>(Channel.CONFLATED)
+    private val _viewEffect = Channel<E?>(Channel.CONFLATED)
     val viewEffect = _viewEffect.receiveAsFlow()
 
     private var setStateJob: Job? = null
