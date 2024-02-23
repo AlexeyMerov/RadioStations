@@ -14,7 +14,4 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.domain)
     implementation(projects.core.analytics)
-
-    androidTestImplementation(libs.test.compose.junit)
-    debugImplementation(libs.test.compose.manifest)
 }

@@ -19,7 +19,10 @@ internal fun Project.configureCompose(
         dependencies {
             val composeBom = platform(libs.getLibrary("compose-bom"))
             implementation(composeBom)
+
             androidTestImplementation(composeBom)
+            androidTestImplementation(libs.getLibrary("test-compose-junit"))
+            debugImplementation(libs.getLibrary("test-compose-manifest"))
 
             implementation(libs.getLibrary("compose-animation"))
             implementation(libs.getLibrary("compose-foundation"))
