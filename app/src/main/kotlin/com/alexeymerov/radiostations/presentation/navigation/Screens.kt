@@ -34,7 +34,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
             navArgument(Screens.Categories.Const.ARG_URL, defaultStringArg()),
         )
     ) { backStackEntry ->
-        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.categoriesScreen")
+        ComposedTimberD("NavGraphBuilder.categoriesScreen")
 
         val defTitle = stringResource(R.string.browse)
         val categoryTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Categories.Const.ARG_TITLE).ifEmpty { defTitle }) }
@@ -105,7 +105,7 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, topBarBlock: (TopBarSta
         route = Screens.Favorites.route,
         arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
     ) { _ ->
-        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.favoritesScreen")
+        ComposedTimberD("NavGraphBuilder.favoritesScreen")
 
         val navController = LocalNavController.current
         BaseFavoriteScreen(
@@ -123,7 +123,7 @@ fun NavGraphBuilder.profileScreen(topBarBlock: (TopBarState) -> Unit) {
         route = Screens.Profile.route,
         arguments = listOf(navArgument(Screens.Profile.Const.ARG_TITLE, defaultStringArg())),
     ) {
-        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.profileScreen")
+        ComposedTimberD("NavGraphBuilder.profileScreen")
 
         val navController = LocalNavController.current
         BaseProfileScreen(
@@ -140,7 +140,7 @@ fun NavGraphBuilder.settingsScreen(topBarBlock: (TopBarState) -> Unit) {
         route = Screens.Settings.route,
         arguments = listOf(navArgument(Screens.Settings.Const.ARG_TITLE, defaultStringArg())),
     ) {
-        ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] NavGraphBuilder.settingsScreen")
+        ComposedTimberD("NavGraphBuilder.settingsScreen")
 
         val navController = LocalNavController.current
         BaseSettingsScreen(

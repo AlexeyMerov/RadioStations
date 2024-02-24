@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.ui.extensions.emit
 import com.alexeymerov.radiostations.core.ui.extensions.send
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -15,7 +13,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.concurrent.CancellationException
 
 interface BaseViewAction
@@ -36,12 +33,6 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
     val viewEffect = _viewEffect.receiveAsFlow()
 
     private var setStateJob: Job? = null
-
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Timber.e(throwable)
-    }
-
-    protected val ioContext = Dispatchers.IO + coroutineExceptionHandler
 
     init {
         subscribeActions()

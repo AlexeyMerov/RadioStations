@@ -53,7 +53,7 @@ class SettingsViewModel @Inject constructor(
     override fun createInitialState(): ViewState = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        Timber.d("SettingsViewModel handleAction ${action.javaClass.simpleName}")
+        Timber.d("handleAction ${action.javaClass.simpleName}")
         viewModelScope.launch(dispatcher) {
             when (action) {
                 is ViewAction.ChangeDarkMode -> changeChangeDarkMode(action.value)

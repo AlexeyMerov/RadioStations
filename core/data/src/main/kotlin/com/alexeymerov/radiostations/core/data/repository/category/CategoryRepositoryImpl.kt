@@ -31,13 +31,13 @@ class CategoryRepositoryImpl @Inject constructor(
      * The server is not the best. So we use URL as only reliable parameter to operate with.
      * */
     override suspend fun loadCategoriesByUrl(url: String) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  request new data")
+        Timber.d("loadCategoriesByUrl request new data")
         val parentUrl = url.prepareUrl()
         val responseCategoryList = radioClient.requestCategoriesByUrl(parentUrl)
         var newCategoryEntities = categoryMapper.mapCategoryResponseToEntity(responseCategoryList, parentUrl)
         val newCategoryEntitiesIds = newCategoryEntities.map { it.id }
         var savedItemsIds = categoryDao.getAllIdsByParentUrl(parentUrl)
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  get ${newCategoryEntities.size} new entities")
+        Timber.d("loadCategoriesByUrl get ${newCategoryEntities.size} new entities")
 
         savedItemsIds = removeExcessItems(savedItemsIds, newCategoryEntitiesIds)
 
@@ -46,7 +46,7 @@ class CategoryRepositoryImpl @Inject constructor(
         val freshNewItemsIds = newCategoryEntitiesIds.filterNot { it in savedItemsIds }
         newCategoryEntities = newCategoryEntities.filter { it.id in freshNewItemsIds }
         categoryDao.insertAll(newCategoryEntities)
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  saved ${newCategoryEntities.size} new entities")
+        Timber.d("loadCategoriesByUrl saved ${newCategoryEntities.size} new entities")
 
         // ugly hardcode to call location mapping only for Top 40 category
         // mostly items from another categories doesn't contain Location names
@@ -72,7 +72,7 @@ class CategoryRepositoryImpl @Inject constructor(
             return@filter true
         }
         categoryDao.removeAllByIds(excessItemsIds)
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  removed ${excessItemsIds.size} excess entities")
+        Timber.d("removeExcessItems removed ${excessItemsIds.size} excess entities")
 
         return updatedList
     }
@@ -89,7 +89,7 @@ class CategoryRepositoryImpl @Inject constructor(
             withContext(Dispatchers.IO) {
                 entitiesToUpdate = locationGeocoder.mapToListWithLocations(entitiesToUpdate)
                 categoryDao.updateAll(entitiesToUpdate)
-                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ]  update ${entitiesToUpdate.size} entities with location")
+                Timber.d("updateWithLocation update ${entitiesToUpdate.size} entities with location")
             }
         }
     }

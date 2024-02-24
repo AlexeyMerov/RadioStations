@@ -18,7 +18,7 @@ fun rememberGalleyPicker(onComplete: (Uri) -> Unit) = rememberLauncherForActivit
 fun rememberTakePicture(onComplete: () -> Unit) = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.TakePicture(),
     onResult = { result ->
-        Timber.d("cameraLauncher: $result")
+        Timber.d("rememberTakePicture - cameraLauncher: $result")
         if (result) onComplete.invoke()
     }
 )

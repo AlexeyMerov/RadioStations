@@ -1,8 +1,5 @@
 package com.alexeymerov.radiostations.feature.category
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
@@ -23,15 +20,15 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -39,48 +36,66 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val categoryUseCase: CategoryUseCase,
     private val audioUseCase: AudioUseCase,
+    private val dispatcher: CoroutineDispatcher,
+    savedStateHandle: SavedStateHandle,
     analytics: FirebaseAnalytics
 ) : BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {
 
     private val categoryUrl = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_URL)).decodeUrl()
     private val categoryTitle = checkNotNull(savedStateHandle.get<String>(Screens.Categories.Const.ARG_TITLE)).decodeUrl()
 
-    var isRefreshing = mutableStateOf(false)
+    var isRefreshing = MutableStateFlow(false)
 
-    private val headerFlow = MutableStateFlow(listOf<CategoryItemDto>())
+    private val itemsWithLocation = MutableStateFlow<Pair<LatLngBounds, List<CategoryItemDto>>?>(null)
 
-    internal var itemsWithLocation by mutableStateOf<Pair<LatLngBounds, List<CategoryItemDto>>?>(null)
-
-    internal val categoriesFlow = categoryUseCase
-        .getAllByUrl(categoryUrl)
+    private val filterHeaderFlow = MutableStateFlow(emptyList<CategoryItemDto>())
+    private val categoriesFlow = categoryUseCase.getAllByUrl(categoryUrl)
         .catch { handleError(it) }
-        .onEach(::prepareHeaders)
-        .combine(headerFlow, ::filterCategoriesByHeader)
-        .onEach(::validateDataAndUpdateState)
+        .filter(::isDataValid)
         .map { it.items }
-        .onEach(::prepareMapItems)
-        .map(::mapListToHeadersWithItems)
-        .flowOn(ioContext)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        .onEach(::prepareFilterHeaders)
+        .combine(filterHeaderFlow, ::filterCategoriesByHeader)
 
     init {
         analytics.logEvent(AnalyticsEvents.LOAD_CATEGORY) {
             param(AnalyticsParams.TITLE, categoryTitle)
         }
+
+        viewModelScope.launch(dispatcher) {
+            categoriesFlow.collectLatest(::prepareMapItems)
+        }
+
+        viewModelScope.launch(dispatcher) {
+            categoriesFlow
+                .map(::mapListToHeadersWithItems)
+                .combine(itemsWithLocation) { categoryItems, itemsWithLocation ->
+                    Timber.d("CategoriesViewModel combine")
+                    val filterHeaderItems = if (filterHeaderFlow.value.size > 1) filterHeaderFlow.value else emptyList()
+
+                    ViewState.CategoriesLoaded(
+                        categoryItems = categoryItems,
+                        filterHeaderItems = filterHeaderItems,
+                        itemsWithLocation = itemsWithLocation
+                    )
+                }
+                .collectLatest {
+                    Timber.d("CategoriesViewModel collectLatest")
+                    setState(it)
+                }
+        }
     }
 
     override fun setAction(action: ViewAction) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")
+        Timber.d("setAction: ${action.javaClass.simpleName}")
         super.setAction(action)
     }
 
-    override fun createInitialState() = ViewState.CategoriesLoaded(emptyList())
+    override fun createInitialState() = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] handleAction: ${action.javaClass.simpleName}")
+        Timber.d("handleAction: ${action.javaClass.simpleName}")
         when (action) {
             is ViewAction.LoadCategories -> loadCategories(categoryUrl)
             is ViewAction.FilterByHeader -> updateHeaderFlow(action.headerItem)
@@ -89,14 +104,22 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
+    private fun handleError(throwable: Throwable) {
+        Timber.e(throwable, "handleError")
+        isRefreshing.value = false
+        if (viewState.value == ViewState.Loading) {
+            setState(ViewState.NothingAvailable, delay = 3000)
+        }
+    }
+
     private fun toggleFavorite(action: ViewAction.ToggleFavorite) {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             audioUseCase.toggleFavorite(action.item)
         }
     }
 
     private fun updateHeaderFlow(headerItem: CategoryItemDto) {
-        headerFlow.update { headerList ->
+        filterHeaderFlow.update { headerList ->
             headerList.map { itemInFlow ->
                 when (itemInFlow) {
                     headerItem -> itemInFlow.copy(isFiltered = !itemInFlow.isFiltered)
@@ -109,122 +132,77 @@ class CategoriesViewModel @Inject constructor(
     /**
      * Extracting headers for filter chips and saving them separately
      * */
-    private suspend fun prepareHeaders(categoryDto: CategoryDto) {
-        val hasHeaders = categoryDto.items.any { it.type == DtoItemType.HEADER }
-        if (headerFlow.value.isEmpty() && hasHeaders) {
-            val headerList = categoryDto.items.filter { it.type == DtoItemType.HEADER }
-            headerFlow.emit(headerList)
+    private suspend fun prepareFilterHeaders(items: List<CategoryItemDto>) {
+        if (filterHeaderFlow.value.isEmpty()) {
+            val headerList = items.filter { it.type == DtoItemType.HEADER }
+            if (headerList.isNotEmpty()) {
+                filterHeaderFlow.emit(headerList)
+            }
         }
     }
 
     /**
      * If filter chips were selected, then show only items for selected headers
      * */
-    private fun filterCategoriesByHeader(categoryDto: CategoryDto, headers: List<CategoryItemDto>): CategoryDto {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categories combine")
-        val items = categoryDto.items.toMutableList()
+    private fun filterCategoriesByHeader(items: List<CategoryItemDto>, headers: List<CategoryItemDto>): List<CategoryItemDto> {
+        Timber.d("filterCategoriesByHeader")
 
         if (headers.isNotEmpty()) {
             val resultList = mutableListOf<CategoryItemDto>()
+
             headers
                 .filter { it.isFiltered }
                 .forEach { header ->
-                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] header filtering: $header")
+                    Timber.d("filterCategoriesByHeader: $header")
                     val headerPosition = items.indexOfFirst { it.url == header.url }
                     val listForHeader = items.subList(headerPosition, headerPosition + header.subItemsCount + 1)
                     resultList.addAll(listForHeader)
                 }
+
             if (resultList.isNotEmpty()) {
-                return categoryDto.copy(items = resultList)
+                return resultList
             }
         }
 
-        return categoryDto
-    }
-
-    /**
-     * Filter all items without Lat Lng and calculating bounds to position/zoom pins on the map
-     * For Top 40 category there are cases when Stations based in North America and Europe, so map would be shown in the middle of the ocean
-     * */
-    private fun prepareMapItems(list: List<CategoryItemDto>) {
-        val boundsBuilder = LatLngBounds.builder()
-        val filteredList = list.filter {
-            val latitude = it.latitude
-            val longitude = it.longitude
-
-            if (latitude != null && longitude != null) {
-                boundsBuilder.include(LatLng(latitude, longitude))
-                return@filter true
-            }
-
-            return@filter false
-        }
-
-        if (filteredList.isNotEmpty()) {
-            val bounds = boundsBuilder.build()
-            itemsWithLocation = bounds to filteredList
-        } else {
-            itemsWithLocation = null
-        }
+        return items
     }
 
     private fun loadCategories(categoryUrl: String) {
-        viewModelScope.launch(ioContext) {
-            if (categoriesFlow.value.isEmpty()) {
-                setState(ViewState.Loading)
-            }
+        viewModelScope.launch(dispatcher) {
             categoryUseCase.loadCategoriesByUrl(categoryUrl)
         }
     }
 
     private fun updateCategories(categoryUrl: String) {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             isRefreshing.value = true
             categoryUseCase.loadCategoriesByUrl(categoryUrl)
 
-            delay(10_000) // just random
+            delay(10_000)
             if (isRefreshing.value) isRefreshing.value = false
-        }
-    }
-
-    private fun handleError(throwable: Throwable) {
-        Timber.e(throwable, "[ ${object {}.javaClass.enclosingMethod?.name} ] handleError")
-        isRefreshing.value = false
-        if (viewState.value == ViewState.Loading) {
-            setState(ViewState.NothingAvailable, delay = 1000)
         }
     }
 
     /**
      * Stop refreshing state
-     * Check if there is no error from lower layers and items are exist
-     * If headers are present, then use them in state
+     * Check if there is no error and items are exist
      * */
-    private fun validateDataAndUpdateState(categoryDto: CategoryDto) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] validateNewData")
-        viewModelScope.launch(ioContext) {
-            isRefreshing.value = false
-            when {
-                categoryDto.isError -> {
-                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] categoryDto.isError")
-                    setState(ViewState.NothingAvailable, delay = 1000)
-                }
+    private fun isDataValid(categoryDto: CategoryDto): Boolean {
+        Timber.d("isDataValid $categoryDto")
+        isRefreshing.value = false
 
-                categoryDto.items.isEmpty() -> {
-                    if (viewState.value != ViewState.Loading) {
-                        setState(ViewState.NothingAvailable, delay = 1000)
-                    } else {
-                        setState(ViewState.NothingAvailable, delay = 7000)
-                    }
-                }
+        val isError = categoryDto.isError
+        val isEmpty = categoryDto.items.isEmpty()
+        if (isError || isEmpty) {
+            Timber.d("categoryDto isError = $isError, isEmpty = $isEmpty")
 
-                else -> {
-                    Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] set CategoriesLoaded ${categoryDto.items.size}")
-                    val headerValue = if (headerFlow.value.size > 1) headerFlow.value else emptyList()
-                    setState(ViewState.CategoriesLoaded(headerValue))
-                }
-            }
+            val delay = if (viewState.value === ViewState.Loading) 7000L else 1000L
+            setState(ViewState.NothingAvailable, delay = delay)
+
+            return false
         }
+
+        return true
     }
 
     /**
@@ -233,7 +211,7 @@ class CategoriesViewModel @Inject constructor(
     private fun mapListToHeadersWithItems(items: List<CategoryItemDto>): List<HeaderWithItems> {
         val resultList = mutableListOf<HeaderWithItems>()
 
-        // if need to process header filtering at all
+        // check if need to process header filtering at all
         if (items.any { it.type == DtoItemType.HEADER }) {
 
             var index = 0
@@ -281,10 +259,43 @@ class CategoriesViewModel @Inject constructor(
         return resultList
     }
 
+    /**
+     * Filter all items without Lat Lng and calculating bounds to position/zoom pins on the map
+     * For Top 40 category there are cases when Stations based in North America and Europe, so map would be shown in the middle of the ocean
+     * */
+    private fun prepareMapItems(items: List<CategoryItemDto>) {
+        val isLocationExist = items.any { it.hasLocation() }
+        if (!isLocationExist) return
+
+        val boundsBuilder = LatLngBounds.builder()
+
+        val filteredList = items.filter {
+            val latitude = it.latitude
+            val longitude = it.longitude
+
+            if (latitude != null && longitude != null) {
+                boundsBuilder.include(LatLng(latitude, longitude))
+                return@filter true
+            }
+
+            return@filter false
+        }
+
+        itemsWithLocation.value = if (filteredList.isEmpty()) null else {
+            val bounds = boundsBuilder.build()
+            bounds to filteredList
+        }
+    }
+
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object NothingAvailable : ViewState
-        data class CategoriesLoaded(val filterHeaderItems: List<CategoryItemDto>) : ViewState
+
+        data class CategoriesLoaded(
+            val categoryItems: List<HeaderWithItems>,
+            val filterHeaderItems: List<CategoryItemDto>?,
+            val itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?
+        ) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {
@@ -300,7 +311,7 @@ class CategoriesViewModel @Inject constructor(
 
 }
 
-internal data class HeaderWithItems(
+data class HeaderWithItems(
     val header: CategoryItemDto? = null,
     val items: List<CategoryItemDto>
 )

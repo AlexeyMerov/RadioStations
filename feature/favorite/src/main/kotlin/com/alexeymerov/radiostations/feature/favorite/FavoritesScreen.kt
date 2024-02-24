@@ -161,7 +161,7 @@ internal fun FavoriteScreen(
     onAction: (ViewAction) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("FavoriteScreen")
 
     val snackbar = LocalSnackbar.current
     LaunchedEffect(inSelection) {
@@ -235,7 +235,7 @@ private fun MainContent(
     onFavClick: (CategoryItemDto) -> Unit,
     parentLongClick: (CategoryItemDto) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("FavoriteScreen - MainContent")
 
     val config = LocalConfiguration.current
     val isList by rememberSaveable(viewType) { mutableStateOf(viewType == ViewType.LIST) }

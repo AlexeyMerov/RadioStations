@@ -43,7 +43,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -110,27 +109,20 @@ fun BaseCategoryScreen(
     parentRoute: String,
     onNavigate: (String) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("BaseCategoryScreen")
+    val isNetworkAvailable = LocalConnectionStatus.current
 
     if (isVisibleToUser) TopBarSetup(categoryTitle, defTitle, topBarBlock)
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.clear()
-        }
-    }
     LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadCategories) }
 
-    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
-
-    val refreshing by viewModel.isRefreshing
+    val refreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullRefreshState(
         refreshing = refreshing,
         onRefresh = { viewModel.setAction(ViewAction.UpdateCategories) }
     )
-    val isNetworkAvailable = LocalConnectionStatus.current
 
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     Box(
         Modifier
             .fillMaxSize()
@@ -138,10 +130,22 @@ fun BaseCategoryScreen(
     ) {
         CategoryScreen(
             viewState = viewState,
-            categoryItems = categoryItems,
-            itemsWithLocation = viewModel.itemsWithLocation,
-            parentRoute = parentRoute,
-            onNavigate = onNavigate,
+            onCategoryClick = {
+                onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
+            },
+            onAudioClick = {
+                if (isNetworkAvailable) {
+                    val route = Screens.Player(parentRoute).createRoute(
+                        stationName = it.text,
+                        subTitle = it.subTitle.orEmpty(),
+                        stationImgUrl = it.image.orEmpty(),
+                        rawUrl = it.url,
+                        id = it.id,
+                        isFav = it.isFavorite
+                    )
+                    onNavigate.invoke(route)
+                }
+            },
             onAction = { viewModel.setAction(it) }
         )
 
@@ -168,38 +172,21 @@ private fun TopBarSetup(
 @Composable
 private fun CategoryScreen(
     viewState: ViewState,
-    categoryItems: List<HeaderWithItems>,
-    itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?,
-    parentRoute: String,
-    onNavigate: (String) -> Unit,
+    onCategoryClick: (CategoryItemDto) -> Unit,
+    onAudioClick: (CategoryItemDto) -> Unit,
     onAction: (ViewAction) -> Unit
 ) {
-    val isNetworkAvailable = LocalConnectionStatus.current
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
         is ViewState.Loading -> ShimmerLoading(defListItemModifier)
         is ViewState.CategoriesLoaded -> {
             MainContent(
-                categoryItems = categoryItems,
+                categoryItems = viewState.categoryItems,
                 filterHeaderItems = viewState.filterHeaderItems,
-                itemsWithLocation = itemsWithLocation,
+                itemsWithLocation = viewState.itemsWithLocation,
                 onHeaderFilterClick = { onAction.invoke(ViewAction.FilterByHeader(it)) },
-                onCategoryClick = {
-                    onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
-                },
-                onAudioClick = {
-                    if (isNetworkAvailable) {
-                        val route = Screens.Player(parentRoute).createRoute(
-                            stationName = it.text,
-                            subTitle = it.subTitle.orEmpty(),
-                            stationImgUrl = it.image.orEmpty(),
-                            rawUrl = it.url,
-                            id = it.id,
-                            isFav = it.isFavorite
-                        )
-                        onNavigate.invoke(route)
-                    }
-                },
+                onCategoryClick = onCategoryClick,
+                onAudioClick = onAudioClick,
                 onFavClick = { onAction.invoke(ViewAction.ToggleFavorite(it)) }
             )
         }
@@ -210,14 +197,14 @@ private fun CategoryScreen(
 @Composable
 private fun MainContent(
     categoryItems: List<HeaderWithItems>,
-    filterHeaderItems: List<CategoryItemDto>,
+    filterHeaderItems: List<CategoryItemDto>?,
     itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?,
     onHeaderFilterClick: (CategoryItemDto) -> Unit,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("CategoriesScreen - MainContent")
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val config = LocalConfiguration.current
@@ -236,7 +223,7 @@ private fun MainContent(
 
     Box {
         Column {
-            if (filterHeaderItems.isNotEmpty()) {
+            if (!filterHeaderItems.isNullOrEmpty()) {
                 FiltersHeader(filterHeaderItems, onHeaderFilterClick)
             }
 

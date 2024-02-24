@@ -177,7 +177,7 @@ internal fun ProfileScreenEditMode(
                 onDismissDialogs.invoke()
 
                 val status = cameraPermissionState.status
-                Timber.d("status $status")
+                Timber.d("ProfileScreenEditMode cameraPermissionState $status")
                 when {
                     status.shouldShowRationale -> showCameraRationaleDialog = true
                     status is PermissionStatus.Denied -> cameraPermissionState.launchPermissionRequest()
@@ -190,7 +190,7 @@ internal fun ProfileScreenEditMode(
     if (showCameraRationaleDialog) {
         CameraPermissionRationale(
             onPermissionRequested = {
-                Timber.d("onPermissionRequested")
+                Timber.d("CameraPermissionRationale - onPermissionRequested")
                 showCameraRationaleDialog = false
                 val intent = Intent(
                     ACTION_APPLICATION_DETAILS_SETTINGS,

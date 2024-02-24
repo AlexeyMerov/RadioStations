@@ -77,8 +77,8 @@ class ProfileViewModel @Inject constructor(
     override fun createInitialState(): ViewState = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
+        Timber.d("handleAction: $action")
         viewModelScope.launch(dispatcher) {
-            Timber.d("handleAction: $action")
             when (action) {
                 is ViewAction.EnterEditMode -> onEnterEditMode()
                 is ViewAction.SaveEditsAndExitMode -> handleSaveEdits()

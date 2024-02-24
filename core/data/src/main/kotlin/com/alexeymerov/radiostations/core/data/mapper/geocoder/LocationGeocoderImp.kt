@@ -38,7 +38,7 @@ class LocationGeocoderImp @Inject constructor(
                 val addressList = geocoder.get()?.getFromLocationName(location, 1)
                 val address = addressList?.getOrNull(0)
                 if (address != null && address.hasLatitude() && address.hasLongitude()) {
-                    Timber.d("location = $location ## address = $address")
+                    Timber.d("mapToEntityWithLocation : location = $location ## address = $address")
 
                     val newLocationText = when {
                         address.locality != null -> "${address.locality}, ${address.countryName}"

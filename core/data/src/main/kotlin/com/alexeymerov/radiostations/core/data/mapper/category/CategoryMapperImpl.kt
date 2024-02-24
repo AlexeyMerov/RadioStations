@@ -40,7 +40,7 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
             }
 
             var item = mapCategoryResponseToEntity(responseBody, parentUrl, index, type)
-            if (item.type == EntityItemType.HEADER) Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${item.text}")
+            if (item.type == EntityItemType.HEADER) Timber.d("categoryEntities ${item.text}")
 
             var childrenEntityList = emptyList<CategoryEntity>()
             if (responseChildrenList != null) {

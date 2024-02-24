@@ -36,10 +36,10 @@ class AppFileStoreImpl @Inject constructor(
 
         val outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE)
         outputStream.use { output ->
-            Timber.d("outputStream: $output")
+            Timber.d("copyFromBitmapToFile - outputStream: $output")
             val saved = bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
             output.flush()
-            Timber.d("saved: $saved")
+            Timber.d("copyFromBitmapToFile - saved: $saved")
         }
     }
 }

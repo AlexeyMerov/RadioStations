@@ -95,7 +95,7 @@ fun MainNavGraph(
         scrollBehavior.state.heightOffset = 0f
     }
 
-    Timber.d("isNetworkAvailable $isNetworkAvailable")
+    Timber.d("MainNavGraph - isNetworkAvailable $isNetworkAvailable")
 
     val sheetState = rememberStandardBottomSheetState(
         skipHiddenState = false,
@@ -126,7 +126,7 @@ fun MainNavGraph(
              * confirmValueChange also not triggering for some reason.
              * */
             LaunchedEffect(sheetState.targetValue) {
-                Timber.d("playerSheetState targetValue ${sheetState.targetValue}")
+                Timber.d("MainNavGraph - playerSheetState targetValue ${sheetState.targetValue}")
                 if (sheetState.targetValue == SheetValue.PartiallyExpanded
                     && (currentMedia == null || playerState == PlayerState.EMPTY)
                 ) {
@@ -187,7 +187,7 @@ fun MainNavGraph(
                     }
                 },
                 content = { scaffoldPaddingValues ->
-                    Timber.d("scaffoldPaddingValues: $scaffoldPaddingValues")
+                    Timber.d("MainNavGraph - scaffoldPaddingValues: $scaffoldPaddingValues")
                     BottomSheetScaffold(
                         modifier = Modifier
                             .fillMaxSize()
@@ -231,7 +231,7 @@ fun MainNavGraph(
                             )
                         },
                         content = { sheetContentPadding ->
-                            Timber.d("sheetContentPadding: $sheetContentPadding")
+                            Timber.d("MainNavGraph - sheetContentPadding: $sheetContentPadding")
                             Surface(Modifier.fillMaxSize()) {
                                 Row(Modifier.fillMaxSize()) {
                                     if (config.isLandscape()) {

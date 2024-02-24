@@ -30,9 +30,9 @@ import androidx.compose.ui.unit.offset
 @Suppress("InfiniteTransitionLabel", "InfinitePropertiesLabel")
 fun Modifier.shimmerEffect(shape: Shape = RectangleShape): Modifier = composed {
     val gradientColors = listOf(
-        MaterialTheme.colorScheme.outlineVariant,
+        MaterialTheme.colorScheme.surfaceVariant,
         MaterialTheme.colorScheme.surface,
-        MaterialTheme.colorScheme.outlineVariant,
+        MaterialTheme.colorScheme.surfaceVariant,
     )
 
     var size by remember { mutableStateOf(IntSize.Zero) }

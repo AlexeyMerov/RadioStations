@@ -52,14 +52,14 @@ class FavoritesViewModel @Inject constructor(
     }
 
     override fun setAction(action: ViewAction) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] new action: ${action.javaClass.simpleName}")
+        Timber.d("setAction: ${action.javaClass.simpleName}")
         super.setAction(action)
     }
 
     override fun createInitialState() = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        Timber.d("[ ${object {}.javaClass.name} ] handleAction: ${action.javaClass.simpleName}")
+        Timber.d("handleAction: ${action.javaClass.simpleName}")
         when (action) {
             is ViewAction.SetViewType -> setViewType(action.type)
             is ViewAction.SelectItem -> selectItem(action.item)
@@ -119,7 +119,7 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private suspend fun showUndoSnackbar() {
-        Timber.d("[ ${object {}.javaClass.name} ] showUndoSnackbar size: ${recentlyUnfavorited.size}")
+        Timber.d("showUndoSnackbar size: ${recentlyUnfavorited.size}")
         setEffect(ViewEffect.ShowUnfavoriteToast(recentlyUnfavorited.size))
 
         undoJobTimeout?.cancel()
@@ -130,17 +130,17 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun handleError(throwable: Throwable) {
-        Timber.e(throwable, "[ ${object {}.javaClass.enclosingMethod?.name} ] handleError")
+        Timber.e(throwable, "handleError $throwable")
         if (viewState.value == ViewState.Loading) {
             setState(ViewState.NothingAvailable)
         }
     }
 
     private fun validateNewData(viewType: ViewType, categoryDto: CategoryDto): ViewState {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] validateNewData")
+        Timber.d("validateNewData $viewType ## $categoryDto")
         return when {
             categoryDto.isError || categoryDto.items.isEmpty() -> {
-                Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] error list")
+                Timber.d("categoryDto.isError || categoryDto.items.isEmpty")
                 ViewState.NothingAvailable
             }
 
