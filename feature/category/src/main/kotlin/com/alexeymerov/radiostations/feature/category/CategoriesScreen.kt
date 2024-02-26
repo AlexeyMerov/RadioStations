@@ -69,8 +69,8 @@ import com.alexeymerov.radiostations.core.ui.common.LocalDarkMode
 import com.alexeymerov.radiostations.core.ui.common.LocalNightMode
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
-import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -178,12 +178,17 @@ private fun CategoryScreen(
 ) {
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
-        is ViewState.Loading -> ShimmerLoading(defListItemModifier)
+        is ViewState.Loading -> ShimmerLoading(Modifier.defListItem())
         is ViewState.CategoriesLoaded -> {
+
+            val categoryItems by viewState.categoryItems.collectAsStateWithLifecycle(emptyList())
+            val filterHeaderItems by viewState.filterHeaderItems.collectAsStateWithLifecycle()
+            val itemsWithLocation by viewState.itemsWithLocation.collectAsStateWithLifecycle(null)
+
             MainContent(
-                categoryItems = viewState.categoryItems,
-                filterHeaderItems = viewState.filterHeaderItems,
-                itemsWithLocation = viewState.itemsWithLocation,
+                categoryItems = categoryItems,
+                filterHeaderItems = filterHeaderItems,
+                itemsWithLocation = itemsWithLocation,
                 onHeaderFilterClick = { onAction.invoke(ViewAction.FilterByHeader(it)) },
                 onCategoryClick = onCategoryClick,
                 onAudioClick = onAudioClick,
@@ -445,7 +450,9 @@ private fun LazyListScope.mainListItems(
         contentType = CategoryItemDto::type
     ) { itemDto ->
         DrawItems(
-            modifier = defListItemModifier.animateItemPlacement(),
+            modifier = Modifier
+                .defListItem()
+                .animateItemPlacement(),
             itemDto = itemDto,
             onCategoryClick = onCategoryClick,
             onAudioClick = onAudioClick,
@@ -470,8 +477,8 @@ private fun LazyListScope.mainGridItems(
     ) {
         LazyVerticalGrid(
             modifier = Modifier
-                .animateItemPlacement()
-                .heightIn(max = columnHeight),
+                .heightIn(max = columnHeight)
+                .animateItemPlacement(),
             columns = GridCells.Fixed(columnCount),
             userScrollEnabled = false,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -482,7 +489,9 @@ private fun LazyListScope.mainGridItems(
                 contentType = CategoryItemDto::type
             ) { itemDto ->
                 DrawItems(
-                    modifier = defListItemModifier.animateItemPlacement(),
+                    modifier = Modifier
+                        .defListItem()
+                        .animateItemPlacement(),
                     itemDto = itemDto,
                     onCategoryClick = onCategoryClick,
                     onAudioClick = onAudioClick,
@@ -501,9 +510,9 @@ fun DrawItems(
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
+    val context = LocalContext.current
     val snackbar = LocalSnackbar.current
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     when (itemDto.type) {
         DtoItemType.CATEGORY -> CategoryListItem(

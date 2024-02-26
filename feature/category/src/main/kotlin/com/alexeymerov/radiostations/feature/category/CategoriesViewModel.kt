@@ -22,11 +22,14 @@ import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -48,15 +51,25 @@ class CategoriesViewModel @Inject constructor(
 
     var isRefreshing = MutableStateFlow(false)
 
-    private val itemsWithLocation = MutableStateFlow<Pair<LatLngBounds, List<CategoryItemDto>>?>(null)
-
-    private val filterHeaderFlow = MutableStateFlow(emptyList<CategoryItemDto>())
-    private val categoriesFlow = categoryUseCase.getAllByUrl(categoryUrl)
+    private val allItemsFlow = categoryUseCase.getAllByUrl(categoryUrl)
         .catch { handleError(it) }
         .filter(::isDataValid)
         .map { it.items }
         .onEach(::prepareFilterHeaders)
+
+    private val filterHeaderFlow = MutableStateFlow(emptyList<CategoryItemDto>())
+
+    private val filteredItemsFlow = allItemsFlow
         .combine(filterHeaderFlow, ::filterCategoriesByHeader)
+        .flowOn(dispatcher)
+
+    private val categoryFlow = filteredItemsFlow
+        .map(::mapListToHeadersWithItems)
+        .flowOn(dispatcher)
+
+    private val itemsWithLocationFlow = filteredItemsFlow
+        .map(::prepareMapItems)
+        .flowOn(dispatcher)
 
     init {
         analytics.logEvent(AnalyticsEvents.LOAD_CATEGORY) {
@@ -64,26 +77,17 @@ class CategoriesViewModel @Inject constructor(
         }
 
         viewModelScope.launch(dispatcher) {
-            categoriesFlow.collectLatest(::prepareMapItems)
-        }
+            allItemsFlow.collectLatest {
+                Timber.d("CategoriesViewModel collectLatest")
 
-        viewModelScope.launch(dispatcher) {
-            categoriesFlow
-                .map(::mapListToHeadersWithItems)
-                .combine(itemsWithLocation) { categoryItems, itemsWithLocation ->
-                    Timber.d("CategoriesViewModel combine")
-                    val filterHeaderItems = if (filterHeaderFlow.value.size > 1) filterHeaderFlow.value else emptyList()
+                val state = ViewState.CategoriesLoaded(
+                    categoryItems = categoryFlow,
+                    filterHeaderItems = filterHeaderFlow,
+                    itemsWithLocation = itemsWithLocationFlow
+                )
 
-                    ViewState.CategoriesLoaded(
-                        categoryItems = categoryItems,
-                        filterHeaderItems = filterHeaderItems,
-                        itemsWithLocation = itemsWithLocation
-                    )
-                }
-                .collectLatest {
-                    Timber.d("CategoriesViewModel collectLatest")
-                    setState(it)
-                }
+                setState(state)
+            }
         }
     }
 
@@ -170,6 +174,11 @@ class CategoriesViewModel @Inject constructor(
     private fun loadCategories(categoryUrl: String) {
         viewModelScope.launch(dispatcher) {
             categoryUseCase.loadCategoriesByUrl(categoryUrl)
+
+            delay(10_000)
+            if (viewState.value == ViewState.Loading) {
+                setState(ViewState.NothingAvailable)
+            }
         }
     }
 
@@ -180,6 +189,9 @@ class CategoriesViewModel @Inject constructor(
 
             delay(10_000)
             if (isRefreshing.value) isRefreshing.value = false
+            if (viewState.value == ViewState.Loading) {
+                setState(ViewState.NothingAvailable)
+            }
         }
     }
 
@@ -196,8 +208,9 @@ class CategoriesViewModel @Inject constructor(
         if (isError || isEmpty) {
             Timber.d("categoryDto isError = $isError, isEmpty = $isEmpty")
 
-            val delay = if (viewState.value === ViewState.Loading) 7000L else 1000L
-            setState(ViewState.NothingAvailable, delay = delay)
+            if (viewState.value != ViewState.Loading) {
+                setState(ViewState.NothingAvailable)
+            }
 
             return false
         }
@@ -263,9 +276,9 @@ class CategoriesViewModel @Inject constructor(
      * Filter all items without Lat Lng and calculating bounds to position/zoom pins on the map
      * For Top 40 category there are cases when Stations based in North America and Europe, so map would be shown in the middle of the ocean
      * */
-    private fun prepareMapItems(items: List<CategoryItemDto>) {
+    private fun prepareMapItems(items: List<CategoryItemDto>): Pair<LatLngBounds, List<CategoryItemDto>>? {
         val isLocationExist = items.any { it.hasLocation() }
-        if (!isLocationExist) return
+        if (!isLocationExist) return null
 
         val boundsBuilder = LatLngBounds.builder()
 
@@ -281,7 +294,7 @@ class CategoriesViewModel @Inject constructor(
             return@filter false
         }
 
-        itemsWithLocation.value = if (filteredList.isEmpty()) null else {
+        return if (filteredList.isEmpty()) null else {
             val bounds = boundsBuilder.build()
             bounds to filteredList
         }
@@ -292,9 +305,9 @@ class CategoriesViewModel @Inject constructor(
         data object NothingAvailable : ViewState
 
         data class CategoriesLoaded(
-            val categoryItems: List<HeaderWithItems>,
-            val filterHeaderItems: List<CategoryItemDto>?,
-            val itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?
+            val categoryItems: Flow<List<HeaderWithItems>>,
+            val filterHeaderItems: StateFlow<List<CategoryItemDto>?>,
+            val itemsWithLocation: Flow<Pair<LatLngBounds, List<CategoryItemDto>>?>
         ) : ViewState
     }
 

@@ -157,7 +157,7 @@ private fun TextBlock(itemDto: CategoryItemDto) {
                 Icon(
                     modifier = Modifier
                         .alpha(0.7f)
-                        .size(12.dp)
+                        .size(14.dp)
                         .padding(end = 4.dp),
                     imageVector = Icons.Outlined.LocationCity,
                     contentDescription = null

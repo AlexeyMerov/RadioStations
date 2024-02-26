@@ -186,6 +186,12 @@ fun MainNavGraph(
                         )
                     }
                 },
+                snackbarHost = {
+                    SnackbarHost(
+                        modifier = Modifier.padding(bottom = if (isPlayerVisible) peekHeightDp else 0.dp),
+                        hostState = snackbarHostState
+                    )
+                },
                 content = { scaffoldPaddingValues ->
                     Timber.d("MainNavGraph - scaffoldPaddingValues: $scaffoldPaddingValues")
                     BottomSheetScaffold(
@@ -199,7 +205,6 @@ fun MainNavGraph(
                             ),
                         scaffoldState = sheetScaffoldState,
                         topBar = { TopBar(navController, topBarState, scrollBehavior) },
-                        snackbarHost = { SnackbarHost(snackbarHostState) },
                         sheetDragHandle = null,
                         sheetPeekHeight = peekHeightDp + scaffoldPaddingValues.calculateBottomPadding(),
                         sheetShape = RoundedCornerShape(topStart = animData.shapeCornerRadius, topEnd = animData.shapeCornerRadius),

@@ -78,10 +78,11 @@ fun Modifier.ignoreWidthConstrains(dp: Dp) = layout { measurable, constraints ->
 
 val defListItemHeight = 76.dp
 
-val defListItemModifier = Modifier
-    .height(defListItemHeight)
-    .padding(vertical = 4.dp)
-    .fillMaxWidth()
+fun Modifier.defListItem() = this.then(
+    height(defListItemHeight)
+        .padding(vertical = 4.dp)
+        .fillMaxWidth()
+)
 
 
 fun Modifier.graphicsScale(value: Float): Modifier = this.graphicsLayer { scaleX = value; scaleY = value }

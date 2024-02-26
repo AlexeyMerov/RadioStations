@@ -32,7 +32,7 @@ import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
-import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
+import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.DropDownItem
@@ -282,7 +282,9 @@ private fun MainContent(
 
             if (isList) { // try animate between rows and grid
                 StationListItem(
-                    modifier = defListItemModifier.animateItemPlacement(),
+                    modifier = Modifier
+                        .defListItem()
+                        .animateItemPlacement(),
                     itemDto = itemDto,
                     inSelection = inSelection,
                     isSelected = isSelected,
