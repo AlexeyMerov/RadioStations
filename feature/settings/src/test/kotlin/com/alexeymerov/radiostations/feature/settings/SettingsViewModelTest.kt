@@ -5,19 +5,14 @@ import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.C
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.FakeConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.FakeThemeSettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
+import com.alexeymerov.radiostations.core.test.MainDispatcherRule
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewState
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,6 +21,9 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SettingsViewModelTest {
+
+    @get:Rule
+    val dispatcherRule = MainDispatcherRule()
 
     @get:Rule
     val mockkRule = MockKRule(this)
@@ -39,27 +37,18 @@ class SettingsViewModelTest {
 
     private lateinit var viewModel: SettingsViewModel
 
-    private val testDispatcher = UnconfinedTestDispatcher()
-
     @Before
     fun setup() {
-        Dispatchers.setMain(testDispatcher)
         connectivitySettings = FakeConnectivitySettingsUseCase()
         themeSettings = FakeThemeSettingsUseCase()
 
-        viewModel = SettingsViewModel(themeSettings, connectivitySettings, firebaseAnalytics, testDispatcher)
-    }
-
-    @After
-    fun teardown() {
-        testDispatcher.cancel()
-        Dispatchers.resetMain()
+        viewModel = SettingsViewModel(themeSettings, connectivitySettings, firebaseAnalytics, dispatcherRule.testDispatcher)
     }
 
     @Test
     fun getState_whenConnectivityLoading_returnsLoadingState() = runTest {
         connectivitySettings.addDelayToFlow(100)
-        viewModel = SettingsViewModel(themeSettings, connectivitySettings, firebaseAnalytics, testDispatcher)
+        viewModel = SettingsViewModel(themeSettings, connectivitySettings, firebaseAnalytics, dispatcherRule.testDispatcher)
 
         viewModel.viewState.test {
             assertThat(awaitItem()).isEqualTo(ViewState.Loading)
@@ -70,7 +59,7 @@ class SettingsViewModelTest {
     @Test
     fun getState_whenThemeLoading_returnsLoadingState() = runTest {
         themeSettings.addDelayToFlow(100)
-        viewModel = SettingsViewModel(themeSettings, connectivitySettings, firebaseAnalytics, testDispatcher)
+        viewModel = SettingsViewModel(themeSettings, connectivitySettings, firebaseAnalytics, dispatcherRule.testDispatcher)
 
         viewModel.viewState.test {
             assertThat(awaitItem()).isEqualTo(ViewState.Loading)

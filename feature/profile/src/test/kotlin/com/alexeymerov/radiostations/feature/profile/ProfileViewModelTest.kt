@@ -9,6 +9,7 @@ import app.cash.turbine.test
 import com.alexeymerov.radiostations.core.domain.usecase.country.FakeCountryUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.profile.FakeProfileUsaCase
 import com.alexeymerov.radiostations.core.dto.CountryDto
+import com.alexeymerov.radiostations.core.test.MainDispatcherRule
 import com.alexeymerov.radiostations.core.test.TestDiffCallback
 import com.alexeymerov.radiostations.core.test.TestUpdateCallback
 import com.alexeymerov.radiostations.core.test.createTestBitmap
@@ -16,17 +17,13 @@ import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.*
 import com.google.common.truth.Truth.*
 import io.mockk.coEvery
 import io.mockk.spyk
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
@@ -35,19 +32,19 @@ import java.io.File
 @RunWith(AndroidJUnit4::class)
 class ProfileViewModelTest {
 
+    @get:Rule
+    val dispatcherRule = MainDispatcherRule()
+
     private lateinit var viewModel: ProfileViewModel
 
     private lateinit var profileUsaCase: FakeProfileUsaCase
 
     private lateinit var countryUseCase: FakeCountryUseCase
 
-    private val testDispatcher = UnconfinedTestDispatcher()
-
     private val tempFolder = TemporaryFolder.builder().assureDeletion().build()
 
     @Before
     fun setup() {
-        Dispatchers.setMain(testDispatcher)
         tempFolder.create()
 
         profileUsaCase = spyk(FakeProfileUsaCase())
@@ -76,7 +73,7 @@ class ProfileViewModelTest {
 
         countryUseCase = FakeCountryUseCase()
 
-        viewModel = ProfileViewModel(profileUsaCase, countryUseCase, testDispatcher)
+        viewModel = ProfileViewModel(profileUsaCase, countryUseCase, dispatcherRule.testDispatcher)
     }
 
     private fun getAvatarFile(): File = try {
@@ -88,8 +85,6 @@ class ProfileViewModelTest {
     @After
     fun teardown() {
         tempFolder.delete()
-        testDispatcher.cancel()
-        Dispatchers.resetMain()
     }
 
     @Test

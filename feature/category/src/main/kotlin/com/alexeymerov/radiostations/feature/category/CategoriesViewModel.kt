@@ -57,7 +57,7 @@ class CategoriesViewModel @Inject constructor(
         .map { it.items }
         .onEach(::prepareFilterHeaders)
 
-    private val filterHeaderFlow = MutableStateFlow(emptyList<CategoryItemDto>())
+    private val filterHeaderFlow = MutableStateFlow<List<CategoryItemDto>?>(null)
 
     private val filteredItemsFlow = allItemsFlow
         .combine(filterHeaderFlow, ::filterCategoriesByHeader)
@@ -108,11 +108,13 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    private fun handleError(throwable: Throwable) {
+    private suspend fun handleError(throwable: Throwable) {
         Timber.e(throwable, "handleError")
         isRefreshing.value = false
+
+        delay(4000)
         if (viewState.value == ViewState.Loading) {
-            setState(ViewState.NothingAvailable, delay = 3000)
+            setState(ViewState.NothingAvailable)
         }
     }
 
@@ -124,23 +126,25 @@ class CategoriesViewModel @Inject constructor(
 
     private fun updateHeaderFlow(headerItem: CategoryItemDto) {
         filterHeaderFlow.update { headerList ->
-            headerList.map { itemInFlow ->
-                when (itemInFlow) {
-                    headerItem -> itemInFlow.copy(isFiltered = !itemInFlow.isFiltered)
-                    else -> itemInFlow
+            headerList
+                ?.map { itemInFlow ->
+                    when (itemInFlow) {
+                        headerItem -> itemInFlow.copy(isFiltered = !itemInFlow.isFiltered)
+                        else -> itemInFlow
+                    }
                 }
-            }
+                ?: listOf(headerItem.copy(isFiltered = true))
         }
     }
 
     /**
      * Extracting headers for filter chips and saving them separately
      * */
-    private suspend fun prepareFilterHeaders(items: List<CategoryItemDto>) {
-        if (filterHeaderFlow.value.isEmpty()) {
+    private fun prepareFilterHeaders(items: List<CategoryItemDto>) {
+        if (filterHeaderFlow.value.isNullOrEmpty()) {
             val headerList = items.filter { it.type == DtoItemType.HEADER }
             if (headerList.isNotEmpty()) {
-                filterHeaderFlow.emit(headerList)
+                filterHeaderFlow.value = headerList
             }
         }
     }
@@ -148,10 +152,10 @@ class CategoriesViewModel @Inject constructor(
     /**
      * If filter chips were selected, then show only items for selected headers
      * */
-    private fun filterCategoriesByHeader(items: List<CategoryItemDto>, headers: List<CategoryItemDto>): List<CategoryItemDto> {
+    private fun filterCategoriesByHeader(items: List<CategoryItemDto>, headers: List<CategoryItemDto>?): List<CategoryItemDto> {
         Timber.d("filterCategoriesByHeader")
 
-        if (headers.isNotEmpty()) {
+        if (!headers.isNullOrEmpty()) {
             val resultList = mutableListOf<CategoryItemDto>()
 
             headers

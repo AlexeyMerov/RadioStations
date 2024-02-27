@@ -61,6 +61,19 @@ class FakeAudioUseCase : AudioUseCase {
         currentFavoritesFlow.value = currentFavorites
     }
 
+    override suspend fun toggleFavorite(item: CategoryItemDto) {
+        if (currentFavorites.contains(item)) {
+            unfavorite(item)
+        } else {
+            setFavorite(item)
+        }
+    }
+
+    override suspend fun toggleFavorite(id: String) {
+        val item = currentFavorites.firstOrNull { it.id == id }
+        if (item != null) toggleFavorite(item)
+    }
+
     override suspend fun getMediaItem(url: String): AudioItemDto? {
         // not required at the moment
         return null
@@ -78,14 +91,6 @@ class FakeAudioUseCase : AudioUseCase {
     override suspend fun getByUrl(url: String): CategoryItemDto? {
         // not required at the moment
         return null
-    }
-
-    override suspend fun toggleFavorite(item: CategoryItemDto) {
-        // not required at the moment
-    }
-
-    override suspend fun toggleFavorite(id: String) {
-        // not required at the moment
     }
 
     override fun getPlayerState(): Flow<AudioUseCase.PlayerState> {

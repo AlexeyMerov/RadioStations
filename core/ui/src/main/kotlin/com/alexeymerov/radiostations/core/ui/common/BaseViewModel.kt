@@ -6,7 +6,6 @@ import com.alexeymerov.radiostations.core.ui.extensions.emit
 import com.alexeymerov.radiostations.core.ui.extensions.send
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -46,11 +45,9 @@ abstract class BaseViewModel<S : BaseViewState, A : BaseViewAction, E : BaseView
         _viewAction.emit(viewModelScope, action)
     }
 
-    protected fun setState(state: S, expected: S? = null, delay: Long? = null) {
+    protected fun setState(state: S, expected: S? = null) {
         setStateJob?.cancel(CancellationException("New state is coming"))
         setStateJob = viewModelScope.launch {
-            if (delay != null) delay(delay)
-
             if (expected != null) {
                 _viewState.compareAndSet(expected, state)
             } else {
