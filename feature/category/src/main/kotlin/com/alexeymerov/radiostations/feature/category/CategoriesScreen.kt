@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -82,6 +83,9 @@ import com.alexeymerov.radiostations.core.ui.view.StationListItem
 import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewState
 import com.alexeymerov.radiostations.feature.category.item.CategoryListItem
+import com.alexeymerov.radiostations.feature.category.item.CategoryScreenTestTags
+import com.alexeymerov.radiostations.feature.category.item.CategoryScreenTestTags.LAZY_LIST
+import com.alexeymerov.radiostations.feature.category.item.CategoryScreenTestTags.SCROLL_TOP_FAB
 import com.alexeymerov.radiostations.feature.category.item.HeaderListItem
 import com.alexeymerov.radiostations.feature.category.item.SubCategoryListItem
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -170,7 +174,7 @@ private fun TopBarSetup(
 }
 
 @Composable
-private fun CategoryScreen(
+internal fun CategoryScreen(
     viewState: ViewState,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit,
@@ -237,7 +241,9 @@ private fun MainContent(
                 ShowMap(itemsWithLocation, onAudioClick)
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(LAZY_LIST),
                     state = listState,
                     userScrollEnabled = listState.canScrollForward || listState.canScrollBackward,
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp)
@@ -289,6 +295,7 @@ private fun MainContent(
                 exit = fadeOut() + scaleOut(),
             ) {
                 SmallFloatingActionButton(
+                    modifier = Modifier.testTag(SCROLL_TOP_FAB),
                     onClick = {
                         coroutineScope.launch {
                             listState.animateScrollToItem(0)
@@ -304,6 +311,7 @@ private fun MainContent(
                 exit = fadeOut() + scaleOut(),
             ) {
                 FloatingActionButton(
+                    modifier = Modifier.testTag(CategoryScreenTestTags.MAP_FAB),
                     onClick = { needShowMap = !needShowMap },
                     containerColor = FloatingActionButtonDefaults.containerColor,
                     content = { Icon(Icons.Outlined.Map, null) }
@@ -405,7 +413,9 @@ private fun FiltersHeader(
     onHeaderFilterClick: (CategoryItemDto) -> Unit
 ) {
     FlowRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(CategoryScreenTestTags.FILTER_HEADER),
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
     ) {
         headerItems.forEach { item ->
@@ -430,7 +440,8 @@ private fun LazyListScope.stickyHeader(
         HeaderListItem(
             modifier = Modifier
                 .animateItemPlacement()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag(CategoryScreenTestTags.HEADER),
             itemDto = header,
             onClick = { onClick.invoke() }
         )
@@ -503,7 +514,7 @@ private fun LazyListScope.mainGridItems(
 }
 
 @Composable
-fun DrawItems(
+private fun DrawItems(
     modifier: Modifier,
     itemDto: CategoryItemDto,
     onCategoryClick: (CategoryItemDto) -> Unit,
@@ -516,7 +527,7 @@ fun DrawItems(
 
     when (itemDto.type) {
         DtoItemType.CATEGORY -> CategoryListItem(
-            modifier = modifier,
+            modifier = modifier.testTag(CategoryScreenTestTags.CATEGORY),
             itemDto = itemDto,
             onCategoryClick = onCategoryClick,
             onRevealAction = {
@@ -541,7 +552,12 @@ fun DrawItems(
             onFavClick = onFavClick
         )
 
-        DtoItemType.SUBCATEGORY -> SubCategoryListItem(modifier, itemDto, onCategoryClick)
+        DtoItemType.SUBCATEGORY -> SubCategoryListItem(
+            modifier = modifier.testTag(CategoryScreenTestTags.SUBCATEGORY),
+            itemDto = itemDto,
+            onCategoryClick = onCategoryClick
+        )
+
         DtoItemType.HEADER -> {}
     }
 }

@@ -70,7 +70,8 @@ fun ShimmerLoading(modifier: Modifier) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp, horizontal = 16.dp),
+            .padding(vertical = 4.dp, horizontal = 16.dp)
+            .testTag(CommonViewTestTags.SHIMMER),
     ) {
 
         val shimmerEffect = Modifier.shimmerEffect(shape = CardDefaults.shape)

@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.feature.settings
 
-object SettingsTestTags {
+internal object SettingsTestTags {
 
     const val CONTENT = "content"
     const val CONTENT_TABLET = "content_tablet"

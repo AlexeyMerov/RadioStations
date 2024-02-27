@@ -44,7 +44,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSettings(modifier: Modifier) {
+internal fun LanguageSettings(modifier: Modifier) {
     val context = LocalContext.current
     val currentLocale = LocalConfiguration.current.locales[0]
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }

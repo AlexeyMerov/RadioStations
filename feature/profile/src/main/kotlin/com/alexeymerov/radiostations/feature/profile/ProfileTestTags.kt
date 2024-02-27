@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.feature.profile
 
-object ProfileTestTags {
+internal object ProfileTestTags {
 
     const val MAIN_CONTENT = "main_content"
 

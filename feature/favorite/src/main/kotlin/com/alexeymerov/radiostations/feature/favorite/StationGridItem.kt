@@ -50,7 +50,7 @@ import com.alexeymerov.radiostations.core.ui.view.SelectedIcon
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StationGridItem(
+internal fun StationGridItem(
     modifier: Modifier,
     itemDto: CategoryItemDto,
     inSelection: Boolean,

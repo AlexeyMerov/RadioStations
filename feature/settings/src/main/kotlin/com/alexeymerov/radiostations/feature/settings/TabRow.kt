@@ -76,7 +76,7 @@ internal fun SettingsTabRow(currentTab: SettingTab, onTabClick: (SettingTab) -> 
     }
 }
 
-fun Modifier.customTabIndicatorOffset(
+internal fun Modifier.customTabIndicatorOffset(
     currentTabPosition: TabPosition,
     tabWidth: Dp
 ): Modifier = composed(

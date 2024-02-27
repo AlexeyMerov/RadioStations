@@ -17,9 +17,9 @@ import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags
-import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.LIST_ITEM
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.SELECTED_ICON
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STAR_ICON
+import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STATION_LIST_ITEM
 import com.alexeymerov.radiostations.feature.favorite.FavoriteTestTags.GRID_ITEM
 import com.alexeymerov.radiostations.feature.favorite.FavoriteTestTags.LAZY_LIST_GRID
 import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewState
@@ -109,7 +109,7 @@ class FavoriteScreenTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onAllNodesWithTag(LIST_ITEM)
+            .onAllNodesWithTag(STATION_LIST_ITEM)
             .assertAllIsDisplayed()
     }
 
@@ -212,7 +212,7 @@ class FavoriteScreenTest {
         }
 
         composeTestRule
-            .onAllNodesWithTag(LIST_ITEM)
+            .onAllNodesWithTag(STATION_LIST_ITEM)
             .onFirst()
             .performTouchInput { longClick() }
 

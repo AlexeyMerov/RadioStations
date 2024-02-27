@@ -23,7 +23,7 @@ import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 
 @Composable
-fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
+internal fun SubCategoryListItem(modifier: Modifier, itemDto: CategoryItemDto, onCategoryClick: (CategoryItemDto) -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier

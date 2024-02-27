@@ -47,9 +47,9 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
-import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.LIST_ITEM
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.SELECTED_ICON
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STAR_ICON
+import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STATION_LIST_ITEM
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,7 +63,7 @@ fun StationListItem(
     onLongClick: (CategoryItemDto) -> Unit = {}
 ) {
     Card(
-        modifier = modifier.testTag(LIST_ITEM),
+        modifier = modifier.testTag(STATION_LIST_ITEM),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {

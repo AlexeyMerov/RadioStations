@@ -21,7 +21,7 @@ import de.charlex.compose.RevealSwipe
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CategoryListItem(
+internal fun CategoryListItem(
     modifier: Modifier,
     itemDto: CategoryItemDto,
     onCategoryClick: (CategoryItemDto) -> Unit,
