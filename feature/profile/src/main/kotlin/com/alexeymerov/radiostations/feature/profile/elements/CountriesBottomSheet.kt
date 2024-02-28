@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +66,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CountryDto
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.core.ui.view.BasicText
+import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.COUNTRY_CODE_SHEET
 import kotlinx.coroutines.launch
 
 @Composable
@@ -93,6 +95,7 @@ internal fun CountriesBottomSheet(
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
+        modifier = Modifier.testTag(COUNTRY_CODE_SHEET),
         sheetState = sheetState,
         onDismissRequest = { onDismiss.invoke() }
     ) {

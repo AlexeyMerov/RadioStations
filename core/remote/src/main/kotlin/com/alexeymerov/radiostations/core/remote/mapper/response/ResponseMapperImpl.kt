@@ -20,7 +20,7 @@ class ResponseMapperImpl @Inject constructor() : ResponseMapper {
             else -> resultList = mainBody.body
         }
 
-        if (errorText != null) Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] $errorText")
+        if (errorText != null) Timber.d("mapRadioResponseBody $errorText")
 
         return resultList
     }
@@ -36,7 +36,7 @@ class ResponseMapperImpl @Inject constructor() : ResponseMapper {
             else -> resultList = mainBody
         }
 
-        if (errorText != null) Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] $errorText")
+        if (errorText != null) Timber.d("mapCountriesResponseBody $errorText")
 
         return resultList
     }

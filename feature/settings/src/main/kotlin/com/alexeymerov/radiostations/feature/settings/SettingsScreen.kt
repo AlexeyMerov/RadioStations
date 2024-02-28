@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,6 +38,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
+import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.PAGER
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewState
 import com.alexeymerov.radiostations.feature.settings.connectivity.ConnectivitySettings
@@ -71,7 +73,7 @@ private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
 }
 
 @Composable
-private fun SettingsScreen(
+internal fun SettingsScreen(
     viewState: ViewState,
     onAction: (ViewAction) -> Unit
 ) {
@@ -114,7 +116,9 @@ private fun MainContent(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag(SettingsTestTags.CONTENT),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -127,7 +131,10 @@ private fun MainContent(
             }
         )
 
-        HorizontalPager(state = pagerState) { pageIndex ->
+        HorizontalPager(
+            modifier = Modifier.testTag(PAGER),
+            state = pagerState
+        ) { pageIndex ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -156,7 +163,9 @@ private fun MainContentTablet(
     onAction: (ViewAction) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag(SettingsTestTags.CONTENT_TABLET),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         val columnModifier = Modifier

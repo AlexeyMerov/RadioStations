@@ -2,7 +2,6 @@ package com.alexeymerov.radiostations.core.domain.usecase.profile
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.net.Uri
 import androidx.core.graphics.get
 import androidx.core.net.toFile
@@ -10,6 +9,7 @@ import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeymerov.radiostations.core.datastore.FakeSettingsStore
 import com.alexeymerov.radiostations.core.filestore.AppFileStore
+import com.alexeymerov.radiostations.core.test.createTestBitmap
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -64,7 +64,12 @@ class ProfileUsaCaseTest {
             tempFolder.newFile("$prefix$suffix").toUri()
         }
 
-        coEvery { fileStore.removeFileByUri(any()) } answers { firstArg<Uri>().toFile().delete() }
+        coEvery { fileStore.removeFileByUri(any()) } answers {
+            val firstArg = firstArg<Uri>()
+            firstArg.path?.let {
+                File(it).delete()
+            }
+        }
 
         coEvery { fileStore.copyFromBitmapToFile(any(), any()) } answers {
             val bitmap = firstArg<Bitmap>()
@@ -92,16 +97,16 @@ class ProfileUsaCaseTest {
         var avatarFile = useCase.getAvatar()
         assertThat(avatarFile).isNull()
 
-        val bitmap = createBitmap()
+        val bitmap = createTestBitmap()
         useCase.saveAvatar(bitmap)
 
         avatarFile = useCase.getAvatar()
         assertThat(avatarFile).isNotNull()
         avatarFile!!
 
-        assertThat(avatarFile.length()).isGreaterThan(0L)
+        assertThat(File(avatarFile).length()).isGreaterThan(0L)
 
-        val savedBitmap = BitmapFactory.decodeFile(avatarFile.path)
+        val savedBitmap = BitmapFactory.decodeFile(avatarFile)
         assertThat(savedBitmap).isInstanceOf(Bitmap::class.java)
 
         val colorAtPosition = savedBitmap[1, 1]
@@ -120,13 +125,13 @@ class ProfileUsaCaseTest {
         var avatarFile = useCase.getAvatar()
         assertThat(avatarFile).isNull()
 
-        useCase.saveAvatar(createBitmap())
+        useCase.saveAvatar(createTestBitmap())
 
         avatarFile = useCase.getAvatar()
         assertThat(avatarFile).isNotNull()
         avatarFile!!
 
-        assertThat(avatarFile.length()).isGreaterThan(0L)
+        assertThat(File(avatarFile).length()).isGreaterThan(0L)
 
         useCase.deleteAvatar()
 
@@ -139,12 +144,6 @@ class ProfileUsaCaseTest {
         val uri = useCase.getAvatarTempUri()
         val file = uri.toFile()
         assertThat(file.isFile).isTrue()
-    }
-
-    private fun createBitmap(): Bitmap {
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(Color.RED)
-        return bitmap
     }
 
     @Test

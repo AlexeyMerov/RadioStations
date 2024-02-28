@@ -1,15 +1,11 @@
 plugins {
     alias(libs.plugins.radiostations.android.library)
     alias(libs.plugins.radiostations.android.hilt)
+    alias(libs.plugins.radiostations.android.testing)
 }
 
 android {
     namespace = "com.alexeymerov.radiostations.core.domain"
-
-    @Suppress("UnstableApiUsage")
-    testOptions {
-        unitTests.isReturnDefaultValues = true
-    }
 }
 
 dependencies {
@@ -22,7 +18,4 @@ dependencies {
     implementation(projects.core.connectivity)
 
     api(projects.core.dto)
-
-    testImplementation(projects.core.test)
-    testImplementation(libs.robolectric)
 }

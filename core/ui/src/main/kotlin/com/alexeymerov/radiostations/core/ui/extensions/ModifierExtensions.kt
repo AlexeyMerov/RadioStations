@@ -30,9 +30,9 @@ import androidx.compose.ui.unit.offset
 @Suppress("InfiniteTransitionLabel", "InfinitePropertiesLabel")
 fun Modifier.shimmerEffect(shape: Shape = RectangleShape): Modifier = composed {
     val gradientColors = listOf(
-        MaterialTheme.colorScheme.outlineVariant,
+        MaterialTheme.colorScheme.surfaceVariant,
         MaterialTheme.colorScheme.surface,
-        MaterialTheme.colorScheme.outlineVariant,
+        MaterialTheme.colorScheme.surfaceVariant,
     )
 
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -78,10 +78,11 @@ fun Modifier.ignoreWidthConstrains(dp: Dp) = layout { measurable, constraints ->
 
 val defListItemHeight = 76.dp
 
-val defListItemModifier = Modifier
-    .height(defListItemHeight)
-    .padding(vertical = 4.dp)
-    .fillMaxWidth()
+fun Modifier.defListItem() = this.then(
+    height(defListItemHeight)
+        .padding(vertical = 4.dp)
+        .fillMaxWidth()
+)
 
 
 fun Modifier.graphicsScale(value: Float): Modifier = this.graphicsLayer { scaleX = value; scaleY = value }

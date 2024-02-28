@@ -14,6 +14,7 @@ import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
 import com.alexeymerov.radiostations.core.ui.common.BaseViewState
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -26,7 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val audioUseCase: AudioUseCase
+    private val audioUseCase: AudioUseCase,
+    private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
     var isFavorite by mutableStateOf(savedStateHandle.get<Boolean>(Screens.Player.Const.ARG_IS_FAV) ?: false)
@@ -41,8 +43,8 @@ class PlayerViewModel @Inject constructor(
     override fun createInitialState() = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        Timber.d("[ PlayerViewModel ] handleAction: ${action.javaClass.simpleName}")
-        viewModelScope.launch(ioContext) {
+        Timber.d("handleAction: ${action.javaClass.simpleName}")
+        viewModelScope.launch(dispatcher) {
             when (action) {
                 is ViewAction.ToggleFavorite -> toggleFavorite(action.id)
                 is ViewAction.LoadAudio -> loadAudioLink(action.url)
@@ -67,7 +69,7 @@ class PlayerViewModel @Inject constructor(
     private fun loadAudioLink(originalUrl: String) {
         setState(ViewState.Loading)
 
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             audioUseCase.getMediaItem(originalUrl)?.let { currentItem ->
                 Timber.d("loadAudioLink $currentItem")
 
@@ -88,7 +90,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     private fun toggleFavorite(id: String) {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             isFavorite = !isFavorite
             audioUseCase.toggleFavorite(id)
         }

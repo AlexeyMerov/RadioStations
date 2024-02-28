@@ -1,9 +1,7 @@
 package com.alexeymerov.radiostations.core.dto
 
-import java.io.File
-
 data class UserDto(
-    val avatarFile: File?,
+    val avatarFile: String?,
     val name: TextFieldData,
     val email: TextFieldData,
     val countryCode: Int,

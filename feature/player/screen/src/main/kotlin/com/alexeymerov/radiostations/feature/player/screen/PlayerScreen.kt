@@ -70,7 +70,7 @@ fun PreloadedPlayerScreen(
     rawUrl: String,
     id: String
 ) {
-    ComposedTimberD("[ PreloadedPlayerScreen ] ")
+    ComposedTimberD("PreloadedPlayerScreen")
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
@@ -97,7 +97,7 @@ fun LoadPlayerScreen(
     parentUrl: String,
     topBarBlock: (TopBarState) -> Unit
 ) {
-    ComposedTimberD("[ LoadPlayerScreen ] ")
+    ComposedTimberD("LoadPlayerScreen")
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
@@ -128,7 +128,7 @@ private fun BasePlayerScreen(
     initRawUrl: String = String.EMPTY,
     onAction: (ViewAction) -> Unit
 ) {
-    ComposedTimberD("[ BasePlayerScreen ] ")
+    ComposedTimberD("BasePlayerScreen")
 
     var stationName by rememberSaveable { mutableStateOf(initStationName) }
     var subTitle by rememberSaveable { mutableStateOf(initSubTitle) }

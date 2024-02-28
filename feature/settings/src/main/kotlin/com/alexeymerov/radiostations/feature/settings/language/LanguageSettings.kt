@@ -32,23 +32,25 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.view.BasicText
+import com.alexeymerov.radiostations.feature.settings.SettingsTestTags
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSettings(modifier: Modifier) {
+internal fun LanguageSettings(modifier: Modifier) {
     val context = LocalContext.current
     val currentLocale = LocalConfiguration.current.locales[0]
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     Button(
-        modifier = modifier,
+        modifier = modifier.testTag(SettingsTestTags.LANGUAGE_BUTTON),
         onClick = { showBottomSheet = true }
     ) {
         BasicText(text = stringResource(R.string.language))
@@ -59,7 +61,9 @@ fun LanguageSettings(modifier: Modifier) {
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showBottomSheet = false }
         ) {
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.testTag(SettingsTestTags.LANGUAGE_SHEET),
+            ) {
                 itemsIndexed(
                     items = localeOptions,
                     key = { _, item -> item.language }

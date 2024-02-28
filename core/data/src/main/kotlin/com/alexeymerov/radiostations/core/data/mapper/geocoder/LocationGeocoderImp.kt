@@ -34,10 +34,11 @@ class LocationGeocoderImp @Inject constructor(
                 // deprecated since it asks to use async version
                 // but it not allows to multiple requests at a time and we have to wait anyway
                 // plus async works only on latest android SDKs
+                @Suppress("DEPRECATION")
                 val addressList = geocoder.get()?.getFromLocationName(location, 1)
                 val address = addressList?.getOrNull(0)
                 if (address != null && address.hasLatitude() && address.hasLongitude()) {
-                    Timber.d("location = $location ## address = $address")
+                    Timber.d("mapToEntityWithLocation : location = $location ## address = $address")
 
                     val newLocationText = when {
                         address.locality != null -> "${address.locality}, ${address.countryName}"

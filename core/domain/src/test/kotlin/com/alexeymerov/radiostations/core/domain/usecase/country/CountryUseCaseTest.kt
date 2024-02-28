@@ -1,12 +1,12 @@
 package com.alexeymerov.radiostations.core.domain.usecase.country
 
 import androidx.paging.AsyncPagingDataDiffer
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
 import com.alexeymerov.radiostations.core.data.repository.country.CountryRepository
 import com.alexeymerov.radiostations.core.domain.mapper.country.DtoCountryMapperImpl
 import com.alexeymerov.radiostations.core.dto.CountryDto
 import com.alexeymerov.radiostations.core.test.MainDispatcherRule
+import com.alexeymerov.radiostations.core.test.TestDiffCallback
+import com.alexeymerov.radiostations.core.test.TestUpdateCallback
 import com.google.common.truth.Truth.*
 import io.mockk.coEvery
 import io.mockk.every
@@ -103,16 +103,4 @@ class CountryUseCaseTest {
 
         job.cancel()
     }
-}
-
-class TestDiffCallback<T> : DiffUtil.ItemCallback<T>() {
-    override fun areItemsTheSame(oldItem: T & Any, newItem: T & Any) = oldItem == newItem
-    override fun areContentsTheSame(oldItem: T & Any, newItem: T & Any) = oldItem == newItem
-}
-
-class TestUpdateCallback : ListUpdateCallback {
-    override fun onChanged(position: Int, count: Int, payload: Any?) {}
-    override fun onMoved(fromPosition: Int, toPosition: Int) {}
-    override fun onInserted(position: Int, count: Int) {}
-    override fun onRemoved(position: Int, count: Int) {}
 }

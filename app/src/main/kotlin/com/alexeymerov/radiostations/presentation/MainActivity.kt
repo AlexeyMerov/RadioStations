@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
@@ -48,9 +49,9 @@ class MainActivity : AppCompatActivity() {
 
         val config = Configuration(resources.configuration)
         analytics.logEvent(FirebaseAnalytics.Event.APP_OPEN) {
-            param("start_tab", starDest.route)
-            param("is_andscape", config.isLandscape().toString())
-            param("screen_size", "${config.screenWidthDp} x ${config.screenHeightDp}")
+            param(AnalyticsParams.START_TAB, starDest.route)
+            param(AnalyticsParams.IS_LANDSCAPE, config.isLandscape().toString())
+            param(AnalyticsParams.SCREEN_SIZE, "${config.screenWidthDp} x ${config.screenHeightDp}")
         }
 
         var viewState by mutableStateOf(viewModel.initialState)

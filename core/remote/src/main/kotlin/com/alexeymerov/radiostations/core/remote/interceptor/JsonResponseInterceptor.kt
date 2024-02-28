@@ -13,7 +13,10 @@ class JsonResponseInterceptor : Interceptor {
         val request = chain.request()
 
         val url = request.url.newBuilder()
-            .addQueryParameter(NetworkDefaults.QUERY_RENDER_NAME, NetworkDefaults.QUERY_RENDER_JSON_PARAMETER)
+            .addQueryParameter(
+                name = NetworkDefaults.QUERY_RENDER_NAME,
+                value = NetworkDefaults.QUERY_RENDER_JSON_PARAMETER
+            )
             .build()
 
         val newRequest = request.newBuilder()

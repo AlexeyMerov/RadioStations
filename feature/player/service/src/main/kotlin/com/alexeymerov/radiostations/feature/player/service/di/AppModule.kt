@@ -8,7 +8,6 @@ import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import timber.log.Timber
 import javax.inject.Singleton
@@ -18,15 +17,11 @@ import kotlin.coroutines.CoroutineContext
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    // -- at the moment only for one service --//
+    // -- at the moment only for the service --//
 
     @Singleton
     @Provides
     fun provideSupervisorJob(): CompletableJob = SupervisorJob()
-
-    @Singleton
-    @Provides
-    fun provideDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Singleton
     @Provides
@@ -45,7 +40,5 @@ object AppModule {
     @Singleton
     @Provides
     fun provideCoroutineScope(coroutineContext: CoroutineContext): CoroutineScope = CoroutineScope(coroutineContext)
-
-    // -- just for one service at the time --//
 
 }

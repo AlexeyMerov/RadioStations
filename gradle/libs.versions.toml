@@ -1,7 +1,7 @@
 [versions]
 
-versionCode = "131"
-versionName = "1.9.3"
+versionCode = "132"
+versionName = "1.9.4"
 
 compileSdk = "34"
 minSdk = "26"
@@ -62,7 +62,7 @@ radiostations-android-application-compose = { id = "radiostations.android.applic
 radiostations-android-library-compose = { id = "radiostations.android.library.compose", version = "unspecified" }
 radiostations-android-room = { id = "radiostations.android.room", version = "unspecified" }
 radiostations-android-firebase = { id = "radiostations.android.firebase", version = "unspecified" }
-radiostations-android-androidTesting = { id = "radiostations.android.androidTesting", version = "unspecified" }
+radiostations-android-testing = { id = "radiostations.android.testing", version = "unspecified" }
 
 
 [libraries]
@@ -159,12 +159,16 @@ test-coreKtx = { module = "androidx.test:core-ktx", version.ref = "test" }
 test-runner = { module = "androidx.test:runner", version = "1.5.2" }
 test-orchestrator = { module = "androidx.test:orchestrator", version = "1.4.2" }
 
+test-compose-junit = { module = "androidx.compose.ui:ui-test-junit4", version = "1.6.1" }
+test-compose-manifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.6.1" }
+
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-agent = { module = "io.mockk:mockk-agent", version.ref = "mockk" }
 
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 google-truth = { module = "com.google.truth:truth", version = "1.3.0" }
 robolectric = { module = "org.robolectric:robolectric", version = "4.11.1" }
+turbine = { module = "app.cash.turbine:turbine", version = "1.0.0" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version = "32.7.2" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }

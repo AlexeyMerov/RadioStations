@@ -7,6 +7,7 @@ import com.alexeymerov.radiostations.core.remote.api.RadioApi
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.core.remote.response.CategoryBody
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
+import timber.log.Timber
 import javax.inject.Inject
 
 class RadioClientImpl @Inject constructor(
@@ -46,14 +47,24 @@ class RadioClientImpl @Inject constructor(
      *
      * */
     override suspend fun requestCategoriesByUrl(url: String): List<CategoryBody> {
-        val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
-        val response = radioApi.getCategoriesByUrl(finalUrl)
-        return responseMapper.mapRadioResponseBody(response)
+        return try {
+            val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
+            val response = radioApi.getCategoriesByUrl(finalUrl)
+            responseMapper.mapRadioResponseBody(response)
+        } catch (e: Exception) {
+            Timber.e(e)
+            emptyList()
+        }
     }
 
     override suspend fun requestAudioByUrl(url: String): MediaBody? {
-        val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
-        val response = radioApi.getAudioByUrl(finalUrl)
-        return responseMapper.mapRadioResponseBody(response).getOrNull(0)
+        return try {
+            val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
+            val response = radioApi.getAudioByUrl(finalUrl)
+            responseMapper.mapRadioResponseBody(response).getOrNull(0)
+        } catch (e: Exception) {
+            Timber.e(e)
+            null
+        }
     }
 }

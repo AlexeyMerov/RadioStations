@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationCity
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material.ripple.rememberRipple
@@ -38,18 +37,20 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.core.ui.view.BasicText
+import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STAR_ICON
 import com.alexeymerov.radiostations.core.ui.view.FlipBox
+import com.alexeymerov.radiostations.core.ui.view.SelectedIcon
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StationGridItem(
+internal fun StationGridItem(
     modifier: Modifier,
     itemDto: CategoryItemDto,
     inSelection: Boolean,
@@ -106,7 +107,7 @@ fun StationGridItem(
                                 .size(12.dp)
                                 .padding(end = 4.dp),
                             imageVector = Icons.Outlined.LocationCity,
-                            contentDescription = String.EMPTY
+                            contentDescription = null
                         )
                     }
 
@@ -156,38 +157,24 @@ private fun ImageContent(
         ) {
             AnimatedContent(
                 targetState = itemDto.isFavorite,
-                label = "Star",
+                label = "Star FavIcon",
                 transitionSpec = { scaleIn().togetherWith(scaleOut()) }
             ) {
-                IconButton(onClick = { onFavClick.invoke(itemDto) }) {
+                IconButton(
+                    modifier = Modifier.testTag(STAR_ICON),
+                    onClick = { onFavClick.invoke(itemDto) }) {
                     Icon(
                         modifier = Modifier.background(
                             color = MaterialTheme.colorScheme.surface,
                             shape = CircleShape
                         ),
                         imageVector = if (it) Icons.Rounded.Star else Icons.Rounded.StarOutline,
-                        contentDescription = String.EMPTY,
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
         }
 
-    }
-}
-
-@Composable
-private fun SelectedIcon() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Check,
-            contentDescription = String.EMPTY,
-            tint = MaterialTheme.colorScheme.onSecondary
-        )
     }
 }

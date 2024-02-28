@@ -43,7 +43,7 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
     }
 
     override fun processCurrentAudioItem(context: Context, item: AudioItemDto) {
-        Timber.d("activity currentMediaItem $item")
+        Timber.d("processCurrentAudioItem $item")
         mediaController?.also { controller ->
             if (item.directUrl != controller.currentMediaItem?.mediaId) {
                 controller.setMediaItem(mapToMediaItem(item))
@@ -77,7 +77,7 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
     }
 
     override fun processPlayerState(context: Context, state: AudioUseCase.PlayerState, currentMedia: AudioItemDto?) {
-        Timber.d("activity playerState $state" + " == currentMediaItem ${mediaController?.currentMediaItem}")
+        Timber.d("processPlayerState - playerState $state" + " == currentMediaItem ${mediaController?.currentMediaItem}")
         mediaController?.also { controller ->
             when (state) {
                 AudioUseCase.PlayerState.EMPTY -> processEmptyState(controller, context)

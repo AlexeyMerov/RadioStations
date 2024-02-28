@@ -16,7 +16,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.ignoreWidthConstrains
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 
 @Composable
-fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto, onClick: () -> Unit) {
+internal fun HeaderListItem(modifier: Modifier, itemDto: CategoryItemDto, onClick: () -> Unit) {
     Row(
         modifier = modifier
             .ignoreWidthConstrains(16.dp)

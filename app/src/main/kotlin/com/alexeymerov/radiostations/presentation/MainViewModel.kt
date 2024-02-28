@@ -15,6 +15,7 @@ import com.alexeymerov.radiostations.presentation.MainViewModel.ViewAction
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewEffect
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -27,7 +28,8 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     themeSettings: ThemeSettingsUseCase,
     private val audioUseCase: AudioUseCase,
-    connectionMonitor: ConnectionMonitor
+    connectionMonitor: ConnectionMonitor,
+    private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     val isNetworkAvailable: StateFlow<Boolean> = connectionMonitor.connectionStatusFlow
@@ -57,9 +59,9 @@ class MainViewModel @Inject constructor(
     override fun createInitialState(): ViewState = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        Timber.d("[ ${object {}.javaClass.enclosingMethod?.name} ] ${action.javaClass.simpleName}")
+        Timber.d("handleAction ${action.javaClass.simpleName}")
 
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             when (action) {
                 is ViewAction.PlayAudio -> audioUseCase.updatePlayerState(PlayerState.PLAYING)
                 is ViewAction.StopAudio -> audioUseCase.updatePlayerState(PlayerState.STOPPED)

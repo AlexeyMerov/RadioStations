@@ -13,6 +13,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,7 +32,7 @@ import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
-import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
+import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.DropDownItem
@@ -42,6 +44,8 @@ import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.core.ui.view.StationListItem
+import com.alexeymerov.radiostations.feature.favorite.FavoriteTestTags.GRID_ITEM
+import com.alexeymerov.radiostations.feature.favorite.FavoriteTestTags.LAZY_LIST_GRID
 import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewState
 import kotlinx.coroutines.launch
@@ -55,7 +59,8 @@ fun BaseFavoriteScreen(
     parentRoute: String,
     onNavigate: (String) -> Unit,
 ) {
-    val selectedItemsCount = viewModel.selectedItemsCount
+    val isNetworkAvailable = LocalConnectionStatus.current
+    val selectedItemsCount by viewModel.selectedItemsCount
 
     if (isVisibleToUser) {
         TopBarSetup(
@@ -65,46 +70,19 @@ fun BaseFavoriteScreen(
         )
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.clear()
+    val inSelection by remember(selectedItemsCount) {
+        derivedStateOf {
+            selectedItemsCount > 0
         }
     }
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
     val viewEffect by viewModel.viewEffect.collectAsStateWithLifecycle(initialValue = null)
 
-    val snackbar = LocalSnackbar.current
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    DisposableEffect(viewEffect) {
-        onDispose {
-            when (val effect = viewEffect) {
-                is FavoritesViewModel.ViewEffect.ShowUnfavoriteToast -> {
-                    coroutineScope.launch {
-                        snackbar.currentSnackbarData?.dismiss()
-                        val result = snackbar.showSnackbar(
-                            message = "${context.getString(R.string.removed)}: ${effect.itemCount}",
-                            actionLabel = context.getString(R.string.undo),
-                            duration = SnackbarDuration.Short
-                        )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            viewModel.setAction(ViewAction.UndoRecentUnfavorite)
-                        }
-                    }
-                }
-
-                null -> {}
-            }
-        }
-    }
-
-    val isNetworkAvailable = LocalConnectionStatus.current
     FavoriteScreen(
         viewState = viewState,
-        categoryItems = categoryItems,
+        viewEffect = viewEffect,
+        inSelection = inSelection,
         onAudioClick = {
             if (isNetworkAvailable) {
                 val route = Screens.Player(parentRoute).createRoute(
@@ -118,9 +96,7 @@ fun BaseFavoriteScreen(
                 onNavigate.invoke(route)
             }
         },
-        inSelection = selectedItemsCount > 0,
-        onFavClick = { viewModel.setAction(ViewAction.Unfavorite(it)) },
-        onLongClick = { viewModel.setAction(ViewAction.SelectItem(it)) }
+        onAction = { viewModel.setAction(it) }
     )
 }
 
@@ -178,32 +154,73 @@ private fun dropDownItems(onClick: (ViewType) -> Unit): List<DropDownItem> = lis
 )
 
 @Composable
-fun FavoriteScreen(
+internal fun FavoriteScreen(
     viewState: ViewState,
-    categoryItems: List<CategoryItemDto>,
+    viewEffect: FavoritesViewModel.ViewEffect?,
     inSelection: Boolean,
-    onAudioClick: (CategoryItemDto) -> Unit,
-    onFavClick: (CategoryItemDto) -> Unit,
-    onLongClick: (CategoryItemDto) -> Unit
+    onAction: (ViewAction) -> Unit,
+    onAudioClick: (CategoryItemDto) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("FavoriteScreen")
+
+    val snackbar = LocalSnackbar.current
+    LaunchedEffect(inSelection) {
+        if (inSelection) {
+            snackbar.currentSnackbarData?.dismiss()
+        }
+    }
+
+    HandleEffects(viewEffect, onAction)
 
     when (viewState) {
-        is ViewState.NothingAvailable -> ErrorView(
-            errorText = stringResource(R.string.you_need_to_add_some_stations),
-            showImage = false
-        )
-
         is ViewState.Loading -> LoaderView()
+
+        is ViewState.NothingAvailable -> {
+            ErrorView(
+                errorText = stringResource(R.string.you_need_to_add_some_stations),
+                showImage = false
+            )
+        }
+
         is ViewState.FavoritesLoaded -> {
             MainContent(
                 viewType = viewState.viewType,
-                categoryItems = categoryItems,
+                categoryItems = viewState.items,
                 inSelection = inSelection,
                 onAudioClick = onAudioClick,
-                onFavClick = onFavClick,
-                parentLongClick = onLongClick
+                onFavClick = { onAction.invoke(ViewAction.Unfavorite(it)) },
+                parentLongClick = { onAction.invoke(ViewAction.SelectItem(it)) }
             )
+        }
+    }
+}
+
+@Composable
+private fun HandleEffects(
+    viewEffect: FavoritesViewModel.ViewEffect?,
+    onAction: (ViewAction) -> Unit
+) {
+    val snackbar = LocalSnackbar.current
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    DisposableEffect(viewEffect) {
+        if (viewEffect is FavoritesViewModel.ViewEffect.ShowUnfavoriteToast) {
+            coroutineScope.launch {
+                snackbar.currentSnackbarData?.dismiss()
+                val result = snackbar.showSnackbar(
+                    message = "${context.getString(R.string.removed)}: ${viewEffect.itemCount}",
+                    actionLabel = context.getString(R.string.undo),
+                    duration = SnackbarDuration.Short
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    onAction.invoke(ViewAction.UndoRecentUnfavorite)
+                }
+            }
+        }
+
+        onDispose {
+            snackbar.currentSnackbarData?.dismiss()
         }
     }
 }
@@ -218,7 +235,7 @@ private fun MainContent(
     onFavClick: (CategoryItemDto) -> Unit,
     parentLongClick: (CategoryItemDto) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("FavoriteScreen - MainContent")
 
     val config = LocalConfiguration.current
     val isList by rememberSaveable(viewType) { mutableStateOf(viewType == ViewType.LIST) }
@@ -231,7 +248,9 @@ private fun MainContent(
     }
     val gridState = rememberLazyGridState()
     LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag(LAZY_LIST_GRID),
         state = gridState,
         userScrollEnabled = gridState.canScrollBackward || gridState.canScrollForward,
         columns = GridCells.Fixed(columnCount),
@@ -263,7 +282,9 @@ private fun MainContent(
 
             if (isList) { // try animate between rows and grid
                 StationListItem(
-                    modifier = defListItemModifier.animateItemPlacement(),
+                    modifier = Modifier
+                        .defListItem()
+                        .animateItemPlacement(),
                     itemDto = itemDto,
                     inSelection = inSelection,
                     isSelected = isSelected,
@@ -273,7 +294,9 @@ private fun MainContent(
                 )
             } else {
                 StationGridItem(
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier
+                        .animateItemPlacement()
+                        .testTag(GRID_ITEM),
                     itemDto = itemDto,
                     inSelection = inSelection,
                     isSelected = isSelected,

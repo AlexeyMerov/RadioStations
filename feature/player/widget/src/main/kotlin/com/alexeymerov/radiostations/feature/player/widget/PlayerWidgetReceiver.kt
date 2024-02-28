@@ -30,7 +30,7 @@ class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        Timber.d("PlayerWidgetReceiver - onReceive: $intent")
+        Timber.d("onReceive: $intent")
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
             setupData(context)
         }

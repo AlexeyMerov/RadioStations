@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.radiostations.android.library)
+    alias(libs.plugins.radiostations.android.hilt)
+    alias(libs.plugins.radiostations.android.testing)
 }
 
 android {
@@ -7,8 +9,4 @@ android {
 
     buildFeatures.buildConfig = true
     defaultConfig.buildConfigField("String", "BASE_URL", "\"https://opml.radiotime.com/\"")
-}
-
-dependencies {
-    testImplementation(projects.core.test)
 }

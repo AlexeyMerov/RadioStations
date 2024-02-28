@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -46,6 +47,9 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
+import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.SELECTED_ICON
+import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STAR_ICON
+import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STATION_LIST_ITEM
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -59,7 +63,7 @@ fun StationListItem(
     onLongClick: (CategoryItemDto) -> Unit = {}
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.testTag(STATION_LIST_ITEM),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
@@ -126,16 +130,17 @@ private fun StationImage(modifier: Modifier, itemDto: CategoryItemDto) {
 }
 
 @Composable
-private fun SelectedIcon() {
+fun SelectedIcon() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary),
+            .background(MaterialTheme.colorScheme.secondary)
+            .testTag(SELECTED_ICON),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = Icons.Rounded.Check,
-            contentDescription = String.EMPTY,
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSecondary
         )
     }
@@ -152,10 +157,10 @@ private fun TextBlock(itemDto: CategoryItemDto) {
                 Icon(
                     modifier = Modifier
                         .alpha(0.7f)
-                        .size(12.dp)
+                        .size(14.dp)
                         .padding(end = 4.dp),
                     imageVector = Icons.Outlined.LocationCity,
-                    contentDescription = String.EMPTY
+                    contentDescription = null
                 )
             }
 
@@ -176,16 +181,18 @@ private fun FavIcon(
 ) {
     AnimatedContent(
         targetState = itemDto.isFavorite,
-        label = "Star",
+        label = "Star FavIcon",
         transitionSpec = { scaleIn().togetherWith(scaleOut()) }
     ) {
         IconButton(
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier
+                .size(48.dp)
+                .testTag(STAR_ICON),
             onClick = { onFavClick.invoke(itemDto) }
         ) {
             Icon(
                 imageVector = if (it) Icons.Rounded.Star else Icons.Rounded.StarOutline,
-                contentDescription = String.EMPTY,
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
         }

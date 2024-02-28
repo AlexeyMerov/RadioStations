@@ -11,7 +11,6 @@ import com.alexeymerov.radiostations.core.filestore.AppFileStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import java.io.File
 import javax.inject.Inject
 
 class ProfileUsaCaseImpl @Inject constructor(
@@ -37,7 +36,7 @@ class ProfileUsaCaseImpl @Inject constructor(
             settingsStore.getStringPrefsFlow(USER_PHONE_KEY, "123456"),
         ) { fileName, name, email, countryCode, phone ->
             UserDto(
-                avatarFile = fileStore.getFileByName(fileName),
+                avatarFile = fileStore.getFileByName(fileName)?.path,
                 name = TextFieldData(name),
                 email = TextFieldData(email),
                 countryCode = countryCode,
@@ -46,9 +45,9 @@ class ProfileUsaCaseImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAvatar(): File? {
+    override suspend fun getAvatar(): String? {
         val avatarFileName = settingsStore.getStringPrefsFlow(AVATAR_PREFIX, String.EMPTY).first()
-        return fileStore.getFileByName(avatarFileName)
+        return fileStore.getFileByName(avatarFileName)?.path
     }
 
     override suspend fun saveAvatar(bitmap: Bitmap) {

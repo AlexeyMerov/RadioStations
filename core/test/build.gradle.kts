@@ -23,4 +23,6 @@ dependencies {
     api(libs.coroutines.test)
 
     api(libs.hilt.testing)
+
+    api(libs.paging.runtime)
 }

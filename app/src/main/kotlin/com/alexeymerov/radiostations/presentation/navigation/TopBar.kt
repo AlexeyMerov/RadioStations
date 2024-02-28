@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
@@ -92,7 +91,7 @@ private fun TopBarTitle(title: String, subTitle: String) {
             transitionSpec = {
                 (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
             },
-            label = String.EMPTY
+            label = "TopBarTitle"
         ) { targetText ->
             Text(
                 modifier = Modifier.basicMarquee(
@@ -111,7 +110,7 @@ private fun TopBarTitle(title: String, subTitle: String) {
             visible = !isNetworkAvailable,
             enter = fadeIn() + scaleIn(),
             exit = fadeOut() + scaleOut(),
-            label = String.EMPTY
+            label = "isNetwork not Available"
         ) {
             Row(
                 modifier = Modifier
@@ -134,7 +133,7 @@ private fun TopBarTitle(title: String, subTitle: String) {
                 transitionSpec = {
                     (fadeIn() + scaleIn()).togetherWith(fadeOut() + scaleOut())
                 },
-                label = String.EMPTY
+                label = "TopBar SubTitle"
             ) { targetText ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
 
@@ -143,7 +142,7 @@ private fun TopBarTitle(title: String, subTitle: String) {
                             .alpha(0.7f)
                             .size(12.dp),
                         imageVector = Icons.Outlined.LocationCity,
-                        contentDescription = String.EMPTY
+                        contentDescription = null
                     )
 
                     Text(
@@ -201,11 +200,11 @@ private fun RowScope.TopBarActions(
                 it.icon.iconResId?.let { iconRes ->
                     Icon(
                         painter = rememberAsyncImagePainter(iconRes),
-                        contentDescription = String.EMPTY
+                        contentDescription = null
                     )
                 } ?: Icon(
                     imageVector = it.icon.iconVector,
-                    contentDescription = String.EMPTY
+                    contentDescription = null
                 )
             }
 

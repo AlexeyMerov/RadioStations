@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
@@ -98,7 +97,7 @@ fun StationsAppTheme(
 fun animateColor(targetColor: Color) = animateColorAsState(
     targetValue = targetColor,
     animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-    label = String.EMPTY
+    label = "animateColor"
 ).value
 
 @Composable

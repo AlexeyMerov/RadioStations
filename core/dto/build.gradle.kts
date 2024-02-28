@@ -5,7 +5,3 @@ plugins {
 android {
     namespace = "com.alexeymerov.radiostations.core.dto"
 }
-
-dependencies {
-
-}

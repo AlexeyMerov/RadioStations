@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.core.remote.client
 
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
+import com.alexeymerov.radiostations.core.remote.interceptor.RetryRequestInterceptor
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -10,7 +11,8 @@ import okhttp3.OkHttpClient
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 
 object NetworkDefaults {
@@ -31,14 +33,18 @@ object NetworkDefaults {
     fun getJsonInterceptor() = JsonResponseInterceptor()
 
     fun getOkHttpClient(forTest: Boolean = false, vararg interceptors: Interceptor): OkHttpClient {
-        val builder = OkHttpClient.Builder()
+        val builder = OkHttpClient.Builder().apply {
 
-        if (forTest) {
-            builder.connectTimeout(1, TimeUnit.MINUTES)
-            builder.readTimeout(1, TimeUnit.MINUTES)
+            val timeoutDuration = 15.seconds.toJavaDuration()
+            connectTimeout(timeoutDuration)
+            readTimeout(timeoutDuration)
+            writeTimeout(timeoutDuration)
+
+            retryOnConnectionFailure(true)
+
+            if (!forTest) addInterceptor(RetryRequestInterceptor())
+            interceptors.forEach { addInterceptor(it) }
         }
-
-        interceptors.forEach { builder.addInterceptor(it) }
 
         return builder.build()
     }

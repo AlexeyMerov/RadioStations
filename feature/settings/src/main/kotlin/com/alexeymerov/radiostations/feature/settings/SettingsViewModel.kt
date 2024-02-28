@@ -1,6 +1,8 @@
 package com.alexeymerov.radiostations.feature.settings
 
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
+import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
@@ -17,10 +19,9 @@ import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewStat
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -29,30 +30,31 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val themeSettings: ThemeSettingsUseCase,
     private val connectivitySettings: ConnectivitySettingsUseCase,
-    private val analytics: FirebaseAnalytics
+    private val analytics: FirebaseAnalytics,
+    private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     private lateinit var currentThemeState: ThemeState
 
-    override val viewState: StateFlow<ViewState>
-        get() = combine(
-            flow = themeSettings.getThemeState(),
-            flow2 = connectivitySettings.getConnectionStatusFlow()
-        ) { themeState, connectionStatus ->
-            currentThemeState = themeState
-            return@combine ViewState.Loaded(themeState = themeState, connectionStatus = connectionStatus)
-        }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Eagerly,
-                initialValue = ViewState.Loading
+    init {
+        viewModelScope.launch {
+            combine(
+                themeSettings.getThemeState(),
+                connectivitySettings.getConnectionStatusFlow(),
+                ViewState::Loaded
             )
+                .collectLatest {
+                    currentThemeState = it.themeState
+                    setState(it)
+                }
+        }
+    }
 
     override fun createInitialState(): ViewState = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        Timber.d("SettingsViewModel handleAction ${action.javaClass.simpleName}")
-        viewModelScope.launch(ioContext) {
+        Timber.d("handleAction ${action.javaClass.simpleName}")
+        viewModelScope.launch(dispatcher) {
             when (action) {
                 is ViewAction.ChangeDarkMode -> changeChangeDarkMode(action.value)
                 is ViewAction.ChangeDynamicColor -> changeChangeDynamicColor(action.useDynamic)
@@ -67,8 +69,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun changeChangeDarkMode(value: DarkLightMode) {
-        analytics.logEvent("theme_settings") {
-            param("dark_mode", value.name.lowercase())
+        analytics.logEvent(AnalyticsEvents.THEME_SETTINGS) {
+            param(AnalyticsParams.DARK_MODE, value.name.lowercase())
         }
         themeSettings.updateThemeState(
             currentThemeState.copy(darkLightMode = value)
@@ -76,8 +78,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun changeChangeDynamicColor(useDynamic: Boolean) {
-        analytics.logEvent("theme_settings") {
-            param("dynamic_color", useDynamic.toString())
+        analytics.logEvent(AnalyticsEvents.THEME_SETTINGS) {
+            param(AnalyticsParams.DYNAMIC_COLOR, useDynamic.toString())
         }
         themeSettings.updateThemeState(
             currentThemeState.copy(useDynamicColor = useDynamic)
@@ -85,8 +87,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun changeChangeColorScheme(value: ColorTheme) {
-        analytics.logEvent("theme_settings") {
-            param("color_scheme", value.name.lowercase())
+        analytics.logEvent(AnalyticsEvents.THEME_SETTINGS) {
+            param(AnalyticsParams.COLOR_SCHEME, value.name.lowercase())
         }
         themeSettings.updateThemeState(
             currentThemeState.copy(colorTheme = value)

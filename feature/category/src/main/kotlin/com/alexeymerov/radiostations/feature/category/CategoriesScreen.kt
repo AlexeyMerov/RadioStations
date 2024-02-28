@@ -43,7 +43,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -70,8 +70,8 @@ import com.alexeymerov.radiostations.core.ui.common.LocalDarkMode
 import com.alexeymerov.radiostations.core.ui.common.LocalNightMode
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
-import com.alexeymerov.radiostations.core.ui.extensions.defListItemModifier
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -83,6 +83,9 @@ import com.alexeymerov.radiostations.core.ui.view.StationListItem
 import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewState
 import com.alexeymerov.radiostations.feature.category.item.CategoryListItem
+import com.alexeymerov.radiostations.feature.category.item.CategoryScreenTestTags
+import com.alexeymerov.radiostations.feature.category.item.CategoryScreenTestTags.LAZY_LIST
+import com.alexeymerov.radiostations.feature.category.item.CategoryScreenTestTags.SCROLL_TOP_FAB
 import com.alexeymerov.radiostations.feature.category.item.HeaderListItem
 import com.alexeymerov.radiostations.feature.category.item.SubCategoryListItem
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -110,27 +113,20 @@ fun BaseCategoryScreen(
     parentRoute: String,
     onNavigate: (String) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("BaseCategoryScreen")
+    val isNetworkAvailable = LocalConnectionStatus.current
 
     if (isVisibleToUser) TopBarSetup(categoryTitle, defTitle, topBarBlock)
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.clear()
-        }
-    }
     LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadCategories) }
 
-    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val categoryItems by viewModel.categoriesFlow.collectAsStateWithLifecycle()
-
-    val refreshing by viewModel.isRefreshing
+    val refreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullRefreshState(
         refreshing = refreshing,
         onRefresh = { viewModel.setAction(ViewAction.UpdateCategories) }
     )
-    val isNetworkAvailable = LocalConnectionStatus.current
 
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     Box(
         Modifier
             .fillMaxSize()
@@ -138,10 +134,22 @@ fun BaseCategoryScreen(
     ) {
         CategoryScreen(
             viewState = viewState,
-            categoryItems = categoryItems,
-            itemsWithLocation = viewModel.itemsWithLocation,
-            parentRoute = parentRoute,
-            onNavigate = onNavigate,
+            onCategoryClick = {
+                onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
+            },
+            onAudioClick = {
+                if (isNetworkAvailable) {
+                    val route = Screens.Player(parentRoute).createRoute(
+                        stationName = it.text,
+                        subTitle = it.subTitle.orEmpty(),
+                        stationImgUrl = it.image.orEmpty(),
+                        rawUrl = it.url,
+                        id = it.id,
+                        isFav = it.isFavorite
+                    )
+                    onNavigate.invoke(route)
+                }
+            },
             onAction = { viewModel.setAction(it) }
         )
 
@@ -166,40 +174,28 @@ private fun TopBarSetup(
 }
 
 @Composable
-private fun CategoryScreen(
+internal fun CategoryScreen(
     viewState: ViewState,
-    categoryItems: List<HeaderWithItems>,
-    itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?,
-    parentRoute: String,
-    onNavigate: (String) -> Unit,
+    onCategoryClick: (CategoryItemDto) -> Unit,
+    onAudioClick: (CategoryItemDto) -> Unit,
     onAction: (ViewAction) -> Unit
 ) {
-    val isNetworkAvailable = LocalConnectionStatus.current
     when (viewState) {
         is ViewState.NothingAvailable -> ErrorView()
-        is ViewState.Loading -> ShimmerLoading(defListItemModifier)
+        is ViewState.Loading -> ShimmerLoading(Modifier.defListItem())
         is ViewState.CategoriesLoaded -> {
+
+            val categoryItems by viewState.categoryItems.collectAsStateWithLifecycle(emptyList())
+            val filterHeaderItems by viewState.filterHeaderItems.collectAsStateWithLifecycle()
+            val itemsWithLocation by viewState.itemsWithLocation.collectAsStateWithLifecycle(null)
+
             MainContent(
                 categoryItems = categoryItems,
-                filterHeaderItems = viewState.filterHeaderItems,
+                filterHeaderItems = filterHeaderItems,
                 itemsWithLocation = itemsWithLocation,
                 onHeaderFilterClick = { onAction.invoke(ViewAction.FilterByHeader(it)) },
-                onCategoryClick = {
-                    onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
-                },
-                onAudioClick = {
-                    if (isNetworkAvailable) {
-                        val route = Screens.Player(parentRoute).createRoute(
-                            stationName = it.text,
-                            subTitle = it.subTitle.orEmpty(),
-                            stationImgUrl = it.image.orEmpty(),
-                            rawUrl = it.url,
-                            id = it.id,
-                            isFav = it.isFavorite
-                        )
-                        onNavigate.invoke(route)
-                    }
-                },
+                onCategoryClick = onCategoryClick,
+                onAudioClick = onAudioClick,
                 onFavClick = { onAction.invoke(ViewAction.ToggleFavorite(it)) }
             )
         }
@@ -210,14 +206,14 @@ private fun CategoryScreen(
 @Composable
 private fun MainContent(
     categoryItems: List<HeaderWithItems>,
-    filterHeaderItems: List<CategoryItemDto>,
+    filterHeaderItems: List<CategoryItemDto>?,
     itemsWithLocation: Pair<LatLngBounds, List<CategoryItemDto>>?,
     onHeaderFilterClick: (CategoryItemDto) -> Unit,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
-    ComposedTimberD("[ ${object {}.javaClass.enclosingMethod?.name} ] ")
+    ComposedTimberD("CategoriesScreen - MainContent")
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val config = LocalConfiguration.current
@@ -230,13 +226,13 @@ private fun MainContent(
         return@remember count
     }
 
-    LaunchedEffect(categoryItems) {
+    LaunchedEffect(categoryItems.size) {
         listState.scrollToItem(0)
     }
 
     Box {
         Column {
-            if (filterHeaderItems.isNotEmpty()) {
+            if (!filterHeaderItems.isNullOrEmpty()) {
                 FiltersHeader(filterHeaderItems, onHeaderFilterClick)
             }
 
@@ -245,7 +241,9 @@ private fun MainContent(
                 ShowMap(itemsWithLocation, onAudioClick)
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(LAZY_LIST),
                     state = listState,
                     userScrollEnabled = listState.canScrollForward || listState.canScrollBackward,
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 50.dp, top = 4.dp)
@@ -297,6 +295,7 @@ private fun MainContent(
                 exit = fadeOut() + scaleOut(),
             ) {
                 SmallFloatingActionButton(
+                    modifier = Modifier.testTag(SCROLL_TOP_FAB),
                     onClick = {
                         coroutineScope.launch {
                             listState.animateScrollToItem(0)
@@ -312,6 +311,7 @@ private fun MainContent(
                 exit = fadeOut() + scaleOut(),
             ) {
                 FloatingActionButton(
+                    modifier = Modifier.testTag(CategoryScreenTestTags.MAP_FAB),
                     onClick = { needShowMap = !needShowMap },
                     containerColor = FloatingActionButtonDefaults.containerColor,
                     content = { Icon(Icons.Outlined.Map, null) }
@@ -413,7 +413,9 @@ private fun FiltersHeader(
     onHeaderFilterClick: (CategoryItemDto) -> Unit
 ) {
     FlowRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(CategoryScreenTestTags.FILTER_HEADER),
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
     ) {
         headerItems.forEach { item ->
@@ -438,7 +440,8 @@ private fun LazyListScope.stickyHeader(
         HeaderListItem(
             modifier = Modifier
                 .animateItemPlacement()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag(CategoryScreenTestTags.HEADER),
             itemDto = header,
             onClick = { onClick.invoke() }
         )
@@ -458,7 +461,9 @@ private fun LazyListScope.mainListItems(
         contentType = CategoryItemDto::type
     ) { itemDto ->
         DrawItems(
-            modifier = defListItemModifier.animateItemPlacement(),
+            modifier = Modifier
+                .defListItem()
+                .animateItemPlacement(),
             itemDto = itemDto,
             onCategoryClick = onCategoryClick,
             onAudioClick = onAudioClick,
@@ -483,8 +488,8 @@ private fun LazyListScope.mainGridItems(
     ) {
         LazyVerticalGrid(
             modifier = Modifier
-                .animateItemPlacement()
-                .heightIn(max = columnHeight),
+                .heightIn(max = columnHeight)
+                .animateItemPlacement(),
             columns = GridCells.Fixed(columnCount),
             userScrollEnabled = false,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -495,7 +500,9 @@ private fun LazyListScope.mainGridItems(
                 contentType = CategoryItemDto::type
             ) { itemDto ->
                 DrawItems(
-                    modifier = defListItemModifier.animateItemPlacement(),
+                    modifier = Modifier
+                        .defListItem()
+                        .animateItemPlacement(),
                     itemDto = itemDto,
                     onCategoryClick = onCategoryClick,
                     onAudioClick = onAudioClick,
@@ -507,20 +514,20 @@ private fun LazyListScope.mainGridItems(
 }
 
 @Composable
-fun DrawItems(
+private fun DrawItems(
     modifier: Modifier,
     itemDto: CategoryItemDto,
     onCategoryClick: (CategoryItemDto) -> Unit,
     onAudioClick: (CategoryItemDto) -> Unit,
     onFavClick: (CategoryItemDto) -> Unit
 ) {
+    val context = LocalContext.current
     val snackbar = LocalSnackbar.current
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     when (itemDto.type) {
         DtoItemType.CATEGORY -> CategoryListItem(
-            modifier = modifier,
+            modifier = modifier.testTag(CategoryScreenTestTags.CATEGORY),
             itemDto = itemDto,
             onCategoryClick = onCategoryClick,
             onRevealAction = {
@@ -545,7 +552,12 @@ fun DrawItems(
             onFavClick = onFavClick
         )
 
-        DtoItemType.SUBCATEGORY -> SubCategoryListItem(modifier, itemDto, onCategoryClick)
+        DtoItemType.SUBCATEGORY -> SubCategoryListItem(
+            modifier = modifier.testTag(CategoryScreenTestTags.SUBCATEGORY),
+            itemDto = itemDto,
+            onCategoryClick = onCategoryClick
+        )
+
         DtoItemType.HEADER -> {}
     }
 }

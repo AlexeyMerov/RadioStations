@@ -3,9 +3,8 @@
 # Radio Stations
 
 [![GitHub release](https://img.shields.io/github/v/release/AlexeyMerov/RadioStations)](https://github.com/AlexeyMerov/RadioStations/releases)
-![Static Badge](https://img.shields.io/badge/26-blue?logo=android&label=minSdk)
 [![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/AlexeyMerov/RadioStations/android.yml?event=push&logo=github&logoColor=white)](https://github.com/AlexeyMerov/RadioStations/actions)
-[![License](https://img.shields.io/github/license/AlexeyMerov/RadioStations?color=blue)](LICENSE)
+![Static Badge](https://img.shields.io/badge/26-blue?logo=android&label=minSdk)
 
 ### Sandbox to test my skills and learn new ones
 
@@ -30,38 +29,43 @@
 
 ### About:
 
-- Portrait, landscape, tablet support.
 - Display list of categories or radio stations.
-- Different item types.
+- Play/control audio as a service.
 - Offline mode.
 - Favorites (locally).
-- Play/control audio as a service.
-- Profile picture from gallery or camera.
+- Local user profile.
 - Settings for the app.
-- Dark/Light theme.
-- [Material3](https://m3.material.io/) design system.
-- Animations.
 - Static and dynamic shortcuts.
-- Tests.
+- [Material3](https://m3.material.io/) design system.
+- Portrait, landscape, tablet support.
+- Dark/Light theme.
 - Firebase crashlytics, analytics, performance.
+- Tests (Unit, Integration, UI).
 
 ### Tech stack:
 
+Core:
 - Multi-module + Gradle Convention Plugins
 - [Clean Architecture](https://developer.android.com/topic/architecture)
 - [Kotlin](https://kotlinlang.org/) + [DSL](https://developer.android.com/build/migrate-to-kotlin-dsl)
 - [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) + [Flow](https://developer.android.com/kotlin/flow)
-- [Retrofit](https://square.github.io/retrofit/) + [Moshi](https://github.com/square/moshi)
 - [Jetpack Compose](https://developer.android.com/jetpack/compose) + [Navigation](https://developer.android.com/jetpack/compose/navigation)
 - [Hilt](https://developer.android.com/training/dependency-injection/hilt-android)
-- [Datastore](https://developer.android.com/topic/libraries/architecture/datastore)
+
+Libs:
 - [Room](https://developer.android.com/training/data-storage/room )
+- [Datastore](https://developer.android.com/topic/libraries/architecture/datastore)
+- [Retrofit](https://square.github.io/retrofit/) + [Moshi](https://github.com/square/moshi)
 - [Paging3 (locally)](https://developer.android.com/topic/libraries/architecture/paging/v3-overview)
 - [Coil](https://coil-kt.github.io/coil/compose/)
 - [Lottie](https://github.com/airbnb/lottie-android)
 - [Media3 ExoPlayer](https://developer.android.com/media/media3/exoplayer)
-- JUnit4 + [MockK](https://mockk.io/) + [Robolectric](https://robolectric.org/) + [Truth](https://truth.dev/)
 - [SmartToolFactory Picture Cropper](https://github.com/SmartToolFactory/Compose-Cropper)
+
+Testing:
+- [JUnit4](https://junit.org/junit4/), [MockK](https://mockk.io/), [Truth](https://truth.dev/)
+- [Robolectric](https://robolectric.org/), [Turbine](https://github.com/cashapp/turbine)
+- [Compose Testing](https://developer.android.com/jetpack/compose/testing)
 
 ### Providers:
 

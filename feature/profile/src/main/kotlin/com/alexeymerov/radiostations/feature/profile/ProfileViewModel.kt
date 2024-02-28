@@ -1,6 +1,7 @@
 package com.alexeymerov.radiostations.feature.profile
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -20,12 +21,13 @@ import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewEffect
 import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -33,43 +35,50 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profileUsaCase: ProfileUsaCase,
-    private val countryUseCase: CountryUseCase
+    private val countryUseCase: CountryUseCase,
+    private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
-    val tempUri = profileUsaCase.getAvatarTempUri()
+    private val userData = profileUsaCase.getUserData()
+    private val tempUserData = MutableStateFlow<UserDto?>(null)
+
+    private val tempUri = profileUsaCase.getAvatarTempUri()
 
     private val searchQuery = MutableStateFlow(String.EMPTY)
-    var countryCodes: Flow<PagingData<CountryDto>> = searchQuery
+    private var countryCodes: Flow<PagingData<CountryDto>> = searchQuery
         .flatMapLatest { countryUseCase.getAllCountries(it) }
         .cachedIn(viewModelScope)
 
-    private val tempUserData = MutableStateFlow<UserDto?>(null)
+    init {
+        viewModelScope.launch(dispatcher) {
+            setState(ViewState.Loaded(userData.first()))
 
-    val userData = profileUsaCase.getUserData()
-        .combine(tempUserData) { original, temp ->
-            if (viewState.value is ViewState.InEdit && temp != null) {
-                return@combine temp.copy(
-                    avatarFile = original.avatarFile,
-                    name = temp.name,
-                    email = temp.email,
-                    countryCode = temp.countryCode,
-                    phoneNumber = temp.phoneNumber
-                )
-            }
-
-            return@combine original
+            userData
+                .combine(tempUserData, ::prepareCurrentState)
+                .collectLatest { setState(it) }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = null
-        )
+    }
 
-    override fun createInitialState(): ViewState = ViewState.Loaded
+    private fun prepareCurrentState(original: UserDto, temp: UserDto?): ViewState {
+        if (viewState.value is ViewState.InEdit && temp != null) {
+            val data = temp.copy(
+                avatarFile = original.avatarFile,
+                name = temp.name,
+                email = temp.email,
+                countryCode = temp.countryCode,
+                phoneNumber = temp.phoneNumber
+            )
+            return ViewState.InEdit(data, tempUri, countryCodes)
+        }
+
+        return ViewState.Loaded(original)
+    }
+
+    override fun createInitialState(): ViewState = ViewState.Loading
 
     override fun handleAction(action: ViewAction) {
-        viewModelScope.launch(ioContext) {
-            Timber.d("handleAction: $action")
+        Timber.d("handleAction: $action")
+        viewModelScope.launch(dispatcher) {
             when (action) {
                 is ViewAction.EnterEditMode -> onEnterEditMode()
                 is ViewAction.SaveEditsAndExitMode -> handleSaveEdits()
@@ -81,6 +90,7 @@ class ProfileViewModel @Inject constructor(
                 is ViewAction.NewEmail -> handleNewEmail(action.email)
                 is ViewAction.NewCountry -> handleNewCountry(action.country)
                 is ViewAction.NewPhone -> handleNewPhoneValue(action.phone)
+
                 is ViewAction.SearchCountry -> searchQuery.value = action.searchText
             }
         }
@@ -95,11 +105,17 @@ class ProfileViewModel @Inject constructor(
     }
 
     private suspend fun onEnterEditMode() {
-        viewModelScope.launch(ioContext) {
+        viewModelScope.launch(dispatcher) {
             countryUseCase.loadCountries()
         }
-        tempUserData.value = userData.value
-        setState(ViewState.InEdit)
+        tempUserData.value = userData.first()
+        setState(
+            ViewState.InEdit(
+                data = userData.first(),
+                tempUri = tempUri,
+                countryCodes = countryCodes
+            )
+        )
     }
 
     private fun handleNewName(name: String) {
@@ -159,13 +175,14 @@ class ProfileViewModel @Inject constructor(
         tempUserData.value?.let {
             profileUsaCase.saveUserData(it)
             tempUserData.value = null
-            setState(ViewState.Loaded)
+            setState(ViewState.Loaded(userData.first()))
         }
     }
 
-    sealed interface ViewState : BaseViewState {
-        data object Loaded : ViewState
-        data object InEdit : ViewState
+    sealed class ViewState(val userData: UserDto = emptyUser) : BaseViewState {
+        data object Loading : ViewState()
+        data class Loaded(val data: UserDto) : ViewState(data)
+        data class InEdit(val data: UserDto, val tempUri: Uri, val countryCodes: Flow<PagingData<CountryDto>>) : ViewState(data)
     }
 
     sealed interface ViewAction : BaseViewAction {
@@ -185,5 +202,16 @@ class ProfileViewModel @Inject constructor(
 
     sealed interface ViewEffect : BaseViewEffect {
         class ShowToast(val text: String) : ViewEffect
+    }
+
+    private companion object {
+        private val emptyUser = UserDto(
+            avatarFile = null,
+            name = TextFieldData(String.EMPTY),
+            email = TextFieldData(String.EMPTY),
+            phoneNumber = TextFieldData(String.EMPTY),
+            countryCode = 1,
+            isEverythingValid = true
+        )
     }
 }

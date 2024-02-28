@@ -1,5 +1,7 @@
 package com.alexeymerov.radiostations.core.domain.usecase.audio
 
+import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
+import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.extractTextFromRoundBrackets
 import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepository
@@ -68,7 +70,7 @@ class AudioUseCaseImpl @Inject constructor(
     private suspend fun changeIsMediaFavorite(id: String, title: String, isFavorite: Boolean) {
         val eventName = if (isFavorite) "favorite_media" else "unfavorite_media"
         analytics.logEvent(eventName) {
-            param("title", title)
+            param(AnalyticsParams.TITLE, title)
         }
         mediaRepository.changeIsMediaFavorite(id, isFavorite)
     }
@@ -107,8 +109,8 @@ class AudioUseCaseImpl @Inject constructor(
     }
 
     override suspend fun setLastPlayingMedia(item: AudioItemDto) {
-        analytics.logEvent("play_media") {
-            param("title", item.title)
+        analytics.logEvent(AnalyticsEvents.PLAY_MEDIA) {
+            param(AnalyticsParams.TITLE, item.title)
         }
         val mediaEntity = MediaEntity(
             url = item.parentUrl,

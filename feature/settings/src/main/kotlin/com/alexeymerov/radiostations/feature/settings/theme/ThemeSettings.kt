@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +37,7 @@ import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
 import com.alexeymerov.radiostations.core.ui.view.BasicText
+import com.alexeymerov.radiostations.feature.settings.SettingsTestTags
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel
 
 @Composable
@@ -58,7 +60,8 @@ internal fun ThemeSettings(
                 ),
                 shape = ButtonDefaults.shape
             )
-            .height(ButtonDefaults.MinHeight),
+            .height(ButtonDefaults.MinHeight)
+            .testTag(SettingsTestTags.THEME_BUTTON),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
             contentColor = Color.White
@@ -90,7 +93,8 @@ private fun ThemeDialog(
             .sizeIn(
                 maxWidth = config.maxDialogWidth(),
                 maxHeight = config.maxDialogHeight()
-            ),
+            )
+            .testTag(SettingsTestTags.THEME_DIALOG),
         onDismissRequest = onDismiss,
         confirmButton = {
             Text(
