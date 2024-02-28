@@ -16,7 +16,7 @@ class RetryRequestInterceptor : Interceptor {
             retryCount++
 
             response.close()
-            response = chain.proceed(request);
+            response = chain.proceed(request)
         }
 
         if (retryCount == MAX_RETRY) {

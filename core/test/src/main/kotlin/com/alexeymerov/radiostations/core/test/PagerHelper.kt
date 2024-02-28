@@ -3,9 +3,9 @@ package com.alexeymerov.radiostations.core.test
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 
-class TestDiffCallback<T> : DiffUtil.ItemCallback<T>() {
-    override fun areItemsTheSame(oldItem: T & Any, newItem: T & Any) = oldItem == newItem
-    override fun areContentsTheSame(oldItem: T & Any, newItem: T & Any) = oldItem == newItem
+class TestDiffCallback<T : Any> : DiffUtil.ItemCallback<T>() {
+    override fun areItemsTheSame(oldItem: T, newItem: T) = oldItem == newItem
+    override fun areContentsTheSame(oldItem: T, newItem: T) = areItemsTheSame(oldItem, newItem)
 }
 
 class TestUpdateCallback : ListUpdateCallback {

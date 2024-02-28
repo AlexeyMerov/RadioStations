@@ -11,7 +11,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -36,14 +35,14 @@ object NetworkDefaults {
     fun getOkHttpClient(forTest: Boolean = false, vararg interceptors: Interceptor): OkHttpClient {
         val builder = OkHttpClient.Builder().apply {
 
-            val timeoutDuration = (if (forTest) 1.minutes else 15.seconds).toJavaDuration()
+            val timeoutDuration = 15.seconds.toJavaDuration()
             connectTimeout(timeoutDuration)
             readTimeout(timeoutDuration)
             writeTimeout(timeoutDuration)
 
             retryOnConnectionFailure(true)
 
-            addInterceptor(RetryRequestInterceptor())
+            if (!forTest) addInterceptor(RetryRequestInterceptor())
             interceptors.forEach { addInterceptor(it) }
         }
 
