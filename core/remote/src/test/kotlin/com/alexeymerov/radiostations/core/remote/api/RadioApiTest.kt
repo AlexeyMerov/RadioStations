@@ -4,8 +4,8 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.remote.TestConst
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.google.common.truth.Truth.*
-import com.squareup.moshi.JsonDataException
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.SerializationException
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -56,7 +56,7 @@ class RadioApiTest {
         try {
             radioApi.getCategoriesByUrl(String.EMPTY)
         } catch (e: Exception) {
-            assertThat(e).isInstanceOf(JsonDataException::class.java)
+            assertThat(e).isInstanceOf(SerializationException::class.java)
         }
     }
 
@@ -115,7 +115,7 @@ class RadioApiTest {
         try {
             radioApi.getAudioByUrl(String.EMPTY)
         } catch (e: Exception) {
-            assertThat(e).isInstanceOf(JsonDataException::class.java)
+            assertThat(e).isInstanceOf(SerializationException::class.java)
         }
     }
 

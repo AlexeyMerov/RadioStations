@@ -17,7 +17,7 @@ versionsChecker = "0.47.0"
 
 coroutines = "1.7.3"
 ksp = "1.9.22-1.0.17"
-hilt = "2.48.1"
+hilt = "2.50"
 room = "2.6.1"
 retrofit = "2.9.0"
 okhttp = "4.12.0"
@@ -125,7 +125,7 @@ media3-session = { module = "androidx.media3:media3-session", version.ref = "exo
 
 # -- UI -- #
 
-compose-bom = { module = "androidx.compose:compose-bom", version = "2024.02.00" }
+compose-bom = { module = "androidx.compose:compose-bom", version = "2024.02.01" }
 
 compose-animation = { module = "androidx.compose.animation:animation" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
@@ -134,13 +134,13 @@ compose-material3 = { module = "androidx.compose.material3:material3", version =
 compose-ui-util = { module = "androidx.compose.ui:ui-util" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
-compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.6.1" }
+compose-materialIcons = { module = "androidx.compose.material:material-icons-extended", version = "1.6.2" }
 
 compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeLifecycle" }
 compose-lifecycleRuntime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeLifecycle" }
 compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.2" }
 compose-navigation-base = { module = "androidx.navigation:navigation-compose", version = "2.7.7" }
-compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
+compose-navigation-hilt = { module = "androidx.hilt:hilt-navigation-compose", version = "1.2.0" }
 
 glance-widget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
@@ -171,8 +171,8 @@ test-coreKtx = { module = "androidx.test:core-ktx", version.ref = "test" }
 test-runner = { module = "androidx.test:runner", version = "1.5.2" }
 test-orchestrator = { module = "androidx.test:orchestrator", version = "1.4.2" }
 
-test-compose-junit = { module = "androidx.compose.ui:ui-test-junit4", version = "1.6.1" }
-test-compose-manifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.6.1" }
+test-compose-junit = { module = "androidx.compose.ui:ui-test-junit4", version = "1.6.2" }
+test-compose-manifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.6.2" }
 
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-agent = { module = "io.mockk:mockk-agent", version.ref = "mockk" }
