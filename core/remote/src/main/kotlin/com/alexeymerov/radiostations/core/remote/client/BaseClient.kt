@@ -2,15 +2,15 @@ package com.alexeymerov.radiostations.core.remote.client
 
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
 import com.alexeymerov.radiostations.core.remote.interceptor.RetryRequestInterceptor
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -18,17 +18,20 @@ import kotlin.time.toJavaDuration
 object NetworkDefaults {
     const val COUNTRIES_URL = "https://restcountries.com/v3.1/"
 
+    const val MEDIA_TYPE_STRING = "application/json"
+
     const val QUERY_RENDER_NAME = "render"
     const val QUERY_RENDER_JSON_PARAMETER = "json"
     const val TYPE_AUDIO = "audio"
     const val TYPE_LINK = "link"
+
     val REGEX_VALID_URL = Regex("(http(s)?)://[(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@;:%_+.~#?&/=]*)")
 
-    fun getJsonAdapterFactory() = KotlinJsonAdapterFactory()
+    fun getJson() = Json { ignoreUnknownKeys = true }
 
-    fun getMoshi(factory: JsonAdapter.Factory): Moshi = Moshi.Builder().add(factory).build()
+    fun getMediaType() = MEDIA_TYPE_STRING.toMediaType()
 
-    fun getConverterFactory(moshi: Moshi): Converter.Factory = MoshiConverterFactory.create(moshi).asLenient()
+    fun getConverterFactory(json: Json, mediaType: MediaType): Converter.Factory = json.asConverterFactory(mediaType)
 
     fun getJsonInterceptor() = JsonResponseInterceptor()
 
@@ -50,16 +53,16 @@ object NetworkDefaults {
     }
 
     fun getTestRetrofit(baseUrl: HttpUrl): Retrofit {
-        val jsonFactory = getJsonAdapterFactory()
-        val moshi = getMoshi(jsonFactory)
-        val moshiConverterFactory = getConverterFactory(moshi)
+        val json = getJson()
+        val mediaType = getMediaType()
+        val converterFactory = getConverterFactory(json, mediaType)
         val jsonInterceptor = getJsonInterceptor()
         val okHttpClient = getOkHttpClient(forTest = true, jsonInterceptor)
 
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(baseUrl)
-            .addConverterFactory(moshiConverterFactory)
+            .addConverterFactory(converterFactory)
             .build()
     }
 }

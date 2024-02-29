@@ -55,7 +55,7 @@ Core:
 Libs:
 - [Room](https://developer.android.com/training/data-storage/room )
 - [Datastore](https://developer.android.com/topic/libraries/architecture/datastore)
-- [Retrofit](https://square.github.io/retrofit/) + [Moshi](https://github.com/square/moshi)
+- [Retrofit](https://square.github.io/retrofit/) + [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization/)
 - [Paging3 (locally)](https://developer.android.com/topic/libraries/architecture/paging/v3-overview)
 - [Coil](https://coil-kt.github.io/coil/compose/)
 - [Lottie](https://github.com/airbnb/lottie-android)

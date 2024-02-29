@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.radiostations.android.library)
     alias(libs.plugins.radiostations.android.hilt)
     alias(libs.plugins.radiostations.android.testing)
+    id("kotlinx-serialization")
 }
 
 android {
@@ -12,10 +13,9 @@ dependencies {
     implementation(projects.core.common)
 
     implementation(libs.retrofit.base)
-    implementation(libs.retrofit.converter.moshi)
 
-    implementation(libs.moshi.kotlin.base)
-    ksp(libs.moshi.kotlin.codegen)
+    implementation(libs.kotlinx.serialization)
+    implementation(libs.retrofit.kotlinx.serialization)
 
     implementation(libs.okhttp.base)
     implementation(libs.okhttp.logging)
