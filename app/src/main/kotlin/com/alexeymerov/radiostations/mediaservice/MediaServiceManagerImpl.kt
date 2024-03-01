@@ -28,8 +28,19 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
     private var controllerFuture: ListenableFuture<MediaController>? = null
 
     override fun getStationRouteIfExist(intent: Intent): String? {
-        return intent.getStringExtra(INTENT_KEY_URL)?.let {
-            Screens.Player(Tabs.Browse.route).createRoute(it)
+        val url = intent.getStringExtra(INTENT_KEY_AUDIO_URL)
+        val title = intent.getStringExtra(INTENT_KEY_AUDIO_TITLE)
+
+        Timber.d("getStationRouteIfExist url = $url ## title = $title")
+
+        return if (url == null || title == null) {
+            null
+        } else {
+            Timber.d("getStationRouteIfExist valid")
+            Screens.Player(Tabs.Browse.route).createRoute(
+                rawUrl = url,
+                stationName = title
+            )
         }
     }
 
@@ -56,7 +67,12 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
 
     private fun createDynamicShortcut(context: Context, item: AudioItemDto) {
         val shortLabel = if (item.title.length > 12) "${item.title.substring(0, 10)}..." else item.title
-        val longLabel = "${item.title} (${item.subTitle})"
+        var longLabel = item.title
+        item.subTitle?.let {
+            longLabel = "$longLabel (${item.subTitle})"
+        }
+
+        Timber.d("-> createDynamicShortcut: $item")
 
         val shortcut = ShortcutInfoCompat.Builder(context, DYNAMIC_SHORTCUT_ID)
             .setShortLabel(shortLabel)
@@ -66,8 +82,10 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
             .setIntent(
                 Intent(context, MainActivity::class.java).apply {
                     action = Intent.ACTION_VIEW
-                    val bundle = Bundle()
-                    bundle.putString(INTENT_KEY_URL, item.parentUrl)
+                    val bundle = Bundle().apply {
+                        putString(INTENT_KEY_AUDIO_URL, item.parentUrl)
+                        putString(INTENT_KEY_AUDIO_TITLE, item.title)
+                    }
                     putExtras(bundle)
                 }
             )
@@ -117,6 +135,8 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
 
     private companion object {
         const val DYNAMIC_SHORTCUT_ID = "latest_station_static_id"
-        const val INTENT_KEY_URL = "parent_url"
+
+        const val INTENT_KEY_AUDIO_URL = "parent_url"
+        const val INTENT_KEY_AUDIO_TITLE = "audio_title"
     }
 }

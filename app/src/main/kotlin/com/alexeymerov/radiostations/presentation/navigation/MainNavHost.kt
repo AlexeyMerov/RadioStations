@@ -27,6 +27,7 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -91,11 +93,18 @@ fun MainNavGraph(
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    navController.addOnDestinationChangedListener { _, _, _ ->
-        scrollBehavior.state.heightOffset = 0f
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, _, _ ->
+            scrollBehavior.state.heightOffset = 0f
+        }
+
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
     }
 
-    Timber.d("MainNavGraph - isNetworkAvailable $isNetworkAvailable")
+    LaunchedEffect(isNetworkAvailable) {
+        Timber.d("MainNavGraph - isNetworkAvailable $isNetworkAvailable")
+    }
 
     val sheetState = rememberStandardBottomSheetState(
         skipHiddenState = false,
@@ -181,8 +190,7 @@ fun MainNavGraph(
                 bottomBar = {
                     if (config.isPortrait()) {
                         CreateBottomBar(
-                            modifier = Modifier.graphicsLayer { translationY = animData.bottomBarOffsetY },
-                            navController = navController
+                            modifier = Modifier.graphicsLayer { translationY = animData.bottomBarOffsetY }
                         )
                     }
                 },
@@ -204,7 +212,7 @@ fun MainNavGraph(
                                 start = scaffoldPaddingValues.calculateStartPadding(LayoutDirection.Ltr),
                             ),
                         scaffoldState = sheetScaffoldState,
-                        topBar = { TopBar(navController, topBarState, scrollBehavior) },
+                        topBar = { TopBar(topBarState, scrollBehavior) },
                         sheetDragHandle = null,
                         sheetPeekHeight = peekHeightDp + scaffoldPaddingValues.calculateBottomPadding(),
                         sheetShape = RoundedCornerShape(topStart = animData.shapeCornerRadius, topEnd = animData.shapeCornerRadius),
@@ -241,8 +249,7 @@ fun MainNavGraph(
                                 Row(Modifier.fillMaxSize()) {
                                     if (config.isLandscape()) {
                                         CreateNavigationRail(
-                                            modifier = Modifier.graphicsLayer { translationX = animData.railBarOffsetX },
-                                            navController = navController
+                                            modifier = Modifier.graphicsLayer { translationX = animData.railBarOffsetX }
                                         )
                                     }
                                     CreateNavHost(
@@ -278,6 +285,7 @@ private fun CreateNavHost(
     topBarBlock: (TopBarState) -> Unit,
 ) {
     val navController = LocalNavController.current
+
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -289,8 +297,12 @@ private fun CreateNavHost(
         favoriteGraph(topBarBlock)
         youGraph(topBarBlock)
     }
-    LaunchedEffect(Unit) {
-        goToRoute?.let { navController.navigate(it) }
+
+    LaunchedEffect(goToRoute) {
+        goToRoute?.let {
+            Timber.d("goToRoute ## $goToRoute")
+            navController.navigate(goToRoute)
+        }
     }
 }
 
@@ -301,15 +313,14 @@ private fun calculateAnimData(
     expandedColor: Color,
     onCollapsedColor: Color,
     onExpandedColor: Color,
+): CollapseExpandData {
 
-    ): CollapseExpandData {
     val bottomBarOffsetY = lerp(0f, railBarSize, progress)
     val railBarOffsetX = lerp(0f, -railBarSize, progress)
     val scaleContent = lerp(1f, 0f, progress)
     val containerColor = collapsedColor.lerp(expandedColor, progress)
     val onContainerColor = onCollapsedColor.lerp(onExpandedColor, progress)
     val shapeCornerRadius = androidx.compose.ui.unit.lerp(12.dp, 0.dp, progress)
-
 
     return CollapseExpandData(
         bottomBarOffsetY = bottomBarOffsetY,

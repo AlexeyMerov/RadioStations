@@ -2,7 +2,6 @@ package com.alexeymerov.radiostations.core.domain.usecase.audio
 
 import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
 import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.extractTextFromRoundBrackets
 import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepository
 import com.alexeymerov.radiostations.core.database.entity.MediaEntity
@@ -85,7 +84,7 @@ class AudioUseCaseImpl @Inject constructor(
                     directUrl = mediaEntity.directMediaUrl,
                     image = mediaEntity.imageUrl,
                     title = title,
-                    subTitle = subtitle ?: String.EMPTY
+                    subTitle = subtitle
                 )
             }
 
@@ -95,15 +94,15 @@ class AudioUseCaseImpl @Inject constructor(
 
     override fun getLastPlayingMediaItem(): Flow<AudioItemDto?> {
         return mediaRepository.getLastPlayingMediaItem()
-            .map {
-                if (it == null) return@map null
+            .map { media ->
+                if (media == null) return@map null
 
                 AudioItemDto(
-                    parentUrl = it.url,
-                    directUrl = it.directMediaUrl,
-                    image = it.imageUrl,
-                    title = it.title,
-                    subTitle = it.subtitle
+                    parentUrl = media.url,
+                    directUrl = media.directMediaUrl,
+                    image = media.imageUrl,
+                    title = media.title,
+                    subTitle = media.subtitle.ifEmpty { null }
                 )
             }
     }
@@ -117,7 +116,7 @@ class AudioUseCaseImpl @Inject constructor(
             directMediaUrl = item.directUrl,
             imageUrl = item.image,
             title = item.title,
-            subtitle = item.subTitle
+            subtitle = item.subTitle.orEmpty()
         )
 
         mediaRepository.setLastPlayingMediaItem(mediaEntity)

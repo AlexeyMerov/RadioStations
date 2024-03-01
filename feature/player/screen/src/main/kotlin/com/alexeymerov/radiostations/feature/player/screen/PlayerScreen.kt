@@ -47,7 +47,8 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
-import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
@@ -60,124 +61,47 @@ import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewA
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewState
 
 @Composable
-fun PreloadedPlayerScreen(
+fun BasePlayerScreen(
     viewModel: PlayerViewModel,
     isVisibleToUser: Boolean,
     topBarBlock: (TopBarState) -> Unit,
-    stationName: String,
-    subTitle: String,
-    stationImgUrl: String,
-    rawUrl: String,
-    id: String
-) {
-    ComposedTimberD("PreloadedPlayerScreen")
-
-    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
-
-    BasePlayerScreen(
-        viewState = viewState,
-        playerMediaDirectUrl = bottomPlayerMedia?.directUrl,
-        isVisibleToUser = isVisibleToUser,
-        topBarBlock = topBarBlock,
-        initStationName = stationName,
-        initSubTitle = subTitle,
-        initId = id,
-        isFavorite = viewModel.isFavorite,
-        initStationImgUrl = stationImgUrl,
-        initRawUrl = rawUrl,
-        onAction = { viewModel.setAction(it) }
-    )
-}
-
-@Composable
-fun LoadPlayerScreen(
-    viewModel: PlayerViewModel,
-    isVisibleToUser: Boolean,
-    parentUrl: String,
-    topBarBlock: (TopBarState) -> Unit
-) {
-    ComposedTimberD("LoadPlayerScreen")
-
-    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val bottomPlayerMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
-
-    BasePlayerScreen(
-        viewState = viewState,
-        isVisibleToUser = isVisibleToUser,
-        topBarBlock = topBarBlock,
-        playerMediaDirectUrl = bottomPlayerMedia?.directUrl,
-        isFavorite = viewModel.isFavorite,
-        onAction = { viewModel.setAction(it) }
-    )
-
-    LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadStationInfo(parentUrl)) }
-}
-
-@Composable
-private fun BasePlayerScreen(
-    viewState: ViewState,
-    playerMediaDirectUrl: String?,
-    isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
-    initStationName: String = String.EMPTY,
-    initSubTitle: String = String.EMPTY,
-    initId: String = String.EMPTY,
-    isFavorite: Boolean,
-    initStationImgUrl: String = String.EMPTY,
-    initRawUrl: String = String.EMPTY,
-    onAction: (ViewAction) -> Unit
+    stationName: String
 ) {
     ComposedTimberD("BasePlayerScreen")
-
-    var stationName by rememberSaveable { mutableStateOf(initStationName) }
-    var subTitle by rememberSaveable { mutableStateOf(initSubTitle) }
-    var id by rememberSaveable { mutableStateOf(initId) }
-    var stationImgUrl by rememberSaveable { mutableStateOf(initStationImgUrl) }
-    var rawUrl by rememberSaveable { mutableStateOf(initRawUrl) }
 
     if (isVisibleToUser) {
         TopBarSetup(
             topBarBlock = topBarBlock,
             stationName = stationName,
-            subTitle = subTitle,
-            id = id,
-            isFavorite = isFavorite,
-            onAction = { onAction.invoke(it) }
+            subTitle = viewModel.subTitle,
+            isFavorite = viewModel.isFavorite,
+            onAction = { viewModel.setAction(it) }
         )
     }
 
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    PlayerScreen(
+        viewState = viewState,
+        onAction = { viewModel.setAction(it) }
+    )
+}
+
+@Composable
+private fun PlayerScreen(
+    viewState: ViewState,
+    onAction: (ViewAction) -> Unit
+) {
     when (viewState) {
         is ViewState.Loading -> LoaderView()
         is ViewState.Error -> ErrorView()
-        is ViewState.Loaded -> {
-            LoaderView()
-
-            stationName = viewState.item.text
-            subTitle = viewState.item.subTitle.orEmpty()
-            id = viewState.item.id
-            stationImgUrl = viewState.item.image.orEmpty()
-            rawUrl = viewState.item.url
-        }
-
         is ViewState.ReadyToPlay -> {
             MainContentWithOrientation(
-                isPlaying = viewState.isPlaying,
-                isLoading = viewState.isLoading,
-                imageUrl = stationImgUrl,
-                onToggleAudio = {
-                    var action: ViewAction = ViewAction.ToggleAudio
-                    if (playerMediaDirectUrl != viewState.item.directUrl) {
-                        action = ViewAction.ChangeAudio(viewState.item)
-                    }
-
-                    onAction.invoke(action)
-                }
+                item = viewState.item,
+                isSameItem = viewState.isSameItem,
+                playState = viewState.playState,
+                onToggleAudio = { onAction.invoke(ViewAction.ChangeOrToggleAudio(viewState.item)) }
             )
         }
-    }
-    if (rawUrl.isNotEmpty()) {
-        LaunchedEffect(Unit) { onAction.invoke(ViewAction.LoadAudio(rawUrl)) }
     }
 }
 
@@ -185,39 +109,52 @@ private fun BasePlayerScreen(
 private fun TopBarSetup(
     topBarBlock: (TopBarState) -> Unit,
     stationName: String,
-    subTitle: String,
-    id: String,
-    isFavorite: Boolean,
+    subTitle: String?,
+    isFavorite: Boolean?,
     onAction: (ViewAction) -> Unit
 ) {
-    LaunchedEffect(Unit, stationName, isFavorite) {
+    LaunchedEffect(Unit, subTitle, isFavorite) {
         topBarBlock.invoke(
             TopBarState(
                 title = stationName,
                 subTitle = subTitle,
                 displayBackButton = true,
-                rightIcon = RightIconItem(if (isFavorite) TopBarIcon.STAR else TopBarIcon.STAR_OUTLINE).apply {
-                    action = { onAction.invoke(ViewAction.ToggleFavorite(id)) }
+                rightIcon = run {
+                    if (isFavorite == null) null
+                    else {
+                        val icon = if (isFavorite) TopBarIcon.STAR else TopBarIcon.STAR_OUTLINE
+                        RightIconItem(icon).apply {
+                            action = { onAction.invoke(ViewAction.ToggleFavorite) }
+                        }
+                    }
                 }
+
             )
         )
     }
 }
 
 @Composable
-private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, imageUrl: String, onToggleAudio: () -> Unit) {
+private fun MainContentWithOrientation(
+    item: AudioItemDto,
+    isSameItem: Boolean,
+    playState: AudioUseCase.PlayerState,
+    onToggleAudio: () -> Unit
+) {
     val configuration = LocalConfiguration.current
     val themeBackgroundColor = MaterialTheme.colorScheme.background
     var backgroundColors by remember {
         mutableStateOf(listOf(themeBackgroundColor, themeBackgroundColor)) // required 2 by Brush
     }
-    val onPaletteResult: (Palette) -> Unit = { palette ->
-        // difficult to consider all possible pictures and their colors to look universally good for dark and light themes
-        (palette.mutedSwatch ?: palette.dominantSwatch)?.let {
-            backgroundColors = listOf(
-                themeBackgroundColor,
-                Color(it.rgb)
-            )
+    val onPaletteResult: (Palette) -> Unit = remember {
+        { palette ->
+            // difficult to consider all possible pictures and their colors to look universally good for dark and light themes
+            (palette.mutedSwatch ?: palette.dominantSwatch)?.let {
+                backgroundColors = listOf(
+                    themeBackgroundColor,
+                    Color(it.rgb)
+                )
+            }
         }
     }
 
@@ -230,7 +167,7 @@ private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, i
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio, onPaletteResult)
+                MainContent(isSameItem, playState, item.image, onToggleAudio, onPaletteResult)
             }
         }
 
@@ -243,7 +180,7 @@ private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, i
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                MainContent(isPlaying, isLoading, imageUrl, onToggleAudio, onPaletteResult)
+                MainContent(isSameItem, playState, item.image, onToggleAudio, onPaletteResult)
             }
         }
     }
@@ -251,8 +188,8 @@ private fun MainContentWithOrientation(isPlaying: Boolean, isLoading: Boolean, i
 
 @Composable
 private fun MainContent(
-    isPlaying: Boolean,
-    isLoading: Boolean,
+    isSameItem: Boolean,
+    playState: AudioUseCase.PlayerState,
     imageUrl: String,
     onToggleAudio: () -> Unit,
     onPaletteResult: (Palette) -> Unit
@@ -268,6 +205,18 @@ private fun MainContent(
         imageUrl = imageUrl,
         onPaletteResult = onPaletteResult
     )
+
+    val isPlaying by remember(isSameItem, playState) {
+        derivedStateOf {
+            isSameItem && playState == AudioUseCase.PlayerState.PLAYING
+        }
+    }
+
+    val isLoading by remember(isSameItem, playState) {
+        derivedStateOf {
+            isSameItem && playState == AudioUseCase.PlayerState.LOADING
+        }
+    }
 
     Box(Modifier.size(60.dp)) {
         if (isLoading) {

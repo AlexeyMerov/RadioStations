@@ -86,12 +86,8 @@ fun BaseFavoriteScreen(
         onAudioClick = {
             if (isNetworkAvailable) {
                 val route = Screens.Player(parentRoute).createRoute(
-                    stationName = it.text,
-                    subTitle = it.subTitle.orEmpty(),
-                    stationImgUrl = it.image.orEmpty(),
                     rawUrl = it.url,
-                    id = it.id,
-                    isFav = it.isFavorite
+                    stationName = it.text
                 )
                 onNavigate.invoke(route)
             }

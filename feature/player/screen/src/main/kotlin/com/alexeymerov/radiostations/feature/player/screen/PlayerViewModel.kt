@@ -7,20 +7,23 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
-import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.common.BaseViewAction
 import com.alexeymerov.radiostations.core.ui.common.BaseViewEffect
 import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
 import com.alexeymerov.radiostations.core.ui.common.BaseViewState
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
+import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -31,14 +34,48 @@ class PlayerViewModel @Inject constructor(
     private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
-    var isFavorite by mutableStateOf(savedStateHandle.get<Boolean>(Screens.Player.Const.ARG_IS_FAV) ?: false)
+    var isFavorite by mutableStateOf<Boolean?>(false)
+    var subTitle by mutableStateOf<String?>(null)
 
-    val currentAudioItem: StateFlow<AudioItemDto?> = audioUseCase.getLastPlayingMediaItem()
+    private var itemId: String? = null
+
+    private val currentPlayingAudioUrl: StateFlow<String?> = audioUseCase.getLastPlayingMediaItem()
+        .map { it?.directUrl }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = null
         )
+
+    init {
+        val parentUrl = checkNotNull(savedStateHandle.get<String>(Screens.Player.Const.ARG_URL)).decodeUrl()
+
+        viewModelScope.launch(dispatcher) {
+            audioUseCase.getMediaItem(parentUrl)?.let { currentItem ->
+                Timber.d("loadAudioLink $currentItem")
+
+                combine(
+                    audioUseCase.getLastPlayingMediaItem(),
+                    audioUseCase.getPlayerState()
+                ) { item, state ->
+                    val isSameItem = item?.parentUrl == parentUrl
+                    isSameItem to state
+                }.collectLatest { (isSameItem, playState) ->
+                    setState(ViewState.ReadyToPlay(currentItem, isSameItem, playState))
+                }
+
+            } ?: setState(ViewState.Error)
+        }
+
+        viewModelScope.launch(dispatcher) {
+            val itemDto = audioUseCase.getByUrl(parentUrl)
+            itemId = itemDto?.id
+            withContext(Dispatchers.Main) {
+                subTitle = itemDto?.subTitle
+                isFavorite = itemDto?.isFavorite
+            }
+        }
+    }
 
     override fun createInitialState() = ViewState.Loading
 
@@ -46,70 +83,40 @@ class PlayerViewModel @Inject constructor(
         Timber.d("handleAction: ${action.javaClass.simpleName}")
         viewModelScope.launch(dispatcher) {
             when (action) {
-                is ViewAction.ToggleFavorite -> toggleFavorite(action.id)
-                is ViewAction.LoadAudio -> loadAudioLink(action.url)
-                is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
-                is ViewAction.ChangeAudio -> audioUseCase.setLastPlayingMedia(action.mediaItem)
-                is ViewAction.LoadStationInfo -> loadStationInfo(action)
+                is ViewAction.ToggleFavorite -> toggleFavorite()
+                is ViewAction.ChangeOrToggleAudio -> changeOrToggleAudio(action)
             }
         }
     }
 
-    private suspend fun loadStationInfo(action: ViewAction.LoadStationInfo) {
-        val station = audioUseCase.getByUrl(action.parentUrl)
-        if (station == null) {
-            Timber.e("loadStationInfo cant find an item")
-            setState(ViewState.Error)
-            return
-        }
-        isFavorite = station.isFavorite
-        setState(ViewState.Loaded(station))
-    }
-
-    private fun loadAudioLink(originalUrl: String) {
-        setState(ViewState.Loading)
-
-        viewModelScope.launch(dispatcher) {
-            audioUseCase.getMediaItem(originalUrl)?.let { currentItem ->
-                Timber.d("loadAudioLink $currentItem")
-
-                combine(
-                    flow = audioUseCase.getLastPlayingMediaItem(),
-                    flow2 = audioUseCase.getPlayerState()
-                ) { item, state ->
-                    val isSameItem = item?.parentUrl == originalUrl
-                    val isPlaying = isSameItem && state == AudioUseCase.PlayerState.PLAYING
-                    val isLoading = isSameItem && state == AudioUseCase.PlayerState.LOADING
-                    isPlaying to isLoading
-                }.collectLatest { (isPlaying, isLoading) ->
-                    setState(ViewState.ReadyToPlay(currentItem, isPlaying, isLoading))
-                }
-
-            } ?: setState(ViewState.Error)
+    private suspend fun changeOrToggleAudio(action: ViewAction.ChangeOrToggleAudio) {
+        if (action.mediaItem.directUrl == currentPlayingAudioUrl.value) {
+            audioUseCase.togglePlayerPlayStop()
+        } else {
+            audioUseCase.setLastPlayingMedia(action.mediaItem)
         }
     }
 
-    private fun toggleFavorite(id: String) {
+    private fun toggleFavorite() {
         viewModelScope.launch(dispatcher) {
-            isFavorite = !isFavorite
-            audioUseCase.toggleFavorite(id)
+            isFavorite?.let { oldValue ->
+                isFavorite = !oldValue
+            }
+            itemId?.let {
+                audioUseCase.toggleFavorite(it)
+            }
         }
     }
 
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object Error : ViewState
-        data class ReadyToPlay(val item: AudioItemDto, val isPlaying: Boolean, val isLoading: Boolean) : ViewState
-        data class Loaded(val item: CategoryItemDto) : ViewState
+        data class ReadyToPlay(val item: AudioItemDto, val isSameItem: Boolean, val playState: AudioUseCase.PlayerState) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {
-        data class ToggleFavorite(val id: String) : ViewAction
-        data class LoadAudio(val url: String) : ViewAction
-        data class LoadStationInfo(val parentUrl: String) : ViewAction
-
-        data class ChangeAudio(val mediaItem: AudioItemDto) : ViewAction
-        data object ToggleAudio : ViewAction
+        data object ToggleFavorite : ViewAction
+        data class ChangeOrToggleAudio(val mediaItem: AudioItemDto) : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {
