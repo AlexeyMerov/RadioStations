@@ -9,7 +9,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -95,12 +95,12 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
         ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
     }
 
-    override fun processPlayerState(context: Context, state: AudioUseCase.PlayerState, currentMedia: AudioItemDto?) {
+    override fun processPlayerState(context: Context, state: PlayerState, currentMedia: AudioItemDto?) {
         Timber.d("processPlayerState - playerState $state" + " == currentMediaItem ${mediaController?.currentMediaItem}")
         mediaController?.also { controller ->
             when (state) {
-                AudioUseCase.PlayerState.EMPTY -> processEmptyState(controller, context)
-                AudioUseCase.PlayerState.PLAYING -> {
+                PlayerState.EMPTY -> processEmptyState(controller, context)
+                PlayerState.PLAYING -> {
                     if (!controller.isPlaying) {
                         if (controller.currentMediaItem == null && currentMedia != null) {
                             processCurrentAudioItem(context, currentMedia)
@@ -110,8 +110,8 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
                     }
                 }
 
-                AudioUseCase.PlayerState.STOPPED -> controller.pause()
-                AudioUseCase.PlayerState.LOADING -> { /* no action needed */
+                PlayerState.STOPPED -> controller.pause()
+                PlayerState.LOADING -> { /* no action needed */
                 }
             }
         }

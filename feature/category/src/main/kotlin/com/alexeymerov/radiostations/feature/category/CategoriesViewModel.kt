@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
 import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.core.dto.CategoryDto
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
@@ -39,8 +39,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
+    private val favoriteUseCase: FavoriteUseCase,
     private val categoryUseCase: CategoryUseCase,
-    private val audioUseCase: AudioUseCase,
     private val dispatcher: CoroutineDispatcher,
     savedStateHandle: SavedStateHandle,
     analytics: FirebaseAnalytics
@@ -120,7 +120,7 @@ class CategoriesViewModel @Inject constructor(
 
     private fun toggleFavorite(action: ViewAction.ToggleFavorite) {
         viewModelScope.launch(dispatcher) {
-            audioUseCase.toggleFavorite(action.item)
+            favoriteUseCase.toggleFavorite(action.item)
         }
     }
 

@@ -54,7 +54,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.core.common.EMPTY
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility

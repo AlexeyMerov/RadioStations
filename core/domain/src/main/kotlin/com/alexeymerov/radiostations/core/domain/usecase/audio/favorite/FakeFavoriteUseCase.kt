@@ -1,17 +1,15 @@
-package com.alexeymerov.radiostations.core.domain.usecase.audio
+package com.alexeymerov.radiostations.core.domain.usecase.audio.favorite
 
-import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.dto.CategoryDto
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
-class FakeAudioUseCase : AudioUseCase {
+class FakeFavoriteUseCase : FavoriteUseCase {
 
     var flowDelay = 0L
 
@@ -72,38 +70,6 @@ class FakeAudioUseCase : AudioUseCase {
     override suspend fun toggleFavorite(id: String) {
         val item = currentFavorites.firstOrNull { it.id == id }
         if (item != null) toggleFavorite(item)
-    }
-
-    override suspend fun getMediaItem(url: String): AudioItemDto? {
-        // not required at the moment
-        return null
-    }
-
-    override fun getLastPlayingMediaItem(): Flow<AudioItemDto?> {
-        // not required at the moment
-        return flowOf(null)
-    }
-
-    override suspend fun setLastPlayingMedia(item: AudioItemDto) {
-        // not required at the moment
-    }
-
-    override suspend fun getByUrl(url: String): CategoryItemDto? {
-        // not required at the moment
-        return null
-    }
-
-    override fun getPlayerState(): Flow<AudioUseCase.PlayerState> {
-        // not required at the moment
-        return flowOf(AudioUseCase.PlayerState.EMPTY)
-    }
-
-    override suspend fun updatePlayerState(newState: AudioUseCase.PlayerState) {
-        // not required at the moment
-    }
-
-    override suspend fun togglePlayerPlayStop() {
-        // not required at the moment
     }
 
 }

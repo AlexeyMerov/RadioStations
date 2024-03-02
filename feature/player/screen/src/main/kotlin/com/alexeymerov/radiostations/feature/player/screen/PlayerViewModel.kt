@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.BaseViewAction
 import com.alexeymerov.radiostations.core.ui.common.BaseViewEffect
@@ -30,6 +32,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val favoriteUseCase: FavoriteUseCase,
+    private val playingUseCase: PlayingUseCase,
     private val audioUseCase: AudioUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
@@ -39,7 +43,7 @@ class PlayerViewModel @Inject constructor(
 
     private var itemId: String? = null
 
-    private val currentPlayingAudioUrl: StateFlow<String?> = audioUseCase.getLastPlayingMediaItem()
+    private val currentPlayingAudioUrl: StateFlow<String?> = playingUseCase.getLastPlayingMediaItem()
         .map { it?.directUrl }
         .stateIn(
             scope = viewModelScope,
@@ -55,8 +59,8 @@ class PlayerViewModel @Inject constructor(
                 Timber.d("loadAudioLink $currentItem")
 
                 combine(
-                    audioUseCase.getLastPlayingMediaItem(),
-                    audioUseCase.getPlayerState()
+                    playingUseCase.getLastPlayingMediaItem(),
+                    playingUseCase.getPlayerState()
                 ) { item, state ->
                     val isSameItem = item?.parentUrl == parentUrl
                     isSameItem to state
@@ -91,9 +95,9 @@ class PlayerViewModel @Inject constructor(
 
     private suspend fun changeOrToggleAudio(action: ViewAction.ChangeOrToggleAudio) {
         if (action.mediaItem.directUrl == currentPlayingAudioUrl.value) {
-            audioUseCase.togglePlayerPlayStop()
+            playingUseCase.togglePlayerPlayStop()
         } else {
-            audioUseCase.setLastPlayingMedia(action.mediaItem)
+            playingUseCase.setLastPlayingMedia(action.mediaItem)
         }
     }
 
@@ -103,7 +107,7 @@ class PlayerViewModel @Inject constructor(
                 isFavorite = !oldValue
             }
             itemId?.let {
-                audioUseCase.toggleFavorite(it)
+                favoriteUseCase.toggleFavorite(it)
             }
         }
     }
@@ -111,7 +115,7 @@ class PlayerViewModel @Inject constructor(
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object Error : ViewState
-        data class ReadyToPlay(val item: AudioItemDto, val isSameItem: Boolean, val playState: AudioUseCase.PlayerState) : ViewState
+        data class ReadyToPlay(val item: AudioItemDto, val isSameItem: Boolean, val playState: PlayingUseCase.PlayerState) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {

@@ -47,7 +47,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
@@ -138,7 +138,7 @@ private fun TopBarSetup(
 private fun MainContentWithOrientation(
     item: AudioItemDto,
     isSameItem: Boolean,
-    playState: AudioUseCase.PlayerState,
+    playState: PlayerState,
     onToggleAudio: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
@@ -189,7 +189,7 @@ private fun MainContentWithOrientation(
 @Composable
 private fun MainContent(
     isSameItem: Boolean,
-    playState: AudioUseCase.PlayerState,
+    playState: PlayerState,
     imageUrl: String,
     onToggleAudio: () -> Unit,
     onPaletteResult: (Palette) -> Unit
@@ -208,13 +208,13 @@ private fun MainContent(
 
     val isPlaying by remember(isSameItem, playState) {
         derivedStateOf {
-            isSameItem && playState == AudioUseCase.PlayerState.PLAYING
+            isSameItem && playState == PlayerState.PLAYING
         }
     }
 
     val isLoading by remember(isSameItem, playState) {
         derivedStateOf {
-            isSameItem && playState == AudioUseCase.PlayerState.LOADING
+            isSameItem && playState == PlayerState.LOADING
         }
     }
 

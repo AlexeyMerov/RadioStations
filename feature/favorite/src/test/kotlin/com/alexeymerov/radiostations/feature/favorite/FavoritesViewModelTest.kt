@@ -1,12 +1,14 @@
 package com.alexeymerov.radiostations.feature.favorite
 
 import app.cash.turbine.test
-import com.alexeymerov.radiostations.core.domain.usecase.audio.FakeAudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FakeFavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FakeFavoriteViewSettingsUseCase
-import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
+import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.core.test.MainDispatcherRule
-import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.*
-import com.google.common.truth.Truth.*
+import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewAction
+import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewEffect
+import com.alexeymerov.radiostations.feature.favorite.FavoritesViewModel.ViewState
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -21,7 +23,7 @@ class FavoritesViewModelTest {
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
 
-    private lateinit var audioUseCase: FakeAudioUseCase
+    private lateinit var favoriteUseCase: FakeFavoriteUseCase
 
     private lateinit var settingsUseCase: FakeFavoriteViewSettingsUseCase
 
@@ -29,16 +31,16 @@ class FavoritesViewModelTest {
 
     @Before
     fun setup() {
-        audioUseCase = FakeAudioUseCase()
+        favoriteUseCase = FakeFavoriteUseCase()
         settingsUseCase = FakeFavoriteViewSettingsUseCase()
 
-        viewModel = FavoritesViewModel(audioUseCase, settingsUseCase, dispatcherRule.testDispatcher)
+        viewModel = FavoritesViewModel(favoriteUseCase, settingsUseCase, dispatcherRule.testDispatcher)
     }
 
     @Test
     fun getState_afterInit_returnsLoading() = runTest {
-        audioUseCase.flowDelay = 200
-        viewModel = FavoritesViewModel(audioUseCase, settingsUseCase, dispatcherRule.testDispatcher)
+        favoriteUseCase.flowDelay = 200
+        viewModel = FavoritesViewModel(favoriteUseCase, settingsUseCase, dispatcherRule.testDispatcher)
 
         viewModel.viewState.test {
             assertThat(awaitItem()).isInstanceOf(ViewState.Loading::class.java)
@@ -47,8 +49,8 @@ class FavoritesViewModelTest {
 
     @Test
     fun getState_ifListEmpty_returnsNothingAvailable() = runTest {
-        audioUseCase.returnEmptyList = true
-        viewModel = FavoritesViewModel(audioUseCase, settingsUseCase, dispatcherRule.testDispatcher)
+        favoriteUseCase.returnEmptyList = true
+        viewModel = FavoritesViewModel(favoriteUseCase, settingsUseCase, dispatcherRule.testDispatcher)
 
         viewModel.viewState.test {
             assertThat(awaitItem()).isInstanceOf(ViewState.NothingAvailable::class.java)
@@ -57,8 +59,8 @@ class FavoritesViewModelTest {
 
     @Test
     fun getState_ifAnyError_returnsNothingAvailable() = runTest {
-        audioUseCase.emulateError = true
-        viewModel = FavoritesViewModel(audioUseCase, settingsUseCase, dispatcherRule.testDispatcher)
+        favoriteUseCase.emulateError = true
+        viewModel = FavoritesViewModel(favoriteUseCase, settingsUseCase, dispatcherRule.testDispatcher)
 
         viewModel.viewState.test {
             assertThat(awaitItem()).isInstanceOf(ViewState.NothingAvailable::class.java)

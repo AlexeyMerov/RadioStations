@@ -8,7 +8,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,7 @@ import javax.inject.Inject
 class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
 
     @Inject
-    lateinit var audioUseCase: AudioUseCase
+    lateinit var playingUseCase: PlayingUseCase
 
     override val glanceAppWidget = PlayerWidget()
 
@@ -38,7 +38,7 @@ class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
 
     private fun setupData(context: Context) {
         coroutineScope.launch {
-            val currentMediaItem = audioUseCase.getLastPlayingMediaItem().first()
+            val currentMediaItem = playingUseCase.getLastPlayingMediaItem().first()
 
             GlanceAppWidgetManager(context)
                 .getGlanceIds(PlayerWidget::class.java)

@@ -2,8 +2,8 @@ package com.alexeymerov.radiostations.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.connectivity.ConnectionMonitor
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
@@ -27,8 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     themeSettings: ThemeSettingsUseCase,
-    private val audioUseCase: AudioUseCase,
     connectionMonitor: ConnectionMonitor,
+    private val playingUseCase: PlayingUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
@@ -42,14 +42,14 @@ class MainViewModel @Inject constructor(
             initialValue = ViewState.Loading
         )
 
-    val playerState: StateFlow<PlayerState> = audioUseCase.getPlayerState()
+    val playerState: StateFlow<PlayerState> = playingUseCase.getPlayerState()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = PlayerState.EMPTY
         )
 
-    val currentAudioItem: StateFlow<AudioItemDto?> = audioUseCase.getLastPlayingMediaItem()
+    val currentAudioItem: StateFlow<AudioItemDto?> = playingUseCase.getLastPlayingMediaItem()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -63,11 +63,11 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch(dispatcher) {
             when (action) {
-                is ViewAction.PlayAudio -> audioUseCase.updatePlayerState(PlayerState.PLAYING)
-                is ViewAction.StopAudio -> audioUseCase.updatePlayerState(PlayerState.STOPPED)
-                is ViewAction.ToggleAudio -> audioUseCase.togglePlayerPlayStop()
-                is ViewAction.ChangeAudio -> audioUseCase.setLastPlayingMedia(action.mediaItem)
-                is ViewAction.NukePlayer -> audioUseCase.updatePlayerState(PlayerState.EMPTY)
+                is ViewAction.PlayAudio -> playingUseCase.updatePlayerState(PlayerState.PLAYING)
+                is ViewAction.StopAudio -> playingUseCase.updatePlayerState(PlayerState.STOPPED)
+                is ViewAction.ToggleAudio -> playingUseCase.togglePlayerPlayStop()
+                is ViewAction.ChangeAudio -> playingUseCase.setLastPlayingMedia(action.mediaItem)
+                is ViewAction.NukePlayer -> playingUseCase.updatePlayerState(PlayerState.EMPTY)
             }
         }
     }
