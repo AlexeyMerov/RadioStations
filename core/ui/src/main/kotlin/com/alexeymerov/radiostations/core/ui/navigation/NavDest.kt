@@ -38,7 +38,7 @@ sealed class Screens(val route: String) {
         }
     }
 
-    data class Player(val parentRoute: String, val byUrl: Boolean = false) : Screens(
+    data class Player(val parentRoute: String) : Screens(
         createBaseRoute(
             "$parentRoute##${Const.ROUTE}",
             Const.ARG_URL,

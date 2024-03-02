@@ -82,6 +82,7 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
             .setIntent(
                 Intent(context, MainActivity::class.java).apply {
                     action = Intent.ACTION_VIEW
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
                     val bundle = Bundle().apply {
                         putString(INTENT_KEY_AUDIO_URL, item.parentUrl)
                         putString(INTENT_KEY_AUDIO_TITLE, item.title)
