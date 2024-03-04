@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -89,7 +90,7 @@ fun BasePlayerScreen(
 }
 
 @Composable
-private fun PlayerScreen(
+internal fun PlayerScreen(
     viewState: ViewState,
     onAction: (ViewAction) -> Unit
 ) {
@@ -201,14 +202,18 @@ private fun MainContent(
                 shadowElevation = 16f
                 clip = true
                 shape = RoundedCornerShape(16.dp)
-            },
+            }
+            .testTag(PlayerScreenTestTags.ARTWORK),
         imageUrl = imageUrl,
         onPaletteResult = onPaletteResult
     )
 
     Box(Modifier.size(60.dp)) {
         if (playState == ScreenPlayState.LOADING) {
-            CircularProgressIndicator(strokeCap = StrokeCap.Round)
+            CircularProgressIndicator(
+                modifier = Modifier.testTag(PlayerScreenTestTags.PLAY_BUTTON_LOADER),
+                strokeCap = StrokeCap.Round
+            )
         } else {
             PlayerControlButton(
                 isPlaying = playState == ScreenPlayState.PLAYING,
@@ -283,7 +288,8 @@ internal fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) 
                     radius = 40.dp
                 ),
                 onClick = { onToggleAudio.invoke() }
-            ),
+            )
+            .testTag(PlayerScreenTestTags.PLAY_BUTTON),
         composition = composition,
         dynamicProperties = dynamicProperties,
         progress = { animationStateProgress }
