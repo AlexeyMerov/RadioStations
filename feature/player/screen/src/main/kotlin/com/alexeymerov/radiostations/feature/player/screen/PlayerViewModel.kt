@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ class PlayerViewModel @Inject constructor(
 
     private val currentPlayingAudioUrl: StateFlow<String?> = playingUseCase.getLastPlayingMediaItem()
         .map { it?.directUrl }
+        .flowOn(dispatcher)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -64,8 +66,14 @@ class PlayerViewModel @Inject constructor(
                 ) { item, state ->
                     val isSameItem = item?.parentUrl == parentUrl
                     isSameItem to state
-                }.collectLatest { (isSameItem, playState) ->
-                    setState(ViewState.ReadyToPlay(currentItem, isSameItem, playState))
+                }.collectLatest { (isSameItem, systemPlayState) ->
+                    val screenPlayState = when {
+                        isSameItem && systemPlayState == PlayingUseCase.PlayerState.PLAYING -> ScreenPlayState.PLAYING
+                        isSameItem && systemPlayState == PlayingUseCase.PlayerState.LOADING -> ScreenPlayState.LOADING
+                        else -> ScreenPlayState.STOPPED
+                    }
+
+                    setState(ViewState.ReadyToPlay(currentItem, screenPlayState))
                 }
 
             } ?: setState(ViewState.Error)
@@ -115,7 +123,7 @@ class PlayerViewModel @Inject constructor(
     sealed interface ViewState : BaseViewState {
         data object Loading : ViewState
         data object Error : ViewState
-        data class ReadyToPlay(val item: AudioItemDto, val isSameItem: Boolean, val playState: PlayingUseCase.PlayerState) : ViewState
+        data class ReadyToPlay(val item: AudioItemDto, val playState: ScreenPlayState) : ViewState
     }
 
     sealed interface ViewAction : BaseViewAction {
@@ -125,6 +133,10 @@ class PlayerViewModel @Inject constructor(
 
     sealed interface ViewEffect : BaseViewEffect {
         class ShowToast(val text: String) : ViewEffect
+    }
+
+    enum class ScreenPlayState {
+        STOPPED, LOADING, PLAYING
     }
 
 }

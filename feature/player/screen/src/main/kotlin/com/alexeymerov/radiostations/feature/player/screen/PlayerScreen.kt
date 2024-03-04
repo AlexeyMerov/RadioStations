@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.feature.player.screen
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,7 +48,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieDynamicProperties
 import com.airbnb.lottie.compose.rememberLottieDynamicProperty
-import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
@@ -57,6 +58,7 @@ import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
+import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ScreenPlayState
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewState
 
@@ -97,7 +99,6 @@ private fun PlayerScreen(
         is ViewState.ReadyToPlay -> {
             MainContentWithOrientation(
                 item = viewState.item,
-                isSameItem = viewState.isSameItem,
                 playState = viewState.playState,
                 onToggleAudio = { onAction.invoke(ViewAction.ChangeOrToggleAudio(viewState.item)) }
             )
@@ -137,23 +138,23 @@ private fun TopBarSetup(
 @Composable
 private fun MainContentWithOrientation(
     item: AudioItemDto,
-    isSameItem: Boolean,
-    playState: PlayerState,
+    playState: ScreenPlayState,
     onToggleAudio: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val themeBackgroundColor = MaterialTheme.colorScheme.background
-    var backgroundColors by remember {
-        mutableStateOf(listOf(themeBackgroundColor, themeBackgroundColor)) // required 2 by Brush
+
+    var secondColor by remember {
+        mutableStateOf(themeBackgroundColor)
     }
+
+    val animateSecondColor by animateColorAsState(secondColor, label = String.EMPTY)
+
     val onPaletteResult: (Palette) -> Unit = remember {
         { palette ->
             // difficult to consider all possible pictures and their colors to look universally good for dark and light themes
             (palette.mutedSwatch ?: palette.dominantSwatch)?.let {
-                backgroundColors = listOf(
-                    themeBackgroundColor,
-                    Color(it.rgb)
-                )
+                secondColor = Color(it.rgb)
             }
         }
     }
@@ -163,11 +164,11 @@ private fun MainContentWithOrientation(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Brush.verticalGradient(backgroundColors)),
+                    .background(Brush.verticalGradient(listOf(themeBackgroundColor, animateSecondColor))),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                MainContent(isSameItem, playState, item.image, onToggleAudio, onPaletteResult)
+                MainContent(playState, item.image, onToggleAudio, onPaletteResult)
             }
         }
 
@@ -175,12 +176,12 @@ private fun MainContentWithOrientation(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Brush.verticalGradient(backgroundColors))
+                    .background(Brush.verticalGradient(listOf(themeBackgroundColor, animateSecondColor)))
                     .padding(bottom = 46.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                MainContent(isSameItem, playState, item.image, onToggleAudio, onPaletteResult)
+                MainContent(playState, item.image, onToggleAudio, onPaletteResult)
             }
         }
     }
@@ -188,8 +189,7 @@ private fun MainContentWithOrientation(
 
 @Composable
 private fun MainContent(
-    isSameItem: Boolean,
-    playState: PlayerState,
+    playState: ScreenPlayState,
     imageUrl: String,
     onToggleAudio: () -> Unit,
     onPaletteResult: (Palette) -> Unit
@@ -206,23 +206,14 @@ private fun MainContent(
         onPaletteResult = onPaletteResult
     )
 
-    val isPlaying by remember(isSameItem, playState) {
-        derivedStateOf {
-            isSameItem && playState == PlayerState.PLAYING
-        }
-    }
-
-    val isLoading by remember(isSameItem, playState) {
-        derivedStateOf {
-            isSameItem && playState == PlayerState.LOADING
-        }
-    }
-
     Box(Modifier.size(60.dp)) {
-        if (isLoading) {
+        if (playState == ScreenPlayState.LOADING) {
             CircularProgressIndicator(strokeCap = StrokeCap.Round)
         } else {
-            PlayerControlButton(isPlaying, onToggleAudio)
+            PlayerControlButton(
+                isPlaying = playState == ScreenPlayState.PLAYING,
+                onToggleAudio = onToggleAudio
+            )
         }
     }
 }
