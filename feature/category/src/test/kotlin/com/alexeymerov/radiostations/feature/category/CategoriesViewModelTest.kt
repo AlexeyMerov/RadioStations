@@ -2,14 +2,17 @@ package com.alexeymerov.radiostations.feature.category
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.alexeymerov.radiostations.core.domain.usecase.audio.FakeAudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FakeFavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.category.FakeCategoryUseCase
 import com.alexeymerov.radiostations.core.test.MainDispatcherRule
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.*
-import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewAction.*
-import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewState.*
-import com.google.common.truth.Truth.*
+import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewAction.FilterByHeader
+import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewAction.LoadCategories
+import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewAction.UpdateCategories
+import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewState.CategoriesLoaded
+import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewState.Loading
+import com.alexeymerov.radiostations.feature.category.CategoriesViewModel.ViewState.NothingAvailable
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
@@ -29,7 +32,7 @@ class CategoriesViewModelTest {
 
     private lateinit var categoryUseCase: FakeCategoryUseCase
 
-    private lateinit var audioUseCase: FakeAudioUseCase
+    private lateinit var favoriteUseCase: FakeFavoriteUseCase
 
     private lateinit var viewModel: CategoriesViewModel
 
@@ -43,11 +46,11 @@ class CategoriesViewModelTest {
     @Before
     fun setup() {
         categoryUseCase = FakeCategoryUseCase()
-        audioUseCase = FakeAudioUseCase()
+        favoriteUseCase = FakeFavoriteUseCase()
 
         viewModel = CategoriesViewModel(
+            favoriteUseCase,
             categoryUseCase,
-            audioUseCase,
             dispatcherRule.testDispatcher,
             savedStateHandle,
             mockk<FirebaseAnalytics>(relaxed = true),
@@ -68,8 +71,8 @@ class CategoriesViewModelTest {
     fun initState_returnLoading() = runTest {
         categoryUseCase.delay = 1000
         viewModel = CategoriesViewModel(
+            favoriteUseCase,
             categoryUseCase,
-            audioUseCase,
             dispatcherRule.testDispatcher,
             savedStateHandle,
             mockk<FirebaseAnalytics>(relaxed = true),
@@ -84,8 +87,8 @@ class CategoriesViewModelTest {
     fun ifListEmpty_returnNothingAvailable() = runTest {
         categoryUseCase.returnEmptyList = true
         viewModel = CategoriesViewModel(
+            favoriteUseCase,
             categoryUseCase,
-            audioUseCase,
             dispatcherRule.testDispatcher,
             savedStateHandle,
             mockk<FirebaseAnalytics>(relaxed = true),
@@ -103,8 +106,8 @@ class CategoriesViewModelTest {
     fun ifError_returnNothingAvailable() = runTest {
         categoryUseCase.emulateError = true
         viewModel = CategoriesViewModel(
+            favoriteUseCase,
             categoryUseCase,
-            audioUseCase,
             dispatcherRule.testDispatcher,
             savedStateHandle,
             mockk<FirebaseAnalytics>(relaxed = true),

@@ -9,7 +9,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
@@ -28,8 +28,19 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
     private var controllerFuture: ListenableFuture<MediaController>? = null
 
     override fun getStationRouteIfExist(intent: Intent): String? {
-        return intent.getStringExtra(INTENT_KEY_URL)?.let {
-            Screens.Player(Tabs.Browse.route).createRoute(it)
+        val url = intent.getStringExtra(INTENT_KEY_AUDIO_URL)
+        val title = intent.getStringExtra(INTENT_KEY_AUDIO_TITLE)
+
+        Timber.d("getStationRouteIfExist url = $url ## title = $title")
+
+        return if (url == null || title == null) {
+            null
+        } else {
+            Timber.d("getStationRouteIfExist valid")
+            Screens.Player(Tabs.Browse.route).createRoute(
+                rawUrl = url,
+                stationName = title
+            )
         }
     }
 
@@ -56,7 +67,12 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
 
     private fun createDynamicShortcut(context: Context, item: AudioItemDto) {
         val shortLabel = if (item.title.length > 12) "${item.title.substring(0, 10)}..." else item.title
-        val longLabel = "${item.title} (${item.subTitle})"
+        var longLabel = item.title
+        item.subTitle?.let {
+            longLabel = "$longLabel (${item.subTitle})"
+        }
+
+        Timber.d("-> createDynamicShortcut: $item")
 
         val shortcut = ShortcutInfoCompat.Builder(context, DYNAMIC_SHORTCUT_ID)
             .setShortLabel(shortLabel)
@@ -66,8 +82,11 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
             .setIntent(
                 Intent(context, MainActivity::class.java).apply {
                     action = Intent.ACTION_VIEW
-                    val bundle = Bundle()
-                    bundle.putString(INTENT_KEY_URL, item.parentUrl)
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    val bundle = Bundle().apply {
+                        putString(INTENT_KEY_AUDIO_URL, item.parentUrl)
+                        putString(INTENT_KEY_AUDIO_TITLE, item.title)
+                    }
                     putExtras(bundle)
                 }
             )
@@ -76,12 +95,12 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
         ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
     }
 
-    override fun processPlayerState(context: Context, state: AudioUseCase.PlayerState, currentMedia: AudioItemDto?) {
+    override fun processPlayerState(context: Context, state: PlayerState, currentMedia: AudioItemDto?) {
         Timber.d("processPlayerState - playerState $state" + " == currentMediaItem ${mediaController?.currentMediaItem}")
         mediaController?.also { controller ->
             when (state) {
-                AudioUseCase.PlayerState.EMPTY -> processEmptyState(controller, context)
-                AudioUseCase.PlayerState.PLAYING -> {
+                PlayerState.EMPTY -> processEmptyState(controller, context)
+                PlayerState.PLAYING -> {
                     if (!controller.isPlaying) {
                         if (controller.currentMediaItem == null && currentMedia != null) {
                             processCurrentAudioItem(context, currentMedia)
@@ -91,8 +110,8 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
                     }
                 }
 
-                AudioUseCase.PlayerState.STOPPED -> controller.pause()
-                AudioUseCase.PlayerState.LOADING -> { /* no action needed */
+                PlayerState.STOPPED -> controller.pause()
+                PlayerState.LOADING -> { /* no action needed */
                 }
             }
         }
@@ -117,6 +136,8 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
 
     private companion object {
         const val DYNAMIC_SHORTCUT_ID = "latest_station_static_id"
-        const val INTENT_KEY_URL = "parent_url"
+
+        const val INTENT_KEY_AUDIO_URL = "parent_url"
+        const val INTENT_KEY_AUDIO_TITLE = "audio_title"
     }
 }

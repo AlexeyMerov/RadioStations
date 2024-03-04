@@ -18,10 +18,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 
 @Composable
-fun CreateBottomBar(
-    modifier: Modifier,
-    navController: NavHostController,
-) {
+fun CreateBottomBar(modifier: Modifier) {
+    val navController = LocalNavController.current
     val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
 
     NavigationBar(modifier) {
@@ -41,11 +39,10 @@ fun CreateBottomBar(
 }
 
 @Composable
-fun CreateNavigationRail(
-    modifier: Modifier,
-    navController: NavHostController,
-) {
+fun CreateNavigationRail(modifier: Modifier) {
+    val navController = LocalNavController.current
     val tabs = listOf(Tabs.Browse, Tabs.Favorites, Tabs.You)
+
     NavigationRail(modifier = modifier) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination

@@ -12,14 +12,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 
-
 sealed class Tabs(val route: String, @StringRes val stringId: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
-    data object Browse : Tabs("tab_browse", R.string.browse, Icons.Outlined.Category, Icons.Filled.Category)
-    data object Favorites : Tabs("tab_favorites", R.string.favorites, Icons.Rounded.StarOutline, Icons.Rounded.Star)
-    data object You : Tabs("tab_you", R.string.you, Icons.Outlined.AccountCircle, Icons.Filled.AccountCircle)
+    data object Browse : Tabs(TAB_BROWSE, R.string.browse, Icons.Outlined.Category, Icons.Filled.Category)
+    data object Favorites : Tabs(TAB_FAVORITES, R.string.favorites, Icons.Rounded.StarOutline, Icons.Rounded.Star)
+    data object You : Tabs(TAB_YOU, R.string.you, Icons.Outlined.AccountCircle, Icons.Filled.AccountCircle)
+
+    private companion object {
+        const val TAB_BROWSE = "tab_browse"
+        const val TAB_FAVORITES = "tab_favorites"
+        const val TAB_YOU = "tab_you"
+    }
 }
 
 sealed class Screens(val route: String) {
+
     data object Categories : Screens(createBaseRoute(Const.ROUTE, Const.ARG_TITLE, Const.ARG_URL)) {
         object Const {
             const val ROUTE: String = "categories"
@@ -32,47 +38,23 @@ sealed class Screens(val route: String) {
         }
     }
 
-    data class Player(val parentRoute: String, val byUrl: Boolean = false) : Screens(
+    data class Player(val parentRoute: String) : Screens(
         createBaseRoute(
             "$parentRoute##${Const.ROUTE}",
-            Const.ARG_PARENT_URL,
-            Const.ARG_TITLE,
-            Const.ARG_SUBTITLE,
-            Const.ARG_IMG_URL,
             Const.ARG_URL,
-            Const.ARG_ID,
-            Const.ARG_IS_FAV
+            Const.ARG_TITLE
         )
     ) {
         object Const {
             const val ROUTE: String = "player"
-            const val ARG_PARENT_URL: String = "parentUrl"
-            const val ARG_TITLE: String = "title"
-            const val ARG_SUBTITLE: String = "subtitle"
-            const val ARG_IMG_URL: String = "imgUrl"
             const val ARG_URL: String = "url"
-            const val ARG_ID: String = "id"
-            const val ARG_IS_FAV: String = "isFav"
+            const val ARG_TITLE: String = "title"
         }
 
-        fun createRoute(stationName: String, subTitle: String, stationImgUrl: String, rawUrl: String, id: String, isFav: Boolean): String {
-            return createNewRoute(null, stationName, subTitle, stationImgUrl.encodeUrl(), rawUrl.encodeUrl(), id.encodeUrl(), isFav)
-        }
-
-        fun createRoute(parentUrl: String): String = createNewRoute(parentUrl.encodeUrl())
-
-        private fun createNewRoute(
-            parentUrl: String? = null,
-            stationName: String? = null,
-            subTitle: String? = null,
-            stationImgUrl: String? = null,
-            rawUrl: String? = null,
-            id: String? = null,
-            isFav: Boolean = false
-        ): String {
+        fun createRoute(rawUrl: String, stationName: String): String {
             return createNewRoute(
                 route = "$parentRoute##${Const.ROUTE}",
-                args = arrayOf(parentUrl, stationName, subTitle, stationImgUrl, rawUrl, id, isFav)
+                args = arrayOf(rawUrl.encodeUrl(), stationName)
             )
         }
     }

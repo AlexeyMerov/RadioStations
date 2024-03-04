@@ -7,13 +7,13 @@ import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
@@ -27,15 +27,15 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJsonAdapterFactory(): JsonAdapter.Factory = NetworkDefaults.getJsonAdapterFactory()
+    fun provideJson(): Json = NetworkDefaults.getJson()
 
     @Provides
     @Singleton
-    fun provideMoshi(factory: JsonAdapter.Factory): Moshi = NetworkDefaults.getMoshi(factory)
+    fun provideMediaType(): MediaType = NetworkDefaults.getMediaType()
 
     @Provides
     @Singleton
-    fun provideConverterFactory(moshi: Moshi): Converter.Factory = NetworkDefaults.getConverterFactory(moshi)
+    fun provideConverterFactory(json: Json, mediaType: MediaType): Converter.Factory = NetworkDefaults.getConverterFactory(json, mediaType)
 
     @Provides
     @Singleton

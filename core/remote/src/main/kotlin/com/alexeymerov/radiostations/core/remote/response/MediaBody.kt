@@ -1,11 +1,13 @@
 package com.alexeymerov.radiostations.core.remote.response
 
 import com.alexeymerov.radiostations.core.common.EMPTY
-import com.squareup.moshi.Json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MediaBody(
     val url: String,
     val bitrate: Int = 0,
-    @Json(name = "media_type")
+    @SerialName("media_type")
     val mediaType: String = String.EMPTY,
-) : ServerBodyType
+)

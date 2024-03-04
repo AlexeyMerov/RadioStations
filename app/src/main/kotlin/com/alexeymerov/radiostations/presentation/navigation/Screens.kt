@@ -16,12 +16,10 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
-import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.feature.category.BaseCategoryScreen
 import com.alexeymerov.radiostations.feature.favorite.BaseFavoriteScreen
-import com.alexeymerov.radiostations.feature.player.screen.LoadPlayerScreen
-import com.alexeymerov.radiostations.feature.player.screen.PreloadedPlayerScreen
+import com.alexeymerov.radiostations.feature.player.screen.BasePlayerScreen
 import com.alexeymerov.radiostations.feature.profile.BaseProfileScreen
 import com.alexeymerov.radiostations.feature.settings.BaseSettingsScreen
 
@@ -53,50 +51,25 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
     }
 }
 
-// not sure if it's a good idea to have 2 composable() for one screen, not checked if it'll work either
 fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
     composable(
         route = Screens.Player(parentRoute).route,
         arguments = listOf(
-            navArgument(Screens.Player.Const.ARG_PARENT_URL, defaultStringArg(isNullable = true)),
-            navArgument(Screens.Player.Const.ARG_TITLE, defaultStringArg(isNullable = true)),
-            navArgument(Screens.Player.Const.ARG_SUBTITLE, defaultStringArg(isNullable = true)),
-            navArgument(Screens.Player.Const.ARG_IMG_URL, defaultStringArg(isNullable = true)),
-            navArgument(Screens.Player.Const.ARG_URL, defaultStringArg(isNullable = true)),
-            navArgument(Screens.Player.Const.ARG_ID, defaultStringArg(isNullable = true)),
-            navArgument(Screens.Player.Const.ARG_IS_FAV, defaultBoolArg()),
+            navArgument(Screens.Player.Const.ARG_URL, defaultStringArg()),
+            navArgument(Screens.Player.Const.ARG_TITLE, defaultStringArg())
         ),
     ) { backStackEntry ->
         ComposedTimberD("[ NavGraphBuilder.playerScreen ] ")
 
         val navController = LocalNavController.current
+        val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
 
-        val parentUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStrOrNull(Screens.Player.Const.ARG_PARENT_URL)) }
-        parentUrl?.let {
-            LoadPlayerScreen(
-                viewModel = hiltViewModel(),
-                isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
-                parentUrl = it.decodeUrl(),
-                topBarBlock = topBarBlock
-            )
-        } ?: run {
-            val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
-            val subTitle by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_SUBTITLE)) }
-            val stationImgUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_IMG_URL)) }
-            val rawUrl by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_URL)) }
-            val id by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_ID)) }
-
-            PreloadedPlayerScreen(
-                viewModel = hiltViewModel(),
-                isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
-                topBarBlock = topBarBlock,
-                stationName = stationName,
-                subTitle = subTitle,
-                stationImgUrl = stationImgUrl.decodeUrl(),
-                rawUrl = rawUrl.decodeUrl(),
-                id = id.decodeUrl()
-            )
-        }
+        BasePlayerScreen(
+            viewModel = hiltViewModel(),
+            isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
+            topBarBlock = topBarBlock,
+            stationName = stationName,
+        )
     }
 }
 

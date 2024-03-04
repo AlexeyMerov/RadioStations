@@ -5,8 +5,8 @@ import com.alexeymerov.radiostations.core.remote.TestConst
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.client.country.CountryClientImpl
 import com.google.common.truth.Truth.*
-import com.squareup.moshi.JsonDataException
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.SerializationException
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -59,7 +59,7 @@ class CountryApiTest {
         try {
             countryApi.getAllCountries(CountryClientImpl.ALL_FIELDS)
         } catch (e: Exception) {
-            assertThat(e).isInstanceOf(JsonDataException::class.java)
+            assertThat(e).isInstanceOf(SerializationException::class.java)
         }
     }
 

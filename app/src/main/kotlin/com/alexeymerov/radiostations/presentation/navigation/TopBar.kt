@@ -45,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
@@ -57,10 +56,10 @@ import com.alexeymerov.radiostations.core.ui.view.DropDownRow
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TopBar(
-    navController: NavHostController,
     barState: TopBarState,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
+    val navController = LocalNavController.current
     CenterAlignedTopAppBar(
         //with color it has some delay for color animation
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -80,7 +79,7 @@ fun TopBar(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TopBarTitle(title: String, subTitle: String) {
+private fun TopBarTitle(title: String, subTitle: String?) {
     val config = LocalConfiguration.current
     Column(
         modifier = Modifier.run { if (config.isLandscape()) padding(start = 80.dp) else this },
@@ -127,7 +126,7 @@ private fun TopBarTitle(title: String, subTitle: String) {
             }
         }
 
-        if (subTitle.isNotEmpty() && isNetworkAvailable) {
+        if (!subTitle.isNullOrEmpty() && isNetworkAvailable) {
             AnimatedContent(
                 targetState = subTitle,
                 transitionSpec = {

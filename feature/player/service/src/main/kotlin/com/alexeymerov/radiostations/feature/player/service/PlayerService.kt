@@ -11,8 +11,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase.PlayerState
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.feature.player.widget.PlayerWidget
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
@@ -32,7 +32,7 @@ class PlayerService : MediaLibraryService() {
     lateinit var ioScope: CoroutineScope
 
     @Inject
-    lateinit var audioUseCase: AudioUseCase
+    lateinit var playingUseCase: PlayingUseCase
 
     private var mediaLibrarySession: MediaLibrarySession? = null
 
@@ -45,7 +45,7 @@ class PlayerService : MediaLibraryService() {
         ): ListenableFuture<MediaItemsWithStartPosition> {
             val deferred = ioScope.async {
                 val settable = SettableFuture.create<MediaItemsWithStartPosition>()
-                val item = audioUseCase.getLastPlayingMediaItem().first()
+                val item = playingUseCase.getLastPlayingMediaItem().first()
                 if (item != null) {
                     val mediaItemsWithStartPosition = MediaItemsWithStartPosition(
                         /* mediaItems = */ listOf(mapToMediaItem(item)),
@@ -71,17 +71,17 @@ class PlayerService : MediaLibraryService() {
                 Timber.d("PlayerService -- onStateChange -- onIsPlaying $isPlaying")
                 ioScope.launch {
                     val state = if (isPlaying) PlayerState.PLAYING else PlayerState.STOPPED
-                    audioUseCase.updatePlayerState(state)
+                    playingUseCase.updatePlayerState(state)
                     updateWidget()
                 }
             },
             onIsLoading = { isLoading ->
                 Timber.d("PlayerService -- onStateChange -- onIsLoading")
                 ioScope.launch {
-                    val playerState = audioUseCase.getPlayerState().first()
+                    val playerState = playingUseCase.getPlayerState().first()
                     when {
-                        isLoading -> audioUseCase.updatePlayerState(PlayerState.LOADING)
-                        playerState == PlayerState.LOADING -> audioUseCase.updatePlayerState(PlayerState.PLAYING)
+                        isLoading -> playingUseCase.updatePlayerState(PlayerState.LOADING)
+                        playerState == PlayerState.LOADING -> playingUseCase.updatePlayerState(PlayerState.PLAYING)
                     }
                 }
             }
@@ -91,7 +91,7 @@ class PlayerService : MediaLibraryService() {
     }
 
     private suspend fun updateWidget() {
-        val currentMediaItem = audioUseCase.getLastPlayingMediaItem().first()
+        val currentMediaItem = playingUseCase.getLastPlayingMediaItem().first()
 
         GlanceAppWidgetManager(this@PlayerService)
             .getGlanceIds(PlayerWidget::class.java)

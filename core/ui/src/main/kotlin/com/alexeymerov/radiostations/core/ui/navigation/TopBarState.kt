@@ -9,7 +9,6 @@ import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -19,7 +18,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class TopBarState(
     val title: String,
-    val subTitle: String = String.EMPTY,
+    val subTitle: String? = null,
     val displayBackButton: Boolean = false,
     val rightIcon: RightIconItem? = null,
     val selectedItems: Int = 0

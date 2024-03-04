@@ -2,7 +2,7 @@ package com.alexeymerov.radiostations.feature.favorite
 
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.viewModelScope
-import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.core.dto.CategoryDto
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
-    private val audioUseCase: AudioUseCase,
+    private val favoriteUseCase: FavoriteUseCase,
     private val settingsUseCase: FavoriteViewSettingsUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
@@ -42,7 +42,7 @@ class FavoritesViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             settingsUseCase.getViewType()
                 .catch { handleError(it) }
-                .combine(audioUseCase.getFavorites()) { viewType, dto ->
+                .combine(favoriteUseCase.getFavorites()) { viewType, dto ->
                     validateNewData(viewType, dto)
                 }
                 .collectLatest {
@@ -72,7 +72,7 @@ class FavoritesViewModel @Inject constructor(
     private fun undoRecentUnfavorite() {
         viewModelScope.launch(dispatcher) {
             recentlyUnfavorited.forEach {
-                audioUseCase.setFavorite(it)
+                favoriteUseCase.setFavorite(it)
             }
             recentlyUnfavorited.clear()
         }
@@ -98,7 +98,7 @@ class FavoritesViewModel @Inject constructor(
 
     private fun unfavorite(item: CategoryItemDto) {
         viewModelScope.launch(dispatcher) {
-            audioUseCase.unfavorite(item)
+            favoriteUseCase.unfavorite(item)
             recentlyUnfavorited.clear()
             recentlyUnfavorited.add(item)
             showUndoSnackbar()
@@ -109,7 +109,7 @@ class FavoritesViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             recentlyUnfavorited.clear()
             selectedItems.forEach {
-                audioUseCase.unfavorite(it)
+                favoriteUseCase.unfavorite(it)
                 recentlyUnfavorited.add(it)
             }
             selectedItemsCount.intValue = 0

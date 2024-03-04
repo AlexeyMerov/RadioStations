@@ -6,5 +6,5 @@ data class AudioItemDto(
     val directUrl: String,
     val image: String,
     val title: String,
-    val subTitle: String
+    val subTitle: String?
 )
