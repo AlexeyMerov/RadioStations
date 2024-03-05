@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -56,19 +57,22 @@ fun BaseSettingsScreen(
     if (isVisibleToUser) TopBarSetup(topBarBlock)
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val onViewAction: (ViewAction) -> Unit = { viewModel.setAction(it) }
-
     SettingsScreen(
         viewState = viewState,
-        onAction = onViewAction
+        onAction = { viewModel.setAction(it) }
     )
 }
 
 @Composable
 private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
-    val title = stringResource(R.string.settings)
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        topBarBlock.invoke(TopBarState(title = title, displayBackButton = true))
+        topBarBlock.invoke(
+            TopBarState(
+                title = context.getString(R.string.settings),
+                displayBackButton = true
+            )
+        )
     }
 }
 

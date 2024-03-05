@@ -76,9 +76,6 @@ fun ExpandableBottomPlayer(
     val config = LocalConfiguration.current
     val statusBarInsets = WindowInsets.statusBars
 
-    val isPlaying = playerState == PlayerState.PLAYING
-    val isLoading = playerState == PlayerState.LOADING
-
     val iconPlayLoadingSize = 36.dp
     var textHeight by remember { mutableFloatStateOf(0f) }
     var textWidth by remember { mutableFloatStateOf(0f) }
@@ -177,7 +174,7 @@ fun ExpandableBottomPlayer(
                 )
                 .size(iconPlayLoadingSize)
         ) {
-            if (isLoading) {
+            if (playerState == PlayerState.LOADING) {
                 CircularProgressIndicator(
                     modifier = Modifier.padding(8.dp),
                     strokeWidth = 2.dp,
@@ -188,7 +185,7 @@ fun ExpandableBottomPlayer(
                 PlayButton(
                     modifier = Modifier,
                     onColor = onContainerColor,
-                    isPlaying = isPlaying,
+                    isPlaying = playerState == PlayerState.PLAYING,
                     onTogglePlay = { onToggleAudio.invoke() }
                 )
             }

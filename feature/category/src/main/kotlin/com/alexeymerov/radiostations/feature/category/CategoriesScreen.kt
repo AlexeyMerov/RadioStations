@@ -43,6 +43,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -210,9 +211,10 @@ private fun MainContent(
     onFavClick: (CategoryItemDto) -> Unit
 ) {
     ComposedTimberD("CategoriesScreen - MainContent")
+
+    val config = LocalConfiguration.current
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val config = LocalConfiguration.current
     var needShowMap by rememberSaveable { mutableStateOf(false) }
 
     val columnCount = remember(config) {
@@ -365,7 +367,7 @@ private fun ShowMap(
                     }
                 )
 
-                LoadIcon(
+                LoadIconForMapPin(
                     image = item.image,
                     onLoaded = { bitmapDescriptor = it }
                 )
@@ -381,7 +383,7 @@ private fun ShowMap(
 }
 
 @Composable
-private fun LoadIcon(
+private fun LoadIconForMapPin(
     image: String?,
     onLoaded: (BitmapDescriptor) -> Unit
 ) {
@@ -390,16 +392,23 @@ private fun LoadIcon(
     val imageRequest = remember { ImageRequest.Builder(context) }
     val transformation = remember { CircleCropTransformation() }
 
-    val request = imageRequest
-        .data(image)
-        .transformations(transformation)
-        .target(
-            onSuccess = {
-                onLoaded.invoke(BitmapDescriptorFactory.fromBitmap(it.toBitmap()))
-            }
-        )
-        .build()
-    imageLoader.enqueue(request)
+    DisposableEffect(image) {
+        val request = imageRequest
+            .data(image)
+            .transformations(transformation)
+            .target(
+                onSuccess = {
+                    onLoaded.invoke(BitmapDescriptorFactory.fromBitmap(it.toBitmap()))
+                }
+            )
+            .build()
+
+        imageLoader.enqueue(request)
+
+        onDispose {
+            imageLoader.shutdown()
+        }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

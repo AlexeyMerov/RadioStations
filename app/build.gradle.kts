@@ -73,6 +73,12 @@ android {
     }
 }
 
+androidComponents {
+    onVariants(selector().withBuildType("release")) {
+        it.packaging.resources.excludes.add("META-INF/**")
+    }
+}
+
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.domain)

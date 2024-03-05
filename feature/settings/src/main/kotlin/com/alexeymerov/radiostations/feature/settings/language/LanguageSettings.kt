@@ -46,7 +46,8 @@ import java.util.Locale
 @Composable
 internal fun LanguageSettings(modifier: Modifier) {
     val context = LocalContext.current
-    val currentLocale = LocalConfiguration.current.locales[0]
+    val config = LocalConfiguration.current
+    val colorScheme = MaterialTheme.colorScheme
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     Button(
@@ -69,10 +70,14 @@ internal fun LanguageSettings(modifier: Modifier) {
                     key = { _, item -> item.language }
                 ) { index, item ->
 
-                    var textColor by remember { mutableStateOf(Color.Unspecified) }
-                    val isSelectedLocale = item.language == currentLocale.language
-                    if (isSelectedLocale) {
-                        textColor = MaterialTheme.colorScheme.primary
+                    val isSelectedLocale = remember(item) { item.language == config.locales[0].language }
+
+                    val textColor = remember(item) {
+                        if (isSelectedLocale) {
+                            colorScheme.primary
+                        } else {
+                            Color.Unspecified
+                        }
                     }
 
                     Box(

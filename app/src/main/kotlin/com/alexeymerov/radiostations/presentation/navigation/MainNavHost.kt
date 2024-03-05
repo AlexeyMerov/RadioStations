@@ -83,34 +83,33 @@ fun MainNavGraph(
     isNetworkAvailable: Boolean,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
-    val navController = rememberNavController()
-    var topBarState by rememberSaveable { mutableStateOf(TopBarState(String.EMPTY)) }
-    val topBarBlock: (TopBarState) -> Unit = { topBarState = it }
+    LaunchedEffect(isNetworkAvailable) {
+        Timber.d("MainNavGraph - isNetworkAvailable $isNetworkAvailable")
+    }
 
     val config = LocalConfiguration.current
     val coroutineScope = rememberCoroutineScope()
-
+    val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    var topBarState by rememberSaveable { mutableStateOf(TopBarState(String.EMPTY)) }
+    val topBarBlock: (TopBarState) -> Unit = { topBarState = it }
+    val toBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     DisposableEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, _, _ ->
-            scrollBehavior.state.heightOffset = 0f
+            toBarScrollBehavior.state.heightOffset = 0f
         }
 
         navController.addOnDestinationChangedListener(listener)
         onDispose { navController.removeOnDestinationChangedListener(listener) }
     }
 
-    LaunchedEffect(isNetworkAvailable) {
-        Timber.d("MainNavGraph - isNetworkAvailable $isNetworkAvailable")
-    }
-
-    val sheetState = rememberStandardBottomSheetState(
+    val bottomSheetState = rememberStandardBottomSheetState(
         skipHiddenState = false,
         initialValue = SheetValue.Hidden
     )
-    val sheetScaffoldState = rememberBottomSheetScaffoldState(sheetState)
+    val sheetScaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
 
     // sheetState works incorrect. After sheetState.hide() sheetState.isVisible can ba true on some devices
     val isPlayerVisible by remember(playerState) {
@@ -134,12 +133,12 @@ fun MainNavGraph(
              * Even though "initialValue = SheetValue.Hidden".
              * confirmValueChange also not triggering for some reason.
              * */
-            LaunchedEffect(sheetState.targetValue) {
-                Timber.d("MainNavGraph - playerSheetState targetValue ${sheetState.targetValue}")
-                if (sheetState.targetValue == SheetValue.PartiallyExpanded
+            LaunchedEffect(bottomSheetState.targetValue) {
+                Timber.d("MainNavGraph - playerSheetState targetValue ${bottomSheetState.targetValue}")
+                if (bottomSheetState.targetValue == SheetValue.PartiallyExpanded
                     && (currentMedia == null || playerState == PlayerState.EMPTY)
                 ) {
-                    sheetState.hide()
+                    bottomSheetState.hide()
                 }
             }
 
@@ -151,9 +150,9 @@ fun MainNavGraph(
 
             var sheetFullHeightPx by remember { mutableFloatStateOf(0f) }
 
-            val sheetOffset by remember(sheetState) {
+            val sheetOffset by remember(bottomSheetState) {
                 derivedStateOf {
-                    runCatching { sheetState.requireOffset() }.getOrDefault(0f)
+                    runCatching { bottomSheetState.requireOffset() }.getOrDefault(0f)
                 }
             }
 
@@ -185,7 +184,7 @@ fun MainNavGraph(
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
-                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .nestedScroll(toBarScrollBehavior.nestedScrollConnection)
                     .run { if (config.isLandscape()) displayCutoutPadding() else this },
                 bottomBar = {
                     if (config.isPortrait()) {
@@ -212,7 +211,7 @@ fun MainNavGraph(
                                 start = scaffoldPaddingValues.calculateStartPadding(LayoutDirection.Ltr),
                             ),
                         scaffoldState = sheetScaffoldState,
-                        topBar = { TopBar(topBarState, scrollBehavior) },
+                        topBar = { TopBar(topBarState, toBarScrollBehavior) },
                         sheetDragHandle = null,
                         sheetPeekHeight = peekHeightDp + scaffoldPaddingValues.calculateBottomPadding(),
                         sheetShape = RoundedCornerShape(topStart = animData.shapeCornerRadius, topEnd = animData.shapeCornerRadius),
@@ -229,7 +228,7 @@ fun MainNavGraph(
                                 currentMedia = currentMedia,
                                 onCloseAction = {
                                     coroutineScope.launch {
-                                        sheetState.hide()
+                                        bottomSheetState.hide()
                                     }
                                     onPlayerAction.invoke(MainViewModel.ViewAction.NukePlayer)
                                 },
@@ -238,7 +237,7 @@ fun MainNavGraph(
                                 },
                                 onCollapse = {
                                     coroutineScope.launch {
-                                        sheetState.partialExpand()
+                                        bottomSheetState.partialExpand()
                                     }
                                 }
                             )
@@ -269,8 +268,8 @@ fun MainNavGraph(
 
             LaunchedEffect(playerState) {
                 when {
-                    playerState == PlayerState.EMPTY && sheetState.isVisible -> sheetState.hide()
-                    playerState != PlayerState.EMPTY && !sheetState.isVisible -> sheetState.partialExpand()
+                    playerState == PlayerState.EMPTY && bottomSheetState.isVisible -> bottomSheetState.hide()
+                    playerState != PlayerState.EMPTY && !bottomSheetState.isVisible -> bottomSheetState.partialExpand()
                 }
             }
         }

@@ -102,12 +102,12 @@ private fun TopBarSetup(
     topBarBlock: (TopBarState) -> Unit,
     onAction: (ViewAction) -> Unit
 ) {
-    val title = stringResource(R.string.favorites)
+    val context = LocalContext.current
     LaunchedEffect(Unit, selectedItemsCount) {
         val topBarState = when (selectedItemsCount) {
             0 -> {
                 TopBarState(
-                    title = title,
+                    title = context.getString(R.string.favorites),
                     rightIcon = RightIconItem(TopBarIcon.SETTINGS).apply {
                         dropDownMenu = dropDownItems { viewType ->
                             onAction.invoke(ViewAction.SetViewType(viewType))
@@ -196,9 +196,9 @@ private fun HandleEffects(
     viewEffect: FavoritesViewModel.ViewEffect?,
     onAction: (ViewAction) -> Unit
 ) {
+    val context = LocalContext.current
     val snackbar = LocalSnackbar.current
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     DisposableEffect(viewEffect) {
         if (viewEffect is FavoritesViewModel.ViewEffect.ShowUnfavoriteToast) {

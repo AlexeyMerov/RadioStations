@@ -26,8 +26,6 @@ internal fun Project.configureKotlinAndroid(
             implementation(libs.getLibrary("coroutines-core"))
             implementation(libs.getLibrary("coroutines-android"))
         }
-
-        packaging.resources.excludes.add("META-INF/*")
     }
 
     configureKotlin()

@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -145,11 +146,9 @@ private fun MainContentWithOrientation(
     val configuration = LocalConfiguration.current
     val themeBackgroundColor = MaterialTheme.colorScheme.background
 
-    var secondColor by remember {
-        mutableStateOf(themeBackgroundColor)
-    }
-
+    var secondColor by remember { mutableStateOf(themeBackgroundColor) }
     val animateSecondColor by animateColorAsState(secondColor, label = String.EMPTY)
+    val brushColorList = remember(animateSecondColor) { mutableStateListOf(themeBackgroundColor, animateSecondColor) }
 
     val onPaletteResult: (Palette) -> Unit = remember {
         { palette ->
@@ -165,7 +164,7 @@ private fun MainContentWithOrientation(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Brush.verticalGradient(listOf(themeBackgroundColor, animateSecondColor))),
+                    .background(Brush.verticalGradient(brushColorList)),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -177,7 +176,7 @@ private fun MainContentWithOrientation(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Brush.verticalGradient(listOf(themeBackgroundColor, animateSecondColor)))
+                    .background(Brush.verticalGradient(brushColorList))
                     .padding(bottom = 46.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly

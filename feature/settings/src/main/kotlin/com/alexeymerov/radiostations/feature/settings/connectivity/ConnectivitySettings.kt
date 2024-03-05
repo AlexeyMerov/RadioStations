@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.CONNECTIVITY_SWITCH
 import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.CONNECTIVITY_VIEW
@@ -25,11 +25,9 @@ import com.alexeymerov.radiostations.feature.settings.SettingsViewModel
 @Composable
 internal fun ConnectivitySettings(
     modifier: Modifier,
-    connectionStatus: ConnectivitySettingsUseCase.ConnectionStatus,
+    connectionStatus: ConnectionStatus,
     onAction: (SettingsViewModel.ViewAction) -> Unit
 ) {
-    val isOnline = connectionStatus == ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
-
     Row(
         modifier = modifier
             .height(ButtonDefaults.MinHeight)
@@ -56,13 +54,10 @@ internal fun ConnectivitySettings(
             modifier = Modifier
                 .padding(end = 4.dp)
                 .testTag(CONNECTIVITY_SWITCH),
-            checked = isOnline,
-            onCheckedChange = {
-                onAction.invoke(
-                    SettingsViewModel.ViewAction.ChangeConnection(
-                        if (isOnline) ConnectivitySettingsUseCase.ConnectionStatus.OFFLINE else ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
-                    )
-                )
+            checked = connectionStatus == ConnectionStatus.ONLINE,
+            onCheckedChange = { isChecked ->
+                val newStatus = if (isChecked) ConnectionStatus.ONLINE else ConnectionStatus.OFFLINE
+                onAction.invoke(SettingsViewModel.ViewAction.ChangeConnection(newStatus))
             })
     }
 }

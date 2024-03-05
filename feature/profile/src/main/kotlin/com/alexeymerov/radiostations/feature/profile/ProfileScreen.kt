@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
@@ -315,10 +314,10 @@ private fun MainContent(
 
 @Composable
 private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
-    val title = stringResource(R.string.profile)
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         topBarBlock.invoke(
-            TopBarState(title = title)
+            TopBarState(title = context.getString(R.string.profile))
         )
     }
 }

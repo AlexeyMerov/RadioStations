@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -74,15 +75,21 @@ fun ShimmerLoading(modifier: Modifier) {
             .testTag(CommonViewTestTags.SHIMMER),
     ) {
 
-        val shimmerEffect = Modifier.shimmerEffect(shape = CardDefaults.shape)
+        val cardShape = CardDefaults.shape
+        val smallShape = MaterialTheme.shapes.small
+        val mediumShape = MaterialTheme.shapes.medium
+
+        val shimmerEffect = remember { Modifier.shimmerEffect(shape = cardShape) }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            val headerModifier = Modifier
-                .shimmerEffect(shape = MaterialTheme.shapes.small)
-                .height(28.dp)
+            val headerModifier = remember {
+                Modifier
+                    .shimmerEffect(shape = smallShape)
+                    .height(28.dp)
+            }
 
             Box(headerModifier.width(80.dp))
 
@@ -151,6 +158,18 @@ fun ShimmerLoading(modifier: Modifier) {
 
         Spacer(Modifier.height(8.dp))
 
+        val imageModifier = remember {
+            Modifier
+                .shimmerEffect(
+                    shape = mediumShape.copy(
+                        topEnd = CornerSize(0),
+                        bottomEnd = CornerSize(0)
+                    )
+                )
+                .fillMaxHeight()
+                .aspectRatio(1f)
+        }
+
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -161,17 +180,7 @@ fun ShimmerLoading(modifier: Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Box(
-                modifier = Modifier
-                    .shimmerEffect(
-                        shape = MaterialTheme.shapes.medium.copy(
-                            topEnd = CornerSize(0),
-                            bottomEnd = CornerSize(0)
-                        )
-                    )
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
-            )
+            Box(modifier = imageModifier)
 
             Spacer(Modifier.width(16.dp))
 
@@ -198,17 +207,7 @@ fun ShimmerLoading(modifier: Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Box(
-                modifier = Modifier
-                    .shimmerEffect(
-                        shape = MaterialTheme.shapes.medium.copy(
-                            topEnd = CornerSize(0),
-                            bottomEnd = CornerSize(0)
-                        )
-                    )
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
-            )
+            Box(modifier = imageModifier)
 
             Column(Modifier.padding(start = 16.dp)) {
                 Box(
