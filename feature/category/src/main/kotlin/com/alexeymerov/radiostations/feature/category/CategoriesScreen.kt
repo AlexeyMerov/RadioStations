@@ -83,6 +83,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.core.ui.extensions.shimmerEffect
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
+import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.ShimmerLoading
@@ -118,7 +119,6 @@ fun BaseCategoryScreen(
     isVisibleToUser: Boolean,
     defTitle: String,
     categoryTitle: String,
-    parentRoute: String,
     onNavigate: (String) -> Unit
 ) {
     ComposedTimberD("BaseCategoryScreen")
@@ -147,7 +147,7 @@ fun BaseCategoryScreen(
             },
             onAudioClick = {
                 if (isNetworkAvailable) {
-                    val route = Screens.Player(parentRoute).createRoute(
+                    val route = Screens.Player(Tabs.Browse.route).createRoute(
                         rawUrl = it.url,
                         stationName = it.text
                     )

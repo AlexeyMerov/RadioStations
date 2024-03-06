@@ -41,6 +41,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
+import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
@@ -56,7 +57,6 @@ import kotlinx.coroutines.launch
 fun BaseFavoriteScreen(
     viewModel: FavoritesViewModel,
     isVisibleToUser: Boolean,
-    parentRoute: String,
     onNavigate: (String) -> Unit,
 ) {
     val isNetworkAvailable = LocalConnectionStatus.current
@@ -84,7 +84,7 @@ fun BaseFavoriteScreen(
         inSelection = inSelection,
         onAudioClick = {
             if (isNetworkAvailable) {
-                val route = Screens.Player(parentRoute).createRoute(
+                val route = Screens.Player(Tabs.Favorites.route).createRoute(
                     rawUrl = it.url,
                     stationName = it.text
                 )

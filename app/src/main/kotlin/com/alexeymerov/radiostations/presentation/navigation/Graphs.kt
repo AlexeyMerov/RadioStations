@@ -8,14 +8,14 @@ import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 
 fun NavGraphBuilder.browseGraph() {
     navigation(startDestination = Screens.Categories.route, route = Tabs.Browse.route) {
-        categoriesScreen(Tabs.Browse.route)
+        categoriesScreen()
         playerScreen(Tabs.Browse.route)
     }
 }
 
 fun NavGraphBuilder.favoriteGraph() {
     navigation(startDestination = Screens.Favorites.route, route = Tabs.Favorites.route) {
-        favoritesScreen(Tabs.Favorites.route)
+        favoritesScreen()
         playerScreen(Tabs.Favorites.route)
     }
 }

@@ -23,7 +23,7 @@ import com.alexeymerov.radiostations.feature.profile.BaseProfileScreen
 import com.alexeymerov.radiostations.feature.settings.BaseSettingsScreen
 
 
-fun NavGraphBuilder.categoriesScreen(parentRoute: String) {
+fun NavGraphBuilder.categoriesScreen() {
     composable(
         route = Screens.Categories.route,
         arguments = listOf(
@@ -43,7 +43,6 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String) {
             isVisibleToUser = navController.isVisibleToUser(Screens.Categories.Const.ROUTE),
             defTitle = defTitle,
             categoryTitle = categoryTitle,
-            parentRoute = parentRoute,
             onNavigate = { navController.navigate(it) }
         )
     }
@@ -70,7 +69,7 @@ fun NavGraphBuilder.playerScreen(parentRoute: String) {
     }
 }
 
-fun NavGraphBuilder.favoritesScreen(parentRoute: String) {
+fun NavGraphBuilder.favoritesScreen() {
     composable(
         route = Screens.Favorites.route,
         arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
@@ -81,7 +80,6 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String) {
         BaseFavoriteScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Favorites.Const.ROUTE),
-            parentRoute = parentRoute,
             onNavigate = { navController.navigate(it) }
         )
     }
