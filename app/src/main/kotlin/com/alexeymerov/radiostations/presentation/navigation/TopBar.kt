@@ -49,9 +49,10 @@ import androidx.lifecycle.Lifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
+import com.alexeymerov.radiostations.core.ui.common.RightIconItem
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
-import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.core.ui.view.DropDownRow
 
 @Composable
@@ -92,7 +93,7 @@ private fun TopBarTitle(title: String, subTitle: String?) {
     val isNetworkAvailable = LocalConnectionStatus.current
 
     Column(
-        modifier = Modifier.run { if (config.isLandscape()) padding(start = 80.dp) else this },
+        modifier = Modifier.setIf(config.isLandscape()) { padding(start = 80.dp) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AnimatedContent(

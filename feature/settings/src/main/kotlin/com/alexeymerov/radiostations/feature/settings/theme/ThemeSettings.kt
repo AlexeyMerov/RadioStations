@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -31,7 +33,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
+import com.alexeymerov.radiostations.core.common.ColorTheme
+import com.alexeymerov.radiostations.core.common.DarkLightMode
+import com.alexeymerov.radiostations.core.common.ThemeState
+import com.alexeymerov.radiostations.core.common.UseDynamicColor
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogHeight
 import com.alexeymerov.radiostations.core.ui.extensions.maxDialogWidth
@@ -42,7 +47,7 @@ import com.alexeymerov.radiostations.feature.settings.SettingsViewModel
 @Composable
 internal fun ThemeSettings(
     modifier: Modifier,
-    themeState: ThemeSettingsUseCase.ThemeState,
+    themeState: ThemeState,
     onAction: (SettingsViewModel.ViewAction) -> Unit
 ) {
     var needShowThemeDialog by rememberSaveable { mutableStateOf(false) }
@@ -81,7 +86,7 @@ internal fun ThemeSettings(
 
 @Composable
 private fun ThemeDialog(
-    themeState: ThemeSettingsUseCase.ThemeState,
+    themeState: ThemeState,
     onDismiss: () -> Unit,
     onViewAction: (SettingsViewModel.ViewAction) -> Unit
 ) {
@@ -123,7 +128,7 @@ private fun ThemeDialog(
                 DynamicColorOptions(themeState.useDynamicColor, onAction = onViewAction)
 
 //              AnimatedVisibility - feels like frame drop, smth with AlertDialog, maybe add later
-                if (!themeState.useDynamicColor) {
+                if (!themeState.useDynamicColor.value) {
                     ColorOptions(themeState.colorTheme, onAction = onViewAction)
                 }
             }
@@ -133,55 +138,55 @@ private fun ThemeDialog(
 
 @Composable
 private fun DarkThemeOptions(
-    darkLightMode: ThemeSettingsUseCase.DarkLightMode,
+    darkLightMode: DarkLightMode,
     onAction: (SettingsViewModel.ViewAction) -> Unit
 ) {
     BasicRadioButton(
-        isSelected = darkLightMode == ThemeSettingsUseCase.DarkLightMode.SYSTEM,
+        isSelected = darkLightMode == DarkLightMode.SYSTEM,
         text = stringResource(R.string.system),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(ThemeSettingsUseCase.DarkLightMode.SYSTEM)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(DarkLightMode.SYSTEM)) }
     )
 
     BasicRadioButton(
-        isSelected = darkLightMode == ThemeSettingsUseCase.DarkLightMode.LIGHT,
+        isSelected = darkLightMode == DarkLightMode.LIGHT,
         text = stringResource(R.string.light),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(ThemeSettingsUseCase.DarkLightMode.LIGHT)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(DarkLightMode.LIGHT)) }
     )
 
     BasicRadioButton(
-        isSelected = darkLightMode == ThemeSettingsUseCase.DarkLightMode.DARK,
+        isSelected = darkLightMode == DarkLightMode.DARK,
         text = stringResource(R.string.dark),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(ThemeSettingsUseCase.DarkLightMode.DARK)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(DarkLightMode.DARK)) }
     )
 
     BasicRadioButton(
-        isSelected = darkLightMode == ThemeSettingsUseCase.DarkLightMode.NIGHT,
+        isSelected = darkLightMode == DarkLightMode.NIGHT,
         text = stringResource(R.string.night),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(ThemeSettingsUseCase.DarkLightMode.NIGHT)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDarkMode(DarkLightMode.NIGHT)) }
     )
 }
 
 @Composable
 private fun DynamicColorOptions(
-    useDynamicColor: Boolean,
+    useDynamicColor: UseDynamicColor,
     onAction: (SettingsViewModel.ViewAction) -> Unit
 ) {
     BasicRadioButton(
-        isSelected = useDynamicColor,
+        isSelected = useDynamicColor.value,
         text = stringResource(R.string.yes),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDynamicColor(true)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDynamicColor(UseDynamicColor(true))) }
     )
 
     BasicRadioButton(
-        isSelected = !useDynamicColor,
+        isSelected = !useDynamicColor.value,
         text = stringResource(R.string.no),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDynamicColor(false)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeDynamicColor(UseDynamicColor(false))) }
     )
 }
 
 @Composable
 private fun ColorOptions(
-    colorTheme: ThemeSettingsUseCase.ColorTheme,
+    colorTheme: ColorTheme,
     onAction: (SettingsViewModel.ViewAction) -> Unit
 ) {
     Text(
@@ -191,21 +196,21 @@ private fun ColorOptions(
     )
 
     BasicRadioButton(
-        isSelected = colorTheme == ThemeSettingsUseCase.ColorTheme.DEFAULT_BLUE,
+        isSelected = colorTheme == ColorTheme.DEFAULT_BLUE,
         text = stringResource(R.string.default_blue),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeColorScheme(ThemeSettingsUseCase.ColorTheme.DEFAULT_BLUE)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeColorScheme(ColorTheme.DEFAULT_BLUE)) }
     )
 
     BasicRadioButton(
-        isSelected = colorTheme == ThemeSettingsUseCase.ColorTheme.GREEN,
+        isSelected = colorTheme == ColorTheme.GREEN,
         text = stringResource(R.string.green),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeColorScheme(ThemeSettingsUseCase.ColorTheme.GREEN)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeColorScheme(ColorTheme.GREEN)) }
     )
 
     BasicRadioButton(
-        isSelected = colorTheme == ThemeSettingsUseCase.ColorTheme.ORANGE,
+        isSelected = colorTheme == ColorTheme.ORANGE,
         text = stringResource(R.string.orange),
-        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeColorScheme(ThemeSettingsUseCase.ColorTheme.ORANGE)) }
+        action = { onAction.invoke(SettingsViewModel.ViewAction.ChangeColorScheme(ColorTheme.ORANGE)) }
     )
 }
 
@@ -218,6 +223,7 @@ private fun BasicRadioButton(
     Row(
         modifier = Modifier
             .wrapContentWidth()
+            .clip(CircleShape)
             .selectable(
                 selected = isSelected,
                 role = Role.RadioButton,

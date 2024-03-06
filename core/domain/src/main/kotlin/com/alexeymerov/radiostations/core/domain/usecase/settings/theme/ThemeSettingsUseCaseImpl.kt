@@ -1,9 +1,10 @@
 package com.alexeymerov.radiostations.core.domain.usecase.settings.theme
 
+import com.alexeymerov.radiostations.core.common.ColorTheme
+import com.alexeymerov.radiostations.core.common.DarkLightMode
+import com.alexeymerov.radiostations.core.common.ThemeState
+import com.alexeymerov.radiostations.core.common.UseDynamicColor
 import com.alexeymerov.radiostations.core.datastore.SettingsStore
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -22,7 +23,7 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
             val colorTheme = ColorTheme.entries.first { it.value == colorThemeId }
             ThemeState(
                 darkLightMode = darkLightMode,
-                useDynamicColor = dynamicColorValue,
+                useDynamicColor = UseDynamicColor(dynamicColorValue),
                 colorTheme = colorTheme
             )
         }
@@ -30,7 +31,7 @@ class ThemeSettingsUseCaseImpl @Inject constructor(
 
     override suspend fun updateThemeState(state: ThemeState) {
         settingsStore.setIntPrefs(DARK_THEME_KEY, state.darkLightMode.value)
-        settingsStore.setBoolPrefs(DYNAMIC_COLOR_KEY, state.useDynamicColor)
+        settingsStore.setBoolPrefs(DYNAMIC_COLOR_KEY, state.useDynamicColor.value)
         settingsStore.setIntPrefs(COLOR_KEY, state.colorTheme.value)
     }
 

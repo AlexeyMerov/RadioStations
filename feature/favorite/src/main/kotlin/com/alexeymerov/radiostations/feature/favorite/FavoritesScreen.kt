@@ -30,16 +30,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.DropDownItem
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.RightIconItem
+import com.alexeymerov.radiostations.core.ui.common.TopBarIcon
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
-import com.alexeymerov.radiostations.core.ui.navigation.DropDownItem
-import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarIcon
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
@@ -55,7 +56,6 @@ import kotlinx.coroutines.launch
 fun BaseFavoriteScreen(
     viewModel: FavoritesViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
     parentRoute: String,
     onNavigate: (String) -> Unit,
 ) {
@@ -65,7 +65,6 @@ fun BaseFavoriteScreen(
     if (isVisibleToUser) {
         TopBarSetup(
             selectedItemsCount = selectedItemsCount,
-            topBarBlock = topBarBlock,
             onAction = { viewModel.setAction(it) }
         )
     }
@@ -99,10 +98,10 @@ fun BaseFavoriteScreen(
 @Composable
 private fun TopBarSetup(
     selectedItemsCount: Int,
-    topBarBlock: (TopBarState) -> Unit,
     onAction: (ViewAction) -> Unit
 ) {
     val context = LocalContext.current
+    val topBar = LocalTopbar.current
     LaunchedEffect(Unit, selectedItemsCount) {
         val topBarState = when (selectedItemsCount) {
             0 -> {
@@ -127,7 +126,7 @@ private fun TopBarSetup(
             }
         }
 
-        topBarBlock.invoke(topBarState)
+        topBar.invoke(topBarState)
     }
 }
 

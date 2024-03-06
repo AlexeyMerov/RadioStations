@@ -43,10 +43,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.remembers.rememberGalleyPicker
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTakePicture
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
@@ -71,10 +72,9 @@ import timber.log.Timber
 fun BaseProfileScreen(
     viewModel: ProfileViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
     onNavigate: (String) -> Unit
 ) {
-    if (isVisibleToUser) TopBarSetup(topBarBlock)
+    if (isVisibleToUser) TopBarSetup()
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     ProfileScreen(
@@ -313,10 +313,11 @@ private fun MainContent(
 }
 
 @Composable
-private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
+private fun TopBarSetup() {
     val context = LocalContext.current
+    val topBar = LocalTopbar.current
     LaunchedEffect(Unit) {
-        topBarBlock.invoke(
+        topBar.invoke(
             TopBarState(title = context.getString(R.string.profile))
         )
     }

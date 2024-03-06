@@ -1,6 +1,6 @@
 package com.alexeymerov.radiostations.core.domain.usecase.settings.theme
 
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
+import com.alexeymerov.radiostations.core.common.ThemeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

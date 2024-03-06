@@ -20,11 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
-import com.alexeymerov.radiostations.core.ui.common.LocalDarkMode
-import com.alexeymerov.radiostations.core.ui.common.LocalNightMode
+import com.alexeymerov.radiostations.core.common.ColorTheme
+import com.alexeymerov.radiostations.core.common.DarkLightMode
+import com.alexeymerov.radiostations.core.common.ThemeState
+import com.alexeymerov.radiostations.core.ui.common.LocalTheme
 import com.alexeymerov.radiostations.presentation.theme.blue.getBlueColorScheme
 import com.alexeymerov.radiostations.presentation.theme.green.getGreenColorScheme
 import com.alexeymerov.radiostations.presentation.theme.orange.getOrangeColorScheme
@@ -47,8 +46,8 @@ fun StationsAppTheme(
     val context = LocalContext.current
 
     var colors: ColorScheme = when {
-        isS && themeState.useDynamicColor && useDarkTheme -> dynamicDarkColorScheme(context)
-        isS && themeState.useDynamicColor -> dynamicLightColorScheme(context)
+        isS && themeState.useDynamicColor.value && useDarkTheme -> dynamicDarkColorScheme(context)
+        isS && themeState.useDynamicColor.value -> dynamicLightColorScheme(context)
         else -> when (themeState.colorTheme) {
             ColorTheme.GREEN -> getGreenColorScheme(useDarkTheme)
             ColorTheme.ORANGE -> getOrangeColorScheme(useDarkTheme)
@@ -56,10 +55,7 @@ fun StationsAppTheme(
         }
     }
 
-    val isDarkMode = themeState.darkLightMode == DarkLightMode.DARK
-    val isNightMode = themeState.darkLightMode == DarkLightMode.NIGHT
-
-    if (isNightMode) {
+    if (themeState.darkLightMode == DarkLightMode.NIGHT) {
         colors = colors.copy(
             surface = Color.Black,
             background = Color.Black,
@@ -84,10 +80,7 @@ fun StationsAppTheme(
             color = MaterialTheme.colorScheme.surfaceColorAtElevation(NavigationBarDefaults.Elevation)
         )
 
-        CompositionLocalProvider(
-            LocalDarkMode provides isDarkMode,
-            LocalNightMode provides isNightMode,
-        ) {
+        CompositionLocalProvider(LocalTheme provides themeState) {
             content.invoke()
         }
     }

@@ -53,10 +53,11 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.RightIconItem
+import com.alexeymerov.radiostations.core.ui.common.TopBarIcon
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
-import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarIcon
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
@@ -68,14 +69,12 @@ import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewS
 fun BasePlayerScreen(
     viewModel: PlayerViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
     stationName: String
 ) {
     ComposedTimberD("BasePlayerScreen")
 
     if (isVisibleToUser) {
         TopBarSetup(
-            topBarBlock = topBarBlock,
             stationName = stationName,
             subTitle = viewModel.subTitle,
             isFavorite = viewModel.isFavorite,
@@ -110,14 +109,14 @@ internal fun PlayerScreen(
 
 @Composable
 private fun TopBarSetup(
-    topBarBlock: (TopBarState) -> Unit,
     stationName: String,
     subTitle: String?,
     isFavorite: Boolean?,
     onAction: (ViewAction) -> Unit
 ) {
+    val topBar = LocalTopbar.current
     LaunchedEffect(Unit, subTitle, isFavorite) {
-        topBarBlock.invoke(
+        topBar.invoke(
             TopBarState(
                 title = stationName,
                 subTitle = subTitle,

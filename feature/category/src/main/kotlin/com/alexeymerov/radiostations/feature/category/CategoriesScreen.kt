@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +55,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -63,20 +66,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import com.alexeymerov.radiostations.core.common.DarkLightMode
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.dto.DtoItemType
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
-import com.alexeymerov.radiostations.core.ui.common.LocalDarkMode
-import com.alexeymerov.radiostations.core.ui.common.LocalNightMode
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.common.LocalTheme
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.defListItemHeight
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
+import com.alexeymerov.radiostations.core.ui.extensions.setIf
+import com.alexeymerov.radiostations.core.ui.extensions.shimmerEffect
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.ShimmerLoading
@@ -90,6 +96,7 @@ import com.alexeymerov.radiostations.feature.category.item.CategoryScreenTestTag
 import com.alexeymerov.radiostations.feature.category.item.HeaderListItem
 import com.alexeymerov.radiostations.feature.category.item.SubCategoryListItem
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -101,6 +108,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -108,7 +116,6 @@ import kotlinx.coroutines.launch
 fun BaseCategoryScreen(
     viewModel: CategoriesViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
     defTitle: String,
     categoryTitle: String,
     parentRoute: String,
@@ -117,7 +124,7 @@ fun BaseCategoryScreen(
     ComposedTimberD("BaseCategoryScreen")
     val isNetworkAvailable = LocalConnectionStatus.current
 
-    if (isVisibleToUser) TopBarSetup(categoryTitle, defTitle, topBarBlock)
+    if (isVisibleToUser) TopBarSetup(categoryTitle, defTitle)
 
     LaunchedEffect(Unit) { viewModel.setAction(ViewAction.LoadCategories) }
 
@@ -131,7 +138,7 @@ fun BaseCategoryScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .run { if (isNetworkAvailable) pullRefresh(pullRefreshState) else this }
+            .setIf(isNetworkAvailable) { pullRefresh(pullRefreshState) }
     ) {
         CategoryScreen(
             viewState = viewState,
@@ -161,12 +168,12 @@ fun BaseCategoryScreen(
 @Composable
 private fun TopBarSetup(
     categoryTitle: String,
-    defTitle: String,
-    topBarBlock: (TopBarState) -> Unit
+    defTitle: String
 ) {
+    val topBar = LocalTopbar.current
     val displayBackButton by rememberSaveable(categoryTitle) { mutableStateOf(categoryTitle != defTitle) }
     LaunchedEffect(Unit, displayBackButton) {
-        topBarBlock.invoke(TopBarState(title = categoryTitle, displayBackButton = displayBackButton))
+        topBar.invoke(TopBarState(title = categoryTitle, displayBackButton = displayBackButton))
     }
 }
 
@@ -324,15 +331,19 @@ private fun ShowMap(
     itemsWithBounds: Pair<LatLngBounds, List<CategoryItemDto>>,
     onAudioClick: (CategoryItemDto) -> Unit
 ) {
-    val isDarkMode = LocalDarkMode.current
-    val isNightMode = LocalNightMode.current
+    val localTheme = LocalTheme.current
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-    val mapStyle = when {
-        isDarkMode -> MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
-        isNightMode -> MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_night)
+    val mapStyle = when (localTheme.darkLightMode) {
+        DarkLightMode.NIGHT -> R.raw.map_style_night
+        DarkLightMode.DARK -> R.raw.map_style_dark
+        DarkLightMode.SYSTEM -> if (isSystemInDarkTheme()) R.raw.map_style_dark else null
         else -> null
     }
+
+    var isMapLoading by remember { mutableStateOf(true) }
+    val mapStyleOptions = if (mapStyle != null) MapStyleOptions.loadRawResourceStyle(context, mapStyle) else null
 
     val bottomPadding by animateDpAsState(targetValue = if (LocalPlayerVisibility.current) 64.dp else 8.dp, label = String.EMPTY)
     val cameraPositionState = rememberCameraPositionState()
@@ -340,10 +351,20 @@ private fun ShowMap(
         modifier = Modifier
             .fillMaxSize()
             .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = bottomPadding)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .setIf(isMapLoading) { shimmerEffect() },
+        googleMapOptionsFactory = {
+            GoogleMapOptions().backgroundColor(Color.Gray.toArgb())
+        },
         cameraPositionState = cameraPositionState,
         uiSettings = MapUiSettings(zoomControlsEnabled = false),
-        properties = MapProperties(mapStyleOptions = mapStyle)
+        properties = MapProperties(mapStyleOptions = mapStyleOptions),
+        onMapLoaded = {
+            scope.launch {
+                delay(1000)
+                isMapLoading = false
+            }
+        }
     ) {
         itemsWithBounds.second.forEach { item ->
             val latitude = item.latitude

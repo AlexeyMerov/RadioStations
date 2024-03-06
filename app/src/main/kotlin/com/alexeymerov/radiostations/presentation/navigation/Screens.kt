@@ -15,7 +15,6 @@ import androidx.navigation.navArgument
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.feature.category.BaseCategoryScreen
 import com.alexeymerov.radiostations.feature.favorite.BaseFavoriteScreen
@@ -24,7 +23,7 @@ import com.alexeymerov.radiostations.feature.profile.BaseProfileScreen
 import com.alexeymerov.radiostations.feature.settings.BaseSettingsScreen
 
 
-fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.categoriesScreen(parentRoute: String) {
     composable(
         route = Screens.Categories.route,
         arguments = listOf(
@@ -42,7 +41,6 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
         BaseCategoryScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Categories.Const.ROUTE),
-            topBarBlock = topBarBlock,
             defTitle = defTitle,
             categoryTitle = categoryTitle,
             parentRoute = parentRoute,
@@ -51,7 +49,7 @@ fun NavGraphBuilder.categoriesScreen(parentRoute: String, topBarBlock: (TopBarSt
     }
 }
 
-fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.playerScreen(parentRoute: String) {
     composable(
         route = Screens.Player(parentRoute).route,
         arguments = listOf(
@@ -67,13 +65,12 @@ fun NavGraphBuilder.playerScreen(parentRoute: String, topBarBlock: (TopBarState)
         BasePlayerScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
-            topBarBlock = topBarBlock,
             stationName = stationName,
         )
     }
 }
 
-fun NavGraphBuilder.favoritesScreen(parentRoute: String, topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.favoritesScreen(parentRoute: String) {
     composable(
         route = Screens.Favorites.route,
         arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
@@ -84,14 +81,13 @@ fun NavGraphBuilder.favoritesScreen(parentRoute: String, topBarBlock: (TopBarSta
         BaseFavoriteScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Favorites.Const.ROUTE),
-            topBarBlock = topBarBlock,
             parentRoute = parentRoute,
             onNavigate = { navController.navigate(it) }
         )
     }
 }
 
-fun NavGraphBuilder.profileScreen(topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.profileScreen() {
     composable(
         route = Screens.Profile.route,
         arguments = listOf(navArgument(Screens.Profile.Const.ARG_TITLE, defaultStringArg())),
@@ -102,13 +98,12 @@ fun NavGraphBuilder.profileScreen(topBarBlock: (TopBarState) -> Unit) {
         BaseProfileScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Profile.Const.ROUTE),
-            topBarBlock = topBarBlock,
             onNavigate = { navController.navigate(it) }
         )
     }
 }
 
-fun NavGraphBuilder.settingsScreen(topBarBlock: (TopBarState) -> Unit) {
+fun NavGraphBuilder.settingsScreen() {
     composable(
         route = Screens.Settings.route,
         arguments = listOf(navArgument(Screens.Settings.Const.ARG_TITLE, defaultStringArg())),
@@ -119,7 +114,6 @@ fun NavGraphBuilder.settingsScreen(topBarBlock: (TopBarState) -> Unit) {
         BaseSettingsScreen(
             viewModel = hiltViewModel(),
             isVisibleToUser = navController.isVisibleToUser(Screens.Settings.Const.ROUTE),
-            topBarBlock = topBarBlock
         )
     }
 }

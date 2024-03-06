@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -38,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -59,19 +59,21 @@ import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.graphicsScale
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.extensions.lerp
+import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.core.ui.extensions.toPx
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.feature.player.screen.ExpandableBottomPlayer
 import com.alexeymerov.radiostations.presentation.MainViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-val LocalNavController = compositionLocalOf<NavHostController> { error("NavHostController not found") }
+val LocalNavController = staticCompositionLocalOf<NavHostController> { error("NavHostController not found") }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,7 +122,8 @@ fun MainNavGraph(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
         LocalConnectionStatus provides isNetworkAvailable,
-        LocalPlayerVisibility provides isPlayerVisible
+        LocalPlayerVisibility provides isPlayerVisible,
+        LocalTopbar provides topBarBlock
     ) {
         Surface {
             val peekHeightDp = 46.dp
@@ -185,7 +188,7 @@ fun MainNavGraph(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(toBarScrollBehavior.nestedScrollConnection)
-                    .run { if (config.isLandscape()) displayCutoutPadding() else this },
+                    .setIf(config.isLandscape()) { displayCutoutPadding() },
                 bottomBar = {
                     if (config.isPortrait()) {
                         CreateBottomBar(
@@ -256,8 +259,7 @@ fun MainNavGraph(
                                             .fillMaxSize()
                                             .graphicsScale(animData.scaleContent),
                                         goToRoute = goToRoute,
-                                        starDest = starDest,
-                                        topBarBlock = topBarBlock,
+                                        starDest = starDest
                                     )
                                 }
                             }
@@ -280,8 +282,7 @@ fun MainNavGraph(
 private fun CreateNavHost(
     modifier: Modifier = Modifier,
     starDest: Tabs = Tabs.Browse,
-    goToRoute: String? = null,
-    topBarBlock: (TopBarState) -> Unit,
+    goToRoute: String? = null
 ) {
     val navController = LocalNavController.current
 
@@ -292,9 +293,9 @@ private fun CreateNavHost(
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
     ) {
-        browseGraph(topBarBlock)
-        favoriteGraph(topBarBlock)
-        youGraph(topBarBlock)
+        browseGraph()
+        favoriteGraph()
+        youGraph()
     }
 
     LaunchedEffect(goToRoute) {
