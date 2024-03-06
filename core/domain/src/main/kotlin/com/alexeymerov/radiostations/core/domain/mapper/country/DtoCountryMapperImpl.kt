@@ -1,7 +1,9 @@
 package com.alexeymerov.radiostations.core.domain.mapper.country
 
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.database.entity.CountryEntity
 import com.alexeymerov.radiostations.core.dto.CountryDto
+import timber.log.Timber
 import javax.inject.Inject
 
 class DtoCountryMapperImpl @Inject constructor() : DtoCountryMapper {
@@ -30,8 +32,17 @@ class DtoCountryMapperImpl @Inject constructor() : DtoCountryMapper {
     }
 
     private fun findIntRanges(originalText: String, searchText: String): Set<IntRange> {
-        return searchText.lowercase()
-            .toRegex()
+        val regex = try {
+            searchText
+                .replace("+", String.EMPTY)
+                .lowercase()
+                .toRegex()
+        } catch (e: Exception) {
+            Timber.e(e)
+            Regex(String.EMPTY)
+        }
+
+        return regex
             .findAll(originalText.lowercase())
             .map {
                 IntRange(

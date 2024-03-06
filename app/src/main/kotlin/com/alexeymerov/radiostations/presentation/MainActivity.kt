@@ -8,21 +8,26 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
+import com.alexeymerov.radiostations.core.common.ThemeState
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
+import com.alexeymerov.radiostations.core.dto.AudioItemDto
+import com.alexeymerov.radiostations.core.ui.extensions.collectWhenCreated
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.mediaservice.MediaServiceManager
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
 import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
+import com.alexeymerov.radiostations.presentation.navigation.Route
 import com.alexeymerov.radiostations.presentation.theme.StationsAppTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,44 +41,31 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    private var viewState by mutableStateOf<ViewState>(ViewState.Loading)
+
+    private var currentMedia by mutableStateOf<AudioItemDto?>(null)
+
+    private var playerState by mutableStateOf(PlayerState.EMPTY)
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen().setKeepOnScreenCondition { viewState == ViewState.Loading }
         super.onCreate(savedInstanceState)
 
-        var starDest: Tabs = Tabs.Browse
-        intent.getStringExtra(FAV_SHORTCUT_INTENT_NAME)?.let {
-            if (it == FAV_SHORTCUT_ID) starDest = Tabs.Favorites
-        }
+        subscribeToEvents()
 
-        val goToRoute = mediaServiceManager.getStationRouteIfExist(intent)
-
-        val config = Configuration(resources.configuration)
-        analytics.logEvent(FirebaseAnalytics.Event.APP_OPEN) {
-            param(AnalyticsParams.START_TAB, starDest.route)
-            param(AnalyticsParams.IS_LANDSCAPE, config.isLandscape().toString())
-            param(AnalyticsParams.SCREEN_SIZE, "${config.screenWidthDp} x ${config.screenHeightDp}")
-        }
-
-        var viewState by mutableStateOf(viewModel.initialState)
-
-        splashScreen.setKeepOnScreenCondition { viewState == ViewState.Loading }
-
-        viewModel.viewState.collectWhenStarted(this) { viewState = it }
-        viewModel.currentAudioItem.filterNotNull().collectWhenStarted(this) { mediaServiceManager.processCurrentAudioItem(this, it) }
-        viewModel.playerState.collectWhenStarted(this) {
-            mediaServiceManager.processPlayerState(this, it, viewModel.currentAudioItem.value)
-        }
+        val (starDest, goToRoute) = prepareNavigation()
+        sendAnalyticEvents(starDest)
 
         enableEdgeToEdge()
         setContent {
-            val themeState = when (val state = viewState) {
-                is ViewState.Loaded -> state.themeState
-                else -> return@setContent // not sure about the best practice
+            val themeState = remember(viewState) {
+                when (val state = viewState) {
+                    is ViewState.Loaded -> state.themeState
+                    else -> ThemeState()
+                }
             }
 
             StationsAppTheme(themeState) {
-                val playerState by viewModel.playerState.collectAsStateWithLifecycle()
-                val currentMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
                 val isNetworkAvailable by viewModel.isNetworkAvailable.collectAsStateWithLifecycle()
 
                 MainNavGraph(
@@ -86,6 +78,40 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    private fun subscribeToEvents() {
+        viewModel.viewState.collectWhenCreated(this) { viewState = it }
+
+        viewModel.currentAudioItem.collectWhenStarted(this) {
+            currentMedia = it
+            if (it != null) mediaServiceManager.processCurrentAudioItem(this, it)
+        }
+
+        viewModel.playerState.collectWhenStarted(this) {
+            playerState = it
+            mediaServiceManager.processPlayerState(this, it, viewModel.currentAudioItem.value)
+        }
+    }
+
+    private fun sendAnalyticEvents(starDest: Tabs) {
+        val config = Configuration(resources.configuration)
+        analytics.logEvent(FirebaseAnalytics.Event.APP_OPEN) {
+            param(AnalyticsParams.START_TAB, starDest.route)
+            param(AnalyticsParams.IS_LANDSCAPE, config.isLandscape().toString())
+            param(AnalyticsParams.SCREEN_SIZE, "${config.screenWidthDp} x ${config.screenHeightDp}")
+        }
+    }
+
+    private fun prepareNavigation(): Pair<Tabs, Route> {
+        var starDest: Tabs = Tabs.Browse
+        intent.getStringExtra(FAV_SHORTCUT_INTENT_NAME)?.let {
+            if (it == FAV_SHORTCUT_ID) starDest = Tabs.Favorites
+        }
+
+        val goToRoute = mediaServiceManager.getStationRouteIfExist(intent)
+
+        return Pair(starDest, Route(goToRoute))
     }
 
     override fun onStart() {

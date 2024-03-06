@@ -79,7 +79,7 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> { error("Na
 @Composable
 fun MainNavGraph(
     starDest: Tabs,
-    goToRoute: String? = null,
+    goToRoute: Route,
     playerState: PlayerState,
     currentMedia: AudioItemDto?,
     isNetworkAvailable: Boolean,
@@ -282,7 +282,7 @@ fun MainNavGraph(
 private fun CreateNavHost(
     modifier: Modifier = Modifier,
     starDest: Tabs = Tabs.Browse,
-    goToRoute: String? = null
+    goToRoute: Route
 ) {
     val navController = LocalNavController.current
 
@@ -299,9 +299,9 @@ private fun CreateNavHost(
     }
 
     LaunchedEffect(goToRoute) {
-        goToRoute?.let {
-            Timber.d("goToRoute ## $goToRoute")
-            navController.navigate(goToRoute)
+        goToRoute.value?.let { route ->
+            Timber.d("goToRoute ## $route")
+            navController.navigate(route)
         }
     }
 }
@@ -340,3 +340,6 @@ private data class CollapseExpandData(
     val onContainerColor: Color,
     val shapeCornerRadius: Dp
 )
+
+@JvmInline
+value class Route(val value: String?)

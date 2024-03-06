@@ -42,4 +42,18 @@ inline fun <T> Flow<T>.collectWhenStarted(
     }
 }
 
+inline fun <T> Flow<T>.collectWhenCreated(
+    lifecycleOwner: LifecycleOwner,
+    crossinline action: suspend (T) -> Unit
+): Job {
+    return lifecycleOwner.lifecycleScope.launch {
+        lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.CREATED) {
+            collectLatest {
+                action.invoke(it)
+            }
+        }
+    }
+}
+
+
 
