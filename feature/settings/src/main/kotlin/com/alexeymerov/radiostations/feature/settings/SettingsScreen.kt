@@ -26,16 +26,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alexeymerov.radiostations.core.common.ThemeState
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.PAGER
@@ -51,24 +53,27 @@ import kotlinx.coroutines.launch
 fun BaseSettingsScreen(
     viewModel: SettingsViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit
 ) {
-    if (isVisibleToUser) TopBarSetup(topBarBlock)
+    if (isVisibleToUser) TopBarSetup()
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val onViewAction: (ViewAction) -> Unit = { viewModel.setAction(it) }
-
     SettingsScreen(
         viewState = viewState,
-        onAction = onViewAction
+        onAction = { viewModel.setAction(it) }
     )
 }
 
 @Composable
-private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
-    val title = stringResource(R.string.settings)
+private fun TopBarSetup() {
+    val context = LocalContext.current
+    val topBar = LocalTopbar.current
     LaunchedEffect(Unit) {
-        topBarBlock.invoke(TopBarState(title = title, displayBackButton = true))
+        topBar.invoke(
+            TopBarState(
+                title = context.getString(R.string.settings),
+                displayBackButton = true
+            )
+        )
     }
 }
 

@@ -45,12 +45,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
+import com.alexeymerov.radiostations.core.ui.common.RightIconItem
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
-import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.core.ui.view.DropDownRow
 
 @Composable
@@ -69,7 +71,14 @@ fun TopBar(
         title = { TopBarTitle(barState.title, barState.subTitle) },
         navigationIcon = {
             if (barState.selectedItems == 0) {
-                NavigationIcon(barState.displayBackButton, onClick = { navController.popBackStack() })
+                NavigationIcon(
+                    displayBackButton = barState.displayBackButton,
+                    onClick = {
+                        if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                            navController.popBackStack()
+                        }
+                    }
+                )
             }
         },
         scrollBehavior = scrollBehavior,
@@ -81,8 +90,10 @@ fun TopBar(
 @Composable
 private fun TopBarTitle(title: String, subTitle: String?) {
     val config = LocalConfiguration.current
+    val isNetworkAvailable = LocalConnectionStatus.current
+
     Column(
-        modifier = Modifier.run { if (config.isLandscape()) padding(start = 80.dp) else this },
+        modifier = Modifier.setIf(config.isLandscape()) { padding(start = 80.dp) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AnimatedContent(
@@ -103,7 +114,6 @@ private fun TopBarTitle(title: String, subTitle: String?) {
                 overflow = TextOverflow.Ellipsis
             )
         }
-        val isNetworkAvailable = LocalConnectionStatus.current
 
         AnimatedVisibility(
             visible = !isNetworkAvailable,
@@ -165,9 +175,8 @@ private fun NavigationIcon(displayBackButton: Boolean, onClick: () -> Unit) {
         exit = fadeOut() + scaleOut()
     ) {
         val config = LocalConfiguration.current
-        val modifier = if (config.isLandscape()) Modifier.padding(start = 16.dp) else Modifier
         IconButton(
-            modifier = modifier,
+            modifier = Modifier.padding(start = if (config.isLandscape()) 16.dp else 0.dp),
             onClick = { onClick.invoke() }) {
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
@@ -187,22 +196,22 @@ private fun RowScope.TopBarActions(
         exit = fadeOut() + scaleOut()
     ) {
         var needShowMenu by rememberSaveable { mutableStateOf(false) }
-        rightIcon?.let {
+        rightIcon?.let { iconItem ->
             IconButton(
                 onClick = {
-                    if (it.dropDownMenu != null) {
+                    if (iconItem.dropDownMenu != null) {
                         needShowMenu = !needShowMenu
                     }
-                    it.action.invoke()
+                    iconItem.action.invoke()
                 }
             ) {
-                it.icon.iconResId?.let { iconRes ->
+                iconItem.icon.iconResId?.let { iconRes ->
                     Icon(
                         painter = rememberAsyncImagePainter(iconRes),
                         contentDescription = null
                     )
                 } ?: Icon(
-                    imageVector = it.icon.iconVector,
+                    imageVector = iconItem.icon.iconVector,
                     contentDescription = null
                 )
             }
@@ -213,7 +222,7 @@ private fun RowScope.TopBarActions(
                 modifier = Modifier.defaultMinSize(minWidth = 125.dp),
                 offset = DpOffset(x = 12.dp, y = 0.dp),
             ) {
-                it.dropDownMenu?.forEach {
+                iconItem.dropDownMenu?.forEach {
                     DropDownRow(
                         iconId = it.iconId,
                         stringId = it.stringId,

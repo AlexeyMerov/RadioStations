@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.core.ui.navigation
+package com.alexeymerov.radiostations.core.ui.common
 
 import android.os.Parcelable
 import androidx.compose.material.icons.Icons

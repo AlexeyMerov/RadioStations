@@ -11,8 +11,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import com.alexeymerov.radiostations.core.common.ThemeState
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags
 import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.PAGER
 import com.alexeymerov.radiostations.feature.settings.SettingsTestTags.TAB_ITEM
@@ -42,7 +42,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
                 )
             ) {}
@@ -62,7 +62,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
                 )
             ) {}
@@ -82,7 +82,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
                 )
             ) {}
@@ -102,7 +102,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
                 )
             ) {}
@@ -140,7 +140,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
                 )
             ) {}
@@ -160,7 +160,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.OFFLINE
                 )
             ) {}
@@ -180,7 +180,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
                 )
             ) {}
@@ -200,7 +200,7 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 SettingsViewModel.ViewState.Loaded(
-                    themeState = ThemeSettingsUseCase.ThemeState(),
+                    themeState = ThemeState(),
                     connectionStatus = ConnectivitySettingsUseCase.ConnectionStatus.ONLINE
                 )
             ) {}

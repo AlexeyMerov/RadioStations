@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.alexeymerov.radiostations.core.dto.TextFieldData
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.COUNTRY_CODE_BOX
 import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.COUNTRY_CODE_FIELD
 import com.alexeymerov.radiostations.feature.profile.ProfileTestTags.INPUT_FIELD_ERROR
@@ -53,10 +54,11 @@ internal fun UserTextFields(
     onAction: (ProfileViewModel.ViewAction) -> Unit,
     onCountryAction: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.25f))
+            .background(colorScheme.secondaryContainer.copy(alpha = 0.25f))
             .padding(vertical = 8.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -112,11 +114,9 @@ internal fun UserTextFields(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .run {
-                            if (inEdit) {
-                                background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                                    .clickable { onCountryAction.invoke() }
-                            } else this
+                        .setIf(inEdit) {
+                            background(colorScheme.primary.copy(alpha = 0.1f))
+                                .clickable { onCountryAction.invoke() }
                         }
                         .testTag(COUNTRY_CODE_BOX)
                 ) {

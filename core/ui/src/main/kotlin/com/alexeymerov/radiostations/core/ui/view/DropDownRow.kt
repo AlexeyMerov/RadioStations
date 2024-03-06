@@ -20,10 +20,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DropDownRow(@DrawableRes iconId: Int, @StringRes stringId: Int, action: () -> Unit) {
-    Row(modifier = Modifier
-        .clickable { action.invoke() }
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 6.dp)
+    Row(
+        modifier = Modifier
+            .clickable { action.invoke() }
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(iconId),

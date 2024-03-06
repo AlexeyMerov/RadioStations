@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,10 +53,11 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.RightIconItem
+import com.alexeymerov.radiostations.core.ui.common.TopBarIcon
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.isPortrait
-import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarIcon
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
@@ -67,14 +69,12 @@ import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewS
 fun BasePlayerScreen(
     viewModel: PlayerViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
     stationName: String
 ) {
     ComposedTimberD("BasePlayerScreen")
 
     if (isVisibleToUser) {
         TopBarSetup(
-            topBarBlock = topBarBlock,
             stationName = stationName,
             subTitle = viewModel.subTitle,
             isFavorite = viewModel.isFavorite,
@@ -109,14 +109,14 @@ internal fun PlayerScreen(
 
 @Composable
 private fun TopBarSetup(
-    topBarBlock: (TopBarState) -> Unit,
     stationName: String,
     subTitle: String?,
     isFavorite: Boolean?,
     onAction: (ViewAction) -> Unit
 ) {
+    val topBar = LocalTopbar.current
     LaunchedEffect(Unit, subTitle, isFavorite) {
-        topBarBlock.invoke(
+        topBar.invoke(
             TopBarState(
                 title = stationName,
                 subTitle = subTitle,
@@ -145,11 +145,9 @@ private fun MainContentWithOrientation(
     val configuration = LocalConfiguration.current
     val themeBackgroundColor = MaterialTheme.colorScheme.background
 
-    var secondColor by remember {
-        mutableStateOf(themeBackgroundColor)
-    }
-
+    var secondColor by remember { mutableStateOf(themeBackgroundColor) }
     val animateSecondColor by animateColorAsState(secondColor, label = String.EMPTY)
+    val brushColorList = remember(animateSecondColor) { mutableStateListOf(themeBackgroundColor, animateSecondColor) }
 
     val onPaletteResult: (Palette) -> Unit = remember {
         { palette ->
@@ -165,7 +163,7 @@ private fun MainContentWithOrientation(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Brush.verticalGradient(listOf(themeBackgroundColor, animateSecondColor))),
+                    .background(Brush.verticalGradient(brushColorList)),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -177,7 +175,7 @@ private fun MainContentWithOrientation(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Brush.verticalGradient(listOf(themeBackgroundColor, animateSecondColor)))
+                    .background(Brush.verticalGradient(brushColorList))
                     .padding(bottom = 46.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly

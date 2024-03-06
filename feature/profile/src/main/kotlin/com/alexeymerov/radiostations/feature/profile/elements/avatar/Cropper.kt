@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,10 +60,12 @@ fun Cropper(
     var croppedImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var doCropAction by remember { mutableStateOf(false) }
 
-    croppedImage?.let {
-        onClose.invoke(it.asAndroidBitmap())
-        croppedImage = null
-        onClose.invoke(null)
+    LaunchedEffect(croppedImage) {
+        croppedImage?.let {
+            onClose.invoke(it.asAndroidBitmap())
+            croppedImage = null
+            onClose.invoke(null)
+        }
     }
 
     Dialog(onDismissRequest = { onClose.invoke(null) }) {

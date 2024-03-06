@@ -1,12 +1,14 @@
 package com.alexeymerov.radiostations.core.domain.usecase.settings.theme
 
+import com.alexeymerov.radiostations.core.common.ColorTheme
+import com.alexeymerov.radiostations.core.common.DarkLightMode
+import com.alexeymerov.radiostations.core.common.UseDynamicColor
 import com.alexeymerov.radiostations.core.datastore.FakeSettingsStore
 import com.alexeymerov.radiostations.core.datastore.SettingsStore
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.*
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCaseImpl.Companion.COLOR_KEY
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCaseImpl.Companion.DARK_THEME_KEY
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCaseImpl.Companion.DYNAMIC_COLOR_KEY
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -47,7 +49,7 @@ class ThemeSettingsUseCaseTest {
 
         assertThat(themeState.colorTheme).isEqualTo(ColorTheme.DEFAULT_BLUE)
         assertThat(themeState.darkLightMode).isEqualTo(DarkLightMode.SYSTEM)
-        assertThat(themeState.useDynamicColor).isTrue()
+        assertThat(themeState.useDynamicColor.value).isTrue()
     }
 
     @Test
@@ -60,7 +62,7 @@ class ThemeSettingsUseCaseTest {
 
         assertThat(themeState.colorTheme).isEqualTo(ColorTheme.GREEN)
         assertThat(themeState.darkLightMode).isEqualTo(DarkLightMode.NIGHT)
-        assertThat(themeState.useDynamicColor).isFalse()
+        assertThat(themeState.useDynamicColor.value).isFalse()
     }
 
     @Test
@@ -97,7 +99,7 @@ class ThemeSettingsUseCaseTest {
 
         val themeState = useCase.getThemeState().first()
 
-        assertThat(themeState.useDynamicColor).isTrue()
+        assertThat(themeState.useDynamicColor.value).isTrue()
     }
 
     @Test
@@ -106,7 +108,7 @@ class ThemeSettingsUseCaseTest {
 
         val themeState = useCase.getThemeState().first()
 
-        assertThat(themeState.useDynamicColor).isFalse()
+        assertThat(themeState.useDynamicColor.value).isFalse()
     }
 
 
@@ -152,7 +154,7 @@ class ThemeSettingsUseCaseTest {
 
         val newState = themeState.copy(
             darkLightMode = DarkLightMode.NIGHT,
-            useDynamicColor = false,
+            useDynamicColor = UseDynamicColor(false),
             colorTheme = ColorTheme.ORANGE,
         )
 

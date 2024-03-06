@@ -38,16 +38,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
 import com.alexeymerov.radiostations.core.dto.UserDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
 import com.alexeymerov.radiostations.core.ui.remembers.rememberGalleyPicker
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTakePicture
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
@@ -72,10 +72,9 @@ import timber.log.Timber
 fun BaseProfileScreen(
     viewModel: ProfileViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
     onNavigate: (String) -> Unit
 ) {
-    if (isVisibleToUser) TopBarSetup(topBarBlock)
+    if (isVisibleToUser) TopBarSetup()
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     ProfileScreen(
@@ -314,11 +313,12 @@ private fun MainContent(
 }
 
 @Composable
-private fun TopBarSetup(topBarBlock: (TopBarState) -> Unit) {
-    val title = stringResource(R.string.profile)
+private fun TopBarSetup() {
+    val context = LocalContext.current
+    val topBar = LocalTopbar.current
     LaunchedEffect(Unit) {
-        topBarBlock.invoke(
-            TopBarState(title = title)
+        topBar.invoke(
+            TopBarState(title = context.getString(R.string.profile))
         )
     }
 }

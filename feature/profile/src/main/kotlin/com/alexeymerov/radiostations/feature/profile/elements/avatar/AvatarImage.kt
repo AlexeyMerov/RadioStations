@@ -167,17 +167,15 @@ internal fun AvatarBottomSheet(
         onDismissRequest = { onDismiss.invoke() }
     ) {
         Row {
-            val itemModifier = Modifier.weight(1f)
-
             BottomSheetItem(
-                modifier = itemModifier,
+                modifier = Modifier.weight(1f),
                 icon = Icons.Outlined.PhotoLibrary,
                 text = stringResource(R.string.gallery),
                 onAction = { onGallery.invoke() }
             )
 
             BottomSheetItem(
-                modifier = itemModifier,
+                modifier = Modifier.weight(1f),
                 icon = Icons.Outlined.CameraAlt,
                 text = stringResource(R.string.camera),
                 onAction = { onCamera.invoke() }

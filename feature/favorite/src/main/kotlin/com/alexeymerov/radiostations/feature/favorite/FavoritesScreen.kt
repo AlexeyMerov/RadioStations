@@ -30,16 +30,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.core.ui.common.DropDownItem
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
+import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
+import com.alexeymerov.radiostations.core.ui.common.RightIconItem
+import com.alexeymerov.radiostations.core.ui.common.TopBarIcon
+import com.alexeymerov.radiostations.core.ui.common.TopBarState
 import com.alexeymerov.radiostations.core.ui.extensions.defListItem
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.extensions.isTablet
-import com.alexeymerov.radiostations.core.ui.navigation.DropDownItem
-import com.alexeymerov.radiostations.core.ui.navigation.RightIconItem
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarIcon
-import com.alexeymerov.radiostations.core.ui.navigation.TopBarState
+import com.alexeymerov.radiostations.core.ui.navigation.Tabs
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
 import com.alexeymerov.radiostations.core.ui.view.ErrorView
 import com.alexeymerov.radiostations.core.ui.view.LoaderView
@@ -55,8 +57,6 @@ import kotlinx.coroutines.launch
 fun BaseFavoriteScreen(
     viewModel: FavoritesViewModel,
     isVisibleToUser: Boolean,
-    topBarBlock: (TopBarState) -> Unit,
-    parentRoute: String,
     onNavigate: (String) -> Unit,
 ) {
     val isNetworkAvailable = LocalConnectionStatus.current
@@ -65,7 +65,6 @@ fun BaseFavoriteScreen(
     if (isVisibleToUser) {
         TopBarSetup(
             selectedItemsCount = selectedItemsCount,
-            topBarBlock = topBarBlock,
             onAction = { viewModel.setAction(it) }
         )
     }
@@ -85,7 +84,7 @@ fun BaseFavoriteScreen(
         inSelection = inSelection,
         onAudioClick = {
             if (isNetworkAvailable) {
-                val route = Screens.Player(parentRoute).createRoute(
+                val route = Screens.Player(Tabs.Favorites.route).createRoute(
                     rawUrl = it.url,
                     stationName = it.text
                 )
@@ -99,15 +98,15 @@ fun BaseFavoriteScreen(
 @Composable
 private fun TopBarSetup(
     selectedItemsCount: Int,
-    topBarBlock: (TopBarState) -> Unit,
     onAction: (ViewAction) -> Unit
 ) {
-    val title = stringResource(R.string.favorites)
+    val context = LocalContext.current
+    val topBar = LocalTopbar.current
     LaunchedEffect(Unit, selectedItemsCount) {
         val topBarState = when (selectedItemsCount) {
             0 -> {
                 TopBarState(
-                    title = title,
+                    title = context.getString(R.string.favorites),
                     rightIcon = RightIconItem(TopBarIcon.SETTINGS).apply {
                         dropDownMenu = dropDownItems { viewType ->
                             onAction.invoke(ViewAction.SetViewType(viewType))
@@ -127,7 +126,7 @@ private fun TopBarSetup(
             }
         }
 
-        topBarBlock.invoke(topBarState)
+        topBar.invoke(topBarState)
     }
 }
 
@@ -196,9 +195,9 @@ private fun HandleEffects(
     viewEffect: FavoritesViewModel.ViewEffect?,
     onAction: (ViewAction) -> Unit
 ) {
+    val context = LocalContext.current
     val snackbar = LocalSnackbar.current
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     DisposableEffect(viewEffect) {
         if (viewEffect is FavoritesViewModel.ViewEffect.ShowUnfavoriteToast) {

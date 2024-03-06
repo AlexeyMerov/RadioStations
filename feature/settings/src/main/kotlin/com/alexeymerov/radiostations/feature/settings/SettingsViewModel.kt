@@ -3,12 +3,13 @@ package com.alexeymerov.radiostations.feature.settings
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
 import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
+import com.alexeymerov.radiostations.core.common.ColorTheme
+import com.alexeymerov.radiostations.core.common.DarkLightMode
+import com.alexeymerov.radiostations.core.common.ThemeState
+import com.alexeymerov.radiostations.core.common.UseDynamicColor
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ColorTheme
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.DarkLightMode
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase.ThemeState
 import com.alexeymerov.radiostations.core.ui.common.BaseViewAction
 import com.alexeymerov.radiostations.core.ui.common.BaseViewEffect
 import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
@@ -77,7 +78,7 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
-    private suspend fun changeChangeDynamicColor(useDynamic: Boolean) {
+    private suspend fun changeChangeDynamicColor(useDynamic: UseDynamicColor) {
         analytics.logEvent(AnalyticsEvents.THEME_SETTINGS) {
             param(AnalyticsParams.DYNAMIC_COLOR, useDynamic.toString())
         }
@@ -102,7 +103,7 @@ class SettingsViewModel @Inject constructor(
 
     sealed interface ViewAction : BaseViewAction {
         data class ChangeDarkMode(val value: DarkLightMode) : ViewAction
-        data class ChangeDynamicColor(val useDynamic: Boolean) : ViewAction
+        data class ChangeDynamicColor(val useDynamic: UseDynamicColor) : ViewAction
         data class ChangeColorScheme(val value: ColorTheme) : ViewAction
 
         data class ChangeConnection(val status: ConnectionStatus) : ViewAction
