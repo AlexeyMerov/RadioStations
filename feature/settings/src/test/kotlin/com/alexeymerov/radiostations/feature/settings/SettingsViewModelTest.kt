@@ -1,10 +1,12 @@
 package com.alexeymerov.radiostations.feature.settings
 
 import app.cash.turbine.test
+import com.alexeymerov.radiostations.core.common.ColorTheme
+import com.alexeymerov.radiostations.core.common.DarkLightMode
+import com.alexeymerov.radiostations.core.common.UseDynamicColor
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.FakeConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.FakeThemeSettingsUseCase
-import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
 import com.alexeymerov.radiostations.core.test.MainDispatcherRule
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.settings.SettingsViewModel.ViewState
@@ -81,7 +83,7 @@ class SettingsViewModelTest {
 
             val loadedState = (state as ViewState.Loaded)
             val currentValue = loadedState.themeState.darkLightMode
-            val newValue = ThemeSettingsUseCase.DarkLightMode.NIGHT
+            val newValue = DarkLightMode.NIGHT
             assertThat(currentValue).isNotEqualTo(newValue)
 
             viewModel.setAction(ViewAction.ChangeDarkMode(newValue))
@@ -102,7 +104,7 @@ class SettingsViewModelTest {
 
             val loadedState = (state as ViewState.Loaded)
             val currentValue = loadedState.themeState.useDynamicColor
-            val newValue = false
+            val newValue = UseDynamicColor(false)
             assertThat(currentValue).isNotEqualTo(newValue)
 
             viewModel.setAction(ViewAction.ChangeDynamicColor(newValue))
@@ -111,7 +113,7 @@ class SettingsViewModelTest {
             assertThat(newState).isInstanceOf(ViewState.Loaded::class.java)
 
             val updatedState = (newState as ViewState.Loaded)
-            assertThat(updatedState.themeState.useDynamicColor).isEqualTo(newValue)
+            assertThat(updatedState.themeState.useDynamicColor.value).isEqualTo(newValue.value)
         }
     }
 
@@ -123,7 +125,7 @@ class SettingsViewModelTest {
 
             val loadedState = (state as ViewState.Loaded)
             val currentValue = loadedState.themeState.darkLightMode
-            val newValue = ThemeSettingsUseCase.ColorTheme.ORANGE
+            val newValue = ColorTheme.ORANGE
             assertThat(currentValue).isNotEqualTo(newValue)
 
             viewModel.setAction(ViewAction.ChangeColorScheme(newValue))

@@ -252,8 +252,10 @@ class CategoriesViewModel @Inject constructor(
 
                     // save items for the current header based on item count from the source
                     val fromIndex = index + 1
-                    var toIndex = index + item.subItemsCount + 1
-                    if (toIndex >= items.size) toIndex = items.size - 1
+                    if (fromIndex >= items.size) break
+
+                    val toIndex = index + item.subItemsCount + 1
+                    if (toIndex >= items.size) break
 
                     resultList.add(
                         HeaderWithItems(
