@@ -162,12 +162,8 @@ class CategoriesViewModel @Inject constructor(
                 .filter { it.isFiltered }
                 .forEach { header ->
                     Timber.d("filterCategoriesByHeader: $header")
-                    var fromIndex = items.indexOfFirst { it.url == header.url }
-                    if (fromIndex < 0) fromIndex = 0
-
-                    var toIndex = fromIndex + header.subItemsCount + 1
-                    if (toIndex >= items.size) toIndex = items.size - 1
-
+                    val fromIndex = items.indexOfFirst { it.url == header.url }
+                    val toIndex = fromIndex + header.subItemsCount + 1
                     val listForHeader = items.subList(fromIndex, toIndex)
                     resultList.addAll(listForHeader)
                 }
@@ -252,11 +248,7 @@ class CategoriesViewModel @Inject constructor(
 
                     // save items for the current header based on item count from the source
                     val fromIndex = index + 1
-                    if (fromIndex >= items.size) break
-
                     val toIndex = index + item.subItemsCount + 1
-                    if (toIndex >= items.size) break
-
                     resultList.add(
                         HeaderWithItems(
                             header = item,

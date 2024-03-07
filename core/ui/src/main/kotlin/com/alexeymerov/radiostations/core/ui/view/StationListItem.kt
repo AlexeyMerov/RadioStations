@@ -148,13 +148,13 @@ private fun TextBlock(itemDto: CategoryItemDto) {
     BasicText(modifier = Modifier.basicMarquee(), text = itemDto.text)
 
     itemDto.subTitle?.let { subtext ->
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.Bottom) {
             if (itemDto.hasLocation()) {
                 Icon(
                     modifier = Modifier
                         .alpha(0.7f)
-                        .size(14.dp)
-                        .padding(end = 4.dp),
+                        .size(16.dp)
+                        .padding(end = 4.dp, bottom = 1.dp),
                     imageVector = Icons.Outlined.LocationCity,
                     contentDescription = null
                 )
