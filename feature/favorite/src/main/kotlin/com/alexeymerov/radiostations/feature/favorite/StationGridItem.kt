@@ -104,8 +104,8 @@ internal fun StationGridItem(
                         Icon(
                             modifier = Modifier
                                 .alpha(0.7f)
-                                .size(12.dp)
-                                .padding(end = 4.dp),
+                                .size(16.dp)
+                                .padding(end = 4.dp, bottom = 1.dp),
                             imageVector = Icons.Outlined.LocationCity,
                             contentDescription = null
                         )
