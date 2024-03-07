@@ -2,7 +2,9 @@ import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import java.io.FileInputStream
 import java.util.Properties
 
-val keystorePropertiesFile: File = rootProject.file("keystore.properties")
+var keystorePropertiesFile: File = rootProject.file("keystore.properties")
+if (!keystorePropertiesFile.exists()) keystorePropertiesFile = rootProject.file("keystore.defaults.properties")
+
 val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
