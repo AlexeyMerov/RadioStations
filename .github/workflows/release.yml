@@ -1,12 +1,7 @@
-name: Android CI
+name: Release
 
 on:
-  pull_request:
-    branches:
-      - master
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -15,8 +10,8 @@ jobs:
   tests:
     uses: ./.github/workflows/tests.yml
 
-  build:
-    name: Build
+  release:
+    name: Release
     runs-on: ubuntu-latest
     needs: [ lint, tests ]
 
@@ -48,6 +43,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build debug
-        run: ./gradlew :app:assembleDebug
+      - name: Create keystrore.properties
+        run: touch keystore.properties
 
+      - name: Decode keystore file
+        run: echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > key_radiostations.jks
+
+      - name: Add keystore data to keystore.properties
+        run: echo "${{ secrets.KEYSTORE_DATA }}" >> keystore.properties
+
+      - name: Build debug
+        run: ./gradlew build
