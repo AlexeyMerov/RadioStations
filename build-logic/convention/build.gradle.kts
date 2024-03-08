@@ -12,6 +12,7 @@ java {
     sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
     targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
 }
+
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         jvmTarget = libs.versions.javaVersion.get()
@@ -23,6 +24,7 @@ dependencies {
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.ksp)
     compileOnly(libs.gradlePlugin.firebaseCrashlytics)
+    compileOnly(libs.gradlePlugin.spotless)
 }
 
 gradlePlugin {
