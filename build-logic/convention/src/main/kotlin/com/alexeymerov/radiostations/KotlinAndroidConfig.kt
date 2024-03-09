@@ -1,10 +1,8 @@
 package com.alexeymerov.radiostations
 
 import com.android.build.api.dsl.CommonExtension
-import com.diffplug.gradle.spotless.SpotlessExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -12,19 +10,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension<*, *, *, *, *>) {
     with(pluginManager) {
         apply("org.jetbrains.kotlin.android")
-        apply("com.diffplug.spotless")
-    }
-
-    extensions.configure<SpotlessExtension> {
-        kotlin {
-            target("**/*.kt")
-            targetExclude("**/build/**/*.kt")
-            ktfmt().dropboxStyle()
-        }
-        kotlinGradle {
-            target("*.gradle.kts")
-            ktfmt().dropboxStyle()
-        }
     }
 
     commonExtension.apply {

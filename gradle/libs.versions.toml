@@ -36,7 +36,6 @@ fierbasePerfPlugin = "1.4.2"
 
 maps = "4.3.1"
 chucker = "4.0.0"
-spotless = "6.25.0"
 
 [plugins]
 
@@ -51,7 +50,6 @@ googleServices = { id = "com.google.gms.google-services", version = "4.4.1" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "fierbaseCrashlyticsPlugin" }
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "fierbasePerfPlugin" }
 gradleSecrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 radiostations-android-application = { id = "radiostations.android.application", version = "unspecified" }
 radiostations-android-library = { id = "radiostations.android.library", version = "unspecified" }
@@ -70,7 +68,6 @@ gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref 
 gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradlePlugin-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 gradlePlugin-firebaseCrashlytics = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "fierbaseCrashlyticsPlugin" }
-gradlePlugin-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 # -- Core -- #
 

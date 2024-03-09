@@ -24,7 +24,6 @@ dependencies {
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.ksp)
     compileOnly(libs.gradlePlugin.firebaseCrashlytics)
-    compileOnly(libs.gradlePlugin.spotless)
 }
 
 gradlePlugin {
