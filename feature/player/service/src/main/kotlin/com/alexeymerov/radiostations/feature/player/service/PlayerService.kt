@@ -1,9 +1,7 @@
 package com.alexeymerov.radiostations.feature.player.service
 
+import android.appwidget.AppWidgetManager
 import android.content.Intent
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.util.UnstableApi
@@ -13,7 +11,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
-import com.alexeymerov.radiostations.feature.player.widget.PlayerWidget
+import com.alexeymerov.radiostations.feature.player.widget.PlayerWidgetReceiver
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,19 +88,12 @@ class PlayerService : MediaLibraryService() {
         mediaLibrarySession = MediaLibrarySession.Builder(this, player, callback).build()
     }
 
-    private suspend fun updateWidget() {
-        val currentMediaItem = playingUseCase.getLastPlayingMediaItem().first()
-
-        GlanceAppWidgetManager(this@PlayerService)
-            .getGlanceIds(PlayerWidget::class.java)
-            .forEach {
-                updateAppWidgetState(this@PlayerService, PreferencesGlanceStateDefinition, it) { pref ->
-                    pref.toMutablePreferences().apply {
-                        this[PlayerWidget.prefTitleKey] = currentMediaItem?.title.toString()
-                    }
-                }
-                PlayerWidget().update(this@PlayerService, it)
+    private fun updateWidget() {
+        sendBroadcast(
+            Intent(this, PlayerWidgetReceiver::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             }
+        )
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? = mediaLibrarySession

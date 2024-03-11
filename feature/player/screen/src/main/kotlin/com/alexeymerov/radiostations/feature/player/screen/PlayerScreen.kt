@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.feature.player.screen
 
+import android.graphics.Bitmap
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -101,7 +102,9 @@ internal fun PlayerScreen(
             MainContentWithOrientation(
                 item = viewState.item,
                 playState = viewState.playState,
-                onToggleAudio = { onAction.invoke(ViewAction.ChangeOrToggleAudio(viewState.item)) }
+                onToggleAudio = { bitmap ->
+                    onAction.invoke(ViewAction.ChangeOrToggleAudio(viewState.item, bitmap))
+                }
             )
         }
     }
@@ -140,7 +143,7 @@ private fun TopBarSetup(
 private fun MainContentWithOrientation(
     item: AudioItemDto,
     playState: ScreenPlayState,
-    onToggleAudio: () -> Unit
+    onToggleAudio: (Bitmap?) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val themeBackgroundColor = MaterialTheme.colorScheme.background
@@ -190,9 +193,10 @@ private fun MainContentWithOrientation(
 private fun MainContent(
     playState: ScreenPlayState,
     imageUrl: String,
-    onToggleAudio: () -> Unit,
+    onToggleAudio: (Bitmap?) -> Unit,
     onPaletteResult: (Palette) -> Unit
 ) {
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     PlayerArtwork(
         modifier = Modifier
             .size(250.dp)
@@ -203,7 +207,14 @@ private fun MainContent(
             }
             .testTag(PlayerScreenTestTags.ARTWORK),
         imageUrl = imageUrl,
-        onPaletteResult = onPaletteResult
+        onImageLoaded = {
+            imageBitmap = it
+            Palette.from(it).generate { paletteOrNull ->
+                paletteOrNull?.let { palette ->
+                    onPaletteResult.invoke(palette)
+                }
+            }
+        }
     )
 
     Box(Modifier.size(60.dp)) {
@@ -215,7 +226,9 @@ private fun MainContent(
         } else {
             PlayerControlButton(
                 isPlaying = playState == ScreenPlayState.PLAYING,
-                onToggleAudio = onToggleAudio
+                onToggleAudio = {
+                    onToggleAudio.invoke(imageBitmap)
+                }
             )
         }
     }
@@ -225,7 +238,7 @@ private fun MainContent(
 internal fun PlayerArtwork(
     modifier: Modifier,
     imageUrl: String,
-    onPaletteResult: ((Palette) -> Unit)? = null
+    onImageLoaded: ((Bitmap) -> Unit)? = null
 ) {
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
@@ -247,11 +260,7 @@ internal fun PlayerArtwork(
         colorFilter = colorFilter,
         onSuccess = {
             val bitmap = it.result.drawable.toBitmap()
-            Palette.from(bitmap).generate { paletteOrNull ->
-                paletteOrNull?.let { palette ->
-                    onPaletteResult?.invoke(palette)
-                }
-            }
+            onImageLoaded?.invoke(bitmap)
             isLoaded = true
         },
         onError = { isLoaded = false }

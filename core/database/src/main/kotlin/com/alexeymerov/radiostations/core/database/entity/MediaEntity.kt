@@ -10,6 +10,7 @@ data class MediaEntity(
     val url: String,
     val directMediaUrl: String,
     val imageUrl: String,
+    val imageBase64: String? = null,
     val title: String,
     val subtitle: String
 ) {

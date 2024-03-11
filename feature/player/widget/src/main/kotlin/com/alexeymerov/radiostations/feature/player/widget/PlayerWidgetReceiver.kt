@@ -7,7 +7,6 @@ import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -32,21 +31,24 @@ class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onReceive(context, intent)
         Timber.d("onReceive: $intent")
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
-            setupData(context)
+            updateData(context)
         }
     }
 
-    private fun setupData(context: Context) {
+    private fun updateData(context: Context) {
         coroutineScope.launch {
             val currentMediaItem = playingUseCase.getLastPlayingMediaItem().first()
+            val isPlaying = playingUseCase.getPlayerState().first() == PlayingUseCase.PlayerState.PLAYING
 
             GlanceAppWidgetManager(context)
                 .getGlanceIds(PlayerWidget::class.java)
                 .forEach {
-                    updateAppWidgetState(context, PreferencesGlanceStateDefinition, it) { pref ->
-                        pref.toMutablePreferences().apply {
-                            this[PlayerWidget.prefTitleKey] = currentMediaItem?.title.toString()
-                        }
+                    Timber.d("updateData")
+                    Timber.d("updateData: Base64 ${currentMediaItem?.imageBase64}")
+                    updateAppWidgetState(context, it) { pref ->
+                        pref[PlayerWidget.prefTitleKey] = currentMediaItem?.title.orEmpty()
+                        pref[PlayerWidget.prefImageBase64] = currentMediaItem?.imageBase64.orEmpty()
+                        pref[PlayerWidget.prefIsPlaying] = isPlaying
                     }
                     glanceAppWidget.update(context, it)
                 }

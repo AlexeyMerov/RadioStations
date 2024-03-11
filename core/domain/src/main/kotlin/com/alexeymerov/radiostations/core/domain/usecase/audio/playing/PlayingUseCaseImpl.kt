@@ -53,6 +53,7 @@ class PlayingUseCaseImpl @Inject constructor(
                     parentUrl = media.url,
                     directUrl = media.directMediaUrl,
                     image = media.imageUrl,
+                    imageBase64 = media.imageBase64,
                     title = media.title,
                     subTitle = media.subtitle.ifEmpty { null }
                 )
@@ -67,6 +68,7 @@ class PlayingUseCaseImpl @Inject constructor(
             url = item.parentUrl,
             directMediaUrl = item.directUrl,
             imageUrl = item.image,
+            imageBase64 = item.imageBase64,
             title = item.title,
             subtitle = item.subTitle.orEmpty()
         )
