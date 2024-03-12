@@ -20,7 +20,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.collectWhenCreated
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
-import com.alexeymerov.radiostations.mediaservice.MediaServiceManager
+import com.alexeymerov.radiostations.feature.player.manager.MediaServiceManager
 import com.alexeymerov.radiostations.presentation.MainViewModel.ViewState
 import com.alexeymerov.radiostations.presentation.navigation.MainNavGraph
 import com.alexeymerov.radiostations.presentation.navigation.Route
@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         subscribeToEvents()
+        mediaServiceManager.setupPlayer()
 
         val (starDest, goToRoute) = prepareNavigation()
         sendAnalyticEvents(starDest)
@@ -85,12 +86,12 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.currentAudioItem.collectWhenStarted(this) {
             currentMedia = it
-            if (it != null) mediaServiceManager.processCurrentAudioItem(this, it)
+            if (it != null) mediaServiceManager.processNewAudioItem(it)
         }
 
         viewModel.playerState.collectWhenStarted(this) {
             playerState = it
-            mediaServiceManager.processPlayerState(this, it, viewModel.currentAudioItem.value)
+            mediaServiceManager.processPlayerState(it)
         }
     }
 
@@ -114,14 +115,9 @@ class MainActivity : AppCompatActivity() {
         return Pair(starDest, Route(goToRoute))
     }
 
-    override fun onStart() {
-        super.onStart()
-        mediaServiceManager.setupPlayer(this)
-    }
-
-    override fun onStop() {
+    override fun onDestroy() {
         mediaServiceManager.onStop()
-        super.onStop()
+        super.onDestroy()
     }
 
     companion object {

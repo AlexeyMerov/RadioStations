@@ -1,5 +1,11 @@
 package com.alexeymerov.radiostations.core.common
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.io.ByteArrayOutputStream
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+
 /**
  * For some reason server returns http links.
  * */
@@ -31,3 +37,18 @@ fun String.extractTextFromRoundBrackets(): Pair<String, String?> {
     }
     return Pair(mainText, bracketsText)
 }
+
+@OptIn(ExperimentalEncodingApi::class)
+fun Bitmap.toBase64(): String? = runCatching {
+    val byteArray = ByteArrayOutputStream().use { stream ->
+        compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        stream.toByteArray()
+    }
+    return Base64.encode(byteArray)
+}.getOrNull()
+
+@OptIn(ExperimentalEncodingApi::class)
+fun String.base64ToBitmap(): Bitmap? = runCatching {
+    val byteArray = Base64.decode(this)
+    BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+}.getOrNull()

@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.mediaservice
+package com.alexeymerov.radiostations.feature.player.manager
 
 import android.content.ComponentName
 import android.content.Context
@@ -14,18 +14,21 @@ import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
+import com.alexeymerov.radiostations.feature.player.common.mapToMediaItem
 import com.alexeymerov.radiostations.feature.player.service.PlayerService
-import com.alexeymerov.radiostations.feature.player.service.mapToMediaItem
-import com.alexeymerov.radiostations.presentation.MainActivity
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
 
-class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
+class MediaServiceManagerImpl @Inject constructor(
+    @ApplicationContext val context: Context
+) : MediaServiceManager {
 
     private var mediaController: MediaController? = null
     private var controllerFuture: ListenableFuture<MediaController>? = null
+    private var currentAudioItem: AudioItemDto? = null
 
     override fun getStationRouteIfExist(intent: Intent): String? {
         val url = intent.getStringExtra(INTENT_KEY_AUDIO_URL)
@@ -44,7 +47,8 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
         }
     }
 
-    override fun setupPlayer(context: Context) {
+    override fun setupPlayer() {
+        Timber.d("-> setupPlayer: ")
         val sessionToken = SessionToken(context, ComponentName(context, PlayerService::class.java))
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         controllerFuture?.let { future ->
@@ -53,8 +57,10 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
         }
     }
 
-    override fun processCurrentAudioItem(context: Context, item: AudioItemDto) {
+    override fun processNewAudioItem(item: AudioItemDto) {
         Timber.d("processCurrentAudioItem $item")
+        currentAudioItem = item
+
         mediaController?.also { controller ->
             if (item.directUrl != controller.currentMediaItem?.mediaId) {
                 controller.setMediaItem(mapToMediaItem(item))
@@ -62,73 +68,78 @@ class MediaServiceManagerImpl @Inject constructor() : MediaServiceManager {
             }
         }
 
-        createDynamicShortcut(context, item)
+        createDynamicShortcut(item)
     }
 
-    private fun createDynamicShortcut(context: Context, item: AudioItemDto) {
+    private fun createDynamicShortcut(item: AudioItemDto) {
+        Timber.d("-> createDynamicShortcut: $item")
+
         val shortLabel = if (item.title.length > 12) "${item.title.substring(0, 10)}..." else item.title
         var longLabel = item.title
         item.subTitle?.let {
             longLabel = "$longLabel (${item.subTitle})"
         }
 
-        Timber.d("-> createDynamicShortcut: $item")
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+            action = Intent.ACTION_VIEW
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+            val bundle = Bundle().apply {
+                putString(INTENT_KEY_AUDIO_URL, item.parentUrl)
+                putString(INTENT_KEY_AUDIO_TITLE, item.title)
+            }
+            putExtras(bundle)
+        }
 
-        val shortcut = ShortcutInfoCompat.Builder(context, DYNAMIC_SHORTCUT_ID)
-            .setShortLabel(shortLabel)
-            .setLongLabel(longLabel)
-            .setDisabledMessage("Not")
-            .setIcon(IconCompat.createWithResource(context, R.drawable.icon_radio))
-            .setIntent(
-                Intent(context, MainActivity::class.java).apply {
-                    action = Intent.ACTION_VIEW
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    val bundle = Bundle().apply {
-                        putString(INTENT_KEY_AUDIO_URL, item.parentUrl)
-                        putString(INTENT_KEY_AUDIO_TITLE, item.title)
-                    }
-                    putExtras(bundle)
-                }
-            )
-            .build()
+        if (intent != null) {
+            val shortcut = ShortcutInfoCompat.Builder(context, DYNAMIC_SHORTCUT_ID)
+                .setShortLabel(shortLabel)
+                .setLongLabel(longLabel)
+                .setDisabledMessage("Not")
+                .setIcon(IconCompat.createWithResource(context, R.drawable.icon_radio))
+                .setIntent(intent)
+                .build()
 
-        ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
+            ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
+        }
     }
 
-    override fun processPlayerState(context: Context, state: PlayerState, currentMedia: AudioItemDto?) {
+    override fun processPlayerState(state: PlayerState) {
         Timber.d("processPlayerState - playerState $state" + " == currentMediaItem ${mediaController?.currentMediaItem}")
         mediaController?.also { controller ->
             when (state) {
-                PlayerState.EMPTY -> processEmptyState(controller, context)
+                PlayerState.EMPTY -> processEmptyState(controller)
                 PlayerState.PLAYING -> {
                     if (!controller.isPlaying) {
-                        if (controller.currentMediaItem == null && currentMedia != null) {
-                            processCurrentAudioItem(context, currentMedia)
-                        }
+                        currentAudioItem
+                            .takeIf { controller.currentMediaItem == null }
+                            ?.let { processNewAudioItem(it) }
 
                         controller.playWhenReady = true
                     }
                 }
 
                 PlayerState.STOPPED -> controller.pause()
-                PlayerState.LOADING -> { /* no action needed */
+                else -> {
+                    /* no action needed */
                 }
             }
         }
     }
 
-    private fun processEmptyState(controller: MediaController, context: Context) {
+    private fun processEmptyState(controller: MediaController) {
+        Timber.d("-> processEmptyState: ")
         controller.stop()
         controller.clearMediaItems()
         ShortcutManagerCompat.disableShortcuts(
             /* context = */ context,
             /* shortcutIds = */ listOf(DYNAMIC_SHORTCUT_ID),
-            /* disabledMessage = */ "Not available" // kinda wierd we can't remove pinned icon
+            /* disabledMessage = */ "Not available" // we can't remove pinned icon
         )
         ShortcutManagerCompat.removeAllDynamicShortcuts(context)
     }
 
     override fun onStop() {
+        Timber.d("-> onStop: ")
         controllerFuture?.let {
             MediaController.releaseFuture(it)
         }

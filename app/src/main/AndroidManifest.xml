@@ -72,6 +72,7 @@
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
+                <action android:name="com.alexeymerov.radiostations.PLAY_PAUSE" />
             </intent-filter>
         </service>
 
@@ -101,19 +102,18 @@
             android:value="${MAPS_API_KEY}"
             />
 
-        <!--        todo need proper realization with play control, images etc.-->
-        <!--        <receiver-->
-        <!--            android:name=".feature.player.widget.PlayerWidgetReceiver"-->
-        <!--            android:exported="true"-->
-        <!--            >-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />-->
-        <!--            </intent-filter>-->
-        <!--            <meta-data-->
-        <!--                android:name="android.appwidget.provider"-->
-        <!--                android:resource="@xml/player_widget"-->
-        <!--                />-->
-        <!--        </receiver>-->
+        <receiver
+            android:name=".feature.player.widget.PlayerWidgetReceiver"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/player_widget"
+                />
+        </receiver>
 
     </application>
 

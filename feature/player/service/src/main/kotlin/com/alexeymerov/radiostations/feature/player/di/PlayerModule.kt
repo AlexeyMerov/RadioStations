@@ -1,7 +1,7 @@
-package com.alexeymerov.radiostations.di
+package com.alexeymerov.radiostations.feature.player.di
 
-import com.alexeymerov.radiostations.mediaservice.MediaServiceManager
-import com.alexeymerov.radiostations.mediaservice.MediaServiceManagerImpl
+import com.alexeymerov.radiostations.feature.player.manager.MediaServiceManager
+import com.alexeymerov.radiostations.feature.player.manager.MediaServiceManagerImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ActivityModule {
+abstract class PlayerModule {
 
     @Singleton
     @Binds

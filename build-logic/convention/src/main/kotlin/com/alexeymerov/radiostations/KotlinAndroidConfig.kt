@@ -7,9 +7,11 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *>,
-) {
+internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension<*, *, *, *, *>) {
+    with(pluginManager) {
+        apply("org.jetbrains.kotlin.android")
+    }
+
     commonExtension.apply {
         compileSdk = libs.getIntVersion("compileSdk")
 

@@ -1,10 +1,12 @@
 package com.alexeymerov.radiostations.feature.player.screen
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.core.common.toBase64
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
@@ -105,7 +107,11 @@ class PlayerViewModel @Inject constructor(
         if (action.mediaItem.directUrl == currentPlayingAudioUrl.value) {
             playingUseCase.togglePlayerPlayStop()
         } else {
-            playingUseCase.setLastPlayingMedia(action.mediaItem)
+            playingUseCase.setLastPlayingMedia(
+                action.mediaItem.copy(
+                    imageBase64 = action.bitmap?.toBase64()
+                )
+            )
         }
     }
 
@@ -128,7 +134,7 @@ class PlayerViewModel @Inject constructor(
 
     sealed interface ViewAction : BaseViewAction {
         data object ToggleFavorite : ViewAction
-        data class ChangeOrToggleAudio(val mediaItem: AudioItemDto) : ViewAction
+        data class ChangeOrToggleAudio(val mediaItem: AudioItemDto, val bitmap: Bitmap?) : ViewAction
     }
 
     sealed interface ViewEffect : BaseViewEffect {

@@ -1,7 +1,7 @@
 [versions]
 
-versionCode = "134"
-versionName = "1.9.6"
+versionCode = "135"
+versionName = "1.9.7"
 
 compileSdk = "34"
 minSdk = "26"
@@ -45,7 +45,6 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "11.5.0" }
 versionsChecker = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
 googleServices = { id = "com.google.gms.google-services", version = "4.4.1" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "fierbaseCrashlyticsPlugin" }

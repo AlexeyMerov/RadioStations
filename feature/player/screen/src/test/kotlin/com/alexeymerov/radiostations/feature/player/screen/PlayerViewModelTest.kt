@@ -131,7 +131,7 @@ class PlayerViewModelTest {
         state as ViewState.ReadyToPlay
         assertThat(state.playState).isInstanceOf(ScreenPlayState.STOPPED::class.java)
 
-        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item))
+        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item, null))
 
         val newState = viewModel.viewState.first()
         assertThat(newState).isInstanceOf(ViewState.ReadyToPlay::class.java)
@@ -146,7 +146,7 @@ class PlayerViewModelTest {
         state as ViewState.ReadyToPlay
         assertThat(state.playState).isInstanceOf(ScreenPlayState.STOPPED::class.java)
 
-        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item))
+        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item, null))
 
         val newState = viewModel.viewState.first()
         assertThat(newState).isInstanceOf(ViewState.ReadyToPlay::class.java)
@@ -168,7 +168,7 @@ class PlayerViewModelTest {
         state as ViewState.ReadyToPlay
         assertThat(state.playState).isInstanceOf(ScreenPlayState.STOPPED::class.java)
 
-        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item))
+        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item, null))
 
         advanceTimeBy(1000)
 
@@ -177,7 +177,7 @@ class PlayerViewModelTest {
         playState as ViewState.ReadyToPlay
         assertThat(playState.playState).isInstanceOf(ScreenPlayState.PLAYING::class.java)
 
-        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item))
+        viewModel.setAction(ViewAction.ChangeOrToggleAudio(state.item, null))
 
         val newState = viewModel.viewState.first()
         assertThat(newState).isInstanceOf(ViewState.ReadyToPlay::class.java)

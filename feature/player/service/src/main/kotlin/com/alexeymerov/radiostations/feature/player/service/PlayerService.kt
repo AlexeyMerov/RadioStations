@@ -1,9 +1,8 @@
 package com.alexeymerov.radiostations.feature.player.service
 
+import android.appwidget.AppWidgetManager
 import android.content.Intent
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.annotation.OptIn
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.util.UnstableApi
@@ -13,7 +12,9 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
-import com.alexeymerov.radiostations.feature.player.widget.PlayerWidget
+import com.alexeymerov.radiostations.feature.player.common.WidgetIntentActions
+import com.alexeymerov.radiostations.feature.player.common.mapToMediaItem
+import com.alexeymerov.radiostations.feature.player.widget.PlayerWidgetReceiver
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,6 +44,8 @@ class PlayerService : MediaLibraryService() {
             mediaSession: MediaSession,
             controller: MediaSession.ControllerInfo
         ): ListenableFuture<MediaItemsWithStartPosition> {
+            Timber.d("-> onPlaybackResumption: ")
+
             val deferred = ioScope.async {
                 val settable = SettableFuture.create<MediaItemsWithStartPosition>()
                 val item = playingUseCase.getLastPlayingMediaItem().first()
@@ -62,10 +65,25 @@ class PlayerService : MediaLibraryService() {
         }
     }
 
+    @OptIn(UnstableApi::class)
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Timber.d("onStartCommand $intent\naction ${intent?.action}")
+        if (intent?.action == WidgetIntentActions.PLAY_PAUSE) {
+            if (mediaLibrarySession?.player?.isPlaying == true) {
+                mediaLibrarySession?.player?.pause()
+            } else {
+                mediaLibrarySession?.player?.playWhenReady = true
+            }
+        }
+
+        return super.onStartCommand(intent, flags, startId)
+    }
+
     override fun onCreate() {
         super.onCreate()
-        val player = ExoPlayer.Builder(this).build()
+        Timber.d("-> onCreate: ")
 
+        val player = ExoPlayer.Builder(this).build()
         player.onStateChange(
             onIsPlaying = { isPlaying ->
                 Timber.d("PlayerService -- onStateChange -- onIsPlaying $isPlaying")
@@ -90,32 +108,29 @@ class PlayerService : MediaLibraryService() {
         mediaLibrarySession = MediaLibrarySession.Builder(this, player, callback).build()
     }
 
-    private suspend fun updateWidget() {
-        val currentMediaItem = playingUseCase.getLastPlayingMediaItem().first()
-
-        GlanceAppWidgetManager(this@PlayerService)
-            .getGlanceIds(PlayerWidget::class.java)
-            .forEach {
-                updateAppWidgetState(this@PlayerService, PreferencesGlanceStateDefinition, it) { pref ->
-                    pref.toMutablePreferences().apply {
-                        this[PlayerWidget.prefTitleKey] = currentMediaItem?.title.toString()
-                    }
-                }
-                PlayerWidget().update(this@PlayerService, it)
+    private fun updateWidget() {
+        Timber.d("-> updateWidget: ")
+        sendBroadcast(
+            Intent(this, PlayerWidgetReceiver::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             }
+        )
     }
 
-    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? = mediaLibrarySession
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? {
+        Timber.d("-> onGetSession: $mediaLibrarySession")
+        return mediaLibrarySession
+    }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
+        Timber.d("-> onTaskRemoved: ")
         mediaLibrarySession?.run {
-            if (!player.playWhenReady || player.mediaItemCount == 0) {
-                stopSelf()
-            }
+            if (!player.isPlaying) release()
         }
     }
 
     override fun onDestroy() {
+        Timber.d("-> onDestroy: ")
         mediaLibrarySession?.run {
             player.release()
             release()
@@ -128,6 +143,7 @@ class PlayerService : MediaLibraryService() {
         onIsPlaying: (Boolean) -> Unit = {},
         onIsLoading: (Boolean) -> Unit = {}
     ) {
+        Timber.d("-> onStateChange: ")
         addListener(object : Player.Listener {
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
