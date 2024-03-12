@@ -86,12 +86,12 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.currentAudioItem.collectWhenStarted(this) {
             currentMedia = it
-            if (it != null) mediaServiceManager.processCurrentAudioItem(it)
+            if (it != null) mediaServiceManager.processNewAudioItem(it)
         }
 
         viewModel.playerState.collectWhenStarted(this) {
             playerState = it
-            mediaServiceManager.processPlayerState(it, viewModel.currentAudioItem.value)
+            mediaServiceManager.processPlayerState(it)
         }
     }
 

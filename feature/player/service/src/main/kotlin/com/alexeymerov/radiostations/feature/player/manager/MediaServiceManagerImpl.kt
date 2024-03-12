@@ -28,6 +28,7 @@ class MediaServiceManagerImpl @Inject constructor(
 
     private var mediaController: MediaController? = null
     private var controllerFuture: ListenableFuture<MediaController>? = null
+    private var currentAudioItem: AudioItemDto? = null
 
     override fun getStationRouteIfExist(intent: Intent): String? {
         val url = intent.getStringExtra(INTENT_KEY_AUDIO_URL)
@@ -56,8 +57,10 @@ class MediaServiceManagerImpl @Inject constructor(
         }
     }
 
-    override fun processCurrentAudioItem(item: AudioItemDto) {
+    override fun processNewAudioItem(item: AudioItemDto) {
         Timber.d("processCurrentAudioItem $item")
+        currentAudioItem = item
+
         mediaController?.also { controller ->
             if (item.directUrl != controller.currentMediaItem?.mediaId) {
                 controller.setMediaItem(mapToMediaItem(item))
@@ -69,13 +72,13 @@ class MediaServiceManagerImpl @Inject constructor(
     }
 
     private fun createDynamicShortcut(item: AudioItemDto) {
+        Timber.d("-> createDynamicShortcut: $item")
+
         val shortLabel = if (item.title.length > 12) "${item.title.substring(0, 10)}..." else item.title
         var longLabel = item.title
         item.subTitle?.let {
             longLabel = "$longLabel (${item.subTitle})"
         }
-
-        Timber.d("-> createDynamicShortcut: $item")
 
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
             action = Intent.ACTION_VIEW
@@ -100,16 +103,17 @@ class MediaServiceManagerImpl @Inject constructor(
         }
     }
 
-    override fun processPlayerState(state: PlayerState, currentMedia: AudioItemDto?) {
+    override fun processPlayerState(state: PlayerState) {
         Timber.d("processPlayerState - playerState $state" + " == currentMediaItem ${mediaController?.currentMediaItem}")
         mediaController?.also { controller ->
             when (state) {
                 PlayerState.EMPTY -> processEmptyState(controller)
                 PlayerState.PLAYING -> {
                     if (!controller.isPlaying) {
-                        if (controller.currentMediaItem == null && currentMedia != null) {
-                            processCurrentAudioItem(currentMedia)
-                        }
+                        currentAudioItem
+                            .takeIf { controller.currentMediaItem == null }
+                            ?.let { processNewAudioItem(it) }
+
                         controller.playWhenReady = true
                     }
                 }

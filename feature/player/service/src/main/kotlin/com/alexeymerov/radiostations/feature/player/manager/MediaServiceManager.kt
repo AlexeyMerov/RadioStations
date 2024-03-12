@@ -10,9 +10,9 @@ interface MediaServiceManager {
 
     fun setupPlayer()
 
-    fun processCurrentAudioItem(item: AudioItemDto)
+    fun processNewAudioItem(item: AudioItemDto)
 
-    fun processPlayerState(state: PlayingUseCase.PlayerState, currentMedia: AudioItemDto?)
+    fun processPlayerState(state: PlayingUseCase.PlayerState)
 
     fun onStop()
 
