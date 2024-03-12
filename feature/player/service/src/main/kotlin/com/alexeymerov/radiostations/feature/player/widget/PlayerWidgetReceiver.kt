@@ -8,6 +8,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,7 @@ class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onReceive(context, intent)
         Timber.d("onReceive: $intent")
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
+            Timber.d("onReceive if inside")
             updateData(context)
         }
     }
@@ -38,7 +40,7 @@ class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
     private fun updateData(context: Context) {
         coroutineScope.launch {
             val currentMediaItem = playingUseCase.getLastPlayingMediaItem().first()
-            val isPlaying = playingUseCase.getPlayerState().first() == PlayingUseCase.PlayerState.PLAYING
+            val isPlaying = playingUseCase.getPlayerState().first() == PlayerState.PLAYING
 
             GlanceAppWidgetManager(context)
                 .getGlanceIds(PlayerWidget::class.java)

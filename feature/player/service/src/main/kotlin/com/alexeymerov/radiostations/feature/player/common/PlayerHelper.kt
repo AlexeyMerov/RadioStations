@@ -1,11 +1,11 @@
-package com.alexeymerov.radiostations.feature.player.service
+package com.alexeymerov.radiostations.feature.player.common
 
 import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 
-fun mapToMediaItem(item: AudioItemDto): MediaItem {
+internal fun mapToMediaItem(item: AudioItemDto): MediaItem {
     val mediaMetadata = MediaMetadata.Builder()
         .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION)
         .setTitle(item.title)

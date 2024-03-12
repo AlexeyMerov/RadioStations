@@ -1,4 +1,4 @@
-package com.alexeymerov.radiostations.feature.player.service.di
+package com.alexeymerov.radiostations.feature.player.di
 
 import dagger.Module
 import dagger.Provides
