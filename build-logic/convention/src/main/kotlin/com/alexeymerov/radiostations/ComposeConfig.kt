@@ -3,6 +3,7 @@ package com.alexeymerov.radiostations
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 internal fun Project.configureCompose(
     commonExtension: CommonExtension<*, *, *, *, *>,
@@ -41,5 +42,12 @@ internal fun Project.configureCompose(
             implementation(libs.getLibrary("coil-compose"))
             implementation(libs.getLibrary("lottie"))
         }
+    }
+
+    tasks.withType(KotlinCompile::class.java) {
+        compilerOptions.freeCompilerArgs.addAll(
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
+        )
     }
 }
