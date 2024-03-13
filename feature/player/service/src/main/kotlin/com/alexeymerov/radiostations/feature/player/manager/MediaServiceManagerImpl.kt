@@ -49,6 +49,8 @@ class MediaServiceManagerImpl @Inject constructor(
 
     override fun setupPlayer() {
         Timber.d("-> setupPlayer: ")
+        if (mediaController != null) return
+
         val sessionToken = SessionToken(context, ComponentName(context, PlayerService::class.java))
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         controllerFuture?.let { future ->
@@ -65,10 +67,9 @@ class MediaServiceManagerImpl @Inject constructor(
             if (item.directUrl != controller.currentMediaItem?.mediaId) {
                 controller.setMediaItem(mapToMediaItem(item))
                 controller.prepare()
+                createDynamicShortcut(item)
             }
         }
-
-        createDynamicShortcut(item)
     }
 
     private fun createDynamicShortcut(item: AudioItemDto) {
@@ -118,7 +119,9 @@ class MediaServiceManagerImpl @Inject constructor(
                     }
                 }
 
-                PlayerState.STOPPED -> controller.pause()
+                PlayerState.STOPPED -> {
+                    if (controller.isPlaying) controller.pause()
+                }
                 else -> {
                     /* no action needed */
                 }

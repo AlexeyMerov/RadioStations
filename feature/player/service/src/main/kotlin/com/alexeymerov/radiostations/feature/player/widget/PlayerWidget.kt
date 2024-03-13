@@ -22,6 +22,7 @@ import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.action.actionStartService
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -93,7 +94,13 @@ private fun MainContent() {
                 } else this
             }
             .fillMaxSize()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable(
+                actionStartActivity(
+                    checkNotNull(context.packageManager.getLaunchIntentForPackage(context.packageName))
+                        .apply { flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT }
+                )
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
