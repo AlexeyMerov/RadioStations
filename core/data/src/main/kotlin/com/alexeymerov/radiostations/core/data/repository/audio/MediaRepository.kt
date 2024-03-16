@@ -12,7 +12,7 @@ interface MediaRepository {
 
     suspend fun getItemByUrl(url: String): CategoryEntity?
 
-    suspend fun getMediaByUrl(url: String): MediaEntity?
+    suspend fun getMediaByTuneId(tuneId: String): MediaEntity?
 
     suspend fun changeIsMediaFavorite(itemId: String, isFavorite: Boolean)
 

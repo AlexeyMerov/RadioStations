@@ -45,7 +45,8 @@ class PlayingUseCaseTest {
             directUrl = "directUrl",
             image = "image",
             title = "title",
-            subTitle = "subTitle"
+            subTitle = "subTitle",
+            tuneId = "tuneId"
         )
         useCase.setLastPlayingMedia(itemDto)
 
@@ -72,7 +73,8 @@ class PlayingUseCaseTest {
             directUrl = "directUrl",
             image = "image",
             title = "title",
-            subTitle = "subTitle"
+            subTitle = "subTitle",
+            tuneId = "tuneId"
         )
         useCase.setLastPlayingMedia(itemDto)
 
@@ -92,7 +94,8 @@ class PlayingUseCaseTest {
             directUrl = "directUrl",
             image = "image",
             title = "title",
-            subTitle = "subTitle"
+            subTitle = "subTitle",
+            tuneId = "tuneId"
         )
 
         useCase.setLastPlayingMedia(newItemDto)

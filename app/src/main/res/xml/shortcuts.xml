@@ -9,14 +9,10 @@
 
         <intent
             android:action="android.intent.action.VIEW"
+            android:data="radiostations://screen/favorites"
             android:targetClass="com.alexeymerov.radiostations.presentation.MainActivity"
             android:targetPackage="com.alexeymerov.radiostations"
-            >
-            <extra
-                android:name="screen"
-                android:value="favorites"
-                />
-        </intent>
+            />
 
         <categories android:name="android.shortcut.conversation" />
 

@@ -7,6 +7,8 @@ interface CategoryRepository {
 
     fun getCategoriesByUrl(url: String): Flow<List<CategoryEntity>>
 
+    suspend fun getCategoriesByTuneId(tuneId: String): CategoryEntity?
+
     suspend fun loadCategoriesByUrl(url: String)
 
 }

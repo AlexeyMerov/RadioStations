@@ -1,7 +1,7 @@
 package com.alexeymerov.radiostations.feature.player.di
 
-import com.alexeymerov.radiostations.feature.player.manager.MediaServiceManager
-import com.alexeymerov.radiostations.feature.player.manager.MediaServiceManagerImpl
+import com.alexeymerov.radiostations.feature.player.manager.MediaManager
+import com.alexeymerov.radiostations.feature.player.manager.MediaManagerImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,6 +14,6 @@ abstract class PlayerModule {
 
     @Singleton
     @Binds
-    abstract fun bindMediaServiceManager(manager: MediaServiceManagerImpl): MediaServiceManager
+    abstract fun bindMediaServiceManager(manager: MediaManagerImpl): MediaManager
 
 }

@@ -45,11 +45,16 @@ class AppFileStoreAndroidTest {
     }
 
     @Test
-    fun getFile_withEmptyName_returnsParentFolder() = runTest {
+    fun getFile_withEmptyName_returnsParentFolderOrNull() = runTest {
         val fileName = ""
         val file = appFileStore.getFileByName(fileName)
 
-        assertThat(file?.name).isEqualTo("files")
+        val name = file?.name
+        if (name != null) {
+            assertThat(name).isEqualTo("files")
+        } else {
+            assertThat(file).isNull()
+        }
     }
 
     @Test

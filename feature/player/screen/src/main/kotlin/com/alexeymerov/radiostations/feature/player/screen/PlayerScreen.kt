@@ -69,14 +69,13 @@ import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewS
 @Composable
 fun BasePlayerScreen(
     viewModel: PlayerViewModel,
-    isVisibleToUser: Boolean,
-    stationName: String
+    isVisibleToUser: Boolean
 ) {
     ComposedTimberD("BasePlayerScreen")
 
     if (isVisibleToUser) {
         TopBarSetup(
-            stationName = stationName,
+            stationName = viewModel.title,
             subTitle = viewModel.subTitle,
             isFavorite = viewModel.isFavorite,
             onAction = { viewModel.setAction(it) }

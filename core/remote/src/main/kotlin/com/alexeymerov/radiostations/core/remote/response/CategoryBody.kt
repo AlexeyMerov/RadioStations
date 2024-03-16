@@ -13,5 +13,7 @@ data class CategoryBody(
     val image: String = String.EMPTY,
     @SerialName("current_track")
     val currentTrack: String = String.EMPTY,
-    val children: List<CategoryBody>? = null
+    val children: List<CategoryBody>? = null,
+    @SerialName("guide_id")
+    val guideId: String? = null
 )

@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.ColorFilter
@@ -43,6 +44,8 @@ import androidx.glance.layout.wrapContentSize
 import androidx.glance.layout.wrapContentWidth
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.ProjectConst.DEEP_LINK_TUNE_PATTERN
 import com.alexeymerov.radiostations.core.common.base64ToBitmap
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.feature.player.common.WidgetIntentActions
@@ -60,6 +63,7 @@ class PlayerWidget : GlanceAppWidget() {
         val prefTitleKey = stringPreferencesKey("title")
         val prefImageBase64 = stringPreferencesKey("imageBase64")
         val prefIsPlaying = booleanPreferencesKey("isPlaying")
+        val prefTuneId = stringPreferencesKey("tuneId")
     }
 
     override val sizeMode = SizeMode.Responsive(setOf(ROW_SMALL, ROW_MEDIUM, ROW_LARGE, ROW_EXTRA_LARGE))
@@ -83,6 +87,8 @@ private fun MainContent() {
     val image = currentState(PlayerWidget.prefImageBase64)?.base64ToBitmap()
     val showTitle = currentSize == ROW_LARGE || currentSize == ROW_EXTRA_LARGE
 
+    val tuneId = currentState(PlayerWidget.prefTuneId) ?: String.EMPTY
+
     val isPlaying = currentState(PlayerWidget.prefIsPlaying) ?: false
     val buttonOverImage = currentSize != ROW_EXTRA_LARGE
 
@@ -98,7 +104,10 @@ private fun MainContent() {
             .clickable(
                 actionStartActivity(
                     checkNotNull(context.packageManager.getLaunchIntentForPackage(context.packageName))
-                        .apply { flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT }
+                        .apply {
+                            action = Intent.ACTION_VIEW
+                            data = "$DEEP_LINK_TUNE_PATTERN/$tuneId".toUri()
+                        }
                 )
             ),
         verticalAlignment = Alignment.CenterVertically,

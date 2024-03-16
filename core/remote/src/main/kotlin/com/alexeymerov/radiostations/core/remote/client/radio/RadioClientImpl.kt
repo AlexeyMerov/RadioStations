@@ -1,8 +1,8 @@
 package com.alexeymerov.radiostations.core.remote.client.radio
 
 
-import com.alexeymerov.radiostations.core.common.BuildConfig
 import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.ProjectConst
 import com.alexeymerov.radiostations.core.remote.api.RadioApi
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.core.remote.response.CategoryBody
@@ -48,7 +48,7 @@ class RadioClientImpl @Inject constructor(
      * */
     override suspend fun requestCategoriesByUrl(url: String): List<CategoryBody> {
         return try {
-            val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
+            val finalUrl = url.replace(ProjectConst.BASE_URL, String.EMPTY)
             val response = radioApi.getCategoriesByUrl(finalUrl)
             responseMapper.mapRadioResponseBody(response)
         } catch (e: Exception) {
@@ -57,10 +57,9 @@ class RadioClientImpl @Inject constructor(
         }
     }
 
-    override suspend fun requestAudioByUrl(url: String): MediaBody? {
+    override suspend fun requestAudioById(tuneId: String): MediaBody? {
         return try {
-            val finalUrl = url.replace(BuildConfig.BASE_URL, String.EMPTY)
-            val response = radioApi.getAudioByUrl(finalUrl)
+            val response = radioApi.getAudioById(tuneId)
             responseMapper.mapRadioResponseBody(response).getOrNull(0)
         } catch (e: Exception) {
             Timber.e(e)

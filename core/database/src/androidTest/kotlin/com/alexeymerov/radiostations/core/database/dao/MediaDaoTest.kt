@@ -45,6 +45,7 @@ class MediaDaoTest {
             imageUrl = "",
             title = "",
             subtitle = "",
+            tuneId = ""
         )
 
         assertThat(mediaDao.getMedia().first()).isNull()
@@ -60,6 +61,7 @@ class MediaDaoTest {
             imageUrl = "",
             title = "",
             subtitle = "",
+            tuneId = ""
         )
         mediaDao.insert(entity)
         mediaDao.insert(entity.copy(title = "Test"))
@@ -81,6 +83,7 @@ class MediaDaoTest {
             imageUrl = "",
             title = "",
             subtitle = "",
+            tuneId = ""
         )
         mediaDao.insert(entity)
         mediaDao.insert(entity.copy(id = 23))
@@ -96,6 +99,7 @@ class MediaDaoTest {
             imageUrl = "",
             title = "",
             subtitle = "",
+            tuneId = ""
         )
         mediaDao.insert(entity)
         mediaDao.insert(entity.copy(id = 23))

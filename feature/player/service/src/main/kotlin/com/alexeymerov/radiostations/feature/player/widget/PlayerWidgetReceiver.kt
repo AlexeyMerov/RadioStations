@@ -51,6 +51,7 @@ class PlayerWidgetReceiver : GlanceAppWidgetReceiver() {
                         pref[PlayerWidget.prefTitleKey] = currentMediaItem?.title.orEmpty()
                         pref[PlayerWidget.prefImageBase64] = currentMediaItem?.imageBase64.orEmpty()
                         pref[PlayerWidget.prefIsPlaying] = isPlaying
+                        pref[PlayerWidget.prefTuneId] = currentMediaItem?.tuneId.orEmpty()
                     }
                     glanceAppWidget.update(context, it)
                 }

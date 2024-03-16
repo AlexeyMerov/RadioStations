@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeymerov.radiostations.core.domain.usecase.audio.FakeAudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FakeFavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.FakePlayingUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.category.FakeCategoryUseCase
 import com.alexeymerov.radiostations.core.test.MainDispatcherRule
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ScreenPlayState
@@ -31,10 +32,12 @@ class PlayerViewModelTest {
 
     private lateinit var playingUseCase: FakePlayingUseCase
 
+    private lateinit var categoryUseCase: FakeCategoryUseCase
+
     private lateinit var audioUseCase: FakeAudioUseCase
 
-    private val savedStateHandle = SavedStateHandle(
-        mapOf(Screens.Player.Const.ARG_URL to FakeAudioUseCase.VALID_URL)
+    private var savedStateHandle = SavedStateHandle(
+        mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeAudioUseCase.VALID_ID)
     )
 
     @Before
@@ -42,30 +45,42 @@ class PlayerViewModelTest {
         favoriteUseCase = FakeFavoriteUseCase()
         playingUseCase = FakePlayingUseCase()
         audioUseCase = FakeAudioUseCase()
+        categoryUseCase = FakeCategoryUseCase()
 
-        viewModel = PlayerViewModel(savedStateHandle, favoriteUseCase, playingUseCase, audioUseCase, dispatcherRule.testDispatcher)
+        createViewModel()
+    }
+
+    private fun createViewModel() {
+        viewModel = PlayerViewModel(
+            savedStateHandle = savedStateHandle,
+            favoriteUseCase = favoriteUseCase,
+            playingUseCase = playingUseCase,
+            categoryUseCase = categoryUseCase,
+            audioUseCase = audioUseCase,
+            dispatcher = dispatcherRule.testDispatcher
+        )
     }
 
     @Test
     fun whenDataIsLoading_stateIsLoading() = runTest {
         audioUseCase.delay = 500
-        viewModel = PlayerViewModel(savedStateHandle, favoriteUseCase, playingUseCase, audioUseCase, dispatcherRule.testDispatcher)
+        createViewModel()
 
         assertThat(viewModel.viewState.first()).isInstanceOf(ViewState.Loading::class.java)
     }
 
     @Test
-    fun whenUrlInvalid_stateIsError() = runTest {
-        val wrongSavedStateHandle = SavedStateHandle(
-            mapOf(Screens.Player.Const.ARG_URL to "")
+    fun whenIdInvalid_stateIsError() = runTest {
+        savedStateHandle = SavedStateHandle(
+            mapOf(Screens.Player.Const.ARG_TUNE_ID to "")
         )
-        viewModel = PlayerViewModel(wrongSavedStateHandle, favoriteUseCase, playingUseCase, audioUseCase, dispatcherRule.testDispatcher)
+        createViewModel()
 
         assertThat(viewModel.viewState.first()).isInstanceOf(ViewState.Error::class.java)
     }
 
     @Test
-    fun whenUrlValid_stateIsReadyToPlay() = runTest {
+    fun whenIdValid_stateIsReadyToPlay() = runTest {
         assertThat(viewModel.viewState.first()).isInstanceOf(ViewState.ReadyToPlay::class.java)
     }
 
@@ -77,10 +92,10 @@ class PlayerViewModelTest {
 
     @Test
     fun whenNoSubtitle_fieldIsNull() = runTest {
-        val noSubtitleSavedStateHandle = SavedStateHandle(
-            mapOf(Screens.Player.Const.ARG_URL to FakeAudioUseCase.VALID_URL_NO_SUBTITLE)
+        savedStateHandle = SavedStateHandle(
+            mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeAudioUseCase.VALID_ID_NO_SUBTITLE)
         )
-        viewModel = PlayerViewModel(noSubtitleSavedStateHandle, favoriteUseCase, playingUseCase, audioUseCase, dispatcherRule.testDispatcher)
+        createViewModel()
 
         assertThat(viewModel.viewState.first()).isInstanceOf(ViewState.ReadyToPlay::class.java)
         assertThat(viewModel.subTitle).isNull()
@@ -88,10 +103,10 @@ class PlayerViewModelTest {
 
     @Test
     fun whenIsFavorite_fieldIsTrue() = runTest {
-        val noSubtitleSavedStateHandle = SavedStateHandle(
-            mapOf(Screens.Player.Const.ARG_URL to FakeAudioUseCase.VALID_URL_IS_FAVORITE)
+        savedStateHandle = SavedStateHandle(
+            mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeAudioUseCase.VALID_ID_IS_FAVORITE)
         )
-        viewModel = PlayerViewModel(noSubtitleSavedStateHandle, favoriteUseCase, playingUseCase, audioUseCase, dispatcherRule.testDispatcher)
+        createViewModel()
 
         assertThat(viewModel.viewState.first()).isInstanceOf(ViewState.ReadyToPlay::class.java)
         assertThat(viewModel.isFavorite).isTrue()

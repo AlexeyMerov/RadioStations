@@ -12,17 +12,16 @@ import javax.inject.Inject
 
 class MediaRepositoryImpl @Inject constructor(
     private val radioClient: RadioClient,
-    private val categoryDao: CategoryDao, // one day i'll separate db, but not today
-
+    private val categoryDao: CategoryDao,
     private val mediaMapper: MediaMapper,
     private val mediaDao: MediaDao
 ) : MediaRepository {
 
     override fun getAllFavorites(): Flow<List<CategoryEntity>> = categoryDao.getFavoritesFlow()
 
-    override suspend fun getMediaByUrl(url: String): MediaEntity? {
-        val item = categoryDao.getByUrl(url)
-        val mediaBody = radioClient.requestAudioByUrl(url)
+    override suspend fun getMediaByTuneId(tuneId: String): MediaEntity? {
+        val item = categoryDao.getByTuneId(tuneId)
+        val mediaBody = radioClient.requestAudioById(tuneId)
 
         if (item != null && mediaBody != null) {
             return mediaMapper.mapToEntity(item, mediaBody)

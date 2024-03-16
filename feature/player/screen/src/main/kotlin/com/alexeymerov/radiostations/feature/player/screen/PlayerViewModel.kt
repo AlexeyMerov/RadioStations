@@ -6,17 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.toBase64
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.common.BaseViewAction
 import com.alexeymerov.radiostations.core.ui.common.BaseViewEffect
 import com.alexeymerov.radiostations.core.ui.common.BaseViewModel
 import com.alexeymerov.radiostations.core.ui.common.BaseViewState
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
-import com.alexeymerov.radiostations.core.ui.navigation.decodeUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -37,11 +38,13 @@ class PlayerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val favoriteUseCase: FavoriteUseCase,
     private val playingUseCase: PlayingUseCase,
+    private val categoryUseCase: CategoryUseCase,
     private val audioUseCase: AudioUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
     var isFavorite by mutableStateOf<Boolean?>(false)
+    var title by mutableStateOf(String.EMPTY)
     var subTitle by mutableStateOf<String?>(null)
 
     private var itemId: String? = null
@@ -56,17 +59,17 @@ class PlayerViewModel @Inject constructor(
         )
 
     init {
-        val parentUrl = checkNotNull(savedStateHandle.get<String>(Screens.Player.Const.ARG_URL)).decodeUrl()
+        val tuneId = checkNotNull(savedStateHandle.get<String>(Screens.Player.Const.ARG_TUNE_ID))
 
         viewModelScope.launch(dispatcher) {
-            audioUseCase.getMediaItem(parentUrl)?.let { currentItem ->
+            audioUseCase.getMediaItem(tuneId)?.let { currentItem ->
                 Timber.d("loadAudioLink $currentItem")
 
                 combine(
                     playingUseCase.getLastPlayingMediaItem(),
                     playingUseCase.getPlayerState()
                 ) { item, state ->
-                    val isSameItem = item?.parentUrl == parentUrl
+                    val isSameItem = item?.tuneId == tuneId
                     isSameItem to state
                 }.collectLatest { (isSameItem, systemPlayState) ->
                     val screenPlayState = when {
@@ -82,9 +85,10 @@ class PlayerViewModel @Inject constructor(
         }
 
         viewModelScope.launch(dispatcher) {
-            val itemDto = audioUseCase.getByUrl(parentUrl)
+            val itemDto = categoryUseCase.getByTuneId(tuneId)
             itemId = itemDto?.id
             withContext(Dispatchers.Main) {
+                title = itemDto?.text ?: String.EMPTY
                 subTitle = itemDto?.subTitle
                 isFavorite = itemDto?.isFavorite
             }

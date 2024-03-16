@@ -1,7 +1,6 @@
 package com.alexeymerov.radiostations.core.domain.usecase.audio
 
 import com.alexeymerov.radiostations.core.data.repository.audio.FakeMediaRepository
-import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapperImpl
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -16,10 +15,7 @@ class AudioUseCaseTest {
 
     @Before
     fun setup() {
-        useCase = AudioUseCaseImpl(
-            FakeMediaRepository(),
-            DtoCategoriesMapperImpl()
-        )
+        useCase = AudioUseCaseImpl(FakeMediaRepository())
     }
 
     @Test
@@ -39,20 +35,4 @@ class AudioUseCaseTest {
         assertThat(item.parentUrl).isEqualTo(FakeMediaRepository.VALID_MEDIA_URL)
     }
 
-    @Test
-    fun `getByUrl with valid url returns valid item`() = runTest {
-        val item = useCase.getByUrl(FakeMediaRepository.VALID_ITEM_URL)
-
-        assertThat(item).isNotNull()
-        item!!
-
-        assertThat(item.url).isEqualTo(FakeMediaRepository.VALID_ITEM_URL)
-    }
-
-    @Test
-    fun `getByUrl with invalid url returns null`() = runTest {
-        val item = useCase.getByUrl("")
-
-        assertThat(item).isNull()
-    }
 }

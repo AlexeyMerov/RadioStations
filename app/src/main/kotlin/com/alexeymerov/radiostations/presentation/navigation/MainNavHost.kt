@@ -56,7 +56,6 @@ import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
-import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
@@ -78,17 +77,10 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> { error("Na
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavGraph(
-    starDest: Tabs,
-    goToRoute: Route,
     playerState: PlayerState,
     currentMedia: AudioItemDto?,
-    isNetworkAvailable: Boolean,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
-    LaunchedEffect(isNetworkAvailable) {
-        Timber.d("MainNavGraph - isNetworkAvailable $isNetworkAvailable")
-    }
-
     val config = LocalConfiguration.current
     val coroutineScope = rememberCoroutineScope()
     val navController = rememberNavController()
@@ -121,7 +113,6 @@ fun MainNavGraph(
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
-        LocalConnectionStatus provides isNetworkAvailable,
         LocalPlayerVisibility provides isPlayerVisible,
         LocalTopbar provides topBarBlock
     ) {
@@ -145,10 +136,9 @@ fun MainNavGraph(
                 }
             }
 
-            val railBarSize = if (config.isLandscape()) {
-                80.dp.toPx()
-            } else {
-                80.dp.toPx() + WindowInsets.navigationBars.getBottom(LocalDensity.current).toFloat()
+            val railBarSize = when {
+                config.isLandscape() -> 80.dp.toPx()
+                else -> 80.dp.toPx() + WindowInsets.navigationBars.getBottom(LocalDensity.current).toFloat()
             }
 
             var sheetFullHeightPx by remember { mutableFloatStateOf(0f) }
@@ -230,18 +220,14 @@ fun MainNavGraph(
                                 playerState = playerState,
                                 currentMedia = currentMedia,
                                 onCloseAction = {
-                                    coroutineScope.launch {
-                                        bottomSheetState.hide()
-                                    }
+                                    coroutineScope.launch { bottomSheetState.hide() }
                                     onPlayerAction.invoke(MainViewModel.ViewAction.NukePlayer)
                                 },
                                 onToggleAudio = {
                                     onPlayerAction.invoke(MainViewModel.ViewAction.ToggleAudio)
                                 },
                                 onCollapse = {
-                                    coroutineScope.launch {
-                                        bottomSheetState.partialExpand()
-                                    }
+                                    coroutineScope.launch { bottomSheetState.partialExpand() }
                                 }
                             )
                         },
@@ -258,8 +244,6 @@ fun MainNavGraph(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .graphicsScale(animData.scaleContent),
-                                        goToRoute = goToRoute,
-                                        starDest = starDest
                                     )
                                 }
                             }
@@ -282,10 +266,8 @@ fun MainNavGraph(
 private fun CreateNavHost(
     modifier: Modifier = Modifier,
     starDest: Tabs = Tabs.Browse,
-    goToRoute: Route
 ) {
     val navController = LocalNavController.current
-
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -296,13 +278,6 @@ private fun CreateNavHost(
         browseGraph()
         favoriteGraph()
         youGraph()
-    }
-
-    LaunchedEffect(goToRoute) {
-        goToRoute.value?.let { route ->
-            Timber.d("goToRoute ## $route")
-            navController.navigate(route)
-        }
     }
 }
 
@@ -340,6 +315,3 @@ private data class CollapseExpandData(
     val onContainerColor: Color,
     val shapeCornerRadius: Dp
 )
-
-@JvmInline
-value class Route(val value: String?)

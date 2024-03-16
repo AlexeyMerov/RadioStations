@@ -120,14 +120,13 @@ fun BaseCategoryScreen(
             onCategoryClick = {
                 onNavigate.invoke(Screens.Categories.createRoute(it.text, it.url))
             },
-            onAudioClick = {
-                if (isNetworkAvailable) {
-                    val route = Screens.Player(Tabs.Browse.route).createRoute(
-                        rawUrl = it.url,
-                        stationName = it.text
-                    )
-                    onNavigate.invoke(route)
-                }
+            onAudioClick = { item ->
+                item.tuneId
+                    ?.takeIf { isNetworkAvailable }
+                    ?.let {
+                        val route = Screens.Player(Tabs.Browse.route).createRoute(it)
+                        onNavigate.invoke(route)
+                    }
             },
             onAction = { viewModel.setAction(it) }
         )

@@ -40,23 +40,19 @@ sealed class Screens(val route: String) {
 
     data class Player(val parentRoute: String) : Screens(
         createBaseRoute(
-            "$parentRoute##${Const.ROUTE}",
-            Const.ARG_URL,
-            Const.ARG_TITLE
+            route = "$parentRoute##${Const.ROUTE}",
+            Const.ARG_TUNE_ID
         )
     ) {
         object Const {
             const val ROUTE: String = "player"
-            const val ARG_URL: String = "url"
-            const val ARG_TITLE: String = "title"
+            const val ARG_TUNE_ID: String = "id"
         }
 
-        fun createRoute(rawUrl: String, stationName: String): String {
-            return createNewRoute(
-                route = "$parentRoute##${Const.ROUTE}",
-                args = arrayOf(rawUrl.encodeUrl(), stationName)
-            )
-        }
+        fun createRoute(tuneId: String): String = createNewRoute(
+            route = "$parentRoute##${Const.ROUTE}",
+            tuneId
+        )
     }
 
     data object Favorites : Screens(createBaseRoute(Const.ROUTE, Const.ARG_TITLE)) {

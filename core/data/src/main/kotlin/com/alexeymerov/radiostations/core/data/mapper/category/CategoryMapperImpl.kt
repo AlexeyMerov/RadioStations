@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class CategoryMapperImpl @Inject constructor() : CategoryMapper {
 
-    // Title (23) -> remove (23) since it may be invalid
+    // Title (23) -> remove "(23)" part as it may not be valid
     private val digitsWithParenthesis = " \\(\\d+\\)".toRegex()
 
     override suspend fun mapCategoryResponseToEntity(list: List<CategoryBody>, parentUrl: String): List<CategoryEntity> {
@@ -83,6 +83,12 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
             subTitle = extracted?.replace("$mainText,", "")
         }
 
+        var tuneId: String? = null
+        val guideId = body.guideId
+        if (body.type == NetworkDefaults.TYPE_AUDIO && guideId != null) {
+            tuneId = guideId
+        }
+
         return CategoryEntity(
             id = "$parentUrl##$mainText",
             position = position,
@@ -93,7 +99,8 @@ class CategoryMapperImpl @Inject constructor() : CategoryMapper {
             image = body.image.httpsEverywhere(),
             currentTrack = body.currentTrack,
             type = type,
-            childCount = body.children?.size
+            childCount = body.children?.size,
+            tuneId = tuneId
         )
     }
 }

@@ -3,7 +3,7 @@ package com.alexeymerov.radiostations.core.remote.api
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.remote.TestConst
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerializationException
 import okhttp3.mockwebserver.MockResponse
@@ -95,7 +95,7 @@ class RadioApiTest {
         val responseBody = TestConst.readResourceFile(TestConst.AUDIO_RESPONSE_200)
         mockWebServer.enqueue(MockResponse().setBody(responseBody))
 
-        val response = radioApi.getAudioByUrl(String.EMPTY)
+        val response = radioApi.getAudioById(String.EMPTY)
         val mediaList = response.body()?.body
 
         assertThat(mediaList).isNotNull()
@@ -113,7 +113,7 @@ class RadioApiTest {
         mockWebServer.enqueue(MockResponse().setBody("[{},{}]"))
 
         try {
-            radioApi.getAudioByUrl(String.EMPTY)
+            radioApi.getAudioById(String.EMPTY)
         } catch (e: Exception) {
             assertThat(e).isInstanceOf(SerializationException::class.java)
         }
@@ -123,7 +123,7 @@ class RadioApiTest {
     fun `unsuccessful api request audio returns unsuccessful status`() = runTest {
         mockWebServer.enqueue(MockResponse().setResponseCode(400))
 
-        val response = radioApi.getAudioByUrl(String.EMPTY)
+        val response = radioApi.getAudioById(String.EMPTY)
 
         assertThat(response.isSuccessful).isFalse()
     }

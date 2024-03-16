@@ -47,7 +47,9 @@ class DtoCategoriesMapperImpl @Inject constructor() : DtoCategoriesMapper {
             initials = initials,
 
             latitude = entity.latitude,
-            longitude = entity.longitude
+            longitude = entity.longitude,
+
+            tuneId = entity.tuneId
         )
     }
 

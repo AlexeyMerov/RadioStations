@@ -1,7 +1,7 @@
 package com.alexeymerov.radiostations.core.domain.mapper.country
 
 import com.alexeymerov.radiostations.core.database.entity.CountryEntity
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

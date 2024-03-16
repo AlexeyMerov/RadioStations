@@ -18,7 +18,9 @@ class PlayerScreenTest {
         directUrl = "directUrl",
         image = "image",
         title = "title",
-        subTitle = "subTitle"
+        subTitle = "subTitle",
+        tuneId = ""
+
     )
 
     @Test

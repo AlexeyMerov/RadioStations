@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.alexeymerov.radiostations.core.common.ProjectConst
+import com.alexeymerov.radiostations.core.common.substringAfterOrNull
 import com.alexeymerov.radiostations.core.database.dao.CategoryDao
 import com.alexeymerov.radiostations.core.database.dao.CountryDao
 import com.alexeymerov.radiostations.core.database.dao.MediaDao
@@ -15,7 +17,7 @@ import com.alexeymerov.radiostations.core.database.entity.MediaEntity
 
 
 @Database(
-    version = 8,
+    version = 9,
     entities = [
         CategoryEntity::class,
         MediaEntity::class,
@@ -39,7 +41,8 @@ abstract class RadioDatabase : RoomDatabase() {
                 MIGRATION_4_5,
                 MIGRATION_5_6,
                 MIGRATION_6_7,
-                MIGRATION_7_8
+                MIGRATION_7_8,
+                MIGRATION_8_9
             )
 
         fun buildDatabase(context: Context): RadioDatabase {
@@ -134,3 +137,40 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
         db.execSQL("ALTER TABLE media ADD COLUMN imageBase64 TEXT")
     }
 }
+
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE category ADD COLUMN tuneId TEXT")
+
+        val cursor = db.query("SELECT id, url FROM category")
+        cursor.use {
+            while (it.moveToNext()) {
+                val id = it.getString(it.getColumnIndexOrThrow("id"))
+                val url = it.getString(it.getColumnIndexOrThrow("url"))
+
+                if (url.contains(ProjectConst.TUNE_PREFIX)) {
+                    val tuneId = url.substringAfterOrNull("=")
+                    if (tuneId != null) {
+                        db.execSQL("UPDATE category SET tuneId = ? WHERE id = ?", arrayOf(tuneId, id))
+                    }
+                }
+            }
+        }
+
+        db.execSQL("ALTER TABLE media ADD COLUMN tuneId TEXT")
+
+        val mediaCursor = db.query("SELECT id, url FROM media")
+        mediaCursor.use {
+            while (it.moveToNext()) {
+                val id = it.getString(it.getColumnIndexOrThrow("id"))
+                val url = it.getString(it.getColumnIndexOrThrow("url"))
+
+                val tuneId = url.substringAfterOrNull("=")
+                if (tuneId != null) {
+                    db.execSQL("UPDATE media SET tuneId = ? WHERE id = ?", arrayOf(tuneId, id))
+                }
+            }
+        }
+    }
+}
+

@@ -55,7 +55,8 @@ class PlayingUseCaseImpl @Inject constructor(
                     image = media.imageUrl,
                     imageBase64 = media.imageBase64,
                     title = media.title,
-                    subTitle = media.subtitle.ifEmpty { null }
+                    subTitle = media.subtitle.ifEmpty { null },
+                    tuneId = media.tuneId.orEmpty()
                 )
             }
     }
@@ -70,7 +71,8 @@ class PlayingUseCaseImpl @Inject constructor(
             imageUrl = item.image,
             imageBase64 = item.imageBase64,
             title = item.title,
-            subtitle = item.subTitle.orEmpty()
+            subtitle = item.subTitle.orEmpty(),
+            tuneId = item.tuneId
         )
 
         mediaRepository.setLastPlayingMediaItem(mediaEntity)

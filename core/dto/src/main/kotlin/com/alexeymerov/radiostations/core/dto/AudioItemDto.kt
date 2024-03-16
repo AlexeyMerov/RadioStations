@@ -7,5 +7,6 @@ data class AudioItemDto(
     val image: String,
     val imageBase64: String? = null,
     val title: String,
-    val subTitle: String? = null
+    val subTitle: String? = null,
+    val tuneId: String
 )
