@@ -46,7 +46,7 @@ class MainViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = PlayerState.EMPTY
+            initialValue = PlayerState.Empty
         )
 
     val currentAudioItem: StateFlow<AudioItemDto?> = playingUseCase.getLastPlayingMediaItem()
@@ -63,11 +63,11 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch(dispatcher) {
             when (action) {
-                is ViewAction.PlayAudio -> playingUseCase.updatePlayerState(PlayerState.PLAYING)
-                is ViewAction.StopAudio -> playingUseCase.updatePlayerState(PlayerState.STOPPED)
+                is ViewAction.PlayAudio -> playingUseCase.updatePlayerState(PlayerState.Playing(true))
+                is ViewAction.StopAudio -> playingUseCase.updatePlayerState(PlayerState.Stopped(true))
                 is ViewAction.ToggleAudio -> playingUseCase.togglePlayerPlayStop()
                 is ViewAction.ChangeAudio -> playingUseCase.setLastPlayingMedia(action.mediaItem)
-                is ViewAction.NukePlayer -> playingUseCase.updatePlayerState(PlayerState.EMPTY)
+                is ViewAction.NukePlayer -> playingUseCase.updatePlayerState(PlayerState.Empty)
             }
         }
     }

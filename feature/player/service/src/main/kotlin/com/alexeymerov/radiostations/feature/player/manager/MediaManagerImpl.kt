@@ -2,13 +2,11 @@ package com.alexeymerov.radiostations.feature.player.manager
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.feature.player.common.mapToMediaItem
-import com.alexeymerov.radiostations.feature.player.manager.MediaManager.Companion.DYNAMIC_SHORTCUT_ID
 import com.alexeymerov.radiostations.feature.player.service.PlayerService
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
@@ -25,7 +23,7 @@ class MediaManagerImpl @Inject constructor(
     private var currentAudioItem: AudioItemDto? = null
 
     override fun setupPlayer() {
-        Timber.d("-> setupPlayer: ")
+        Timber.d("-> setupPlayer: $mediaController")
         if (mediaController != null) return
 
         val sessionToken = SessionToken(context, ComponentName(context, PlayerService::class.java))
@@ -49,26 +47,17 @@ class MediaManagerImpl @Inject constructor(
     }
 
     override fun processPlayerState(state: PlayerState) {
-        Timber.d("processPlayerState - playerState $state" + " == currentMediaItem ${mediaController?.currentMediaItem}")
+        Timber.d("processPlayerState - playerState $state ## mediaController $mediaController ## currentMediaItem (${mediaController?.mediaItemCount}) ${mediaController?.currentMediaItem}")
         mediaController?.also { controller ->
-            when (state) {
-                PlayerState.EMPTY -> processEmptyState(controller)
-                PlayerState.PLAYING -> {
-                    if (!controller.isPlaying) {
-                        currentAudioItem
-                            .takeIf { controller.currentMediaItem == null }
-                            ?.let { processNewAudioItem(it) }
+            when {
+                state is PlayerState.Empty -> processEmptyState(controller)
+                state is PlayerState.Stopped && controller.isPlaying -> controller.pause()
+                state is PlayerState.Playing && !controller.isPlaying -> {
+                    currentAudioItem
+                        .takeIf { controller.currentMediaItem == null }
+                        ?.let { processNewAudioItem(it) }
 
-                        controller.playWhenReady = true
-                    }
-                }
-
-                PlayerState.STOPPED -> {
-                    if (controller.isPlaying) controller.pause()
-                }
-
-                else -> {
-                    /* no action needed */
+                    controller.playWhenReady = true
                 }
             }
         }
@@ -78,16 +67,11 @@ class MediaManagerImpl @Inject constructor(
         Timber.d("-> processEmptyState: ")
         controller.stop()
         controller.clearMediaItems()
-        ShortcutManagerCompat.disableShortcuts(
-            /* context = */ context,
-            /* shortcutIds = */ listOf(DYNAMIC_SHORTCUT_ID),
-            /* disabledMessage = */ "Not available" // we can't remove pinned icon
-        )
-        ShortcutManagerCompat.removeAllDynamicShortcuts(context)
     }
 
     override fun onStop() {
         Timber.d("-> onStop: ")
+        if (mediaController?.isPlaying == true) return
         controllerFuture?.let {
             MediaController.releaseFuture(it)
         }

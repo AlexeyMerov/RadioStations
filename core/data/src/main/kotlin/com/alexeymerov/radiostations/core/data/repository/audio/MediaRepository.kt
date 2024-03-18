@@ -20,4 +20,6 @@ interface MediaRepository {
 
     suspend fun setLastPlayingMediaItem(item: MediaEntity)
 
+    suspend fun clearLastPlayingMediaItem()
+
 }

@@ -73,8 +73,8 @@ class PlayerViewModel @Inject constructor(
                     isSameItem to state
                 }.collectLatest { (isSameItem, systemPlayState) ->
                     val screenPlayState = when {
-                        isSameItem && systemPlayState == PlayingUseCase.PlayerState.PLAYING -> ScreenPlayState.PLAYING
-                        isSameItem && systemPlayState == PlayingUseCase.PlayerState.LOADING -> ScreenPlayState.LOADING
+                        isSameItem && systemPlayState is PlayingUseCase.PlayerState.Playing -> ScreenPlayState.PLAYING
+                        isSameItem && systemPlayState is PlayingUseCase.PlayerState.Loading -> ScreenPlayState.LOADING
                         else -> ScreenPlayState.STOPPED
                     }
 

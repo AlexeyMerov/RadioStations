@@ -133,7 +133,7 @@ private fun MainContent() {
 
         if (showTitle) {
             Spacer(GlanceModifier.width(8.dp))
-            TitleText(modifier = GlanceModifier.defaultWeight())
+            TitleText(modifier = GlanceModifier.width(currentSize.width / 2.5f))
         }
 
         if (!buttonOverImage) {
@@ -170,7 +170,6 @@ private fun TitleText(modifier: GlanceModifier = GlanceModifier) {
     Box(
         modifier = modifier
             .background(GlanceTheme.colors.background)
-            .wrapContentSize()
             .cornerRadius(8.dp)
     ) {
         Text(

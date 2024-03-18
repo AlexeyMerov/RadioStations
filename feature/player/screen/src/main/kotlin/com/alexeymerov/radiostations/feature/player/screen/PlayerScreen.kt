@@ -3,8 +3,6 @@ package com.alexeymerov.radiostations.feature.player.screen
 import android.graphics.Bitmap
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,47 +11,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.airbnb.lottie.LottieProperty
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieClipSpec
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
-import com.airbnb.lottie.compose.rememberLottieDynamicProperties
-import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
-import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
 import com.alexeymerov.radiostations.core.ui.common.RightIconItem
 import com.alexeymerov.radiostations.core.ui.common.TopBarIcon
@@ -65,6 +44,8 @@ import com.alexeymerov.radiostations.core.ui.view.LoaderView
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ScreenPlayState
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewAction
 import com.alexeymerov.radiostations.feature.player.screen.PlayerViewModel.ViewState
+import com.alexeymerov.radiostations.feature.player.screen.elements.PlayButton
+import com.alexeymerov.radiostations.feature.player.screen.elements.PlayerArtwork
 
 @Composable
 fun BasePlayerScreen(
@@ -223,81 +204,12 @@ private fun MainContent(
                 strokeCap = StrokeCap.Round
             )
         } else {
-            PlayerControlButton(
+            PlayButton(
                 isPlaying = playState == ScreenPlayState.PLAYING,
-                onToggleAudio = {
-                    onToggleAudio.invoke(imageBitmap)
-                }
+                iconColor = MaterialTheme.colorScheme.primary,
+                radius = 40.dp,
+                onTogglePlay = { onToggleAudio.invoke(imageBitmap) }
             )
         }
     }
-}
-
-@Composable
-internal fun PlayerArtwork(
-    modifier: Modifier,
-    imageUrl: String,
-    onImageLoaded: ((Bitmap) -> Unit)? = null
-) {
-    var isLoaded by rememberSaveable { mutableStateOf(false) }
-    val colorScheme = MaterialTheme.colorScheme
-    val colorFilter: ColorFilter? by remember(isLoaded) {
-        derivedStateOf {
-            if (isLoaded) null else ColorFilter.tint(colorScheme.primary)
-        }
-    }
-
-    AsyncImage(
-        modifier = modifier.background(Color.White),
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(imageUrl)
-            .allowHardware(false)
-            .crossfade(500)
-            .build(),
-        contentDescription = null,
-        error = rememberAsyncImagePainter(R.drawable.icon_radio),
-        colorFilter = colorFilter,
-        onSuccess = {
-            val bitmap = it.result.drawable.toBitmap()
-            onImageLoaded?.invoke(bitmap)
-            isLoaded = true
-        },
-        onError = { isLoaded = false }
-    )
-}
-
-@Composable
-internal fun PlayerControlButton(isPlaying: Boolean, onToggleAudio: () -> Unit) {
-    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.playstop))
-    val animationStateProgress by animateLottieCompositionAsState(
-        composition = composition,
-        speed = if (isPlaying) -2f else 2f,
-        clipSpec = LottieClipSpec.Progress(max = 0.5f)
-    )
-    val dynamicProperties = rememberLottieDynamicProperties(
-        rememberLottieDynamicProperty(
-            property = LottieProperty.COLOR,
-            value = MaterialTheme.colorScheme.primary.toArgb(),
-            keyPath = arrayOf("**")
-        )
-    )
-
-    val interactionSource = remember { MutableInteractionSource() }
-    LottieAnimation(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = interactionSource,
-                indication = rememberRipple(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    bounded = false,
-                    radius = 40.dp
-                ),
-                onClick = { onToggleAudio.invoke() }
-            )
-            .testTag(PlayerScreenTestTags.PLAY_BUTTON),
-        composition = composition,
-        dynamicProperties = dynamicProperties,
-        progress = { animationStateProgress }
-    )
 }

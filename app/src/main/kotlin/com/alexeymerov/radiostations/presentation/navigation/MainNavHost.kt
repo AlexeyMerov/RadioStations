@@ -67,7 +67,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.lerp
 import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.core.ui.extensions.toPx
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
-import com.alexeymerov.radiostations.feature.player.screen.ExpandableBottomPlayer
+import com.alexeymerov.radiostations.feature.player.screen.exapandable.ExpandableBottomPlayer
 import com.alexeymerov.radiostations.presentation.MainViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -99,16 +99,17 @@ fun MainNavGraph(
         onDispose { navController.removeOnDestinationChangedListener(listener) }
     }
 
-    val bottomSheetState = rememberStandardBottomSheetState(
-        skipHiddenState = false,
-        initialValue = SheetValue.Hidden
-    )
-    val sheetScaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
-
     // sheetState works incorrect. After sheetState.hide() sheetState.isVisible can ba true on some devices
     val isPlayerVisible by remember(playerState) {
-        derivedStateOf { playerState != PlayerState.EMPTY }
+        derivedStateOf { playerState !is PlayerState.Empty }
     }
+
+    val bottomSheetState = rememberStandardBottomSheetState(
+        skipHiddenState = false,
+        initialValue = if (isPlayerVisible) SheetValue.PartiallyExpanded else SheetValue.Hidden
+    )
+
+    val sheetScaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
 
     CompositionLocalProvider(
         LocalNavController provides navController,
@@ -130,7 +131,7 @@ fun MainNavGraph(
             LaunchedEffect(bottomSheetState.targetValue) {
                 Timber.d("MainNavGraph - playerSheetState targetValue ${bottomSheetState.targetValue}")
                 if (bottomSheetState.targetValue == SheetValue.PartiallyExpanded
-                    && (currentMedia == null || playerState == PlayerState.EMPTY)
+                    && (currentMedia == null || playerState is PlayerState.Empty)
                 ) {
                     bottomSheetState.hide()
                 }
@@ -254,8 +255,8 @@ fun MainNavGraph(
 
             LaunchedEffect(playerState) {
                 when {
-                    playerState == PlayerState.EMPTY && bottomSheetState.isVisible -> bottomSheetState.hide()
-                    playerState != PlayerState.EMPTY && !bottomSheetState.isVisible -> bottomSheetState.partialExpand()
+                    playerState is PlayerState.Empty && bottomSheetState.isVisible -> bottomSheetState.hide()
+                    playerState !is PlayerState.Empty && !bottomSheetState.isVisible -> bottomSheetState.partialExpand()
                 }
             }
         }

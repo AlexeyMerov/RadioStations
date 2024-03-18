@@ -88,7 +88,7 @@ class PlayerService : MediaLibraryService() {
             onIsPlaying = { isPlaying ->
                 Timber.d("PlayerService -- onStateChange -- onIsPlaying $isPlaying")
                 ioScope.launch {
-                    val state = if (isPlaying) PlayerState.PLAYING else PlayerState.STOPPED
+                    val state = if (isPlaying) PlayerState.Playing() else PlayerState.Stopped()
                     playingUseCase.updatePlayerState(state)
                     updateWidget()
                 }
@@ -98,8 +98,8 @@ class PlayerService : MediaLibraryService() {
                 ioScope.launch {
                     val playerState = playingUseCase.getPlayerState().first()
                     when {
-                        isLoading -> playingUseCase.updatePlayerState(PlayerState.LOADING)
-                        playerState == PlayerState.LOADING -> playingUseCase.updatePlayerState(PlayerState.PLAYING)
+                        isLoading -> playingUseCase.updatePlayerState(PlayerState.Loading)
+                        playerState is PlayerState.Loading -> playingUseCase.updatePlayerState(PlayerState.Playing())
                     }
                 }
             }

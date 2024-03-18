@@ -41,4 +41,6 @@ class MediaRepositoryImpl @Inject constructor(
     override fun getLastPlayingMediaItem(): Flow<MediaEntity?> = mediaDao.getMedia()
 
     override suspend fun setLastPlayingMediaItem(item: MediaEntity) = mediaDao.insert(item)
+
+    override suspend fun clearLastPlayingMediaItem() = mediaDao.clearTable()
 }

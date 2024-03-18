@@ -21,30 +21,68 @@ class PlayingUseCaseImpl @Inject constructor(
     private val analytics: FirebaseAnalytics
 ) : PlayingUseCase {
 
+    // one ugly solution please...
+    private var shouldPlay: Boolean? = null
+
     override fun getPlayerState(): Flow<PlayerState> {
-        return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = PlayerState.EMPTY.value)
-            .map { prefValue -> PlayerState.entries.first { it.value == prefValue } }
+        Timber.d("-> getPlayerState: ")
+        return settingsStore.getIntPrefsFlow(PLAYER_STATE_KEY, defValue = PlayerState.Empty.value)
+            .map { prefValue ->
+                Timber.d("-> getPlayerState: prefValue $prefValue")
+                when (prefValue) {
+                    PlayerState.Playing().value -> {
+                        shouldPlay = true
+                        PlayerState.Playing()
+                    }
+
+                    PlayerState.Stopped().value -> PlayerState.Stopped()
+                    PlayerState.Loading.value -> PlayerState.Loading
+                    else -> PlayerState.Empty
+                }
+            }
     }
 
     override suspend fun updatePlayerState(newState: PlayerState) {
-        Timber.d("updatePlayerState $newState")
+        Timber.d("updatePlayerState ${getPlayerState().first()} --> $newState ## shouldPlay = $shouldPlay")
+
+        var resultState = newState
+
+        if (newState.isUserAction) {
+            if (newState is PlayerState.Playing) {
+                shouldPlay = true
+            } else if (newState is PlayerState.Stopped) {
+                shouldPlay = false
+            }
+        }
 
         val currentState = getPlayerState().first()
-        if (newState == currentState) return
-        if (newState == PlayerState.STOPPED && currentState == PlayerState.EMPTY) return
 
-        settingsStore.setIntPrefs(PLAYER_STATE_KEY, newState.value)
+        val isTheSameState = newState == currentState
+        val ifStopAfterEmpty = newState is PlayerState.Stopped && currentState == PlayerState.Empty
+        if (isTheSameState || ifStopAfterEmpty) return
+
+        val ifPlayButNotFromUser = newState is PlayerState.Playing
+            && currentState is PlayerState.Loading
+            && shouldPlay == null || shouldPlay == false
+
+        if (ifPlayButNotFromUser) resultState = PlayerState.Stopped()
+
+        Timber.d("updatePlayerState updating...")
+        if (resultState is PlayerState.Empty) mediaRepository.clearLastPlayingMediaItem()
+        settingsStore.setIntPrefs(PLAYER_STATE_KEY, resultState.value)
     }
 
     override suspend fun togglePlayerPlayStop() {
+        Timber.d("-> togglePlayerPlayStop: ")
         val newState = when (getPlayerState().first()) {
-            PlayerState.PLAYING -> PlayerState.STOPPED
-            else -> PlayerState.PLAYING
+            is PlayerState.Playing -> PlayerState.Stopped(true)
+            else -> PlayerState.Playing(true)
         }
         updatePlayerState(newState)
     }
 
     override fun getLastPlayingMediaItem(): Flow<AudioItemDto?> {
+        Timber.d("-> getLastPlayingMediaItem: ")
         return mediaRepository.getLastPlayingMediaItem()
             .map { media ->
                 if (media == null) return@map null
@@ -62,6 +100,7 @@ class PlayingUseCaseImpl @Inject constructor(
     }
 
     override suspend fun setLastPlayingMedia(item: AudioItemDto) {
+        Timber.d("-> setLastPlayingMedia: ")
         analytics.logEvent(AnalyticsEvents.PLAY_MEDIA) {
             param(AnalyticsParams.TITLE, item.title)
         }
@@ -74,6 +113,8 @@ class PlayingUseCaseImpl @Inject constructor(
             subtitle = item.subTitle.orEmpty(),
             tuneId = item.tuneId
         )
+
+        shouldPlay = true
 
         mediaRepository.setLastPlayingMediaItem(mediaEntity)
     }

@@ -71,6 +71,10 @@ class FakeMediaRepository : MediaRepository {
         lastPlaying = item
     }
 
+    override suspend fun clearLastPlayingMediaItem() {
+        lastPlaying = null
+    }
+
     companion object {
         const val VALID_MEDIA_URL = "validurl"
         const val VALID_ITEM_URL = "testurl"

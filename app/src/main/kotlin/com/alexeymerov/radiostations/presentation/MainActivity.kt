@@ -6,11 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -25,7 +28,6 @@ import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.common.LocalAnalytics
 import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
-import com.alexeymerov.radiostations.core.ui.extensions.collectWhenCreated
 import com.alexeymerov.radiostations.core.ui.extensions.collectWhenStarted
 import com.alexeymerov.radiostations.core.ui.extensions.isLandscape
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
@@ -52,59 +54,53 @@ class MainActivity : AppCompatActivity() {
 
     private var viewState by mutableStateOf<ViewState>(ViewState.Loading)
 
-    private var currentMedia by mutableStateOf<AudioItemDto?>(null)
-
-    private var playerState by mutableStateOf(PlayerState.EMPTY)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.d("-> onCreate: ")
         installSplashScreen().setKeepOnScreenCondition { viewState == ViewState.Loading }
         super.onCreate(savedInstanceState)
 
-        subscribeToEvents()
+        viewModel.viewState.collectWhenStarted(this) { viewState = it }
         mediaServiceManager.setupPlayer()
-
         sendAnalyticEvents(Tabs.Browse)
 
         enableEdgeToEdge()
-        setContent {
-            val themeState = remember(viewState) {
-                when (val state = viewState) {
-                    is ViewState.Loaded -> state.themeState
-                    else -> ThemeState()
-                }
-            }
-            val isNetworkAvailable by viewModel.isNetworkAvailable.collectAsStateWithLifecycle()
-
-            CompositionLocalProvider(
-                LocalConnectionStatus provides isNetworkAvailable,
-                LocalAnalytics provides analytics
-            ) {
-                StationsAppTheme(themeState) {
-                    MainNavGraph(
-                        playerState = playerState,
-                        currentMedia = currentMedia,
-                        onPlayerAction = { viewModel.setAction(it) }
-                    )
-                }
-            }
-        }
+        setContent { MainContent() }
     }
 
-    private fun subscribeToEvents() {
-        viewModel.viewState.collectWhenCreated(this) { viewState = it }
+    @Composable
+    private fun MainContent() {
+        val themeState = remember(viewState) {
+            (viewState as? ViewState.Loaded)?.themeState ?: ThemeState()
+        }
+        val isNetworkAvailable by viewModel.isNetworkAvailable.collectAsStateWithLifecycle()
+        val playerState by viewModel.playerState.collectAsStateWithLifecycle()
+        val currentMedia by viewModel.currentAudioItem.collectAsStateWithLifecycle()
 
-        viewModel.currentAudioItem.collectWhenStarted(this) {
-            currentMedia = it
-            if (it != null) {
+        LaunchedEffect(playerState) {
+            Timber.d("-> playerState $playerState")
+            mediaServiceManager.processPlayerState(playerState)
+            if (playerState is PlayerState.Empty) removeShortcut()
+        }
+
+        LaunchedEffect(currentMedia) {
+            Timber.d("-> currentMedia: $currentMedia")
+            currentMedia?.let {
                 mediaServiceManager.processNewAudioItem(it)
                 createDynamicShortcut(it)
             }
         }
 
-        viewModel.playerState.collectWhenStarted(this) {
-            playerState = it
-            mediaServiceManager.processPlayerState(it)
+        CompositionLocalProvider(
+            LocalConnectionStatus provides isNetworkAvailable,
+            LocalAnalytics provides analytics
+        ) {
+            StationsAppTheme(themeState) {
+                MainNavGraph(
+                    playerState = playerState,
+                    currentMedia = currentMedia,
+                    onPlayerAction = { viewModel.setAction(it) }
+                )
+            }
         }
     }
 
@@ -131,6 +127,15 @@ class MainActivity : AppCompatActivity() {
             icon = item.imageBase64?.base64ToBitmap()?.let { IconCompat.createWithAdaptiveBitmap(it) }
                 ?: IconCompat.createWithResource(this, R.drawable.icon_radio)
         )
+    }
+
+    private fun removeShortcut() {
+        ShortcutManagerCompat.disableShortcuts(
+            /* context = */ this,
+            /* shortcutIds = */ listOf(MediaManager.DYNAMIC_SHORTCUT_ID),
+            /* disabledMessage = */ "Not available" // we can't remove pinned icon
+        )
+        ShortcutManagerCompat.removeAllDynamicShortcuts(this)
     }
 
     private fun sendAnalyticEvents(starDest: Tabs) {
