@@ -2,6 +2,8 @@ package com.alexeymerov.radiostations.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.common.ThemeState
+import com.alexeymerov.radiostations.core.common.di.Dispatcher
+import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.connectivity.ConnectionMonitor
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
@@ -29,7 +31,7 @@ class MainViewModel @Inject constructor(
     themeSettings: ThemeSettingsUseCase,
     connectionMonitor: ConnectionMonitor,
     private val playingUseCase: PlayingUseCase,
-    private val dispatcher: CoroutineDispatcher
+    @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     val isNetworkAvailable: StateFlow<Boolean> = connectionMonitor.connectionStatusFlow

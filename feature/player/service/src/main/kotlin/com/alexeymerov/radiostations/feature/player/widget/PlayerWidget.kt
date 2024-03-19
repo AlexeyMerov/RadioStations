@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.feature.player.widget
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -23,8 +24,8 @@ import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.actionSendBroadcast
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.appwidget.action.actionStartService
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -48,8 +49,8 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.ProjectConst.DEEP_LINK_TUNE_PATTERN
 import com.alexeymerov.radiostations.core.common.base64ToBitmap
 import com.alexeymerov.radiostations.core.ui.R
+import com.alexeymerov.radiostations.feature.player.broadcast.PlayerStateReceiver
 import com.alexeymerov.radiostations.feature.player.common.WidgetIntentActions
-import com.alexeymerov.radiostations.feature.player.service.PlayerService
 
 
 private val ROW_SMALL = DpSize(40.dp, 40.dp)
@@ -194,12 +195,17 @@ private fun PlayIcon(
         modifier = modifier
             .cornerRadius(8.dp)
             .clickable(
-                actionStartService(
-                    intent = Intent(context, PlayerService::class.java).apply {
-                        action = WidgetIntentActions.PLAY_PAUSE
-                    },
-                    isForegroundService = false
-                )
+                if (isPlaying) {
+                    actionSendBroadcast(
+                        WidgetIntentActions.STOP,
+                        ComponentName(context, PlayerStateReceiver::class.java)
+                    )
+                } else {
+                    actionSendBroadcast(
+                        WidgetIntentActions.PLAY,
+                        ComponentName(context, PlayerStateReceiver::class.java)
+                    )
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -212,5 +218,4 @@ private fun PlayIcon(
             contentDescription = null
         )
     }
-
 }

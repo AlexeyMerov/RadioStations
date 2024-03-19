@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.di.Dispatcher
+import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.domain.usecase.country.CountryUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.profile.ProfileUsaCase
 import com.alexeymerov.radiostations.core.dto.CountryDto
@@ -36,7 +38,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val profileUsaCase: ProfileUsaCase,
     private val countryUseCase: CountryUseCase,
-    private val dispatcher: CoroutineDispatcher
+    @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     private val userData = profileUsaCase.getUserData()

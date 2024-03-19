@@ -1,20 +1,23 @@
 package com.alexeymerov.radiostations.feature.player.manager
 
-import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
-import com.alexeymerov.radiostations.core.dto.AudioItemDto
-
 interface MediaManager {
 
     fun setupPlayer()
 
-    fun processNewAudioItem(item: AudioItemDto)
+    fun play()
 
-    fun processPlayerState(state: PlayingUseCase.PlayerState)
+    fun stop()
 
-    fun onStop()
+    fun onDestroy()
+
+    fun addListener(listener: Listener)
 
     companion object {
         const val DYNAMIC_SHORTCUT_ID = "latest_station_static_id"
+    }
+
+    interface Listener {
+        fun onControllerInitialized()
     }
 
 }

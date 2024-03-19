@@ -10,6 +10,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
+import com.alexeymerov.radiostations.core.common.di.AppScope
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.feature.player.common.WidgetIntentActions
@@ -30,7 +31,8 @@ import javax.inject.Inject
 class PlayerService : MediaLibraryService() {
 
     @Inject
-    lateinit var ioScope: CoroutineScope
+    @AppScope
+    lateinit var coroutineScope: CoroutineScope
 
     @Inject
     lateinit var playingUseCase: PlayingUseCase
@@ -46,7 +48,7 @@ class PlayerService : MediaLibraryService() {
         ): ListenableFuture<MediaItemsWithStartPosition> {
             Timber.d("-> onPlaybackResumption: ")
 
-            val deferred = ioScope.async {
+            val deferred = coroutineScope.async {
                 val settable = SettableFuture.create<MediaItemsWithStartPosition>()
                 val item = playingUseCase.getLastPlayingMediaItem().first()
                 if (item != null) {
@@ -87,7 +89,7 @@ class PlayerService : MediaLibraryService() {
         player.onStateChange(
             onIsPlaying = { isPlaying ->
                 Timber.d("PlayerService -- onStateChange -- onIsPlaying $isPlaying")
-                ioScope.launch {
+                coroutineScope.launch {
                     val state = if (isPlaying) PlayerState.Playing() else PlayerState.Stopped()
                     playingUseCase.updatePlayerState(state)
                     updateWidget()
@@ -95,7 +97,7 @@ class PlayerService : MediaLibraryService() {
             },
             onIsLoading = { isLoading ->
                 Timber.d("PlayerService -- onStateChange -- onIsLoading")
-                ioScope.launch {
+                coroutineScope.launch {
                     val playerState = playingUseCase.getPlayerState().first()
                     when {
                         isLoading -> playingUseCase.updatePlayerState(PlayerState.Loading)

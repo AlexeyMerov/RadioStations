@@ -78,16 +78,12 @@ class MainActivity : AppCompatActivity() {
 
         LaunchedEffect(playerState) {
             Timber.d("-> playerState $playerState")
-            mediaServiceManager.processPlayerState(playerState)
             if (playerState is PlayerState.Empty) removeShortcut()
         }
 
         LaunchedEffect(currentMedia) {
             Timber.d("-> currentMedia: $currentMedia")
-            currentMedia?.let {
-                mediaServiceManager.processNewAudioItem(it)
-                createDynamicShortcut(it)
-            }
+            currentMedia?.let { createDynamicShortcut(it) }
         }
 
         CompositionLocalProvider(
@@ -105,7 +101,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        mediaServiceManager.onStop()
+        mediaServiceManager.onDestroy()
         super.onDestroy()
     }
 

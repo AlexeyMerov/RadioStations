@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.di.Dispatcher
+import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.common.toBase64
 import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
@@ -40,7 +42,7 @@ class PlayerViewModel @Inject constructor(
     private val playingUseCase: PlayingUseCase,
     private val categoryUseCase: CategoryUseCase,
     private val audioUseCase: AudioUseCase,
-    private val dispatcher: CoroutineDispatcher
+    @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
     var isFavorite by mutableStateOf<Boolean?>(false)

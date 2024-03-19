@@ -82,7 +82,6 @@
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
-                <action android:name="com.alexeymerov.radiostations.PLAY_PAUSE" />
             </intent-filter>
         </service>
 
@@ -123,6 +122,17 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/player_widget"
                 />
+        </receiver>
+
+        <receiver
+            android:name=".feature.player.broadcast.PlayerStateReceiver"
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="com.alexeymerov.radiostations.PLAY_PAUSE" />
+                <action android:name="com.alexeymerov.radiostations.PLAY" />
+                <action android:name="com.alexeymerov.radiostations.STOP" />
+            </intent-filter>
         </receiver>
 
     </application>
