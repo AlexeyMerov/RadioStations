@@ -12,11 +12,13 @@ android {
 dependencies {
     implementation(projects.core.common)
 
-    implementation(libs.retrofit.base)
-
     implementation(libs.kotlinx.serialization)
-    implementation(libs.retrofit.kotlinx.serialization)
 
+    implementation(platform(libs.retrofit.bom))
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.kotlinxSerialization)
+
+    implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp.base)
     implementation(libs.okhttp.logging)
 

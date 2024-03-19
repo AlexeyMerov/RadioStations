@@ -22,20 +22,20 @@ internal fun Project.configureCompose(
             implementation(composeBom)
 
             androidTestImplementation(composeBom)
-            androidTestImplementation(libs.getLibrary("test-compose-junit"))
-            debugImplementation(libs.getLibrary("test-compose-manifest"))
+            androidTestImplementation(libs.getLibrary("compose-test-junit"))
+            debugImplementation(libs.getLibrary("compose-test-manifest"))
 
             implementation(libs.getLibrary("compose-animation"))
             implementation(libs.getLibrary("compose-foundation"))
             implementation(libs.getLibrary("compose-material3"))
             implementation(libs.getLibrary("compose-materialIcons"))
+
             implementation(libs.getLibrary("compose-ui-util"))
             implementation(libs.getLibrary("compose-ui-tooling"))
             debugImplementation(libs.getLibrary("compose-ui-toolingPreview"))
 
             implementation(libs.getLibrary("compose-runtime"))
             implementation(libs.getLibrary("compose-lifecycleRuntime"))
-
             implementation(libs.getLibrary("compose-activity"))
             implementation(libs.getLibrary("compose-viewmodel"))
 
