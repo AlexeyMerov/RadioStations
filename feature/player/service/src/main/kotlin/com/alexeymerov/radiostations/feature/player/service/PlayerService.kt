@@ -2,7 +2,6 @@ package com.alexeymerov.radiostations.feature.player.service
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
-import androidx.annotation.OptIn
 import androidx.media3.common.Player
 import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.util.UnstableApi
@@ -13,7 +12,6 @@ import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import com.alexeymerov.radiostations.core.common.di.AppScope
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
-import com.alexeymerov.radiostations.feature.player.common.WidgetIntentActions
 import com.alexeymerov.radiostations.feature.player.common.mapToMediaItem
 import com.alexeymerov.radiostations.feature.player.widget.PlayerWidgetReceiver
 import com.google.common.util.concurrent.ListenableFuture
@@ -67,20 +65,6 @@ class PlayerService : MediaLibraryService() {
         }
     }
 
-    @OptIn(UnstableApi::class)
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Timber.d("onStartCommand $intent\naction ${intent?.action}")
-        if (intent?.action == WidgetIntentActions.PLAY_PAUSE) {
-            if (mediaLibrarySession?.player?.isPlaying == true) {
-                mediaLibrarySession?.player?.pause()
-            } else {
-                mediaLibrarySession?.player?.playWhenReady = true
-            }
-        }
-
-        return super.onStartCommand(intent, flags, startId)
-    }
-
     override fun onCreate() {
         super.onCreate()
         Timber.d("-> onCreate: ")
@@ -88,7 +72,7 @@ class PlayerService : MediaLibraryService() {
         val player = ExoPlayer.Builder(this).build()
         player.onStateChange(
             onIsPlaying = { isPlaying ->
-                Timber.d("PlayerService -- onStateChange -- onIsPlaying $isPlaying")
+                Timber.d("--> onIsPlaying $isPlaying")
                 coroutineScope.launch {
                     val state = if (isPlaying) PlayerState.Playing() else PlayerState.Stopped()
                     playingUseCase.updatePlayerState(state)
@@ -96,7 +80,7 @@ class PlayerService : MediaLibraryService() {
                 }
             },
             onIsLoading = { isLoading ->
-                Timber.d("PlayerService -- onStateChange -- onIsLoading")
+                Timber.d("--> onIsLoading")
                 coroutineScope.launch {
                     val playerState = playingUseCase.getPlayerState().first()
                     when {

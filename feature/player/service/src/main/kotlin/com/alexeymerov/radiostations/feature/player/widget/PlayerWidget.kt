@@ -22,6 +22,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.CircularProgressIndicator
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionSendBroadcast
@@ -49,7 +50,6 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.ProjectConst.DEEP_LINK_TUNE_PATTERN
 import com.alexeymerov.radiostations.core.common.base64ToBitmap
 import com.alexeymerov.radiostations.core.ui.R
-import com.alexeymerov.radiostations.feature.player.broadcast.PlayerStateReceiver
 import com.alexeymerov.radiostations.feature.player.common.WidgetIntentActions
 
 
@@ -65,6 +65,7 @@ class PlayerWidget : GlanceAppWidget() {
         val prefImageBase64 = stringPreferencesKey("imageBase64")
         val prefIsPlaying = booleanPreferencesKey("isPlaying")
         val prefTuneId = stringPreferencesKey("tuneId")
+        val prefIsStateLoading = booleanPreferencesKey("isStateLoading")
     }
 
     override val sizeMode = SizeMode.Responsive(setOf(ROW_SMALL, ROW_MEDIUM, ROW_LARGE, ROW_EXTRA_LARGE))
@@ -198,24 +199,28 @@ private fun PlayIcon(
                 if (isPlaying) {
                     actionSendBroadcast(
                         WidgetIntentActions.STOP,
-                        ComponentName(context, PlayerStateReceiver::class.java)
+                        ComponentName(context, PlayerWidgetReceiver::class.java)
                     )
                 } else {
                     actionSendBroadcast(
                         WidgetIntentActions.PLAY,
-                        ComponentName(context, PlayerStateReceiver::class.java)
+                        ComponentName(context, PlayerWidgetReceiver::class.java)
                     )
                 }
             ),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            modifier = GlanceModifier,
-            provider = ImageProvider(
-                if (isPlaying) R.drawable.icon_stop else R.drawable.icon_play
-            ),
-            colorFilter = ColorFilter.tint(GlanceTheme.colors.background),
-            contentDescription = null
-        )
+        if (currentState(PlayerWidget.prefIsStateLoading) == true) {
+            CircularProgressIndicator(GlanceModifier.padding(8.dp))
+        } else {
+            Image(
+                modifier = GlanceModifier,
+                provider = ImageProvider(
+                    if (isPlaying) R.drawable.icon_stop else R.drawable.icon_play
+                ),
+                colorFilter = ColorFilter.tint(GlanceTheme.colors.background),
+                contentDescription = null
+            )
+        }
     }
 }
