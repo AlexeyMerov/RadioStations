@@ -37,5 +37,7 @@ class PlayerStateReceiver : BroadcastReceiver(), MediaManager.Listener {
             WidgetIntentActions.PLAY -> mediaServiceManager.play()
             WidgetIntentActions.STOP -> mediaServiceManager.stop()
         }
+
+        mediaServiceManager.removeListener(this)
     }
 }

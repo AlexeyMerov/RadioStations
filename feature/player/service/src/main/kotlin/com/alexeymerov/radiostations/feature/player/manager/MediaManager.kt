@@ -12,6 +12,8 @@ interface MediaManager {
 
     fun addListener(listener: Listener)
 
+    fun removeListener(listener: Listener)
+
     companion object {
         const val DYNAMIC_SHORTCUT_ID = "latest_station_static_id"
     }

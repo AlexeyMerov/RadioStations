@@ -76,7 +76,7 @@ class MediaManagerImpl @Inject constructor(
     }
 
     private fun notifyListeners() {
-        Timber.d("-> notifyListeners: ")
+        Timber.d("-> notifyListeners: ${listeneres.size}")
         listeneres.forEach { it.onControllerInitialized() }
     }
 
@@ -125,6 +125,10 @@ class MediaManagerImpl @Inject constructor(
 
     override fun addListener(listener: MediaManager.Listener) {
         listeneres.add(listener)
+    }
+
+    override fun removeListener(listener: MediaManager.Listener) {
+        listeneres.remove(listener)
     }
 
     private fun MediaController.processEmptyState() {
