@@ -90,7 +90,7 @@ dependencies {
     implementation(projects.feature.player.service)
 
     // to avoid crash on Android 12 API 31
-    // https://stackoverflow.com/questions/68473542/mediasessioncompattargeting-s-version-31-and-above-requires-that-one-of-flag/69152986#69152986
+    // https://stackoverflow.com/questions/68473542
     implementation(libs.androidx.work.runtime)
 
     implementation(libs.compose.activity)

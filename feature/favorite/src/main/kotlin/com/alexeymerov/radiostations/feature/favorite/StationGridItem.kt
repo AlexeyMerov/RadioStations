@@ -34,19 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
-import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.core.ui.view.BasicText
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STAR_ICON
 import com.alexeymerov.radiostations.core.ui.view.FlipBox
 import com.alexeymerov.radiostations.core.ui.view.SelectedIcon
+import com.alexeymerov.radiostations.core.ui.view.StationImage
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -130,25 +125,9 @@ private fun ImageContent(
     onFavClick: (CategoryItemDto) -> Unit
 ) {
     Box {
-        val placeholder = rememberTextPainter(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            textStyle = MaterialTheme.typography.titleMedium.copy(
-                color = MaterialTheme.colorScheme.onSecondary
-            ),
-            text = itemDto.initials
-        )
-        AsyncImage(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(itemDto.image)
-                .crossfade(500)
-                .build(),
-            contentScale = ContentScale.Crop,
-            contentDescription = null,
-            error = placeholder,
-            placeholder = placeholder
+        StationImage(
+            modifier = Modifier.fillMaxSize(),
+            itemDto = itemDto
         )
 
         AnimatedVisibility(

@@ -22,14 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import coil.ImageLoader
 import coil.request.ImageRequest
-import coil.transform.CircleCropTransformation
 import com.alexeymerov.radiostations.core.common.DarkLightMode
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
+import com.alexeymerov.radiostations.core.ui.coil.transformers.MarkerTransformation
+import com.alexeymerov.radiostations.core.ui.coil.transformers.SquarifyTransformation
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalTheme
 import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.core.ui.extensions.shimmerEffect
+import com.alexeymerov.radiostations.core.ui.extensions.toPx
 import com.alexeymerov.radiostations.feature.category.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMapOptions
@@ -120,6 +122,7 @@ internal fun ShowMap(
                     image = item.image,
                     onLoaded = { bitmapDescriptor = it }
                 )
+
             }
         }
     }
@@ -139,11 +142,13 @@ private fun LoadIconForMapPin(
     val context = LocalContext.current
     val imageLoader = remember { ImageLoader.Builder(context).build() }
     val imageRequest = remember { ImageRequest.Builder(context) }
-    val transformation = remember { CircleCropTransformation() }
+    val transformation = remember { listOf(SquarifyTransformation(), MarkerTransformation()) }
+    val size = 40.dp.toPx().toInt()
 
     DisposableEffect(image) {
         val request = imageRequest
             .data(image)
+            .size(size)
             .transformations(transformation)
             .target(
                 onSuccess = {
