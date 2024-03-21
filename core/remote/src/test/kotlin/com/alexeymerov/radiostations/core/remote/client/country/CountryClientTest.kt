@@ -5,7 +5,7 @@ import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapperI
 import com.alexeymerov.radiostations.core.remote.response.CountryBody
 import com.alexeymerov.radiostations.core.remote.response.CountryIdd
 import com.alexeymerov.radiostations.core.remote.response.CountryName
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule

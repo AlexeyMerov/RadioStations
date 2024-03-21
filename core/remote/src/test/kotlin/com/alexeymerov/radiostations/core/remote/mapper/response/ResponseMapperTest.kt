@@ -6,7 +6,7 @@ import com.alexeymerov.radiostations.core.remote.response.CountryIdd
 import com.alexeymerov.radiostations.core.remote.response.CountryName
 import com.alexeymerov.radiostations.core.remote.response.HeadBody
 import com.alexeymerov.radiostations.core.remote.response.MainBody
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.mockk
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody

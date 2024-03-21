@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.alexeymerov.radiostations.core.common.ThemeState
+import com.google.firebase.analytics.FirebaseAnalytics
 import timber.log.Timber
 
 val LocalSnackbar = staticCompositionLocalOf<SnackbarHostState> { error("SnackbarHostState not found") }
@@ -27,4 +28,6 @@ val LocalTopbar = staticCompositionLocalOf<(TopBarState) -> Unit> {
     Timber.e("LocalTopbar not found")
     return@staticCompositionLocalOf {}
 }
+
+val LocalAnalytics = staticCompositionLocalOf<FirebaseAnalytics> { error("LocalAnalytics not found") }
 

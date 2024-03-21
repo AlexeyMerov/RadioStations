@@ -7,7 +7,7 @@ import com.alexeymerov.radiostations.core.dto.CountryDto
 import com.alexeymerov.radiostations.core.test.MainDispatcherRule
 import com.alexeymerov.radiostations.core.test.TestDiffCallback
 import com.alexeymerov.radiostations.core.test.TestUpdateCallback
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

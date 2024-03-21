@@ -1,5 +1,7 @@
 package com.alexeymerov.radiostations.core.ui.view
 
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
@@ -35,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposeColorFilter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -42,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alexeymerov.radiostations.core.dto.CategoryItemDto
+import com.alexeymerov.radiostations.core.ui.coil.transformers.SquarifyTransformation
 import com.alexeymerov.radiostations.core.ui.remembers.rememberTextPainter
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.SELECTED_ICON
 import com.alexeymerov.radiostations.core.ui.view.CommonViewTestTags.STAR_ICON
@@ -104,21 +109,23 @@ fun StationListItem(
 }
 
 @Composable
-private fun StationImage(modifier: Modifier, itemDto: CategoryItemDto) {
+fun StationImage(modifier: Modifier, itemDto: CategoryItemDto) {
     val placeholder = rememberTextPainter(
         containerColor = MaterialTheme.colorScheme.background,
         textStyle = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSecondary
+            color = MaterialTheme.colorScheme.primary
         ),
         text = itemDto.initials
     )
     AsyncImage(
-        modifier = modifier.background(Color.White),
+        modifier = modifier,
         model = ImageRequest.Builder(LocalContext.current)
             .data(itemDto.image)
+            .transformations(SquarifyTransformation())
             .crossfade(500)
             .build(),
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.FillWidth,
+        colorFilter = PorterDuffColorFilter(Color.White.toArgb(), PorterDuff.Mode.DST_ATOP).asComposeColorFilter(),
         contentDescription = null,
         error = placeholder,
         placeholder = placeholder

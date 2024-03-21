@@ -39,7 +39,8 @@ data class CategoryItemDto(
     var initials: String,
     var absoluteIndex: Int = 0,
     var latitude: Double? = null,
-    var longitude: Double? = null
+    var longitude: Double? = null,
+    var tuneId: String? = null
 ) {
     fun hasLocation(): Boolean {
         return latitude != null && longitude != null

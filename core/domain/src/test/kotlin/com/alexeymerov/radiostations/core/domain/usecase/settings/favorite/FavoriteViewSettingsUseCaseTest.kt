@@ -2,8 +2,8 @@ package com.alexeymerov.radiostations.core.domain.usecase.settings.favorite
 
 import com.alexeymerov.radiostations.core.datastore.FakeSettingsStore
 import com.alexeymerov.radiostations.core.datastore.SettingsStore
-import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.*
-import com.google.common.truth.Truth.*
+import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.mockk.every
 import io.mockk.mockk

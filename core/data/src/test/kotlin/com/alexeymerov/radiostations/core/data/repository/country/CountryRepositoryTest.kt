@@ -8,7 +8,7 @@ import com.alexeymerov.radiostations.core.database.dao.CountryDao
 import com.alexeymerov.radiostations.core.database.entity.CountryEntity
 import com.alexeymerov.radiostations.core.remote.client.country.CountryClient
 import com.alexeymerov.radiostations.core.remote.client.country.FakeCountryClient
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.every

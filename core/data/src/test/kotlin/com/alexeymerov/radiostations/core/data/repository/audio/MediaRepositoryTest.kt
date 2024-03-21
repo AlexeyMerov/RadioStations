@@ -50,16 +50,16 @@ class MediaRepositoryTest {
 
     @Test
     fun `load audio by broken url return null`() = runTest {
-        coEvery { categoryDao.getByUrl(any()) } returns mockk<CategoryEntity>()
-        coEvery { client.requestAudioByUrl(any()) } returns null
+        coEvery { categoryDao.getByTuneId(any()) } returns mockk<CategoryEntity>()
+        coEvery { client.requestAudioById(any()) } returns null
 
-        val audioByUrl = repository.getMediaByUrl("")
+        val audioByUrl = repository.getMediaByTuneId("")
 
         assertThat(audioByUrl).isNull()
 
         coVerifyOrder {
-            repository.getMediaByUrl(any())
-            client.requestAudioByUrl(any())
+            repository.getMediaByTuneId(any())
+            client.requestAudioById(any())
         }
 
         confirmVerified(repository, client)
@@ -67,18 +67,18 @@ class MediaRepositoryTest {
 
     @Test
     fun `load audio by valid url return MediaEntity`() = runTest {
-        coEvery { categoryDao.getByUrl(any()) } returns mockk<CategoryEntity>()
-        coEvery { client.requestAudioByUrl(any()) } returns mockk<MediaBody>()
+        coEvery { categoryDao.getByTuneId(any()) } returns mockk<CategoryEntity>()
+        coEvery { client.requestAudioById(any()) } returns mockk<MediaBody>()
         every { mediaMapper.mapToEntity(any(), any()) } returns mockk<MediaEntity>()
 
-        val mediaEntity = repository.getMediaByUrl("")
+        val mediaEntity = repository.getMediaByTuneId("")
 
         assertThat(mediaEntity).isNotNull()
         assertThat(mediaEntity).isInstanceOf(MediaEntity::class.java)
 
         coVerifyOrder {
-            repository.getMediaByUrl(any())
-            client.requestAudioByUrl(any())
+            repository.getMediaByTuneId(any())
+            client.requestAudioById(any())
             mediaMapper.mapToEntity(any(), any())
         }
 

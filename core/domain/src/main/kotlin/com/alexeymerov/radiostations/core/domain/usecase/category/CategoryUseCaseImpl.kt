@@ -5,6 +5,7 @@ import com.alexeymerov.radiostations.core.data.repository.category.CategoryRepos
 import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapper
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.core.dto.CategoryDto
+import com.alexeymerov.radiostations.core.dto.CategoryItemDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -33,6 +34,11 @@ class CategoryUseCaseImpl @Inject constructor(
                 val result = dtoCategoriesMapper.mapEntitiesToDto(entityList)
                 return@map CategoryDto(result)
             }
+    }
+
+    override suspend fun getByTuneId(tuneId: String): CategoryItemDto? {
+        val entity = categoryRepository.getCategoriesByTuneId(tuneId) ?: return null
+        return dtoCategoriesMapper.mapEntityToDto(entity)
     }
 
     override suspend fun loadCategoriesByUrl(url: String) {

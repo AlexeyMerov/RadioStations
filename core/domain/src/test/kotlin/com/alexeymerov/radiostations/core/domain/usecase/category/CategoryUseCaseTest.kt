@@ -4,7 +4,7 @@ import com.alexeymerov.radiostations.core.connectivity.ConnectionMonitor
 import com.alexeymerov.radiostations.core.data.repository.category.FakeCategoryRepository
 import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapperImpl
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule

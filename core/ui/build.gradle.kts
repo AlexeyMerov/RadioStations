@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.dto)
+    implementation(projects.core.analytics)
 
     api(libs.androidx.appcompat)
 }

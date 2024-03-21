@@ -12,7 +12,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.ProjectConst.DEEP_LINK_SCREEN_PATTERN
+import com.alexeymerov.radiostations.core.common.ProjectConst.DEEP_LINK_TUNE_PATTERN
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.core.ui.navigation.Screens
 import com.alexeymerov.radiostations.core.ui.view.ComposedTimberD
@@ -51,20 +54,18 @@ fun NavGraphBuilder.categoriesScreen() {
 fun NavGraphBuilder.playerScreen(parentRoute: String) {
     composable(
         route = Screens.Player(parentRoute).route,
-        arguments = listOf(
-            navArgument(Screens.Player.Const.ARG_URL, defaultStringArg()),
-            navArgument(Screens.Player.Const.ARG_TITLE, defaultStringArg())
-        ),
-    ) { backStackEntry ->
+        arguments = listOf(navArgument(Screens.Player.Const.ARG_TUNE_ID, defaultStringArg())),
+        deepLinks = listOf(
+            navDeepLink { uriPattern = "$DEEP_LINK_TUNE_PATTERN/{${Screens.Player.Const.ARG_TUNE_ID}}" }
+        )
+    ) {
         ComposedTimberD("[ NavGraphBuilder.playerScreen ] ")
 
         val navController = LocalNavController.current
-        val stationName by rememberSaveable { mutableStateOf(backStackEntry.getArgStr(Screens.Player.Const.ARG_TITLE)) }
 
         BasePlayerScreen(
             viewModel = hiltViewModel(),
-            isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE),
-            stationName = stationName,
+            isVisibleToUser = navController.isVisibleToUser(Screens.Player.Const.ROUTE)
         )
     }
 }
@@ -73,7 +74,10 @@ fun NavGraphBuilder.favoritesScreen() {
     composable(
         route = Screens.Favorites.route,
         arguments = listOf(navArgument(Screens.Favorites.Const.ARG_TITLE, defaultStringArg())),
-    ) { _ ->
+        deepLinks = listOf(
+            navDeepLink { uriPattern = "$DEEP_LINK_SCREEN_PATTERN/${Screens.Favorites.Const.ROUTE}" }
+        )
+    ) {
         ComposedTimberD("NavGraphBuilder.favoritesScreen")
 
         val navController = LocalNavController.current
@@ -128,11 +132,6 @@ private fun defaultStringArg(isNullable: Boolean = false): NavArgumentBuilder.()
     type = NavType.StringType
     nullable = isNullable
     defaultValue = if (isNullable) null else String.EMPTY
-}
-
-private fun defaultBoolArg(): NavArgumentBuilder.() -> Unit = {
-    type = NavType.BoolType
-    defaultValue = false
 }
 
 fun NavBackStackEntry.getArgStrOrNull(argName: String) = arguments?.getString(argName)

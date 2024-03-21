@@ -14,7 +14,8 @@ class MediaMapperImp @Inject constructor() : MediaMapper {
             directMediaUrl = body.url.httpsEverywhere(),
             imageUrl = categoryEntity.image,
             title = categoryEntity.text,
-            subtitle = categoryEntity.subTitle.orEmpty()
+            subtitle = categoryEntity.subTitle.orEmpty(),
+            tuneId = categoryEntity.tuneId.orEmpty()
         )
     }
 }

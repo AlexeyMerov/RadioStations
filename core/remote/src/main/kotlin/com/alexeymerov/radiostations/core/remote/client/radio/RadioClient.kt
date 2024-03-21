@@ -7,6 +7,6 @@ interface RadioClient {
 
     suspend fun requestCategoriesByUrl(url: String): List<CategoryBody>
 
-    suspend fun requestAudioByUrl(url: String): MediaBody?
+    suspend fun requestAudioById(tuneId: String): MediaBody?
 
 }

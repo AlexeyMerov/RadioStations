@@ -52,3 +52,8 @@ fun String.base64ToBitmap(): Bitmap? = runCatching {
     val byteArray = Base64.decode(this)
     BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
 }.getOrNull()
+
+fun String.substringAfterOrNull(delimiter: String): String? {
+    val index = indexOf(delimiter)
+    return if (index == -1) null else substring(index + delimiter.length, length)
+}

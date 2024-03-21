@@ -33,6 +33,23 @@ class FakeCategoryUseCase : CategoryUseCase {
             }
     }
 
+    override suspend fun getByTuneId(tuneId: String): CategoryItemDto? {
+        val validData = CategoryItemDto(
+            id = "id",
+            url = "url",
+            subTitle = "Hello",
+            text = "Station Name",
+            type = DtoItemType.AUDIO,
+            initials = "HA",
+        )
+        return when (tuneId) {
+            VALID_ID -> validData
+            VALID_ID_IS_FAVORITE -> validData.copy(isFavorite = true)
+            VALID_ID_NO_SUBTITLE -> validData.copy(subTitle = null)
+            else -> null
+        }
+    }
+
     override suspend fun loadCategoriesByUrl(url: String) {
         if (url == VALID_URL) {
             val result = mutableListOf<CategoryItemDto>()
@@ -111,5 +128,9 @@ class FakeCategoryUseCase : CategoryUseCase {
 
     companion object {
         const val VALID_URL = "validurl"
+
+        const val VALID_ID = "VALID_ID"
+        const val VALID_ID_NO_SUBTITLE = "VALID_ID_NO_SUBTITLE"
+        const val VALID_ID_IS_FAVORITE = "VALID_ID_IS_FAVORITE"
     }
 }

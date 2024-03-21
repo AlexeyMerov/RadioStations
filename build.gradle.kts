@@ -1,5 +1,3 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-
 plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
@@ -7,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlinSerialization) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.versionsChecker) apply false
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.firebase.perf) apply false
@@ -22,10 +19,8 @@ allprojects {
             }
         }
     }
-}
 
-tasks.withType<DependencyUpdatesTask> {
-    rejectVersionIf {
-        candidate.version.lowercase().contains("alpha|beta|rc".toRegex())
+    tasks.withType(JavaCompile::class.java) {
+        options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
     }
 }

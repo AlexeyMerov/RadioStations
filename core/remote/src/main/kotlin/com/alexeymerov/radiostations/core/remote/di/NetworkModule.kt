@@ -3,6 +3,7 @@ package com.alexeymerov.radiostations.core.remote.di
 
 import android.content.Context
 import com.alexeymerov.radiostations.core.common.BuildConfig
+import com.alexeymerov.radiostations.core.common.ProjectConst
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
 import com.chuckerteam.chucker.api.ChuckerCollector
@@ -97,7 +98,7 @@ object NetworkModule {
     ): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl(ProjectConst.BASE_URL)
             .addConverterFactory(converterFactory)
             .build()
     }

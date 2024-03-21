@@ -13,8 +13,9 @@ import com.alexeymerov.radiostations.core.test.MainDispatcherRule
 import com.alexeymerov.radiostations.core.test.TestDiffCallback
 import com.alexeymerov.radiostations.core.test.TestUpdateCallback
 import com.alexeymerov.radiostations.core.test.createTestBitmap
-import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.*
-import com.google.common.truth.Truth.*
+import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewAction
+import com.alexeymerov.radiostations.feature.profile.ProfileViewModel.ViewState
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first

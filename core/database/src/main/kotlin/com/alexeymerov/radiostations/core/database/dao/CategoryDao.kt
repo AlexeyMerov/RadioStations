@@ -17,6 +17,9 @@ abstract class CategoryDao {
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_URL} = :url")
     abstract suspend fun getByUrl(url: String): CategoryEntity?
 
+    @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_TUNE_ID} = :tuneId")
+    abstract suspend fun getByTuneId(tuneId: String): CategoryEntity?
+
     @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.FIELD_PARENT_URL} = :url ORDER BY ${CategoryEntity.FIELD_POSITION} ASC")
     abstract fun getAllByParentUrl(url: String): Flow<List<CategoryEntity>>
 

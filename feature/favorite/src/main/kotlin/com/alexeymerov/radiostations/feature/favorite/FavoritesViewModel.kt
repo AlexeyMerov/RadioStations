@@ -2,6 +2,8 @@ package com.alexeymerov.radiostations.feature.favorite
 
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.viewModelScope
+import com.alexeymerov.radiostations.core.common.di.Dispatcher
+import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.favorite.FavoriteViewSettingsUseCase.ViewType
@@ -29,7 +31,7 @@ import javax.inject.Inject
 class FavoritesViewModel @Inject constructor(
     private val favoriteUseCase: FavoriteUseCase,
     private val settingsUseCase: FavoriteViewSettingsUseCase,
-    private val dispatcher: CoroutineDispatcher
+    @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     private val recentlyUnfavorited = mutableSetOf<CategoryItemDto>()

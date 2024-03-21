@@ -1,5 +1,6 @@
 package com.alexeymerov.radiostations.feature.player.widget
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -9,6 +10,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.ColorFilter
@@ -20,9 +22,11 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.CircularProgressIndicator
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.action.actionStartService
+import androidx.glance.appwidget.action.actionSendBroadcast
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -42,10 +46,11 @@ import androidx.glance.layout.wrapContentSize
 import androidx.glance.layout.wrapContentWidth
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.alexeymerov.radiostations.core.common.EMPTY
+import com.alexeymerov.radiostations.core.common.ProjectConst.DEEP_LINK_TUNE_PATTERN
 import com.alexeymerov.radiostations.core.common.base64ToBitmap
 import com.alexeymerov.radiostations.core.ui.R
 import com.alexeymerov.radiostations.feature.player.common.WidgetIntentActions
-import com.alexeymerov.radiostations.feature.player.service.PlayerService
 
 
 private val ROW_SMALL = DpSize(40.dp, 40.dp)
@@ -59,6 +64,8 @@ class PlayerWidget : GlanceAppWidget() {
         val prefTitleKey = stringPreferencesKey("title")
         val prefImageBase64 = stringPreferencesKey("imageBase64")
         val prefIsPlaying = booleanPreferencesKey("isPlaying")
+        val prefTuneId = stringPreferencesKey("tuneId")
+        val prefIsStateLoading = booleanPreferencesKey("isStateLoading")
     }
 
     override val sizeMode = SizeMode.Responsive(setOf(ROW_SMALL, ROW_MEDIUM, ROW_LARGE, ROW_EXTRA_LARGE))
@@ -82,6 +89,8 @@ private fun MainContent() {
     val image = currentState(PlayerWidget.prefImageBase64)?.base64ToBitmap()
     val showTitle = currentSize == ROW_LARGE || currentSize == ROW_EXTRA_LARGE
 
+    val tuneId = currentState(PlayerWidget.prefTuneId) ?: String.EMPTY
+
     val isPlaying = currentState(PlayerWidget.prefIsPlaying) ?: false
     val buttonOverImage = currentSize != ROW_EXTRA_LARGE
 
@@ -93,7 +102,16 @@ private fun MainContent() {
                 } else this
             }
             .fillMaxSize()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable(
+                actionStartActivity(
+                    checkNotNull(context.packageManager.getLaunchIntentForPackage(context.packageName))
+                        .apply {
+                            action = Intent.ACTION_VIEW
+                            data = "$DEEP_LINK_TUNE_PATTERN/$tuneId".toUri()
+                        }
+                )
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -117,7 +135,7 @@ private fun MainContent() {
 
         if (showTitle) {
             Spacer(GlanceModifier.width(8.dp))
-            TitleText(modifier = GlanceModifier.defaultWeight())
+            TitleText(modifier = GlanceModifier.width(currentSize.width / 2.5f))
         }
 
         if (!buttonOverImage) {
@@ -154,7 +172,6 @@ private fun TitleText(modifier: GlanceModifier = GlanceModifier) {
     Box(
         modifier = modifier
             .background(GlanceTheme.colors.background)
-            .wrapContentSize()
             .cornerRadius(8.dp)
     ) {
         Text(
@@ -179,23 +196,31 @@ private fun PlayIcon(
         modifier = modifier
             .cornerRadius(8.dp)
             .clickable(
-                actionStartService(
-                    intent = Intent(context, PlayerService::class.java).apply {
-                        action = WidgetIntentActions.PLAY_PAUSE
-                    },
-                    isForegroundService = false
-                )
+                if (isPlaying) {
+                    actionSendBroadcast(
+                        WidgetIntentActions.STOP,
+                        ComponentName(context, PlayerWidgetReceiver::class.java)
+                    )
+                } else {
+                    actionSendBroadcast(
+                        WidgetIntentActions.PLAY,
+                        ComponentName(context, PlayerWidgetReceiver::class.java)
+                    )
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            modifier = GlanceModifier,
-            provider = ImageProvider(
-                if (isPlaying) R.drawable.icon_stop else R.drawable.icon_play
-            ),
-            colorFilter = ColorFilter.tint(GlanceTheme.colors.background),
-            contentDescription = null
-        )
+        if (currentState(PlayerWidget.prefIsStateLoading) == true) {
+            CircularProgressIndicator(GlanceModifier.padding(8.dp))
+        } else {
+            Image(
+                modifier = GlanceModifier,
+                provider = ImageProvider(
+                    if (isPlaying) R.drawable.icon_stop else R.drawable.icon_play
+                ),
+                colorFilter = ColorFilter.tint(GlanceTheme.colors.background),
+                contentDescription = null
+            )
+        }
     }
-
 }

@@ -7,6 +7,8 @@ import com.alexeymerov.radiostations.core.common.ColorTheme
 import com.alexeymerov.radiostations.core.common.DarkLightMode
 import com.alexeymerov.radiostations.core.common.ThemeState
 import com.alexeymerov.radiostations.core.common.UseDynamicColor
+import com.alexeymerov.radiostations.core.common.di.Dispatcher
+import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.settings.connectivity.ConnectivitySettingsUseCase.ConnectionStatus
 import com.alexeymerov.radiostations.core.domain.usecase.settings.theme.ThemeSettingsUseCase
@@ -32,7 +34,7 @@ class SettingsViewModel @Inject constructor(
     private val themeSettings: ThemeSettingsUseCase,
     private val connectivitySettings: ConnectivitySettingsUseCase,
     private val analytics: FirebaseAnalytics,
-    private val dispatcher: CoroutineDispatcher
+    @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     private lateinit var currentThemeState: ThemeState

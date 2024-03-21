@@ -32,7 +32,8 @@ class FakeMediaRepository : MediaRepository {
         directMediaUrl = "mediaurl",
         imageUrl = "imageUrl",
         title = "title",
-        subtitle = "subtitle"
+        subtitle = "subtitle",
+        tuneId = "tuneId"
     )
 
     private var lastPlaying: MediaEntity? = null
@@ -58,7 +59,7 @@ class FakeMediaRepository : MediaRepository {
         }
     }
 
-    override suspend fun getMediaByUrl(url: String): MediaEntity? {
+    override suspend fun getMediaByTuneId(url: String): MediaEntity? {
         return if (url == VALID_MEDIA_URL) mediaEntity else null
     }
 
@@ -68,6 +69,10 @@ class FakeMediaRepository : MediaRepository {
 
     override suspend fun setLastPlayingMediaItem(item: MediaEntity) {
         lastPlaying = item
+    }
+
+    override suspend fun clearLastPlayingMediaItem() {
+        lastPlaying = null
     }
 
     companion object {

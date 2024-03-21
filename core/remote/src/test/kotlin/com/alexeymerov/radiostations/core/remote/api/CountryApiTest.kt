@@ -4,7 +4,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.remote.TestConst
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.client.country.CountryClientImpl
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerializationException
 import okhttp3.mockwebserver.MockResponse

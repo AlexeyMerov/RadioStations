@@ -1,7 +1,7 @@
 package com.alexeymerov.radiostations.core.data.repository.category
 
 
-import com.alexeymerov.radiostations.core.common.BuildConfig
+import com.alexeymerov.radiostations.core.common.ProjectConst
 import com.alexeymerov.radiostations.core.common.httpsEverywhere
 import com.alexeymerov.radiostations.core.data.mapper.category.CategoryMapper
 import com.alexeymerov.radiostations.core.data.mapper.geocoder.LocationGeocoder
@@ -24,6 +24,10 @@ class CategoryRepositoryImpl @Inject constructor(
 
     override fun getCategoriesByUrl(url: String): Flow<List<CategoryEntity>> {
         return categoryDao.getAllByParentUrl(url.prepareUrl())
+    }
+
+    override suspend fun getCategoriesByTuneId(tuneId: String): CategoryEntity? {
+        return categoryDao.getByTuneId(tuneId)
     }
 
     /**
@@ -97,6 +101,6 @@ class CategoryRepositoryImpl @Inject constructor(
     /**
      * The server is not the best. To save initial values we using base url.
      * */
-    private fun String.prepareUrl() = ifEmpty { BuildConfig.BASE_URL }.httpsEverywhere()
+    private fun String.prepareUrl() = ifEmpty { ProjectConst.BASE_URL }.httpsEverywhere()
 
 }

@@ -3,7 +3,7 @@ package com.alexeymerov.radiostations.core.domain.mapper.category
 import com.alexeymerov.radiostations.core.database.entity.CategoryEntity
 import com.alexeymerov.radiostations.core.database.entity.EntityItemType
 import com.alexeymerov.radiostations.core.dto.DtoItemType
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

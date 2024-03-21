@@ -89,7 +89,9 @@ dependencies {
     implementation(projects.feature.player.screen)
     implementation(projects.feature.player.service)
 
-    implementation(libs.work.runtime) // to avoid crash on Android 12 API 31
+    // to avoid crash on Android 12 API 31
+    // https://stackoverflow.com/questions/68473542
+    implementation(libs.androidx.work.runtime)
 
     implementation(libs.compose.activity)
     implementation(libs.compose.navigation.base)

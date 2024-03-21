@@ -13,6 +13,17 @@ class FakeCategoryRepository : CategoryRepository {
         return if (url == VALID_URL || url == ERROR_URL) flowOf(entityList) else flowOf(emptyList())
     }
 
+    override suspend fun getCategoriesByTuneId(tuneId: String): CategoryEntity? {
+        return CategoryEntity(
+            id = "id",
+            position = 0,
+            url = "",
+            parentUrl = "",
+            text = "",
+            type = EntityItemType.CATEGORY
+        )
+    }
+
     override suspend fun loadCategoriesByUrl(url: String) {
         val newData = mutableListOf<CategoryEntity>()
 

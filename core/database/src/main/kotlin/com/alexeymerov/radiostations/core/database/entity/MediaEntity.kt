@@ -12,7 +12,8 @@ data class MediaEntity(
     val imageUrl: String,
     val imageBase64: String? = null,
     val title: String,
-    val subtitle: String
+    val subtitle: String,
+    val tuneId: String? = null,
 ) {
 
     companion object {

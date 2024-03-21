@@ -56,7 +56,6 @@ import androidx.navigation.compose.rememberNavController
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
-import com.alexeymerov.radiostations.core.ui.common.LocalConnectionStatus
 import com.alexeymerov.radiostations.core.ui.common.LocalPlayerVisibility
 import com.alexeymerov.radiostations.core.ui.common.LocalSnackbar
 import com.alexeymerov.radiostations.core.ui.common.LocalTopbar
@@ -68,7 +67,7 @@ import com.alexeymerov.radiostations.core.ui.extensions.lerp
 import com.alexeymerov.radiostations.core.ui.extensions.setIf
 import com.alexeymerov.radiostations.core.ui.extensions.toPx
 import com.alexeymerov.radiostations.core.ui.navigation.Tabs
-import com.alexeymerov.radiostations.feature.player.screen.ExpandableBottomPlayer
+import com.alexeymerov.radiostations.feature.player.screen.exapandable.ExpandableBottomPlayer
 import com.alexeymerov.radiostations.presentation.MainViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -78,17 +77,10 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> { error("Na
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavGraph(
-    starDest: Tabs,
-    goToRoute: Route,
     playerState: PlayerState,
     currentMedia: AudioItemDto?,
-    isNetworkAvailable: Boolean,
     onPlayerAction: (MainViewModel.ViewAction) -> Unit
 ) {
-    LaunchedEffect(isNetworkAvailable) {
-        Timber.d("MainNavGraph - isNetworkAvailable $isNetworkAvailable")
-    }
-
     val config = LocalConfiguration.current
     val coroutineScope = rememberCoroutineScope()
     val navController = rememberNavController()
@@ -107,21 +99,21 @@ fun MainNavGraph(
         onDispose { navController.removeOnDestinationChangedListener(listener) }
     }
 
-    val bottomSheetState = rememberStandardBottomSheetState(
-        skipHiddenState = false,
-        initialValue = SheetValue.Hidden
-    )
-    val sheetScaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
-
     // sheetState works incorrect. After sheetState.hide() sheetState.isVisible can ba true on some devices
     val isPlayerVisible by remember(playerState) {
-        derivedStateOf { playerState != PlayerState.EMPTY }
+        derivedStateOf { playerState !is PlayerState.Empty }
     }
+
+    val bottomSheetState = rememberStandardBottomSheetState(
+        skipHiddenState = false,
+        initialValue = if (isPlayerVisible) SheetValue.PartiallyExpanded else SheetValue.Hidden
+    )
+
+    val sheetScaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
 
     CompositionLocalProvider(
         LocalNavController provides navController,
         LocalSnackbar provides snackbarHostState,
-        LocalConnectionStatus provides isNetworkAvailable,
         LocalPlayerVisibility provides isPlayerVisible,
         LocalTopbar provides topBarBlock
     ) {
@@ -139,16 +131,15 @@ fun MainNavGraph(
             LaunchedEffect(bottomSheetState.targetValue) {
                 Timber.d("MainNavGraph - playerSheetState targetValue ${bottomSheetState.targetValue}")
                 if (bottomSheetState.targetValue == SheetValue.PartiallyExpanded
-                    && (currentMedia == null || playerState == PlayerState.EMPTY)
+                    && (currentMedia == null || playerState is PlayerState.Empty)
                 ) {
                     bottomSheetState.hide()
                 }
             }
 
-            val railBarSize = if (config.isLandscape()) {
-                80.dp.toPx()
-            } else {
-                80.dp.toPx() + WindowInsets.navigationBars.getBottom(LocalDensity.current).toFloat()
+            val railBarSize = when {
+                config.isLandscape() -> 80.dp.toPx()
+                else -> 80.dp.toPx() + WindowInsets.navigationBars.getBottom(LocalDensity.current).toFloat()
             }
 
             var sheetFullHeightPx by remember { mutableFloatStateOf(0f) }
@@ -230,18 +221,14 @@ fun MainNavGraph(
                                 playerState = playerState,
                                 currentMedia = currentMedia,
                                 onCloseAction = {
-                                    coroutineScope.launch {
-                                        bottomSheetState.hide()
-                                    }
+                                    coroutineScope.launch { bottomSheetState.hide() }
                                     onPlayerAction.invoke(MainViewModel.ViewAction.NukePlayer)
                                 },
                                 onToggleAudio = {
                                     onPlayerAction.invoke(MainViewModel.ViewAction.ToggleAudio)
                                 },
                                 onCollapse = {
-                                    coroutineScope.launch {
-                                        bottomSheetState.partialExpand()
-                                    }
+                                    coroutineScope.launch { bottomSheetState.partialExpand() }
                                 }
                             )
                         },
@@ -258,8 +245,6 @@ fun MainNavGraph(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .graphicsScale(animData.scaleContent),
-                                        goToRoute = goToRoute,
-                                        starDest = starDest
                                     )
                                 }
                             }
@@ -270,8 +255,8 @@ fun MainNavGraph(
 
             LaunchedEffect(playerState) {
                 when {
-                    playerState == PlayerState.EMPTY && bottomSheetState.isVisible -> bottomSheetState.hide()
-                    playerState != PlayerState.EMPTY && !bottomSheetState.isVisible -> bottomSheetState.partialExpand()
+                    playerState is PlayerState.Empty && bottomSheetState.isVisible -> bottomSheetState.hide()
+                    playerState !is PlayerState.Empty && !bottomSheetState.isVisible -> bottomSheetState.partialExpand()
                 }
             }
         }
@@ -282,10 +267,8 @@ fun MainNavGraph(
 private fun CreateNavHost(
     modifier: Modifier = Modifier,
     starDest: Tabs = Tabs.Browse,
-    goToRoute: Route
 ) {
     val navController = LocalNavController.current
-
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -296,13 +279,6 @@ private fun CreateNavHost(
         browseGraph()
         favoriteGraph()
         youGraph()
-    }
-
-    LaunchedEffect(goToRoute) {
-        goToRoute.value?.let { route ->
-            Timber.d("goToRoute ## $route")
-            navController.navigate(route)
-        }
     }
 }
 
@@ -340,6 +316,3 @@ private data class CollapseExpandData(
     val onContainerColor: Color,
     val shapeCornerRadius: Dp
 )
-
-@JvmInline
-value class Route(val value: String?)

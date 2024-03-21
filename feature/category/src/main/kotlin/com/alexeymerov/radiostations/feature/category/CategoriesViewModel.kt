@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.analytics.AnalyticsEvents
 import com.alexeymerov.radiostations.core.analytics.AnalyticsParams
+import com.alexeymerov.radiostations.core.common.di.Dispatcher
+import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.category.CategoryUseCase
 import com.alexeymerov.radiostations.core.dto.CategoryDto
@@ -41,7 +43,7 @@ import javax.inject.Inject
 class CategoriesViewModel @Inject constructor(
     private val favoriteUseCase: FavoriteUseCase,
     private val categoryUseCase: CategoryUseCase,
-    private val dispatcher: CoroutineDispatcher,
+    @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher,
     savedStateHandle: SavedStateHandle,
     analytics: FirebaseAnalytics
 ) : BaseViewModel<CategoriesViewModel.ViewState, CategoriesViewModel.ViewAction, CategoriesViewModel.ViewEffect>() {

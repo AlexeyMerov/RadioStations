@@ -19,7 +19,8 @@ data class CategoryEntity(
     val currentTrack: String = String.EMPTY,
     val type: EntityItemType,
     val childCount: Int? = null,
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    var tuneId: String? = null
 ) {
 
     companion object {
@@ -30,6 +31,7 @@ data class CategoryEntity(
         const val FIELD_PARENT_URL = "parentUrl"
         const val FIELD_POSITION = "position"
         const val FIELD_FAVORITE = "isFavorite"
+        const val FIELD_TUNE_ID = "tuneId"
     }
 }
 

@@ -7,7 +7,7 @@ import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.client.radio.RadioClient
 import com.alexeymerov.radiostations.core.remote.client.radio.RadioClientImpl
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.test.runTest

@@ -5,6 +5,7 @@ import com.alexeymerov.radiostations.core.remote.response.MainBody
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Query
 import retrofit2.http.Url
 
 interface RadioApi {
@@ -15,7 +16,7 @@ interface RadioApi {
     @GET
     suspend fun getCategoriesByUrl(@Url fullUrl: String): Response<MainBody<CategoryBody>>
 
-    @GET
-    suspend fun getAudioByUrl(@Url fullUrl: String): Response<MainBody<MediaBody>>
+    @GET("/Tune.ashx")
+    suspend fun getAudioById(@Query("id") tuneId: String): Response<MainBody<MediaBody>>
 
 }

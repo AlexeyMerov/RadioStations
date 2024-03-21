@@ -82,14 +82,13 @@ fun BaseFavoriteScreen(
         viewState = viewState,
         viewEffect = viewEffect,
         inSelection = inSelection,
-        onAudioClick = {
-            if (isNetworkAvailable) {
-                val route = Screens.Player(Tabs.Favorites.route).createRoute(
-                    rawUrl = it.url,
-                    stationName = it.text
-                )
-                onNavigate.invoke(route)
-            }
+        onAudioClick = { item ->
+            item.tuneId
+                ?.takeIf { isNetworkAvailable }
+                ?.let {
+                    val route = Screens.Player(Tabs.Favorites.route).createRoute(it)
+                    onNavigate.invoke(route)
+                }
         },
         onAction = { viewModel.setAction(it) }
     )

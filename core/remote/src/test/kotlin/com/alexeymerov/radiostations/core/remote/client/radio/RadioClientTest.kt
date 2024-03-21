@@ -6,7 +6,7 @@ import com.alexeymerov.radiostations.core.remote.response.CategoryBody
 import com.alexeymerov.radiostations.core.remote.response.HeadBody
 import com.alexeymerov.radiostations.core.remote.response.MainBody
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
@@ -71,8 +71,8 @@ class RadioClientTest {
         val validTextCategoryList = listOf(
             MediaBody(url = testText),
         )
-        coEvery { radioApi.getAudioByUrl(any()) } returns Response.success(MainBody(HeadBody("200"), validTextCategoryList))
-        val mediaBody = radioClient.requestAudioByUrl("")
+        coEvery { radioApi.getAudioById(any()) } returns Response.success(MainBody(HeadBody("200"), validTextCategoryList))
+        val mediaBody = radioClient.requestAudioById("")
 
         assertThat(mediaBody).isNotNull()
         mediaBody!!
@@ -82,16 +82,16 @@ class RadioClientTest {
 
     @Test
     fun `client request audio with empty list returns null`() = runTest {
-        coEvery { radioApi.getAudioByUrl(any()) } returns Response.success(MainBody(mockk(relaxed = true), emptyList()))
-        val mediaBody = radioClient.requestAudioByUrl("")
+        coEvery { radioApi.getAudioById(any()) } returns Response.success(MainBody(mockk(relaxed = true), emptyList()))
+        val mediaBody = radioClient.requestAudioById("")
 
         assertThat(mediaBody).isNull()
     }
 
     @Test
     fun `unsuccessful client request audio returns null`() = runTest {
-        coEvery { radioApi.getAudioByUrl(any()) } returns Response.error(400, mockk(relaxed = true))
-        val mediaBody = radioClient.requestAudioByUrl("")
+        coEvery { radioApi.getAudioById(any()) } returns Response.error(400, mockk(relaxed = true))
+        val mediaBody = radioClient.requestAudioById("")
 
         assertThat(mediaBody).isNull()
     }

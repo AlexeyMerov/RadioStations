@@ -2,6 +2,8 @@ package com.alexeymerov.radiostations.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.alexeymerov.radiostations.core.common.ThemeState
+import com.alexeymerov.radiostations.core.common.di.Dispatcher
+import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.connectivity.ConnectionMonitor
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase.PlayerState
@@ -29,7 +31,7 @@ class MainViewModel @Inject constructor(
     themeSettings: ThemeSettingsUseCase,
     connectionMonitor: ConnectionMonitor,
     private val playingUseCase: PlayingUseCase,
-    private val dispatcher: CoroutineDispatcher
+    @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<ViewState, ViewAction, ViewEffect>() {
 
     val isNetworkAvailable: StateFlow<Boolean> = connectionMonitor.connectionStatusFlow
@@ -46,7 +48,7 @@ class MainViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = PlayerState.EMPTY
+            initialValue = PlayerState.Empty
         )
 
     val currentAudioItem: StateFlow<AudioItemDto?> = playingUseCase.getLastPlayingMediaItem()
@@ -63,11 +65,11 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch(dispatcher) {
             when (action) {
-                is ViewAction.PlayAudio -> playingUseCase.updatePlayerState(PlayerState.PLAYING)
-                is ViewAction.StopAudio -> playingUseCase.updatePlayerState(PlayerState.STOPPED)
+                is ViewAction.PlayAudio -> playingUseCase.updatePlayerState(PlayerState.Playing(true))
+                is ViewAction.StopAudio -> playingUseCase.updatePlayerState(PlayerState.Stopped(true))
                 is ViewAction.ToggleAudio -> playingUseCase.togglePlayerPlayStop()
                 is ViewAction.ChangeAudio -> playingUseCase.setLastPlayingMedia(action.mediaItem)
-                is ViewAction.NukePlayer -> playingUseCase.updatePlayerState(PlayerState.EMPTY)
+                is ViewAction.NukePlayer -> playingUseCase.updatePlayerState(PlayerState.Empty)
             }
         }
     }

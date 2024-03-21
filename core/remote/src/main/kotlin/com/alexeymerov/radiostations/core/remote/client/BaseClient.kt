@@ -2,7 +2,6 @@ package com.alexeymerov.radiostations.core.remote.client
 
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
 import com.alexeymerov.radiostations.core.remote.interceptor.RetryRequestInterceptor
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
@@ -11,6 +10,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Converter
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
