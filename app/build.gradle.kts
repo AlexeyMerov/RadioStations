@@ -67,6 +67,13 @@ android {
                 mappingFileUploadEnabled = true
             }
         }
+
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            matchingFallbacks += listOf("release")
+            signingConfig = signingConfigs.getByName("debug")
+            proguardFiles("benchmark-rules.pro")
+        }
     }
 
     secrets {
@@ -101,4 +108,6 @@ dependencies {
     implementation(libs.splashScreen)
 
     debugImplementation(libs.leakcanary)
+
+    implementation(libs.profileinstaller)
 }

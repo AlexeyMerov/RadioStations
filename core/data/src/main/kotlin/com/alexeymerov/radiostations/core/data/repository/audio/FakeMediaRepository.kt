@@ -59,8 +59,8 @@ class FakeMediaRepository : MediaRepository {
         }
     }
 
-    override suspend fun getMediaByTuneId(url: String): MediaEntity? {
-        return if (url == VALID_MEDIA_URL) mediaEntity else null
+    override suspend fun getMediaByTuneId(tuneId: String): MediaEntity? {
+        return if (tuneId == VALID_MEDIA_URL) mediaEntity else null
     }
 
     override fun getLastPlayingMediaItem(): Flow<MediaEntity?> {

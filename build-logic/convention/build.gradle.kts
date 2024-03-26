@@ -64,6 +64,9 @@ gradlePlugin {
             id = "radiostations.android.testing"
             implementationClass = "TestPlugin"
         }
-
+        register("androidBenchmark") {
+            id = "radiostations.android.benchmark"
+            implementationClass = "BenchmarkPlugin"
+        }
     }
 }

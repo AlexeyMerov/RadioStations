@@ -23,6 +23,7 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "RadioStations"
 include(":app")
+include(":benchmark")
 
 include(":core:common")
 include(":core:test")
