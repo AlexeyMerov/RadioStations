@@ -30,7 +30,6 @@ fierbaseCrashlyticsPlugin = "2.9.9"
 fierbasePerfPlugin = "1.4.2"
 
 maps = "4.3.1"
-chucker = "4.0.0"
 macroBenchmark = "1.2.3"
 
 [plugins]
@@ -101,18 +100,12 @@ paging-testing = { module = "androidx.paging:paging-testing", version.ref = "pag
 
 # -- Network -- #
 
-retrofit-bom = { module = "com.squareup.retrofit2:retrofit-bom", version = "2.10.0" }
-retrofit-core = { module = "com.squareup.retrofit2:retrofit" }
-retrofit-converter-kotlinxSerialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization" }
-retrofit-test = { module = "com.squareup.retrofit2:retrofit-mock" }
-
-chucker-debug = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
-chucker-release = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
-
-okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version = "4.12.0" }
-okhttp-base = { module = "com.squareup.okhttp3:okhttp" }
-okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor" }
-okhttp-test = { module = "com.squareup.okhttp3:mockwebserver" }
+ktor-bom = { module = "io.ktor:ktor-bom", version = "2.3.9" }
+ktor-core = { module = "io.ktor:ktor-client-core" }
+ktor-android = { module = "io.ktor:ktor-client-android" }
+ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+ktor-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json" }
+ktor-logging = { module = "io.ktor:ktor-client-logging" }
 
 # -- Media -- #
 
@@ -196,3 +189,4 @@ profileinstaller = { module = "androidx.profileinstaller:profileinstaller", vers
 [bundles]
 
 maps = ["maps-core", "maps-compose", "maps-utils"]
+ktor = ["ktor-core", "ktor-android", "ktor-content-negotiation", "ktor-serialization", "ktor-logging"]

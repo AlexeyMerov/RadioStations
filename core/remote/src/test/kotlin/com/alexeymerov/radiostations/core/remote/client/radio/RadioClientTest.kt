@@ -4,8 +4,8 @@ import com.alexeymerov.radiostations.core.remote.api.RadioApi
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapperImpl
 import com.alexeymerov.radiostations.core.remote.response.CategoryBody
 import com.alexeymerov.radiostations.core.remote.response.HeadBody
-import com.alexeymerov.radiostations.core.remote.response.MainBody
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
+import com.alexeymerov.radiostations.core.remote.response.RadioMainBody
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -42,7 +42,7 @@ class RadioClientTest {
             CategoryBody(text = testText),
             CategoryBody(text = "TestText2"),
         )
-        coEvery { radioApi.getCategoriesByUrl(any()) } returns Response.success(MainBody(HeadBody("200"), validTextCategoryList))
+        coEvery { radioApi.getCategoriesByUrl(any()) } returns Response.success(RadioMainBody(HeadBody("200"), validTextCategoryList))
         val categoriesList = radioClient.requestCategoriesByUrl("")
 
         assertThat(categoriesList).isNotEmpty()
@@ -51,7 +51,7 @@ class RadioClientTest {
 
     @Test
     fun `client request categories with empty list returns empty list`() = runTest {
-        coEvery { radioApi.getCategoriesByUrl(any()) } returns Response.success(MainBody(mockk(relaxed = true), emptyList()))
+        coEvery { radioApi.getCategoriesByUrl(any()) } returns Response.success(RadioMainBody(mockk(relaxed = true), emptyList()))
         val categoriesList = radioClient.requestCategoriesByUrl("")
 
         assertThat(categoriesList).isEmpty()
@@ -71,7 +71,7 @@ class RadioClientTest {
         val validTextCategoryList = listOf(
             MediaBody(url = testText),
         )
-        coEvery { radioApi.getAudioById(any()) } returns Response.success(MainBody(HeadBody("200"), validTextCategoryList))
+        coEvery { radioApi.getAudioById(any()) } returns Response.success(RadioMainBody(HeadBody("200"), validTextCategoryList))
         val mediaBody = radioClient.requestAudioById("")
 
         assertThat(mediaBody).isNotNull()
@@ -82,7 +82,7 @@ class RadioClientTest {
 
     @Test
     fun `client request audio with empty list returns null`() = runTest {
-        coEvery { radioApi.getAudioById(any()) } returns Response.success(MainBody(mockk(relaxed = true), emptyList()))
+        coEvery { radioApi.getAudioById(any()) } returns Response.success(RadioMainBody(mockk(relaxed = true), emptyList()))
         val mediaBody = radioClient.requestAudioById("")
 
         assertThat(mediaBody).isNull()

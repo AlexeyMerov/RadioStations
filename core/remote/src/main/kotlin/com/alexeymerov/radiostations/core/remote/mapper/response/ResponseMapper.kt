@@ -1,12 +1,12 @@
 package com.alexeymerov.radiostations.core.remote.mapper.response
 
-import com.alexeymerov.radiostations.core.remote.response.MainBody
-import retrofit2.Response
+import com.alexeymerov.radiostations.core.remote.response.RadioMainBody
+import io.ktor.client.statement.HttpResponse
 
 interface ResponseMapper {
 
-    fun <T> mapRadioResponseBody(body: Response<MainBody<T>>): List<T>
+    suspend fun <T> mapRadioResponseBody(response: HttpResponse, body: RadioMainBody<T>): List<T>
 
-    fun <T> mapCountriesResponseBody(body: Response<List<T>>): List<T>
+    suspend fun <T> mapCountriesResponseBody(response: HttpResponse, body: List<T>): List<T>
 
 }

@@ -3,15 +3,21 @@ package com.alexeymerov.radiostations.core.remote.client.radio
 
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.ProjectConst
-import com.alexeymerov.radiostations.core.remote.api.RadioApi
+import com.alexeymerov.radiostations.core.remote.di.Backend
+import com.alexeymerov.radiostations.core.remote.di.Server
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.core.remote.response.CategoryBody
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
+import com.alexeymerov.radiostations.core.remote.response.RadioMainBody
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import timber.log.Timber
 import javax.inject.Inject
 
 class RadioClientImpl @Inject constructor(
-    private val radioApi: RadioApi,
+    @Backend(Server.Radio) private val httpClient: HttpClient,
     private val responseMapper: ResponseMapper,
 ) : RadioClient {
 
@@ -49,8 +55,9 @@ class RadioClientImpl @Inject constructor(
     override suspend fun requestCategoriesByUrl(url: String): List<CategoryBody> {
         return try {
             val finalUrl = url.replace(ProjectConst.BASE_URL, String.EMPTY)
-            val response = radioApi.getCategoriesByUrl(finalUrl)
-            responseMapper.mapRadioResponseBody(response)
+            val response = httpClient.get(finalUrl)
+            val body = response.body<RadioMainBody<CategoryBody>>()
+            responseMapper.mapRadioResponseBody(response, body)
         } catch (e: Exception) {
             Timber.e(e)
             emptyList()
@@ -59,11 +66,16 @@ class RadioClientImpl @Inject constructor(
 
     override suspend fun requestAudioById(tuneId: String): MediaBody? {
         return try {
-            val response = radioApi.getAudioById(tuneId)
-            responseMapper.mapRadioResponseBody(response).getOrNull(0)
+            val response = httpClient.get(URL_PATH_TUNE) { parameter("id", tuneId) }
+            val body = response.body<RadioMainBody<MediaBody>>()
+            responseMapper.mapRadioResponseBody(response, body).getOrNull(0)
         } catch (e: Exception) {
             Timber.e(e)
             null
         }
+    }
+
+    private companion object {
+        const val URL_PATH_TUNE = "/Tune.ashx"
     }
 }

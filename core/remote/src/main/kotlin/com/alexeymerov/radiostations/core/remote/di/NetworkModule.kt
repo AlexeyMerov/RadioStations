@@ -1,24 +1,27 @@
 package com.alexeymerov.radiostations.core.remote.di
 
 
-import android.content.Context
 import com.alexeymerov.radiostations.core.common.BuildConfig
-import com.alexeymerov.radiostations.core.common.ProjectConst
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
-import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
-import com.chuckerteam.chucker.api.ChuckerCollector
-import com.chuckerteam.chucker.api.ChuckerInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Converter
-import retrofit2.Retrofit
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.ContentType
+import io.ktor.http.URLProtocol
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.KotlinxSerializationConverter
+import io.ktor.serialization.kotlinx.json.json
+import timber.log.Timber
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -28,95 +31,55 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJson(): Json = NetworkDefaults.getJson()
-
-    @Provides
-    @Singleton
-    fun provideMediaType(): MediaType = NetworkDefaults.getMediaType()
-
-    @Provides
-    @Singleton
-    fun provideConverterFactory(json: Json, mediaType: MediaType): Converter.Factory = NetworkDefaults.getConverterFactory(json, mediaType)
-
-    @Provides
-    @Singleton
-    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
-        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
-    }
-
-    @Provides
-    @Singleton
-    fun provideForceJsonInterceptor(): JsonResponseInterceptor = NetworkDefaults.getJsonInterceptor()
-
-    @Provides
-    @Singleton
-    fun provideChuckerInterceptor(@ApplicationContext context: Context): ChuckerInterceptor {
-        val chuckerCollector = ChuckerCollector(
-            context = context,
-            showNotification = true
-        )
-
-        val chuckerInterceptor = ChuckerInterceptor.Builder(context)
-            .collector(chuckerCollector)
-            .createShortcut(true)
-            .build()
-
-        return chuckerInterceptor
+    fun provideBaseHttpClient(): HttpClient = HttpClient(Android) {
+        install(ContentNegotiation) {
+            json(NetworkDefaults.getJson())
+            register(
+                contentType = ContentType.Audio.Any,
+                converter = KotlinxSerializationConverter(NetworkDefaults.getJson())
+            )
+        }
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 3)
+            exponentialDelay()
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 10_000
+            connectTimeoutMillis = 10_000
+            socketTimeoutMillis = 10_000
+        }
+        install(Logging) {
+            logger = Logger.TIMBER
+            level = if (BuildConfig.DEBUG) LogLevel.BODY else LogLevel.NONE
+        }
     }
 
     @Provides
     @Singleton
     @Backend(Server.Radio)
-    fun provideRadioOkHttpClient(
-        jsonResponseInterceptor: JsonResponseInterceptor,
-        loggingInterceptor: HttpLoggingInterceptor,
-        chuckerInterceptor: ChuckerInterceptor
-    ): OkHttpClient {
-        return NetworkDefaults.getOkHttpClient(
-            interceptors = arrayOf(jsonResponseInterceptor, loggingInterceptor, chuckerInterceptor)
-        )
+    fun provideRadioHttpClient(baseHttpClient: HttpClient): HttpClient = baseHttpClient.config {
+        defaultRequest {
+            contentType(ContentType.Application.Json)
+            url {
+                protocol = URLProtocol.HTTPS
+                host = NetworkDefaults.RADIO_URL_HOST
+                parameters.append(
+                    name = NetworkDefaults.QUERY_RENDER_NAME,
+                    value = NetworkDefaults.QUERY_RENDER_JSON_PARAMETER
+                )
+            }
+        }
     }
 
     @Provides
     @Singleton
     @Backend(Server.Countries)
-    fun provideCountriesOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor,
-        chuckerInterceptor: ChuckerInterceptor
-    ): OkHttpClient {
-        return NetworkDefaults.getOkHttpClient(
-            interceptors = arrayOf(loggingInterceptor, chuckerInterceptor)
-        )
+    fun provideCountriesHttpClient(baseHttpClient: HttpClient): HttpClient = baseHttpClient.config {
+        defaultRequest {
+            contentType(ContentType.Application.Json)
+            url(NetworkDefaults.COUNTRIES_URL)
+        }
     }
-
-    @Provides
-    @Singleton
-    @Backend(Server.Radio)
-    fun provideRadioRetrofit(
-        @Backend(Server.Radio) okHttpClient: OkHttpClient,
-        converterFactory: Converter.Factory
-    ): Retrofit {
-        return Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl(ProjectConst.BASE_URL)
-            .addConverterFactory(converterFactory)
-            .build()
-    }
-
-    @Provides
-    @Singleton
-    @Backend(Server.Countries)
-    fun provideCountriesRetrofit(
-        @Backend(Server.Countries) okHttpClient: OkHttpClient,
-        converterFactory: Converter.Factory
-    ): Retrofit {
-        return Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl(NetworkDefaults.COUNTRIES_URL)
-            .addConverterFactory(converterFactory)
-            .build()
-    }
-
 }
 
 @Qualifier
@@ -127,3 +90,16 @@ internal enum class Server {
     Radio,
     Countries,
 }
+
+internal val Logger.Companion.TIMBER
+    get() = object : Logger {
+        override fun log(message: String) = Timber.d(
+            "\n-------------------------" +
+                "\n--- NETWORK LOG START ---" +
+                "\n-------------------------" +
+                "\n$message" +
+                "\n-----------------------" +
+                "\n--- NETWORK LOG END ---" +
+                "\n-----------------------\n"
+        )
+    }

@@ -1,22 +1,23 @@
 package com.alexeymerov.radiostations.core.remote.mapper.response
 
-import com.alexeymerov.radiostations.core.remote.response.MainBody
-import retrofit2.Response
+import com.alexeymerov.radiostations.core.remote.response.RadioMainBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.isSuccess
 import timber.log.Timber
 import javax.inject.Inject
 
 class ResponseMapperImpl @Inject constructor() : ResponseMapper {
 
     //no error handling at the moment since uncertainty of server errors and response format
-    override fun <T> mapRadioResponseBody(body: Response<MainBody<T>>): List<T> {
+    override suspend fun <T> mapRadioResponseBody(response: HttpResponse, body: RadioMainBody<T>): List<T> {
         var errorText: String? = null
         var resultList = emptyList<T>()
-        val mainBody = body.body()
+
         when {
-            !body.isSuccessful -> errorText = body.message()
-            mainBody == null -> errorText = "Response body is null"
-            mainBody.head.status != STATUS_OK -> errorText = mainBody.head.title ?: "Response status: ${mainBody.head.status}"
-            else -> resultList = mainBody.body
+            !response.status.isSuccess() -> errorText = response.status.description
+            body.head.status != HttpStatusCode.OK.value.toString() -> errorText = body.head.title ?: "Response status: ${body.head.status}"
+            else -> resultList = body.body
         }
 
         if (errorText != null) Timber.d("mapRadioResponseBody $errorText")
@@ -24,23 +25,19 @@ class ResponseMapperImpl @Inject constructor() : ResponseMapper {
         return resultList
     }
 
-    override fun <T> mapCountriesResponseBody(body: Response<List<T>>): List<T> {
+
+    override suspend fun <T> mapCountriesResponseBody(response: HttpResponse, body: List<T>): List<T> {
         var errorText: String? = null
         var resultList = emptyList<T>()
-        val mainBody = body.body()
+
         when {
-            !body.isSuccessful -> errorText = body.message()
-            mainBody == null -> errorText = "Response body is null"
-            mainBody.isEmpty() -> errorText = "Response body is empty"
-            else -> resultList = mainBody
+            !response.status.isSuccess() -> errorText = response.status.description
+            body.isEmpty() -> errorText = "Response body is empty"
+            else -> resultList = body
         }
 
         if (errorText != null) Timber.d("mapCountriesResponseBody $errorText")
 
         return resultList
-    }
-
-    companion object {
-        const val STATUS_OK = "200"
     }
 }

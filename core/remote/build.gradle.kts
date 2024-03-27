@@ -14,17 +14,6 @@ dependencies {
 
     implementation(libs.kotlinx.serialization)
 
-    implementation(platform(libs.retrofit.bom))
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.converter.kotlinxSerialization)
-
-    implementation(platform(libs.okhttp.bom))
-    implementation(libs.okhttp.base)
-    implementation(libs.okhttp.logging)
-
-    debugImplementation(libs.chucker.debug)
-    releaseImplementation(libs.chucker.release)
-
-    testImplementation(libs.okhttp.test)
-    testImplementation(libs.retrofit.test)
+    implementation(platform(libs.ktor.bom))
+    implementation(libs.bundles.ktor)
 }

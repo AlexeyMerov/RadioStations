@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class MainBody<T>(
+data class RadioMainBody<T>(
     val head: HeadBody,
     val body: List<T>
 )

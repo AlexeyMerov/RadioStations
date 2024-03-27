@@ -5,7 +5,7 @@ import com.alexeymerov.radiostations.core.remote.response.CountryBody
 import com.alexeymerov.radiostations.core.remote.response.CountryIdd
 import com.alexeymerov.radiostations.core.remote.response.CountryName
 import com.alexeymerov.radiostations.core.remote.response.HeadBody
-import com.alexeymerov.radiostations.core.remote.response.MainBody
+import com.alexeymerov.radiostations.core.remote.response.RadioMainBody
 import com.google.common.truth.Truth.assertThat
 import io.mockk.mockk
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -31,7 +31,7 @@ class ResponseMapperTest {
         val testText = "TestText"
         val headBody = HeadBody(status = "200")
         val bodyList = listOf(CategoryBody(text = testText))
-        val mainBody = MainBody(headBody, bodyList)
+        val mainBody = RadioMainBody(headBody, bodyList)
         val body = Response.success(mainBody)
 
         val mappedData = mapper.mapRadioResponseBody(body)
@@ -46,7 +46,7 @@ class ResponseMapperTest {
         val testText = "TestText"
         val headBody = HeadBody(status = "400")
         val bodyList = listOf(CategoryBody(text = testText))
-        val mainBody = MainBody(headBody, bodyList)
+        val mainBody = RadioMainBody(headBody, bodyList)
         val body = Response.success(mainBody)
 
         val mappedData = mapper.mapRadioResponseBody(body)
@@ -56,7 +56,7 @@ class ResponseMapperTest {
 
     @Test
     fun `map radio response with null body return empty list `() {
-        val body = Response.success<MainBody<CategoryBody>?>(null)
+        val body = Response.success<RadioMainBody<CategoryBody>?>(null)
 
         val mappedData = mapper.mapRadioResponseBody(body)
 
@@ -68,7 +68,7 @@ class ResponseMapperTest {
         val contentType = "application/json".toMediaTypeOrNull()
         val json = "{\"key\":[\"nothing\"]}"
         val responseBody = json.toResponseBody(contentType)
-        val body = Response.error<MainBody<CategoryBody>>(400, responseBody)
+        val body = Response.error<RadioMainBody<CategoryBody>>(400, responseBody)
 
         val mappedData = mapper.mapRadioResponseBody(body)
 
