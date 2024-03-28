@@ -5,8 +5,8 @@ import io.ktor.client.statement.HttpResponse
 
 interface ResponseMapper {
 
-    suspend fun <T> mapRadioResponseBody(response: HttpResponse, body: RadioMainBody<T>): List<T>
+    suspend fun <T> mapRadioResponseBody(response: HttpResponse, body: RadioMainBody<T>?): List<T>
 
-    suspend fun <T> mapCountriesResponseBody(response: HttpResponse, body: List<T>): List<T>
+    suspend fun <T> mapCountriesResponseBody(response: HttpResponse, body: List<T>?): List<T>
 
 }

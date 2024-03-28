@@ -16,4 +16,6 @@ dependencies {
 
     implementation(platform(libs.ktor.bom))
     implementation(libs.bundles.ktor)
+
+    testImplementation(libs.ktor.mock)
 }

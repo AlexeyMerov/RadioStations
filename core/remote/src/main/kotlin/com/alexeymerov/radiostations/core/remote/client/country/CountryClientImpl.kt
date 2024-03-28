@@ -1,11 +1,11 @@
 package com.alexeymerov.radiostations.core.remote.client.country
 
+import com.alexeymerov.radiostations.core.remote.client.bodyOrNull
 import com.alexeymerov.radiostations.core.remote.di.Backend
 import com.alexeymerov.radiostations.core.remote.di.Server
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
 import com.alexeymerov.radiostations.core.remote.response.CountryBody
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import timber.log.Timber
@@ -19,7 +19,7 @@ class CountryClientImpl @Inject constructor(
     override suspend fun requestAllCountries(): List<CountryBody> {
         return try {
             val response = httpClient.get(URL_PATH_ALL) { parameter(QUERY_FIELDS, ALL_FIELDS) }
-            val body = response.body<List<CountryBody>>()
+            val body = response.bodyOrNull<List<CountryBody>?>()
             responseMapper.mapCountriesResponseBody(response, body)
         } catch (e: Exception) {
             Timber.e(e)

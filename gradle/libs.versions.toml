@@ -106,6 +106,7 @@ ktor-android = { module = "io.ktor:ktor-client-android" }
 ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
 ktor-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json" }
 ktor-logging = { module = "io.ktor:ktor-client-logging" }
+ktor-mock = { module = "io.ktor:ktor-client-mock" }
 
 # -- Media -- #
 

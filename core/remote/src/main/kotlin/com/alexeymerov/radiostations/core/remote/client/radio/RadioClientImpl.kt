@@ -3,6 +3,7 @@ package com.alexeymerov.radiostations.core.remote.client.radio
 
 import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.ProjectConst
+import com.alexeymerov.radiostations.core.remote.client.bodyOrNull
 import com.alexeymerov.radiostations.core.remote.di.Backend
 import com.alexeymerov.radiostations.core.remote.di.Server
 import com.alexeymerov.radiostations.core.remote.mapper.response.ResponseMapper
@@ -10,7 +11,6 @@ import com.alexeymerov.radiostations.core.remote.response.CategoryBody
 import com.alexeymerov.radiostations.core.remote.response.MediaBody
 import com.alexeymerov.radiostations.core.remote.response.RadioMainBody
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import timber.log.Timber
@@ -56,7 +56,7 @@ class RadioClientImpl @Inject constructor(
         return try {
             val finalUrl = url.replace(ProjectConst.BASE_URL, String.EMPTY)
             val response = httpClient.get(finalUrl)
-            val body = response.body<RadioMainBody<CategoryBody>>()
+            val body = response.bodyOrNull<RadioMainBody<CategoryBody>?>()
             responseMapper.mapRadioResponseBody(response, body)
         } catch (e: Exception) {
             Timber.e(e)
@@ -67,7 +67,7 @@ class RadioClientImpl @Inject constructor(
     override suspend fun requestAudioById(tuneId: String): MediaBody? {
         return try {
             val response = httpClient.get(URL_PATH_TUNE) { parameter("id", tuneId) }
-            val body = response.body<RadioMainBody<MediaBody>>()
+            val body = response.bodyOrNull<RadioMainBody<MediaBody>?>()
             responseMapper.mapRadioResponseBody(response, body).getOrNull(0)
         } catch (e: Exception) {
             Timber.e(e)

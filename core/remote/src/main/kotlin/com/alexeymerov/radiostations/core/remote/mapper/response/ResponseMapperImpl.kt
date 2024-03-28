@@ -10,12 +10,13 @@ import javax.inject.Inject
 class ResponseMapperImpl @Inject constructor() : ResponseMapper {
 
     //no error handling at the moment since uncertainty of server errors and response format
-    override suspend fun <T> mapRadioResponseBody(response: HttpResponse, body: RadioMainBody<T>): List<T> {
+    override suspend fun <T> mapRadioResponseBody(response: HttpResponse, body: RadioMainBody<T>?): List<T> {
         var errorText: String? = null
         var resultList = emptyList<T>()
 
         when {
             !response.status.isSuccess() -> errorText = response.status.description
+            body == null -> errorText = "Response body is null"
             body.head.status != HttpStatusCode.OK.value.toString() -> errorText = body.head.title ?: "Response status: ${body.head.status}"
             else -> resultList = body.body
         }
@@ -26,12 +27,13 @@ class ResponseMapperImpl @Inject constructor() : ResponseMapper {
     }
 
 
-    override suspend fun <T> mapCountriesResponseBody(response: HttpResponse, body: List<T>): List<T> {
+    override suspend fun <T> mapCountriesResponseBody(response: HttpResponse, body: List<T>?): List<T> {
         var errorText: String? = null
         var resultList = emptyList<T>()
 
         when {
             !response.status.isSuccess() -> errorText = response.status.description
+            body == null -> errorText = "Response body is null"
             body.isEmpty() -> errorText = "Response body is empty"
             else -> resultList = body
         }
