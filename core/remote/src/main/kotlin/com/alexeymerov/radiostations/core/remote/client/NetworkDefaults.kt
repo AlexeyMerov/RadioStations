@@ -16,7 +16,7 @@ import kotlin.time.toJavaDuration
 
 
 object NetworkDefaults {
-    const val COUNTRIES_URL = "https://restcountries.com/v3.1/"
+    const val COUNTRIES_URL = "https://countries.trevorblades.com/graphql"
 
     const val MEDIA_TYPE_STRING = "application/json"
 

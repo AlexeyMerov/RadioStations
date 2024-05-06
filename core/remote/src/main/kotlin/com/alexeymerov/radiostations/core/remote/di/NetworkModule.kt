@@ -6,6 +6,8 @@ import com.alexeymerov.radiostations.core.common.BuildConfig
 import com.alexeymerov.radiostations.core.common.ProjectConst
 import com.alexeymerov.radiostations.core.remote.client.NetworkDefaults
 import com.alexeymerov.radiostations.core.remote.interceptor.JsonResponseInterceptor
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.network.okHttpClient
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import dagger.Module
@@ -105,15 +107,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    @Backend(Server.Countries)
-    fun provideCountriesRetrofit(
+    fun provideApolloClient(
         @Backend(Server.Countries) okHttpClient: OkHttpClient,
-        converterFactory: Converter.Factory
-    ): Retrofit {
-        return Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl(NetworkDefaults.COUNTRIES_URL)
-            .addConverterFactory(converterFactory)
+    ): ApolloClient {
+        return ApolloClient.Builder()
+            .okHttpClient(okHttpClient)
+            .serverUrl(NetworkDefaults.COUNTRIES_URL)
             .build()
     }
 

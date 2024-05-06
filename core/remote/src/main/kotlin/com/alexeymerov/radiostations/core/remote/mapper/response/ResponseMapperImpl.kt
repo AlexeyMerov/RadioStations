@@ -1,6 +1,9 @@
 package com.alexeymerov.radiostations.core.remote.mapper.response
 
+import com.alexeymerov.radiostations.core.remote.CountriesQuery
+import com.alexeymerov.radiostations.core.remote.response.CountryBody
 import com.alexeymerov.radiostations.core.remote.response.MainBody
+import com.apollographql.apollo3.api.ApolloResponse
 import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,18 +27,22 @@ class ResponseMapperImpl @Inject constructor() : ResponseMapper {
         return resultList
     }
 
-    override fun <T> mapCountriesResponseBody(body: Response<List<T>>): List<T> {
-        var errorText: String? = null
-        var resultList = emptyList<T>()
-        val mainBody = body.body()
-        when {
-            !body.isSuccessful -> errorText = body.message()
-            mainBody == null -> errorText = "Response body is null"
-            mainBody.isEmpty() -> errorText = "Response body is empty"
-            else -> resultList = mainBody
-        }
+    override fun mapCountriesResponseBody(response: ApolloResponse<CountriesQuery.Data>): List<CountryBody> {
+        var resultList: List<CountryBody> = emptyList()
 
-        if (errorText != null) Timber.d("mapCountriesResponseBody $errorText")
+        val countries = response.data?.countries
+        when {
+            response.hasErrors() -> Timber.e(response.errors.toString())
+            countries == null -> Timber.e("Response data is null")
+            else -> resultList = countries.map {
+                CountryBody(
+                    countryCode = it.code,
+                    nameEnglish = it.name,
+                    nameNative = it.native,
+                    phoneCode = it.phone
+                )
+            }
+        }
 
         return resultList
     }

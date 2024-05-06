@@ -1,0 +1,8 @@
+query Countries {
+    countries {
+        code
+        name
+        native
+        phone
+    }
+}
