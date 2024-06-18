@@ -5,8 +5,8 @@ import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMa
 import com.alexeymerov.radiostations.core.domain.mapper.category.DtoCategoriesMapperImpl
 import com.alexeymerov.radiostations.core.domain.mapper.country.DtoCountryMapper
 import com.alexeymerov.radiostations.core.domain.mapper.country.DtoCountryMapperImpl
-import com.alexeymerov.radiostations.core.domain.usecase.audio.GetAudioItemUseCase
-import com.alexeymerov.radiostations.core.domain.usecase.audio.GetAudioItemUseCaseImpl
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCaseImpl
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCaseImpl
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
@@ -51,7 +51,7 @@ abstract class UseCaseModule {
 
     @Binds
     @Singleton
-    abstract fun bindMediaUseCase(useCase: GetAudioItemUseCaseImpl): GetAudioItemUseCase
+    abstract fun bindMediaUseCase(useCase: AudioUseCaseImpl): AudioUseCase
 
     @Binds
     @Singleton

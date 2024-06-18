@@ -11,23 +11,23 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class AudioUseCaseTest {
 
-    private lateinit var getAudioItemUseCase: GetAudioItemUseCase
+    private lateinit var useCase: AudioUseCase
 
     @Before
     fun setup() {
-        getAudioItemUseCase = GetAudioItemUseCaseImpl(FakeMediaRepository())
+        useCase = AudioUseCaseImpl(FakeMediaRepository())
     }
 
     @Test
     fun `get media with invalid url returns null`() = runTest {
-        val item = getAudioItemUseCase("")
+        val item = useCase.getMediaItem("")
 
         assertThat(item).isNull()
     }
 
     @Test
     fun `get media with valid url returns valid item`() = runTest {
-        val item = getAudioItemUseCase(FakeMediaRepository.VALID_MEDIA_URL)
+        val item = useCase.getMediaItem(FakeMediaRepository.VALID_MEDIA_URL)
 
         assertThat(item).isNotNull()
         item!!

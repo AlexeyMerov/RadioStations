@@ -2,7 +2,7 @@ package com.alexeymerov.radiostations.feature.player.screen
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexeymerov.radiostations.core.domain.usecase.audio.FakeGetAudioItemUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.FakeAudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FakeFavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.FakePlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.category.FakeCategoryUseCase
@@ -34,17 +34,17 @@ class PlayerViewModelTest {
 
     private lateinit var categoryUseCase: FakeCategoryUseCase
 
-    private lateinit var getAudioItemUseCase: FakeGetAudioItemUseCase
+    private lateinit var audioUseCase: FakeAudioUseCase
 
     private var savedStateHandle = SavedStateHandle(
-        mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeGetAudioItemUseCase.VALID_ID)
+        mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeAudioUseCase.VALID_ID)
     )
 
     @Before
     fun setup() {
         favoriteUseCase = FakeFavoriteUseCase()
         playingUseCase = FakePlayingUseCase()
-        getAudioItemUseCase = FakeGetAudioItemUseCase()
+        audioUseCase = FakeAudioUseCase()
         categoryUseCase = FakeCategoryUseCase()
 
         createViewModel()
@@ -56,14 +56,14 @@ class PlayerViewModelTest {
             favoriteUseCase = favoriteUseCase,
             playingUseCase = playingUseCase,
             categoryUseCase = categoryUseCase,
-            getAudioItemUseCase = getAudioItemUseCase,
+            audioUseCase = audioUseCase,
             dispatcher = dispatcherRule.testDispatcher
         )
     }
 
     @Test
     fun whenDataIsLoading_stateIsLoading() = runTest {
-        getAudioItemUseCase.delay = 500
+        audioUseCase.delay = 500
         createViewModel()
 
         assertThat(viewModel.viewState.first()).isInstanceOf(ViewState.Loading::class.java)
@@ -93,7 +93,7 @@ class PlayerViewModelTest {
     @Test
     fun whenNoSubtitle_fieldIsNull() = runTest {
         savedStateHandle = SavedStateHandle(
-            mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeGetAudioItemUseCase.VALID_ID_NO_SUBTITLE)
+            mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeAudioUseCase.VALID_ID_NO_SUBTITLE)
         )
         createViewModel()
 
@@ -104,7 +104,7 @@ class PlayerViewModelTest {
     @Test
     fun whenIsFavorite_fieldIsTrue() = runTest {
         savedStateHandle = SavedStateHandle(
-            mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeGetAudioItemUseCase.VALID_ID_IS_FAVORITE)
+            mapOf(Screens.Player.Const.ARG_TUNE_ID to FakeAudioUseCase.VALID_ID_IS_FAVORITE)
         )
         createViewModel()
 

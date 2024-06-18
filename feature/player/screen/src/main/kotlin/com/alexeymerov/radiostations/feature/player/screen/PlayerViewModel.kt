@@ -10,7 +10,7 @@ import com.alexeymerov.radiostations.core.common.EMPTY
 import com.alexeymerov.radiostations.core.common.di.Dispatcher
 import com.alexeymerov.radiostations.core.common.di.RadioDispatchers
 import com.alexeymerov.radiostations.core.common.toBase64
-import com.alexeymerov.radiostations.core.domain.usecase.audio.GetAudioItemUseCase
+import com.alexeymerov.radiostations.core.domain.usecase.audio.AudioUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.favorite.FavoriteUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.audio.playing.PlayingUseCase
 import com.alexeymerov.radiostations.core.domain.usecase.category.CategoryUseCase
@@ -41,7 +41,7 @@ class PlayerViewModel @Inject constructor(
     private val favoriteUseCase: FavoriteUseCase,
     private val playingUseCase: PlayingUseCase,
     private val categoryUseCase: CategoryUseCase,
-    private val getAudioItemUseCase: GetAudioItemUseCase,
+    private val audioUseCase: AudioUseCase,
     @Dispatcher(RadioDispatchers.IO) private val dispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlayerViewModel.ViewState, PlayerViewModel.ViewAction, PlayerViewModel.ViewEffect>() {
 
@@ -64,7 +64,7 @@ class PlayerViewModel @Inject constructor(
         val tuneId = checkNotNull(savedStateHandle.get<String>(Screens.Player.Const.ARG_TUNE_ID))
 
         viewModelScope.launch(dispatcher) {
-            getAudioItemUseCase(tuneId)?.let { currentItem ->
+            audioUseCase.getMediaItem(tuneId)?.let { currentItem ->
                 Timber.d("loadAudioLink $currentItem")
 
                 combine(

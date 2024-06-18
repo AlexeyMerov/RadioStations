@@ -3,11 +3,11 @@ package com.alexeymerov.radiostations.core.domain.usecase.audio
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import kotlinx.coroutines.delay
 
-class FakeGetAudioItemUseCase : GetAudioItemUseCase {
+class FakeAudioUseCase : AudioUseCase {
 
     var delay = 0L
 
-    override suspend fun invoke(tuneId: String): AudioItemDto? {
+    override suspend fun getMediaItem(tuneId: String): AudioItemDto? {
         delay(delay)
         val validData = AudioItemDto(
             parentUrl = "parenturl",

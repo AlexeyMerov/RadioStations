@@ -2,8 +2,8 @@ package com.alexeymerov.radiostations.core.domain.usecase.audio
 
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 
-interface GetAudioItemUseCase {
+interface AudioUseCase {
 
-    suspend operator fun invoke(tuneId: String): AudioItemDto?
+    suspend fun getMediaItem(tuneId: String): AudioItemDto?
 
 }
