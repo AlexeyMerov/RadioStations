@@ -5,11 +5,11 @@ import com.alexeymerov.radiostations.core.data.repository.audio.MediaRepository
 import com.alexeymerov.radiostations.core.dto.AudioItemDto
 import javax.inject.Inject
 
-class AudioUseCaseImpl @Inject constructor(
+class GetAudioItemUseCaseImpl @Inject constructor(
     private val mediaRepository: MediaRepository
-) : AudioUseCase {
+) : GetAudioItemUseCase {
 
-    override suspend fun getMediaItem(tuneId: String): AudioItemDto? {
+    override suspend fun invoke(tuneId: String): AudioItemDto? {
         val mediaEntity = mediaRepository.getMediaByTuneId(tuneId)
         return when {
             mediaEntity != null -> {
@@ -27,5 +27,4 @@ class AudioUseCaseImpl @Inject constructor(
             else -> null
         }
     }
-
 }
