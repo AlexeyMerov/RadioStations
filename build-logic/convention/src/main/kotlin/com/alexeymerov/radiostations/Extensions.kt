@@ -11,6 +11,8 @@ val Project.libs
 
 fun VersionCatalog.getLibrary(alias: String) = findLibrary(alias).get()
 
+fun VersionCatalog.getPlugin(alias: String) = findPlugin(alias).get()
+
 fun VersionCatalog.getStringVersion(alias: String) = findVersion(alias).get().toString()
 
 fun VersionCatalog.getIntVersion(alias: String) = getStringVersion(alias).toInt()

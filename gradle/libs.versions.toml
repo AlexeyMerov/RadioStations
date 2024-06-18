@@ -7,14 +7,11 @@ compileSdk = "34"
 minSdk = "26"
 targetSdk = "34"
 
-javaVersion = "17"
-kotlinLanguage = "1.9"
-composeCompiler = "1.5.8"
-
 gradle = "8.2.2"
-kotlin = "1.9.22"
+kotlin = "2.0.0"
+java = "17"
 
-ksp = "1.9.22-1.0.17"
+ksp = "2.0.0-1.0.22"
 hilt = "2.50"
 room = "2.6.1"
 exoplayer = "1.3.0"
@@ -47,6 +44,7 @@ firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "fierbasePerfPlugin" }
 gradleSecrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 baselineProfile = { id = "androidx.baselineprofile", version.ref = "macroBenchmark" }
+compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 radiostations-android-application = { id = "radiostations.android.application", version = "unspecified" }
 radiostations-android-library = { id = "radiostations.android.library", version = "unspecified" }
@@ -66,6 +64,7 @@ gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref 
 gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradlePlugin-ksp = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 gradlePlugin-firebaseCrashlytics = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "fierbaseCrashlyticsPlugin" }
+gradlePlugin-compose = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 
 # -- Core -- #
 

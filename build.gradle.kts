@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.firebase.perf) apply false
     alias(libs.plugins.gradleSecrets) apply false
     alias(libs.plugins.androidTest) apply false
+    alias(libs.plugins.compose) apply false
 }
 
 allprojects {

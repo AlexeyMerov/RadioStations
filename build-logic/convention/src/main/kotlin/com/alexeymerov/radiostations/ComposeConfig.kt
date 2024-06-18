@@ -2,19 +2,21 @@ package com.alexeymerov.radiostations
 
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
 internal fun Project.configureCompose(
     commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
+
+    with(pluginManager) {
+        apply(libs.getPlugin("compose").get().pluginId)
+    }
+
     commonExtension.apply {
         buildFeatures {
             compose = true
-        }
-
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs.getStringVersion("composeCompiler")
         }
 
         dependencies {
@@ -44,10 +46,7 @@ internal fun Project.configureCompose(
         }
     }
 
-    tasks.withType(KotlinCompile::class.java) {
-        compilerOptions.freeCompilerArgs.addAll(
-            "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
-        )
+    extensions.configure<ComposeCompilerGradlePluginExtension> {
+        enableStrongSkippingMode.set(true)
     }
 }
